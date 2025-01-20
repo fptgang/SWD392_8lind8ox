@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: "fptgang/SBA301_Freelancer"
+          repository: "fptgang/SWD392_8lind8ox"
 
       - name: Get changed files
         id: changed-files-yaml
