@@ -1,0 +1,23 @@
+RefreshTokenDto:
+  type: object
+  properties:
+    refreshTokenId:
+      type: integer
+      format: int64
+    accountId:
+      type: integer
+      format: int64
+    token:
+      type: string
+    ipAddress:
+      type: string
+    sessionId:
+      type: string
+    clientInfo:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+    expiryDate:
+      type: string
+      format: date-time

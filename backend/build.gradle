@@ -1,0 +1,120 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version "7.10.0"
+	id 'io.freefair.lombok' version "8.11"
+}
+
+group = 'com.fptgang'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(23)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir "$buildDir/generated/src/main/java"
+		}
+	}
+}
+
+openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "$rootDir/../openapi/main.yml"
+	outputDir = "$buildDir/generated"
+	apiPackage = "com.fptgang.backend.api.controller"
+	modelPackage = "com.fptgang.backend.api.model"
+	configOptions = [
+			dateLibrary: "java8",
+			interfaceOnly: "true",
+			generateSpringController: "false",
+			useSpringBoot3: "true",
+			useSpringController: "true",
+			useResponseEntity: "true",
+			useEnumCaseInsensitive: "true",
+			"openApiNullable": "false"
+	]
+	globalProperties = [
+			browserClient: 'false',
+			hideGenerationTimestamp: 'true'
+	]
+	typeMappings = [
+			"double": "java.math.BigDecimal"
+	]
+	generateModelTests = false
+	generateApiTests = false
+	generateModelDocumentation = false
+	generateApiDocumentation = false
+}
+
+compileJava.dependsOn tasks.openApiGenerate
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation("org.springframework.boot:spring-boot-starter-data-redis:3.4.1")
+	implementation 'io.swagger.parser.v3:swagger-parser:2.1.24'
+	implementation 'org.jooq:joor:0.9.15'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+	implementation 'com.google.api-client:google-api-client:2.4.0'
+	implementation 'com.resend:resend-java:3.1.0'
+	implementation 'com.azure.spring:spring-cloud-azure-starter-storage-blob:5.19.0'
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	dependencyManagement {
+		imports {
+			mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")
+		}
+	}
+	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+	testImplementation 'org.springframework.boot:spring-boot-docker-compose'
+	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:mysql'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.named('openApiGenerate') {
+	dependsOn clean
+}
+
+tasks.named { it == "generateEffectiveLombokConfig" }.configureEach {
+	dependsOn tasks.named { it == "openApiGenerate" }
+}
+
+test {
+	testLogging {
+		showStandardStreams true
+		exceptionFormat 'full'
+	}
+}

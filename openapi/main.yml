@@ -1,0 +1,39 @@
+openapi: 3.0.1
+info:
+  title: Freelance Platform API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RefreshTokenDto:
+      $ref: "model/refresh-token.yml#/RefreshTokenDto"
+
+paths:
+  /auth/me:
+    $ref: "path/auth/me.yml"
+  /auth/login-with-google:
+    $ref: "path/auth/login-with-google.yml"
+  /auth/refresh-token:
+    $ref: "path/auth/refresh-token.yml"
+  /auth/login:
+    $ref: "path/auth/login.yml"
+  /auth/register:
+    $ref: "path/auth/register.yml"
+  /auth/logout:
+    $ref: "path/auth/log-out.yml"
+  /auth/forgot-password:
+    $ref: "path/auth/forgot-password.yml"
+  /auth/reset-password:
+    $ref: "path/auth/reset-password.yml"
+  /accounts:
+    $ref: "path/account.yml"
+  /accounts/{accountId}:
+    $ref: "path/account-accountId.yml"
