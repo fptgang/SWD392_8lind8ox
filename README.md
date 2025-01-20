@@ -2,9 +2,9 @@
 
 ![Logo](./images/logo.svg)
 
-- Group: 
+- Group: 8lind8ox
 - Supervisor: LamNN15
-- Topic: 
+- Topic: Ecommerce
 
 # Members
 | Email                      | Student ID | Name             |
