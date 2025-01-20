@@ -12,7 +12,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -46,6 +48,9 @@ public class Account {
     @Column(precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) DEFAULT 0.00")
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column()
+    private LocalDateTime updateBalanceAt;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -67,4 +72,22 @@ public class Account {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account")
+    private Set<Order> orders = new HashSet<>();
+
+    @OneToMany(mappedBy = "account")
+    private Set<Notification> notifications = new HashSet<>();
+
+    @OneToMany(mappedBy = "account")
+    private Set<Video> videos = new HashSet<>();
+
+    @OneToMany(mappedBy = "account")
+    private Set<Image> images = new HashSet<>();
+
+    @OneToMany(mappedBy = "creator")
+    private Set<PromotionalCampaign> campaigns = new HashSet<>();
+
+    @OneToMany(mappedBy = "account")
+    private Set<Transaction> transactions = new HashSet<>();
 }
