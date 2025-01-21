@@ -9,8 +9,11 @@ public interface PromotionalCampaignService {
     PromotionalCampaign findById(long id);
     PromotionalCampaign update(PromotionalCampaign promotionalCampaign);
     PromotionalCampaign deleteById(long id);
-    Page<PromotionalCampaign> getAll(Pageable pageable, String filter, boolean includeInvisible);
+    Page<PromotionalCampaign> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
+    default Page<PromotionalCampaign> getAll(Pageable pageable, String filter, String search) {
+        return getAll(pageable, filter, search, false);
+    }
     default Page<PromotionalCampaign> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, false);
+        return getAll(pageable, filter, null, false);
     }
 }

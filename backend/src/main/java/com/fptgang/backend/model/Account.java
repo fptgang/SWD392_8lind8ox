@@ -1,5 +1,6 @@
 package com.fptgang.backend.model;
 
+import com.fptgang.backend.util.Searchable;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,13 +29,16 @@ public class Account {
     private Long accountId;
 
     @Column(nullable = false, unique = true)
+    @Searchable
     private String email;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
+    @Searchable
     private String firstName;
 
     @Column(columnDefinition = "NVARCHAR(255)")
     @Nullable
+    @Searchable
     private String lastName;
 
     //nullable because it is needed for google sign in

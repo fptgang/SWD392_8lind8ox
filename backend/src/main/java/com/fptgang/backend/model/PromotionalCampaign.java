@@ -1,6 +1,7 @@
 package com.fptgang.backend.model;
 
 
+import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +26,9 @@ public class PromotionalCampaign {
     @JoinColumn(name = "creator_id")
     private Account creator;
 
+    @Searchable
     private String title;
+    @Searchable
     private String description;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
