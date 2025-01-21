@@ -1,0 +1,81 @@
+
+get:
+  summary: Get a package by packageId
+  operationId: getPackageById
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: packageId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/package.yml#/PackageDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+put:
+  summary: Update an existing package
+  operationId: updatePackage
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: packageId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  requestBody:
+    description: Package to update
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../model/package.yml#/PackageDto'
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/package.yml#/PackageDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+delete:
+  summary: Delete an existing package
+  operationId: deletePackage
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: packageId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'

@@ -1,0 +1,14 @@
+CategoryDto:
+  type: object
+  properties:
+    categoryId:
+      type: integer
+      format: int32
+    name:
+      type: string
+    description:
+      type: string
+    blindBoxes:
+      type: array
+      items:
+        $ref: "blindbox.yml#/BlindBoxDto"

@@ -1,0 +1,16 @@
+NotificationDto:
+  type: object
+  properties:
+    notificationId:
+      type: integer
+      format: int32
+    accountId:
+      type: integer
+      format: int64
+    message:
+      type: string
+    createDate:
+      type: string
+      format: date-time
+    isRead:
+      type: boolean

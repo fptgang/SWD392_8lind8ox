@@ -1,0 +1,13 @@
+ImageDto:
+  type: object
+  properties:
+    imageId:
+      type: string
+    accountId:
+      type: integer
+      format: int64
+    blindBoxId:
+      type: integer
+      format: int32
+    imageURL:
+      type: string

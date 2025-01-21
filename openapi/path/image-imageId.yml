@@ -1,0 +1,77 @@
+get:
+  summary: Get an image by imageId
+  operationId: getImageById
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/image.yml#/ImageDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+put:
+  summary: Update an existing image
+  operationId: updateImage
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+  requestBody:
+    description: Image to update
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../model/image.yml#/ImageDto'
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/image.yml#/ImageDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+delete:
+  summary: Delete an existing image
+  operationId: deleteImage
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: The operation was successful
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
