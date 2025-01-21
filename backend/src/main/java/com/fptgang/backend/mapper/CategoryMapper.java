@@ -28,7 +28,7 @@ public class CategoryMapper extends BaseMapper<CategoryDto, Category> {
             Category existingCategory = existingCategoryOptional.get();
             existingCategory.setName(dto.getName() != null ? dto.getName() : existingCategory.getName());
             existingCategory.setDescription(dto.getDescription() != null ? dto.getDescription() : existingCategory.getDescription());
-
+            existingCategory.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingCategory.isVisible());
 
             return existingCategory;
         } else {
@@ -36,6 +36,7 @@ public class CategoryMapper extends BaseMapper<CategoryDto, Category> {
             entity.setCategoryId(dto.getCategoryId());
             entity.setName(dto.getName());
             entity.setDescription(dto.getDescription());
+            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
 
 
             return entity;
@@ -53,7 +54,7 @@ public class CategoryMapper extends BaseMapper<CategoryDto, Category> {
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setBlindBoxes(entity.getBlindBoxes().stream().map(blindBoxMapper::toDTO).toList());
-
+        dto.setIsVisible(entity.isVisible());
         return dto;
     }
 }

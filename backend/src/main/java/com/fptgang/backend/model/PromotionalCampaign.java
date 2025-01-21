@@ -32,7 +32,8 @@ public class PromotionalCampaign {
     private BigDecimal discountRate;
     private String code;
     private Long quantity; // -1 for infinite
-
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BlindBox> blindBoxes = new HashSet<>();
 }

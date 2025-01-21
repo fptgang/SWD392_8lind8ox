@@ -28,7 +28,8 @@ public class Order {
     @OneToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_id")
     private Transaction transaction;
-
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
     private String status;

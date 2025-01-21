@@ -21,6 +21,9 @@ public class Category {
     private String name;
     private String description;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BlindBox> blindBoxes = new HashSet<>();
 }

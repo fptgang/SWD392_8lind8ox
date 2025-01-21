@@ -37,7 +37,7 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
             existingOrder.setOrderDate(dto.getOrderDate() != null ? DateTimeUtil.fromOffsetToLocal(dto.getOrderDate()) : existingOrder.getOrderDate());
             existingOrder.setTotalAmount(dto.getTotalAmount() != null ? dto.getTotalAmount() : existingOrder.getTotalAmount());
             existingOrder.setStatus(dto.getStatus() != null ? dto.getStatus() : existingOrder.getStatus());
-
+            existingOrder.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingOrder.isVisible());
 
             return existingOrder;
         } else {
@@ -45,10 +45,11 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
             entity.setOrderId(dto.getOrderId());
             entity.setTotalAmount(dto.getTotalAmount());
             entity.setStatus(dto.getStatus());
-            if(dto.getOrderDate() != null) {
+            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
+            if (dto.getOrderDate() != null) {
                 entity.setOrderDate(DateTimeUtil.fromOffsetToLocal(dto.getOrderDate()));
             }
-            if(dto.getAccountId() != null) {
+            if (dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findById(dto.getAccountId()).get());
             }
             if (dto.getTransactionId() != null) {
@@ -73,7 +74,9 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setTransactionId(entity.getTransaction() != null ? entity.getTransaction().getTransactionId() : null);
         dto.setOrderDetails(entity.getOrderDetails().stream().map(orderDetailMapper::toDTO).toList());
-
+        dto.setIsVisible(
+                entity.isVisible()
+        );
         return dto;
     }
 }

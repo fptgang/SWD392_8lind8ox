@@ -37,6 +37,9 @@ public class BlindBox {
     private BigDecimal price;
     private String status;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
+
     @OneToMany(mappedBy = "blindBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<OrderDetail> orderDetails = new HashSet<>();
 

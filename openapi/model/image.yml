@@ -12,3 +12,5 @@ ImageDto:
       format: int64
     imageURL:
       type: string
+    isVisible:
+      type: boolean

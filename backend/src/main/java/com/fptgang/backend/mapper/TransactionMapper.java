@@ -36,6 +36,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
             existingTransaction.setPaymentMethod(dto.getPaymentMethod() != null ? dto.getPaymentMethod() : existingTransaction.getPaymentMethod());
             existingTransaction.setAmount(dto.getAmount() != null ? dto.getAmount() : existingTransaction.getAmount());
             existingTransaction.setOldBalance(dto.getOldBalance() != null ? dto.getOldBalance() : existingTransaction.getOldBalance());
+            existingTransaction.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingTransaction.isVisible());
             // Set other fields similarly
 
             return existingTransaction;
@@ -47,6 +48,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
             entity.setPaymentMethod(dto.getPaymentMethod());
             entity.setAmount(dto.getAmount());
             entity.setOldBalance(dto.getOldBalance());
+            entity.setVisible(dto.getIsVisible());
             if(dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findById(dto.getAccountId()).get());
             }
@@ -74,6 +76,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         dto.setOldBalance(entity.getOldBalance());
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
+        dto.setIsVisible(entity.isVisible());
         // Set other fields similarly
 
         return dto;

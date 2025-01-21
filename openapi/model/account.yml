@@ -17,6 +17,9 @@ AccountDto:
     balance:
       type: number
       format: double
+    updateBalanceAt:
+      type: string
+      format: date-time
     role:
       type: string
       enum: [ADMIN, STAFF, CLIENT, FREELANCER]
