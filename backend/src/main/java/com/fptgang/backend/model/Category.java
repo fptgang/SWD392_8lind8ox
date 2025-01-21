@@ -1,5 +1,6 @@
 package com.fptgang.backend.model;
 
+import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +19,9 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
+    @Searchable
     private String name;
+    @Searchable
     private String description;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

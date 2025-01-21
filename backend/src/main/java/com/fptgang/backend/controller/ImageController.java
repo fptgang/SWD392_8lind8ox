@@ -1,17 +1,12 @@
 package com.fptgang.backend.controller;
 
-import com.fptgang.backend.api.controller.AccountsApi;
 import com.fptgang.backend.api.controller.ImagesApi;
 import com.fptgang.backend.api.model.*;
-import com.fptgang.backend.mapper.AccountMapper;
 import com.fptgang.backend.model.Role;
-import com.fptgang.backend.service.AccountService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -44,8 +39,11 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<GetImages200Response> getImages(GetAccountsPageableParameter pageable, String filter) {
-        return ImagesApi.super.getImages(pageable, filter);
+    public ResponseEntity<GetImages200Response> getImages(Pageable pageable, String filter, String search) {
+        log.info("Getting images");
+        var page = OpenApiHelper.toPageable(pageable);
+        var includeInvisible = SecurityUtil.hasPermission(Role.ADMIN);
+        return OpenApiHelper.respondPage(null, GetImages200Response.class);
     }
 
     @Override

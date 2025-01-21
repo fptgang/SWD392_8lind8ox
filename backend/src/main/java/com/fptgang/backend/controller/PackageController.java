@@ -1,17 +1,12 @@
 package com.fptgang.backend.controller;
 
-import com.fptgang.backend.api.controller.AccountsApi;
 import com.fptgang.backend.api.controller.PackagesApi;
 import com.fptgang.backend.api.model.*;
-import com.fptgang.backend.mapper.AccountMapper;
 import com.fptgang.backend.model.Role;
-import com.fptgang.backend.service.AccountService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -44,8 +39,11 @@ public class PackageController implements PackagesApi{
     }
 
     @Override
-    public ResponseEntity<GetPackages200Response> getPackages(GetAccountsPageableParameter pageable, String filter) {
-        return PackagesApi.super.getPackages(pageable, filter);
+    public ResponseEntity<GetPackages200Response> getPackages(Pageable pageable, String filter, String search) {
+        log.info("Getting packages");
+        var page = OpenApiHelper.toPageable(pageable);
+        var includeInvisible = SecurityUtil.hasPermission(Role.ADMIN);
+        return OpenApiHelper.respondPage(null, GetPackages200Response.class);
     }
 
     @Override

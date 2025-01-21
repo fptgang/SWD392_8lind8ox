@@ -1,6 +1,7 @@
 package com.fptgang.backend.model;
 
 
+import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class Video {
     private BlindBox blindBox;
 
     private String url;
+    @Searchable
     private String description;
     private LocalDateTime uploadDate;
 }
