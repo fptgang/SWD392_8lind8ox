@@ -3,13 +3,13 @@ OrderDto:
   properties:
     orderId:
       type: integer
-      format: int32
+      format: int64
     accountId:
       type: integer
       format: int64
     transactionId:
       type: integer
-      format: int32
+      format: int64
     orderDate:
       type: string
       format: date-time

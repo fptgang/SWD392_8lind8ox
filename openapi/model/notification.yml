@@ -3,7 +3,7 @@ NotificationDto:
   properties:
     notificationId:
       type: integer
-      format: int32
+      format: int64
     accountId:
       type: integer
       format: int64

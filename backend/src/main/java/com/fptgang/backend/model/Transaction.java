@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,18 +16,18 @@ import java.time.LocalDateTime;
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer transactionId;
+    private Long transactionId;
 
-    @ManyToOne
+    @ManyToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
     private String type;
     private LocalDateTime dateTime;
     private String paymentMethod;
-    private Double amount;
-    private Double oldBalance;
+    private BigDecimal amount;
+    private BigDecimal oldBalance;
 
-    @OneToOne(mappedBy = "transaction")
+    @OneToOne(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Order order;
 }

@@ -12,13 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Image {
     @Id
-    private String imageId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long imageId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "blind_box_id")
     private BlindBox blindBox;
 

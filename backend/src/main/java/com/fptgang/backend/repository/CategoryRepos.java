@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CategoryRepos extends JpaRepository<Category, Integer> , JpaSpecificationExecutor<Category> {
+public interface CategoryRepos extends JpaRepository<Category, Long> , JpaSpecificationExecutor<Category> {
 }

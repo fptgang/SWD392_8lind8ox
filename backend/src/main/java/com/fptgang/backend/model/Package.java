@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,16 +18,16 @@ import java.util.Set;
 public class Package {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer packageId;
+    private Long packageId;
 
     private String name;
     private String description;
     private Integer quantity;
-    private Double price;
+    private BigDecimal price;
 
-    @OneToMany(mappedBy = "package_")
+    @OneToMany(mappedBy = "package_", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BlindBox> blindBoxes = new HashSet<>();
 
-    @OneToMany(mappedBy = "package_")
+    @OneToMany(mappedBy = "package_", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<OrderDetail> orderDetails = new HashSet<>();
 }

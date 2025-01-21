@@ -3,16 +3,16 @@ BlindBoxDto:
   properties:
     blindBoxId:
       type: integer
-      format: int32
+      format: int64
     categoryId:
       type: integer
       format: int64
     campaignId:
       type: integer
-      format: int32
+      format: int64
     packageId:
       type: integer
-      format: int32
+      format: int64
     name:
       type: string
     description:

@@ -19,9 +19,9 @@ import java.util.Set;
 public class PromotionalCampaign {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer campaignId;
+    private Long campaignId;
 
-    @ManyToOne
+    @ManyToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private Account creator;
 
@@ -33,6 +33,6 @@ public class PromotionalCampaign {
     private String code;
     private Long quantity; // -1 for infinite
 
-    @OneToMany(mappedBy = "campaign")
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BlindBox> blindBoxes = new HashSet<>();
 }
