@@ -3,13 +3,13 @@ VideoDto:
   properties:
     videoId:
       type: integer
-      format: int32
+      format: int64
     accountId:
       type: integer
       format: int64
     blindBoxId:
       type: integer
-      format: int32
+      format: int64
     url:
       type: string
     description:

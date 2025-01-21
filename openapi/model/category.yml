@@ -3,7 +3,7 @@ CategoryDto:
   properties:
     categoryId:
       type: integer
-      format: int32
+      format: int64
     name:
       type: string
     description:

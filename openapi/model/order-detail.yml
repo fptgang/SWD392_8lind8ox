@@ -3,16 +3,16 @@ OrderDetailDto:
   properties:
     orderDetailId:
       type: integer
-      format: int32
+      format: int64
     orderId:
       type: integer
-      format: int32
+      format: int64
     blindBoxId:
       type: integer
-      format: int32
+      format: int64
     packageId:
       type: integer
-      format: int32
+      format: int64
     price:
       type: number
       format: double

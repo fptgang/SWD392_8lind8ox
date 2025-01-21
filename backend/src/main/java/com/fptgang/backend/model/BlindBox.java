@@ -18,17 +18,17 @@ import java.util.Set;
 public class BlindBox {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer blindBoxId;
+    private Long blindBoxId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id")
     private PromotionalCampaign campaign;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "package_id")
     private Package package_;
 
@@ -37,12 +37,12 @@ public class BlindBox {
     private BigDecimal price;
     private String status;
 
-    @OneToMany(mappedBy = "blindBox")
+    @OneToMany(mappedBy = "blindBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<OrderDetail> orderDetails = new HashSet<>();
 
-    @OneToMany(mappedBy = "blindBox")
+    @OneToMany(mappedBy = "blindBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Video> videos = new HashSet<>();
 
-    @OneToMany(mappedBy = "blindBox")
+    @OneToMany(mappedBy = "blindBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Image> images = new HashSet<>();
 }

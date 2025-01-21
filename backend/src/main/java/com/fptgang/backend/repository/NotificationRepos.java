@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NotificationRepos extends JpaSpecificationExecutor<Notification>, JpaRepository<Notification, Integer> {
+public interface NotificationRepos extends JpaSpecificationExecutor<Notification>, JpaRepository<Notification, Long> {
 }

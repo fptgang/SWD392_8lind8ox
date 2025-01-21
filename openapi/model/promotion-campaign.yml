@@ -3,7 +3,7 @@ PromotionalCampaignDto:
   properties:
     campaignId:
       type: integer
-      format: int32
+      format: int64
     creatorId:
       type: integer
       format: int64
