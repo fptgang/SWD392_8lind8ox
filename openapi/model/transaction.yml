@@ -1,0 +1,25 @@
+TransactionDto:
+  type: object
+  properties:
+    transactionId:
+      type: integer
+      format: int32
+    accountId:
+      type: integer
+      format: int64
+    type:
+      type: string
+    dateTime:
+      type: string
+      format: date-time
+    paymentMethod:
+      type: string
+    amount:
+      type: number
+      format: double
+    oldBalance:
+      type: number
+      format: double
+    orderId:
+      type: integer
+      format: int32

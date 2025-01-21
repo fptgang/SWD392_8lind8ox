@@ -1,0 +1,31 @@
+PromotionalCampaignDto:
+  type: object
+  properties:
+    campaignId:
+      type: integer
+      format: int32
+    creatorId:
+      type: integer
+      format: int64
+    title:
+      type: string
+    description:
+      type: string
+    startDate:
+      type: string
+      format: date-time
+    endDate:
+      type: string
+      format: date-time
+    discountRate:
+      type: number
+      format: double
+    code:
+      type: string
+    quantity:
+      type: integer
+      format: int64
+    blindBoxes:
+      type: array
+      items:
+        $ref: "blindbox.yml#/BlindBoxDto"

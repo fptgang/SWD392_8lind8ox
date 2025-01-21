@@ -1,0 +1,24 @@
+OrderDto:
+  type: object
+  properties:
+    orderId:
+      type: integer
+      format: int32
+    accountId:
+      type: integer
+      format: int64
+    transactionId:
+      type: integer
+      format: int32
+    orderDate:
+      type: string
+      format: date-time
+    totalAmount:
+      type: number
+      format: double
+    status:
+      type: string
+    orderDetails:
+      type: array
+      items:
+        $ref: "order-detail.yml#/OrderDetailDto"

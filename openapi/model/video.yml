@@ -1,0 +1,19 @@
+VideoDto:
+  type: object
+  properties:
+    videoId:
+      type: integer
+      format: int32
+    accountId:
+      type: integer
+      format: int64
+    blindBoxId:
+      type: integer
+      format: int32
+    url:
+      type: string
+    description:
+      type: string
+    uploadDate:
+      type: string
+      format: date-time

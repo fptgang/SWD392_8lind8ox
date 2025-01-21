@@ -1,0 +1,22 @@
+OrderDetailDto:
+  type: object
+  properties:
+    orderDetailId:
+      type: integer
+      format: int32
+    orderId:
+      type: integer
+      format: int32
+    blindBoxId:
+      type: integer
+      format: int32
+    packageId:
+      type: integer
+      format: int32
+    price:
+      type: number
+      format: double
+    requestOpen:
+      type: boolean
+    reSell:
+      type: boolean

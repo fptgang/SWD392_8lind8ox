@@ -1,0 +1,80 @@
+get:
+  summary: Get a video by videoId
+  operationId: getVideoById
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: videoId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/video.yml#/VideoDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+put:
+  summary: Update an existing video
+  operationId: updateVideo
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: videoId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  requestBody:
+    description: Video to update
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../model/video.yml#/VideoDto'
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/video.yml#/VideoDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+delete:
+  summary: Delete an existing video
+  operationId: deleteVideo
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: videoId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'

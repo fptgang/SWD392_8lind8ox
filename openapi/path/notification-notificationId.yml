@@ -1,0 +1,80 @@
+get:
+  summary: Get a notification by notificationId
+  operationId: getNotificationById
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: notificationId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/notification.yml#/NotificationDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+put:
+  summary: Update an existing notification
+  operationId: updateNotification
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: notificationId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  requestBody:
+    description: Notification to update
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../model/notification.yml#/NotificationDto'
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/notification.yml#/NotificationDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+delete:
+  summary: Delete an existing notification
+  operationId: deleteNotification
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: notificationId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
