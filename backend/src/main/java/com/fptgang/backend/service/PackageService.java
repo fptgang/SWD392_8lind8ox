@@ -9,8 +9,11 @@ public interface PackageService {
     Package findById(long id);
     Package update(Package package_);
     Package deleteById(long id);
-    Page<Package> getAll(Pageable pageable, String filter, boolean includeInvisible);
+    Page<Package> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
+    default Page<Package> getAll(Pageable pageable, String filter, String search) {
+        return getAll(pageable, filter, search, false);
+    }
     default Page<Package> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, false);
+        return getAll(pageable, filter, null, false);
     }
 }

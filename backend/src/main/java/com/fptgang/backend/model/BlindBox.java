@@ -1,6 +1,7 @@
 package com.fptgang.backend.model;
 
 
+import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,7 +33,9 @@ public class BlindBox {
     @JoinColumn(name = "package_id")
     private Package package_;
 
+    @Searchable
     private String name;
+    @Searchable
     private String description;
     private BigDecimal price;
     private String status;

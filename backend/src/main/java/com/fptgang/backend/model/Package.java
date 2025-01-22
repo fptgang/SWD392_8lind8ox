@@ -1,6 +1,7 @@
 package com.fptgang.backend.model;
 
 
+import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,9 @@ public class Package {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long packageId;
 
+    @Searchable
     private String name;
+    @Searchable
     private String description;
     private Integer quantity;
     private BigDecimal price;

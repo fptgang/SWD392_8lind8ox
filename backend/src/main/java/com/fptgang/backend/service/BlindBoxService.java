@@ -9,8 +9,11 @@ public interface BlindBoxService {
     BlindBox findById(long id);
     BlindBox update(BlindBox blindBox);
     BlindBox deleteById(long id);
-    Page<BlindBox> getAll(Pageable pageable, String filter, boolean includeInvisible);
+    Page<BlindBox> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
+    default Page<BlindBox> getAll(Pageable pageable, String filter, String search) {
+        return getAll(pageable, filter, search, false);
+    }
     default Page<BlindBox> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, false);
+        return getAll(pageable, filter, null, false);
     }
 }

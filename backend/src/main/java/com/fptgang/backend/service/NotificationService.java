@@ -9,8 +9,11 @@ public interface NotificationService {
     Notification findById(long id);
     Notification update(Notification notification);
     Notification deleteById(long id);
-    Page<Notification> getAll(Pageable pageable, String filter, boolean includeInvisible);
+    Page<Notification> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
+    default Page<Notification> getAll(Pageable pageable, String filter, String search) {
+        return getAll(pageable, filter, search, false);
+    }
     default Page<Notification> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, false);
+        return getAll(pageable, filter, null, false);
     }
 }

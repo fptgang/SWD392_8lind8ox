@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Freelance Platform API
+  title: 8lind8box Platform API
   version: 1.0.0
 servers:
   - url: http://localhost:8080/api/v1
@@ -11,6 +11,14 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  parameters:
+    Pageable:
+      $ref: 'param/pageable.yml#/Pageable'
+    Filter:
+      $ref: 'param/filter.yml#/Filter'
+    Search:
+      $ref: 'param/search.yml#/Search'
 
   schemas:
     RefreshTokenDto:

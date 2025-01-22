@@ -9,8 +9,11 @@ public interface CategoryService {
     Category findById(long id);
     Category update(Category category);
     Category deleteById(long id);
-    Page<Category> getAll(Pageable pageable, String filter, boolean includeInvisible);
+    Page<Category> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
+    default Page<Category> getAll(Pageable pageable, String filter, String search) {
+        return getAll(pageable, filter, search, false);
+    }
     default Page<Category> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, false);
+        return getAll(pageable, filter, null, false);
     }
 }

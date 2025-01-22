@@ -9,8 +9,11 @@ public interface OrderService {
     Order findById(long id);
     Order update(Order order);
     Order deleteById(long id);
-    Page<Order> getAll(Pageable pageable, String filter, boolean includeInvisible);
+    Page<Order> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
+    default Page<Order> getAll(Pageable pageable, String filter, String search) {
+        return getAll(pageable, filter, search, false);
+    }
     default Page<Order> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, false);
+        return getAll(pageable, filter, null, false);
     }
 }

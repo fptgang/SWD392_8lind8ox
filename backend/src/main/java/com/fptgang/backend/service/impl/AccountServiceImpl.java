@@ -16,50 +16,11 @@ import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of(
-                    "accountId",
-                    "email",
-                    "firstName",
-                    "lastName",
-                    "balance",
-                    "role",
-                    "isVerified",
-                    "verifiedAt",
-                    "createdAt",
-                    "updatedAt"
-            );
-
     private final AccountRepos accountRepos;
-    private final PasswordEncoderConfig passwordEncoderConfig;
 
     @Autowired
-    public AccountServiceImpl(AccountRepos accountRepos, PasswordEncoderConfig passwordEncoderConfig) {
+    public AccountServiceImpl(AccountRepos accountRepos) {
         this.accountRepos = accountRepos;
-        this.passwordEncoderConfig = passwordEncoderConfig;
-        createTestAccount();
-    }
-
-    private void createTestAccount() {
-        for (int i = 0; i < 4; i++) {
-            if (accountRepos.findByEmail((i % 2 > 0 ? "admin" :"test") + (i/2+1) + "@example.com").isPresent()) {
-                continue;
-            }
-            createTestAccount(i);
-        }
-    }
-
-    private Account createTestAccount(Integer accountId) {
-        Account account = new Account();
-        account.setEmail((accountId % 2 > 0 ? "admin" :"test") + (accountId/2+1)  + "@example.com");
-        account.setPassword(passwordEncoderConfig.bcryptEncoder().encode("12345")   );
-        account.setVisible(true);
-        account.setBalance(BigDecimal.valueOf(0));
-        account.setVerified(false);
-        account.setRole(accountId % 2 > 0 ? Role.ADMIN : Role.CLIENT);
-        account.setFirstName("John");
-        account.setLastName(accountId % 2 > 0 ? "Admin" : "Doe");
-        return create(account);
     }
 
     @Override
@@ -94,8 +55,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Page<Account> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Account>toSpecification(filter, WHITELIST_PATHS);
+    public Page<Account> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<Account>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

@@ -9,8 +9,11 @@ public interface ImageService {
     Image findById(long id);
     Image update(Image image);
     Image deleteById(long id);
-    Page<Image> getAll(Pageable pageable, String filter, boolean includeInvisible);
+    Page<Image> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
+    default Page<Image> getAll(Pageable pageable, String filter, String search) {
+        return getAll(pageable, filter, search, false);
+    }
     default Page<Image> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, false);
+        return getAll(pageable, filter, null, false);
     }
 }
