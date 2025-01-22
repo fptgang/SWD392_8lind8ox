@@ -26,7 +26,8 @@ public class Video {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "blind_box_id")
     private BlindBox blindBox;
-
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
     private String url;
     @Searchable
     private String description;

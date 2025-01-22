@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
+
 @Service
 public class PasswordResetTokenServiceImpl implements PasswordResetTokenService {
     private static final long RESET_TOKEN_EXPIRATION = 15; // 15 minutes

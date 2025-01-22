@@ -18,6 +18,8 @@ OrderDto:
       format: double
     status:
       type: string
+    isVisible:
+      type: boolean
     orderDetails:
       type: array
       items:

@@ -27,7 +27,8 @@ public class Transaction {
     private String paymentMethod;
     private BigDecimal amount;
     private BigDecimal oldBalance;
-
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
     @OneToOne(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Order order;
 }

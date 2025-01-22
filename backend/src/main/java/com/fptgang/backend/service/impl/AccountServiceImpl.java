@@ -1,18 +1,13 @@
 package com.fptgang.backend.service.impl;
 
 import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
-import com.fptgang.backend.security.PasswordEncoderConfig;
 import com.fptgang.backend.service.AccountService;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {

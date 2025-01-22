@@ -30,7 +30,8 @@ public class OrderDetail {
     @ManyToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "package_id")
     private Package package_;
-
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
     private BigDecimal price;
     private boolean requestOpen;
     private boolean reSell;

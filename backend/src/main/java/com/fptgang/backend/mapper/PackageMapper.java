@@ -30,7 +30,7 @@ public class PackageMapper extends BaseMapper<PackageDto, Package> {
             existingPackage.setDescription(dto.getDescription() != null ? dto.getDescription() : existingPackage.getDescription());
             existingPackage.setQuantity(dto.getQuantity() != null ? dto.getQuantity() : existingPackage.getQuantity());
             existingPackage.setPrice(dto.getPrice() != null ? dto.getPrice() : existingPackage.getPrice());
-            // Set other fields similarly
+            existingPackage.setVisible( dto.getIsVisible() != null ? dto.getIsVisible() : existingPackage.isVisible());
 
             return existingPackage;
         } else {
@@ -40,7 +40,7 @@ public class PackageMapper extends BaseMapper<PackageDto, Package> {
             entity.setDescription(dto.getDescription());
             entity.setQuantity(dto.getQuantity());
             entity.setPrice(dto.getPrice());
-
+            entity.setVisible( dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
 
             return entity;
         }
@@ -59,7 +59,7 @@ public class PackageMapper extends BaseMapper<PackageDto, Package> {
         dto.setQuantity(entity.getQuantity());
         dto.setPrice(entity.getPrice());
         dto.setBlindBoxes(entity.getBlindBoxes().stream().map(blindBoxMapper::toDTO).toList());
-
+            dto.setIsVisible(entity.isVisible());
         // Set other fields similarly
 
         return dto;

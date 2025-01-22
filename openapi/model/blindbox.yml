@@ -22,6 +22,8 @@ BlindBoxDto:
       format: double
     status:
       type: string
+    isVisible:
+      type: boolean
     videos:
       type: array
       items:

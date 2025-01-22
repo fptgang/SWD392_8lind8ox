@@ -14,6 +14,8 @@ PackageDto:
     price:
       type: number
       format: double
+    isVisible:
+      type: boolean
     blindBoxes:
       type: array
       items:

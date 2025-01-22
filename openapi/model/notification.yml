@@ -14,3 +14,5 @@ NotificationDto:
       format: date-time
     isRead:
       type: boolean
+    isVisible:
+      type: boolean

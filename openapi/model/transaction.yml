@@ -23,3 +23,5 @@ TransactionDto:
     orderId:
       type: integer
       format: int64
+    isVisible:
+      type: boolean

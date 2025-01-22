@@ -17,3 +17,5 @@ VideoDto:
     uploadDate:
       type: string
       format: date-time
+    isVisible:
+      type: boolean

@@ -36,7 +36,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             existingOrderDetail.setPrice(dto.getPrice() != null ? dto.getPrice() : existingOrderDetail.getPrice());
             existingOrderDetail.setRequestOpen(dto.getRequestOpen() != null ? dto.getRequestOpen() : existingOrderDetail.isRequestOpen());
             existingOrderDetail.setReSell(dto.getReSell() != null ? dto.getReSell() : existingOrderDetail.isReSell());
-
+            existingOrderDetail.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingOrderDetail.isVisible());
 
             return existingOrderDetail;
         } else {
@@ -45,6 +45,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             entity.setPrice(dto.getPrice());
             entity.setRequestOpen(dto.getRequestOpen());
             entity.setReSell(dto.getReSell());
+            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             if(dto.getOrderId() != null) {
                 entity.setOrder(orderRepos.findById(dto.getOrderId()).get());
             }
@@ -73,7 +74,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
         dto.setPackageId(entity.getPackage_() != null ? entity.getPackage_().getPackageId() : null);
-
+        dto.setIsVisible(entity.isVisible());
         return dto;
     }
 }

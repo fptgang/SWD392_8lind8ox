@@ -42,7 +42,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             existingBlindBox.setDescription(dto.getDescription() != null ? dto.getDescription() : existingBlindBox.getDescription());
             existingBlindBox.setPrice(dto.getPrice() != null ? dto.getPrice() : existingBlindBox.getPrice());
             existingBlindBox.setStatus(dto.getStatus() != null ? dto.getStatus() : existingBlindBox.getStatus());
-
+            existingBlindBox.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingBlindBox.isVisible());
             return existingBlindBox;
         } else {
             BlindBox entity = new BlindBox();
@@ -51,6 +51,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             entity.setDescription(dto.getDescription());
             entity.setPrice(dto.getPrice());
             entity.setStatus(dto.getStatus());
+            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             if(dto.getCampaignId() != null) {
                 entity.setCampaign(promotionalCampaignRepos.findById(dto.getCampaignId()).get());
             }
@@ -82,6 +83,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         dto.setPackageId(entity.getPackage_() != null ? entity.getPackage_().getPackageId() : null);
         dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).toList());
         dto.setVideos(entity.getVideos().stream().map(videoMapper::toDTO).toList());
+        dto.setIsVisible(entity.isVisible());
         return dto;
     }
 }

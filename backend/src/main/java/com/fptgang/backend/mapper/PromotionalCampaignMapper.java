@@ -37,7 +37,7 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             existingPromotionalCampaign.setDiscountRate(dto.getDiscountRate() != null ? dto.getDiscountRate() : existingPromotionalCampaign.getDiscountRate());
             existingPromotionalCampaign.setCode(dto.getCode() != null ? dto.getCode() : existingPromotionalCampaign.getCode());
             existingPromotionalCampaign.setQuantity(dto.getQuantity() != null ? dto.getQuantity() : existingPromotionalCampaign.getQuantity());
-            // Set other fields similarly
+            existingPromotionalCampaign.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingPromotionalCampaign.isVisible());
 
             return existingPromotionalCampaign;
         } else {
@@ -50,6 +50,7 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             entity.setDiscountRate(dto.getDiscountRate());
             entity.setCode(dto.getCode());
             entity.setQuantity(dto.getQuantity());
+            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             if( dto.getCreatorId() != null ) {
                 entity.setCreator(accountRepos.findById(dto.getCreatorId()).get());
             }
@@ -76,6 +77,7 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
         dto.setQuantity(entity.getQuantity());
         dto.setCreatorId(entity.getCreator() != null ? entity.getCreator().getAccountId() : null);
         dto.setBlindBoxes(entity.getBlindBoxes().stream().map(blindBoxMapper::toDTO).toList());
+        dto.setIsVisible(entity.isVisible());
         // Set other fields similarly
 
         return dto;

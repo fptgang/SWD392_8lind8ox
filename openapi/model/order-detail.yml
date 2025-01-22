@@ -13,6 +13,8 @@ OrderDetailDto:
     packageId:
       type: integer
       format: int64
+    isVisible:
+      type: boolean
     price:
       type: number
       format: double

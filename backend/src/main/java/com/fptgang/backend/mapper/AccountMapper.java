@@ -35,7 +35,7 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
             existingAccount.setVerified(dto.getIsVerified() != null ? dto.getIsVerified() : existingAccount.isVerified());
             existingAccount.setVerifiedAt(dto.getVerifiedAt() != null ? DateTimeUtil.fromOffsetToLocal(dto.getVerifiedAt()) : existingAccount.getVerifiedAt());
             existingAccount.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingAccount.isVisible());
-
+            existingAccount.setUpdateBalanceAt(dto.getUpdateBalanceAt() != null ? DateTimeUtil.fromOffsetToLocal(dto.getUpdateBalanceAt()) : existingAccount.getUpdateBalanceAt());
             return existingAccount;
         } else {
 
@@ -68,7 +68,9 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
             if (dto.getIsVisible() != null) {
                 entity.setVisible(dto.getIsVisible());
             }
-
+            if(dto.getUpdateBalanceAt() != null) {
+                entity.setUpdateBalanceAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdateBalanceAt()));
+            }
 
             return entity;
         }
@@ -97,6 +99,7 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
         dto.setVerifiedAt(DateTimeUtil.fromLocalToOffset(entity.getVerifiedAt()));
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+        dto.setUpdateBalanceAt(DateTimeUtil.fromLocalToOffset(entity.getUpdateBalanceAt()));
 
         return dto;
     }
