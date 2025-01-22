@@ -22,3 +22,8 @@ OrderDetailDto:
       type: boolean
     reSell:
       type: boolean
+    createdDate:
+      type: string
+      format: date-time
+
+

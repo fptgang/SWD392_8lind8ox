@@ -6,10 +6,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "packages")
@@ -22,16 +25,22 @@ public class Pack {
     private Long packId;
 
     @Searchable
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
     @Searchable
+    @Column(columnDefinition = "TEXT")
     private String description;
     private Integer quantity;
     private BigDecimal price;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
+    @UpdateTimestamp
+    private LocalDateTime updatedDate;
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
     @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<BlindBox> blindBoxes = new HashSet<>();
+    private List<BlindBox> blindBoxes = new ArrayList<>();
 
     @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<OrderDetail> orderDetails = new HashSet<>();
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 }

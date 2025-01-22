@@ -29,7 +29,7 @@ public class NotificationMapper extends BaseMapper<NotificationDto, Notification
         if (existingNotificationOptional.isPresent()) {
             Notification existingNotification = existingNotificationOptional.get();
             existingNotification.setMessage(dto.getMessage() != null ? dto.getMessage() : existingNotification.getMessage());
-            existingNotification.setCreateDate(dto.getCreateDate() != null ? dto.getCreateDate().toLocalDateTime() : existingNotification.getCreateDate());
+            existingNotification.setCreatedDate(dto.getCreatedDate() != null ? dto.getCreatedDate().toLocalDateTime() : existingNotification.getCreatedDate());
             existingNotification.setRead(dto.getIsRead() != null ? dto.getIsRead() : existingNotification.isRead());
             existingNotification.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingNotification.isVisible());
             if(dto.getAccountId() != null) {
@@ -41,13 +41,15 @@ public class NotificationMapper extends BaseMapper<NotificationDto, Notification
             Notification entity = new Notification();
             entity.setNotificationId(dto.getNotificationId());
             entity.setMessage(dto.getMessage());
-            entity.setCreateDate(dto.getCreateDate().toLocalDateTime());
+            entity.setCreatedDate(dto.getCreatedDate().toLocalDateTime());
             entity.setRead(dto.getIsRead());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             if(dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findById(dto.getAccountId()).get());
             }
-
+            if(dto.getCreatedDate() != null) {
+                entity.setCreatedDate(dto.getCreatedDate().toLocalDateTime());
+            }
             return entity;
         }
     }
@@ -61,10 +63,13 @@ public class NotificationMapper extends BaseMapper<NotificationDto, Notification
         NotificationDto dto = new NotificationDto();
         dto.setNotificationId(entity.getNotificationId());
         dto.setMessage(entity.getMessage());
-        dto.setCreateDate(DateTimeUtil.fromLocalToOffset(entity.getCreateDate()));
+        dto.setCreatedDate(DateTimeUtil.fromLocalToOffset(entity.getCreatedDate()));
         dto.setIsRead(entity.isRead());
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setIsVisible(entity.isVisible());
+        if(entity.getCreatedDate() != null) {
+            dto.setCreatedDate(DateTimeUtil.fromLocalToOffset(entity.getCreatedDate()));
+        }
         return dto;
     }
 }

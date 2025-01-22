@@ -20,7 +20,7 @@ get:
                   content:
                     type: array
                     items:
-                      $ref: '../model/promotion-campaign.yml#/PromotionalCampaignDto'
+                      $ref: '../model/promotional-campaign.yml#/PromotionalCampaignDto'
     '400':
       description: The operation failed
       content:
@@ -39,14 +39,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: '../model/promotion-campaign.yml#/PromotionalCampaignDto'
+          $ref: '../model/promotional-campaign.yml#/PromotionalCampaignDto'
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/promotion-campaign.yml#/PromotionalCampaignDto'
+            $ref: '../model/promotional-campaign.yml#/PromotionalCampaignDto'
     '400':
       description: The operation failed
       content:

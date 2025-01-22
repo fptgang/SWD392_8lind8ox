@@ -16,6 +16,12 @@ PackDto:
       format: double
     isVisible:
       type: boolean
+    createdDate:
+      type: string
+      format: date-time
+    updatedDate:
+      type: string
+      format: date-time
     blindBoxes:
       type: array
       items:

@@ -55,7 +55,12 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
                 entity.setCreator(accountRepos.findById(dto.getCreatorId()).get());
             }
             // Set other fields similarly
-
+            if(dto.getCreatedDate() != null) {
+                entity.setCreatedDate(dto.getCreatedDate().toLocalDateTime());
+            }
+            if(dto.getUpdatedDate() != null) {
+                entity.setUpdatedDate(dto.getUpdatedDate().toLocalDateTime());
+            }
             return entity;
         }
     }
@@ -78,6 +83,12 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
         dto.setCreatorId(entity.getCreator() != null ? entity.getCreator().getAccountId() : null);
         dto.setBlindBoxes(entity.getBlindBoxes().stream().map(blindBoxMapper::toDTO).toList());
         dto.setIsVisible(entity.isVisible());
+        if(entity.getCreatedDate() != null) {
+            dto.setCreatedDate(DateTimeUtil.fromLocalToOffset(entity.getCreatedDate()));
+        }
+        if(entity.getUpdatedDate() != null) {
+            dto.setUpdatedDate(DateTimeUtil.fromLocalToOffset(entity.getUpdatedDate()));
+        }
         // Set other fields similarly
 
         return dto;

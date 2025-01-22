@@ -5,6 +5,7 @@ import com.fptgang.backend.model.Image;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.ImageRepos;
+import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +52,9 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
             if(dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findByAccountId(dto.getAccountId()).get());
             }
-
+            if(dto.getCreatedDate() != null) {
+                entity.setCreatedDate(dto.getCreatedDate().toLocalDateTime());
+            }
             return entity;
         }
     }
@@ -68,6 +71,9 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setIsVisible(entity.isVisible());
+        if(entity.getCreatedDate() != null) {
+            dto.setCreatedDate(DateTimeUtil.fromLocalToOffset(entity.getCreatedDate()));
+        }
         return dto;
     }
 }

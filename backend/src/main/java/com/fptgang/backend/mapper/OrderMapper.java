@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class OrderMapper extends BaseMapper<OrderDto, Order> {
@@ -38,7 +39,9 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
             existingOrder.setTotalAmount(dto.getTotalAmount() != null ? dto.getTotalAmount() : existingOrder.getTotalAmount());
             existingOrder.setStatus(dto.getStatus() != null ? dto.getStatus() : existingOrder.getStatus());
             existingOrder.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingOrder.isVisible());
-
+            if (dto.getOrderDetails() != null) {
+                existingOrder.setOrderDetails(dto.getOrderDetails().stream().map(orderDetailMapper::toEntity).collect(Collectors.toUnmodifiableList()));
+            }
             return existingOrder;
         } else {
             Order entity = new Order();
@@ -55,7 +58,12 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
             if (dto.getTransactionId() != null) {
                 entity.setTransaction(transactionRepos.findById(dto.getTransactionId()).get());
             }
-
+            if (dto.getOrderDetails() != null) {
+                entity.setOrderDetails(dto.getOrderDetails().stream().map(orderDetailMapper::toEntity).collect(Collectors.toUnmodifiableList()));
+            }
+            if(dto.getOrderDate() != null) {
+                entity.setOrderDate(dto.getOrderDate().toLocalDateTime());
+            }
             return entity;
         }
     }
@@ -73,10 +81,13 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
         dto.setStatus(entity.getStatus());
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setTransactionId(entity.getTransaction() != null ? entity.getTransaction().getTransactionId() : null);
-        dto.setOrderDetails(entity.getOrderDetails().stream().map(orderDetailMapper::toDTO).toList());
+        dto.setOrderDetails(entity.getOrderDetails().stream().map(orderDetailMapper::toDTO).collect(Collectors.toUnmodifiableList()));
         dto.setIsVisible(
                 entity.isVisible()
         );
+        if(entity.getOrderDate() != null) {
+            dto.setOrderDate(DateTimeUtil.fromLocalToOffset(entity.getOrderDate()));
+        }
         return dto;
     }
 }

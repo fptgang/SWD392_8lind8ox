@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "images")
@@ -27,5 +31,8 @@ public class Image {
     private BlindBox blindBox;
 
     private String imageURL;
+
+    @CreationTimestamp
+    private LocalDateTime createdDate;
 
 }

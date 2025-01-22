@@ -9,7 +9,7 @@ NotificationDto:
       format: int64
     message:
       type: string
-    createDate:
+    createdDate:
       type: string
       format: date-time
     isRead:
