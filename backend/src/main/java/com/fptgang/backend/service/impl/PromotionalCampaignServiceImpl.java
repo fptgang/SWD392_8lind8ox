@@ -9,12 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class PromotionalCampaignServiceImpl implements PromotionalCampaignService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of("campaignId", "title", "description", "startDate", "endDate", "discountRate", "code", "quantity", "createdAt", "updatedAt");
 
     private final PromotionalCampaignRepos promotionalCampaignRepos;
 
@@ -50,8 +46,9 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
     }
 
     @Override
-    public Page<PromotionalCampaign> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<PromotionalCampaign>toSpecification(filter, WHITELIST_PATHS);
+    public Page<PromotionalCampaign> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<PromotionalCampaign>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

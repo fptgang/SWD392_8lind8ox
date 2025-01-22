@@ -9,12 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class OrderDetailServiceImpl implements OrderDetailService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of("orderDetailId", "price", "requestOpen", "reSell", "createdAt", "updatedAt");
 
     private final OrderDetailRepos orderDetailRepos;
 
@@ -50,8 +46,9 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public Page<OrderDetail> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<OrderDetail>toSpecification(filter, WHITELIST_PATHS);
+    public Page<OrderDetail> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<OrderDetail>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

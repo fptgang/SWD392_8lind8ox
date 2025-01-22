@@ -9,12 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of("categoryId", "name", "description", "createdAt", "updatedAt");
 
     private final CategoryRepos categoryRepos;
 
@@ -50,8 +46,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Page<Category> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Category>toSpecification(filter, WHITELIST_PATHS);
+    public Page<Category> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<Category>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

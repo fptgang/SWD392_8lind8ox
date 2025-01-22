@@ -9,12 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class NotificationServiceImpl implements NotificationService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of("notificationId", "message", "createDate", "isRead");
 
     private final NotificationRepos notificationRepos;
 
@@ -50,8 +46,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Page<Notification> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Notification>toSpecification(filter, WHITELIST_PATHS);
+    public Page<Notification> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<Notification>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

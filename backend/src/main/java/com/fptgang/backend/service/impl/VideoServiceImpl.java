@@ -9,19 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class VideoServiceImpl implements VideoService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of(
-                    "videoId",
-                    "url",
-                    "description",
-                    "uploadDate",
-                    "createdAt",
-                    "updatedAt"
-            );
 
     private final VideoRepos videoRepos;
 
@@ -57,8 +46,9 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Page<Video> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Video>toSpecification(filter, WHITELIST_PATHS);
+    public Page<Video> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<Video>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

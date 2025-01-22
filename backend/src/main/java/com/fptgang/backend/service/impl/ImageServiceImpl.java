@@ -9,12 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class ImageServiceImpl implements ImageService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of("imageId", "imageURL", "createdAt", "updatedAt");
 
     private final ImageRepos imageRepos;
 
@@ -50,8 +46,9 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public Page<Image> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Image>toSpecification(filter, WHITELIST_PATHS);
+    public Page<Image> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<Image>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

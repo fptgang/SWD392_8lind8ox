@@ -9,12 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class TransactionServiceImpl implements TransactionService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of("transactionId", "type", "dateTime", "paymentMethod", "amount", "oldBalance", "createdAt", "updatedAt");
 
     private final TransactionRepos transactionRepos;
 
@@ -51,7 +47,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Page<Transaction> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Transaction>toSpecification(filter, WHITELIST_PATHS);
+        var spec = OpenApiHelper.<Transaction>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(filter));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

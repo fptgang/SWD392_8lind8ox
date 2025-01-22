@@ -9,12 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class BlindBoxServiceImpl implements BlindBoxService {
-    private static final List<String> WHITELIST_PATHS =
-            List.of("blindBoxId", "name", "description", "price", "status", "createdAt", "updatedAt");
 
     private final BlindBoxRepos blindBoxRepos;
 
@@ -50,8 +46,9 @@ public class BlindBoxServiceImpl implements BlindBoxService {
     }
 
     @Override
-    public Page<BlindBox> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<BlindBox>toSpecification(filter, WHITELIST_PATHS);
+    public Page<BlindBox> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
+        var spec = OpenApiHelper.<BlindBox>filterToSpec(filter);
+        spec = spec.and(OpenApiHelper.searchToSpec(search));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }
