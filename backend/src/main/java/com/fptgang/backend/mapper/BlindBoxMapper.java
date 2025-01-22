@@ -4,9 +4,8 @@ import com.fptgang.backend.api.model.BlindBoxDto;
 import com.fptgang.backend.model.BlindBox;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.CategoryRepos;
-import com.fptgang.backend.repository.PackageRepos;
+import com.fptgang.backend.repository.PackRepos;
 import com.fptgang.backend.repository.PromotionalCampaignRepos;
-import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +21,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
     @Autowired
     private CategoryRepos categoryRepos;
     @Autowired
-    private PackageRepos packageRepos;
+    private PackRepos packRepos;
     @Autowired
     private ImageMapper imageMapper;
     @Autowired
@@ -58,8 +57,8 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             if(dto.getCategoryId() != null) {
                 entity.setCategory(categoryRepos.findById(dto.getCategoryId()).get());
             }
-            if (dto.getPackageId() != null) {
-                entity.setPackage_(packageRepos.findById(dto.getPackageId()).get());
+            if (dto.getPackId() != null) {
+                entity.setPack(packRepos.findById(dto.getPackId()).get());
             }
 
             return entity;
@@ -80,7 +79,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         dto.setStatus(entity.getStatus());
         dto.setCampaignId(entity.getCampaign() != null ? entity.getCampaign().getCampaignId() : null);
         dto.setCategoryId(entity.getCategory() != null ? entity.getCategory().getCategoryId() : null);
-        dto.setPackageId(entity.getPackage_() != null ? entity.getPackage_().getPackageId() : null);
+        dto.setPackId(entity.getPack() != null ? entity.getPack().getPackId() : null);
         dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).toList());
         dto.setVideos(entity.getVideos().stream().map(videoMapper::toDTO).toList());
         dto.setIsVisible(entity.isVisible());

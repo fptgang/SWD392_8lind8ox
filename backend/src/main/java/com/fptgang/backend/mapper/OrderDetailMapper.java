@@ -5,7 +5,7 @@ import com.fptgang.backend.model.OrderDetail;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.OrderDetailRepos;
 import com.fptgang.backend.repository.OrderRepos;
-import com.fptgang.backend.repository.PackageRepos;
+import com.fptgang.backend.repository.PackRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
     @Autowired
     private BlindBoxRepos blindBoxRepos;
     @Autowired
-    private PackageRepos packageRepos;
+    private PackRepos packRepos;
 
     @Override
     public OrderDetail toEntity(OrderDetailDto dto) {
@@ -52,8 +52,8 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             if(dto.getBlindBoxId() != null) {
                 entity.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).get());
             }
-            if(dto.getPackageId() != null) {
-                entity.setPackage_(packageRepos.findById(dto.getPackageId()).get());
+            if(dto.getPackId() != null) {
+                entity.setPack(packRepos.findById(dto.getPackId()).get());
             }
 
             return entity;
@@ -73,7 +73,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         dto.setReSell(entity.isReSell());
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
-        dto.setPackageId(entity.getPackage_() != null ? entity.getPackage_().getPackageId() : null);
+        dto.setPackId(entity.getPack() != null ? entity.getPack().getPackId() : null);
         dto.setIsVisible(entity.isVisible());
         return dto;
     }

@@ -28,8 +28,8 @@ public class OrderDetail {
     private BlindBox blindBox;
 
     @ManyToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "package_id")
-    private Package package_;
+    @JoinColumn(name = "pack_id")
+    private Pack pack;
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
     private BigDecimal price;

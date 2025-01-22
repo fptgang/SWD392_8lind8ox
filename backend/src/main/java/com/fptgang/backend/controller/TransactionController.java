@@ -2,10 +2,13 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.TransactionsApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.TransactionMapper;
 import com.fptgang.backend.model.Role;
+import com.fptgang.backend.service.TransactionService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +20,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1")
 public class TransactionController implements TransactionsApi {
+    private final TransactionService transactionService;
+    private final TransactionMapper transactionMapper;
+
+    public TransactionController(TransactionService transactionService, TransactionMapper transactionMapper) {
+        this.transactionService = transactionService;
+        this.transactionMapper = transactionMapper;
+    }
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
@@ -25,17 +35,23 @@ public class TransactionController implements TransactionsApi {
 
     @Override
     public ResponseEntity<TransactionDto> createTransaction(TransactionDto transactionDto) {
-        return TransactionsApi.super.createTransaction(transactionDto);
+        log.info("Creating transaction");
+        ResponseEntity<TransactionDto> response = new ResponseEntity<>(transactionMapper
+                .toDTO(transactionService.create(transactionMapper.toEntity(transactionDto))), HttpStatus.CREATED);
+        return response;
     }
 
     @Override
     public ResponseEntity<Void> deleteTransaction(Integer transactionId) {
-        return TransactionsApi.super.deleteTransaction(transactionId);
+        log.info("Deleting transaction " + transactionId);
+        transactionService.deleteById(Long.valueOf(transactionId));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<TransactionDto> getTransactionById(Integer transactionId) {
-        return TransactionsApi.super.getTransactionById(transactionId);
+        log.info("Getting transaction by id " + transactionId);
+        return new ResponseEntity<>(transactionMapper.toDTO(transactionService.findById(Long.valueOf(transactionId))), HttpStatus.OK);
     }
 
     @Override
@@ -43,11 +59,13 @@ public class TransactionController implements TransactionsApi {
         log.info("Getting transactions");
         var page = OpenApiHelper.toPageable(pageable);
         var includeInvisible = SecurityUtil.hasPermission(Role.ADMIN);
-        return OpenApiHelper.respondPage(null, GetTransactions200Response.class);
+        var res = transactionService.getAll(page, filter, includeInvisible).map(transactionMapper::toDTO);
+        return OpenApiHelper.respondPage(res, GetTransactions200Response.class);
     }
 
     @Override
     public ResponseEntity<TransactionDto> updateTransaction(Integer transactionId, TransactionDto transactionDto) {
-        return TransactionsApi.super.updateTransaction(transactionId, transactionDto);
+        log.info("Updating transaction " + transactionId);
+        return ResponseEntity.ok(transactionMapper.toDTO(transactionService.update(transactionMapper.toEntity(transactionDto))));
     }
 }

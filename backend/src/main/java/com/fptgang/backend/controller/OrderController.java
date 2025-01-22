@@ -2,10 +2,13 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.OrdersApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.OrderMapper;
 import com.fptgang.backend.model.Role;
+import com.fptgang.backend.service.OrderService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +20,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1")
 public class OrderController implements OrdersApi {
+    private final OrderService orderService;
+    private final OrderMapper orderMapper;
 
+    public OrderController(OrderService orderService, OrderMapper orderMapper) {
+        this.orderService = orderService;
+        this.orderMapper = orderMapper;
+    }
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return OrdersApi.super.getRequest();
@@ -25,17 +34,23 @@ public class OrderController implements OrdersApi {
 
     @Override
     public ResponseEntity<OrderDto> createOrder(OrderDto orderDto) {
-        return OrdersApi.super.createOrder(orderDto);
+        log.info("Creating order");
+        ResponseEntity<OrderDto> response = new ResponseEntity<>(orderMapper
+                .toDTO(orderService.create(orderMapper.toEntity(orderDto))), HttpStatus.CREATED);
+        return response;
     }
 
     @Override
     public ResponseEntity<Void> deleteOrder(Integer orderId) {
-        return OrdersApi.super.deleteOrder(orderId);
+        log.info("Deleting order " + orderId);
+        orderService.deleteById(Long.valueOf(orderId));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<OrderDto> getOrderById(Integer orderId) {
-        return OrdersApi.super.getOrderById(orderId);
+        log.info("Getting order by id " + orderId);
+        return new ResponseEntity<>(orderMapper.toDTO(orderService.findById(Long.valueOf(orderId))), HttpStatus.OK);
     }
 
     @Override
@@ -43,11 +58,13 @@ public class OrderController implements OrdersApi {
         log.info("Getting orders");
         var page = OpenApiHelper.toPageable(pageable);
         var includeInvisible = SecurityUtil.hasPermission(Role.ADMIN);
-        return OpenApiHelper.respondPage(null, GetOrders200Response.class);
+        var res = orderService.getAll(page, filter, search, includeInvisible).map(orderMapper::toDTO);
+        return OpenApiHelper.respondPage(res, GetOrders200Response.class);
     }
 
     @Override
     public ResponseEntity<OrderDto> updateOrder(Integer orderId, OrderDto orderDto) {
-        return OrdersApi.super.updateOrder(orderId, orderDto);
+        log.info("Updating order " + orderId);
+        return ResponseEntity.ok(orderMapper.toDTO(orderService.update(orderMapper.toEntity(orderDto))));
     }
 }

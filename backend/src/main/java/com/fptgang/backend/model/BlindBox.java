@@ -30,8 +30,8 @@ public class BlindBox {
     private PromotionalCampaign campaign;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "package_id")
-    private Package package_;
+    @JoinColumn(name = "pack_id")
+    private Pack pack;
 
     @Searchable
     private String name;

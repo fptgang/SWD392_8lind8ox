@@ -16,10 +16,10 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Package {
+public class Pack {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long packageId;
+    private Long packId;
 
     @Searchable
     private String name;
@@ -29,9 +29,9 @@ public class Package {
     private BigDecimal price;
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
-    @OneToMany(mappedBy = "package_", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BlindBox> blindBoxes = new HashSet<>();
 
-    @OneToMany(mappedBy = "package_", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<OrderDetail> orderDetails = new HashSet<>();
 }

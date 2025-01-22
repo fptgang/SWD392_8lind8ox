@@ -28,7 +28,7 @@ components:
     OrderDetailDto:
       $ref: "model/order-detail.yml#/OrderDetailDto"
     PackageDto:
-      $ref: "model/package.yml#/PackageDto"
+      $ref: "model/pack.yml#/PackDto"
     NotificationDto:
       $ref: "model/notification.yml#/NotificationDto"
     BlindBoxDto:
@@ -81,10 +81,10 @@ paths:
     $ref: "path/transaction.yml"
   /transactions/{transactionId}:
     $ref: "path/transaction-transactionId.yml"
-  /packages:
-    $ref: "path/package.yml"
-  /packages/{packageId}:
-    $ref: "path/package-packageId.yml"
+  /packs:
+    $ref: "path/pack.yml"
+  /packs/{packId}:
+    $ref: "path/pack-packId.yml"
   /videos:
     $ref: "path/video.yml"
   /videos/{videoId}:
