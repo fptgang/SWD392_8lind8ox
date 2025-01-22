@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +25,9 @@ public class Notification {
     private Account account;
 
     @Searchable
+    @Column(columnDefinition = "TEXT")
     private String message;
-    private LocalDateTime createDate;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
     private boolean isRead;
 }

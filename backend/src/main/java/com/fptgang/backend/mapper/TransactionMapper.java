@@ -77,6 +77,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
         dto.setIsVisible(entity.isVisible());
+
         // Set other fields similarly
 
         return dto;

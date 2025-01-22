@@ -6,10 +6,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "blind_boxes")
@@ -34,21 +37,28 @@ public class BlindBox {
     private Pack pack;
 
     @Searchable
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
     @Searchable
+    @Column(columnDefinition = "TEXT")
     private String description;
     private BigDecimal price;
     private String status;
+
+    @CreationTimestamp
+    private LocalDateTime createdDate;
+    @UpdateTimestamp
+    private LocalDateTime updatedDate;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
 
     @OneToMany(mappedBy = "blindBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<OrderDetail> orderDetails = new HashSet<>();
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 
     @OneToMany(mappedBy = "blindBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Video> videos = new HashSet<>();
+    private List<Video> videos = new ArrayList<>();
 
     @OneToMany(mappedBy = "blindBox", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Image> images = new HashSet<>();
+    private List<Image> images = new ArrayList<>();
 }

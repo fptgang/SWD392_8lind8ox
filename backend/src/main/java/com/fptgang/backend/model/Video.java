@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +31,10 @@ public class Video {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
     private String url;
+
     @Searchable
+    @Column(columnDefinition = "TEXT")
     private String description;
+    @CreationTimestamp
     private LocalDateTime uploadDate;
 }

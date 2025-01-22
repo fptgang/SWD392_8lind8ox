@@ -51,6 +51,9 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             if(dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findById(dto.getAccountId()).get());
             }
+            if(dto.getUploadDate() != null) {
+                entity.setUploadDate(DateTimeUtil.fromOffsetToLocal(dto.getUploadDate()));
+            }
             // Set other fields similarly
 
             return entity;
@@ -71,6 +74,9 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setIsVisible(entity.isVisible());
+        if(entity.getUploadDate() != null) {
+            dto.setUploadDate(DateTimeUtil.fromLocalToOffset(entity.getUploadDate()));
+        }
         // Set other fields similarly
 
         return dto;

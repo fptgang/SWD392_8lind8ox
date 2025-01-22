@@ -1,16 +1,21 @@
 package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.BlindBoxDto;
+import com.fptgang.backend.api.model.ImageDto;
 import com.fptgang.backend.model.BlindBox;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.CategoryRepos;
 import com.fptgang.backend.repository.PackRepos;
 import com.fptgang.backend.repository.PromotionalCampaignRepos;
+import com.fptgang.backend.util.DateTimeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
 
@@ -60,6 +65,12 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             if (dto.getPackId() != null) {
                 entity.setPack(packRepos.findById(dto.getPackId()).get());
             }
+            if(dto.getCreatedDate() != null) {
+                entity.setCreatedDate(dto.getCreatedDate().toLocalDateTime());
+            }
+            if(dto.getUpdatedDate() != null) {
+                entity.setUpdatedDate(dto.getUpdatedDate().toLocalDateTime());
+            }
 
             return entity;
         }
@@ -70,7 +81,6 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         if (entity == null) {
             return null;
         }
-
         BlindBoxDto dto = new BlindBoxDto();
         dto.setBlindBoxId(entity.getBlindBoxId());
         dto.setName(entity.getName());
@@ -80,6 +90,13 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         dto.setCampaignId(entity.getCampaign() != null ? entity.getCampaign().getCampaignId() : null);
         dto.setCategoryId(entity.getCategory() != null ? entity.getCategory().getCategoryId() : null);
         dto.setPackId(entity.getPack() != null ? entity.getPack().getPackId() : null);
+        if(entity.getCreatedDate() != null) {
+            dto.setCreatedDate(DateTimeUtil.fromLocalToOffset(entity.getCreatedDate()));
+        }
+        if(entity.getUpdatedDate() != null) {
+            dto.setUpdatedDate(DateTimeUtil.fromLocalToOffset(entity.getUpdatedDate()));
+        }
+
         dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).toList());
         dto.setVideos(entity.getVideos().stream().map(videoMapper::toDTO).toList());
         dto.setIsVisible(entity.isVisible());

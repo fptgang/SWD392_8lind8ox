@@ -6,6 +6,7 @@ import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.OrderDetailRepos;
 import com.fptgang.backend.repository.OrderRepos;
 import com.fptgang.backend.repository.PackRepos;
+import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +56,9 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             if(dto.getPackId() != null) {
                 entity.setPack(packRepos.findById(dto.getPackId()).get());
             }
-
+            if(dto.getCreatedDate() != null) {
+                entity.setCreatedDate(dto.getCreatedDate().toLocalDateTime());
+            }
             return entity;
         }
     }
@@ -75,6 +78,9 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
         dto.setPackId(entity.getPack() != null ? entity.getPack().getPackId() : null);
         dto.setIsVisible(entity.isVisible());
+        if(entity.getCreatedDate() != null) {
+            dto.setCreatedDate(DateTimeUtil.fromLocalToOffset(entity.getCreatedDate()));
+        }
         return dto;
     }
 }

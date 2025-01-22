@@ -13,9 +13,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Data
@@ -78,20 +78,21 @@ public class Account {
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Order> orders = new HashSet<>();
+    private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Notification> notifications = new HashSet<>();
+    private List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Video> videos = new HashSet<>();
+    private List<Video> videos = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Image> images = new HashSet<>();
+    private List<Image> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<PromotionalCampaign> campaigns = new HashSet<>();
+    private List<PromotionalCampaign> campaigns = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Transaction> transactions = new HashSet<>();
+    private List<Transaction> transactions = new ArrayList<>();
+
 }

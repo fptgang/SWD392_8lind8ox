@@ -1,6 +1,7 @@
 package com.fptgang.backend.controller;
 
-import com.fptgang.backend.api.controller.PromotionCampaignsApi;
+import com.fptgang.backend.api.controller.PromotionalCampaignsApi;
+import com.fptgang.backend.api.controller.PromotionalCampaignsApi;
 import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.PromotionalCampaignMapper;
 import com.fptgang.backend.model.Role;
@@ -20,20 +21,20 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")
-public class PromotionController implements PromotionCampaignsApi{
+public class CampaignController implements PromotionalCampaignsApi {
 
     private final PromotionalCampaignService promotionCampaignService;
     private final PromotionalCampaignMapper promotionCampaignMapper;
 
     @Autowired
-    public PromotionController(PromotionalCampaignMapper promotionCampaignMapper, PromotionalCampaignService promotionCampaignService) {
+    public CampaignController(PromotionalCampaignMapper promotionCampaignMapper, PromotionalCampaignService promotionCampaignService) {
         this.promotionCampaignService = promotionCampaignService;
         this.promotionCampaignMapper = promotionCampaignMapper;
     }
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
-        return PromotionCampaignsApi.super.getRequest();
+        return PromotionalCampaignsApi.super.getRequest();
     }
     @Override
     public ResponseEntity<PromotionalCampaignDto> createPromotionalCampaign(PromotionalCampaignDto promotionalCampaignDto) {

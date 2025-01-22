@@ -34,7 +34,7 @@ components:
     BlindBoxDto:
       $ref: "model/blindbox.yml#/BlindBoxDto"
     PromotionCampaignDto:
-      $ref: "model/promotion-campaign.yml#/PromotionalCampaignDto"
+      $ref: "model/promotional-campaign.yml#/PromotionalCampaignDto"
     VideoDto:
       $ref: "model/video.yml#/VideoDto"
     CategoryDto:
@@ -101,7 +101,7 @@ paths:
     $ref: "path/order-detail.yml"
   /order-details/{orderDetailId}:
     $ref: "path/order-detail-orderDetailId.yml"
-  /promotion-campaigns:
-    $ref: "path/promotion-campaign.yml"
-  /promotion-campaigns/{campaignId}:
-    $ref: "path/promotion-campaign-campaignId.yml"
+  /promotional-campaigns:
+    $ref: "path/promotional-campaign.yml"
+  /promotional-campaigns/{campaignId}:
+    $ref: "path/promotional-campaign-campaignId.yml"

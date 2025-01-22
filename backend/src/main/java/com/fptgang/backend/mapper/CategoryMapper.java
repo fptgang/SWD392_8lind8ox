@@ -3,6 +3,7 @@ package com.fptgang.backend.mapper;
 import com.fptgang.backend.api.model.CategoryDto;
 import com.fptgang.backend.model.Category;
 import com.fptgang.backend.repository.CategoryRepos;
+import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,12 @@ public class CategoryMapper extends BaseMapper<CategoryDto, Category> {
             entity.setName(dto.getName());
             entity.setDescription(dto.getDescription());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
-
+            if(dto.getCreatedDate() != null) {
+                entity.setCreatedDate(dto.getCreatedDate().toLocalDateTime());
+            }
+            if(dto.getUpdatedDate() != null) {
+                entity.setUpdatedDate(dto.getUpdatedDate().toLocalDateTime());
+            }
 
             return entity;
         }
@@ -54,6 +60,12 @@ public class CategoryMapper extends BaseMapper<CategoryDto, Category> {
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setBlindBoxes(entity.getBlindBoxes().stream().map(blindBoxMapper::toDTO).toList());
+        if(entity.getCreatedDate() != null) {
+            dto.setCreatedDate(DateTimeUtil.fromLocalToOffset(entity.getCreatedDate()));
+        }
+        if(entity.getUpdatedDate() != null) {
+            dto.setUpdatedDate(DateTimeUtil.fromLocalToOffset(entity.getUpdatedDate()));
+        }
         dto.setIsVisible(entity.isVisible());
         return dto;
     }

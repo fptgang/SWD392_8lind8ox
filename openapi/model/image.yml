@@ -14,3 +14,7 @@ ImageDto:
       type: string
     isVisible:
       type: boolean
+    createdDate:
+      type: string
+      format: date-time
+

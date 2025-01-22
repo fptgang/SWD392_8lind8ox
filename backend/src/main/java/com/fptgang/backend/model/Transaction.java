@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "transactions")
@@ -23,6 +25,7 @@ public class Transaction {
     private Account account;
 
     private String type;
+    @CreationTimestamp
     private LocalDateTime dateTime;
     private String paymentMethod;
     private BigDecimal amount;
@@ -31,4 +34,9 @@ public class Transaction {
     private boolean isVisible = true;
     @OneToOne(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Order order;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(transactionId);
+    }
 }
