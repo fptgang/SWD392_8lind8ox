@@ -48,7 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Page<Transaction> getAll(Pageable pageable, String filter, boolean includeInvisible) {
         var spec = OpenApiHelper.<Transaction>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(filter));
+//        spec = spec.and(OpenApiHelper.searchToSpec(filter));
         if (!includeInvisible) {
             spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
         }

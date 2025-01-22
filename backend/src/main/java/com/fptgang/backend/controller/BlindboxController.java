@@ -2,10 +2,14 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.BlindBoxesApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.BlindBoxMapper;
 import com.fptgang.backend.model.Role;
+import com.fptgang.backend.service.BlindBoxService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +22,16 @@ import java.util.Optional;
 @RequestMapping("/api/v1")
 public class BlindboxController implements BlindBoxesApi {
 
+    private final BlindBoxService blindBoxService;
+    private final BlindBoxMapper blindBoxMapper;
+
+    @Autowired
+    public BlindboxController(BlindBoxMapper blindBoxMapper, BlindBoxService blindBoxService) {
+        this.blindBoxService = blindBoxService;
+        this.blindBoxMapper = blindBoxMapper;
+    }
+
+
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return BlindBoxesApi.super.getRequest();
@@ -25,7 +39,9 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<BlindBoxDto> createBlindBox(BlindBoxDto blindBoxDto) {
-        return BlindBoxesApi.super.createBlindBox(blindBoxDto);
+        ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
+                .toDTO(blindBoxService.create(blindBoxMapper.toEntity(blindBoxDto))), HttpStatus.CREATED);
+        return response;
     }
 
     @Override
@@ -35,7 +51,9 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<BlindBoxDto> getBlindBoxById(Integer blindBoxId) {
-        return BlindBoxesApi.super.getBlindBoxById(blindBoxId);
+        ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
+                .toDTO(blindBoxService.findById(Long.valueOf(blindBoxId))), HttpStatus.OK);
+        return response;
     }
 
     @Override
@@ -43,11 +61,16 @@ public class BlindboxController implements BlindBoxesApi {
         log.info("Getting blindboxes");
         var page = OpenApiHelper.toPageable(pageable);
         var includeInvisible = SecurityUtil.hasPermission(Role.ADMIN);
-        return OpenApiHelper.respondPage(null, GetBlindBoxes200Response.class);
+        var res = blindBoxService
+                .getAll(page, filter, search, includeInvisible)
+                .map(blindBoxMapper::toDTO);
+        return OpenApiHelper.respondPage(res, GetBlindBoxes200Response.class);
     }
 
     @Override
     public ResponseEntity<BlindBoxDto> updateBlindBox(Integer blindBoxId, BlindBoxDto blindBoxDto) {
-        return BlindBoxesApi.super.updateBlindBox(blindBoxId, blindBoxDto);
+        ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
+                .toDTO(blindBoxService.update(blindBoxMapper.toEntity(blindBoxDto))), HttpStatus.OK);
+        return response;
     }
 }

@@ -1,7 +1,7 @@
-PackageDto:
+PackDto:
   type: object
   properties:
-    packageId:
+    packId:
       type: integer
       format: int64
     name:

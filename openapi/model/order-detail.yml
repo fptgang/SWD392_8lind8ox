@@ -10,7 +10,7 @@ OrderDetailDto:
     blindBoxId:
       type: integer
       format: int64
-    packageId:
+    packId:
       type: integer
       format: int64
     isVisible:
