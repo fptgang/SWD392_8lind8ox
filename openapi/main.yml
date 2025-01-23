@@ -37,8 +37,8 @@ components:
       $ref: "model/promotional-campaign.yml#/PromotionalCampaignDto"
     VideoDto:
       $ref: "model/video.yml#/VideoDto"
-    CategoryDto:
-      $ref: "model/category.yml#/CategoryDto"
+    BrandDto:
+      $ref: "model/brand.yml#/BrandDto"
     ImageDto:
       $ref: "model/image.yml#/ImageDto"
     OrderDto:
@@ -69,10 +69,10 @@ paths:
     $ref: "path/blindbox.yml"
   /blind-boxes/{blindBoxId}:
     $ref: "path/blindbox-blindboxId.yml"
-  /categories:
-    $ref: "path/category.yml"
-  /categories/{categoryId}:
-    $ref: "path/category-categoryId.yml"
+  /brands:
+    $ref: "path/brand.yml"
+  /brands/{brandId}:
+    $ref: "path/brand-brandId.yml"
   /orders:
     $ref: "path/order.yml"
   /orders/{orderId}:

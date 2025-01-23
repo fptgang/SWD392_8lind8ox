@@ -20,7 +20,7 @@ get:
                   content:
                     type: array
                     items:
-                      $ref: '../model/category.yml#/CategoryDto'
+                      $ref: '../model/brand.yml#/BrandDto'
     '400':
       description: The operation failed
       content:
@@ -29,24 +29,24 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 post:
-  summary: Create a category
-  operationId: createCategory
+  summary: Create a brand
+  operationId: createBrand
   security:
     - bearerAuth: []
   requestBody:
-    description: Category to create
+    description: Brand to create
     required: true
     content:
       application/json:
         schema:
-          $ref: '../model/category.yml#/CategoryDto'
+          $ref: '../model/brand.yml#/BrandDto'
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/category.yml#/CategoryDto'
+            $ref: '../model/brand.yml#/BrandDto'
     '400':
       description: The operation failed
       content:

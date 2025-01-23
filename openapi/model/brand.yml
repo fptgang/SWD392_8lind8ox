@@ -1,7 +1,7 @@
-CategoryDto:
+BrandDto:
   type: object
   properties:
-    categoryId:
+    brandId:
       type: integer
       format: int64
     name:
@@ -10,10 +10,10 @@ CategoryDto:
       type: string
     isVisible:
       type: boolean
-    createdDate:
+    createdAt:
       type: string
       format: date-time
-    updatedDate:
+    updatedAt:
       type: string
       format: date-time
     blindBoxes:
