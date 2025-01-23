@@ -1,40 +1,6 @@
 BlindBoxDto:
-  type: object
-  properties:
-    blindBoxId:
-      type: integer
-      format: int64
-    categoryId:
-      type: integer
-      format: int64
-    campaignId:
-      type: integer
-      format: int64
-    packId:
-      type: integer
-      format: int64
-    name:
-      type: string
-    description:
-      type: string
-    price:
-      type: number
-      format: double
-    status:
-      type: string
-    isVisible:
-      type: boolean
-    createdDate:
-      type: string
-      format: date-time
-    updatedDate:
-      type: string
-      format: date-time
-    videos:
-      type: array
-      items:
-        $ref: "video.yml#/VideoDto"
-    images:
-      type: array
-      items:
-        $ref: "image.yml#/ImageDto"
+  allOf:
+    - $ref: 'product.yml#/ProductDto'
+    - type: object
+      properties:
+      # Add any additional properties specific to BlindBoxDto here

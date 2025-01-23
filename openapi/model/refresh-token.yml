@@ -15,9 +15,6 @@ RefreshTokenDto:
       type: string
     clientInfo:
       type: string
-    createdAt:
-      type: string
-      format: date-time
     expiryDate:
       type: string
       format: date-time

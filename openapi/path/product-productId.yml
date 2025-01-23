@@ -1,22 +1,22 @@
 get:
-  summary: Get an order detail by orderDetailId
-  operationId: getOrderDetailById
+  summary: Get a product by productId
+  operationId: getProductById
   security:
     - bearerAuth: []
   parameters:
-    - name: orderDetailId
+    - name: productId
       in: path
       required: true
       schema:
         type: integer
-        format: int64  # Modified to int64 since orderDetailId is Long in the model
+        format: int64  # Updated to int64 for consistency with the model
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/order-detail.yml#/OrderDetailDto'
+            $ref: '../model/product.yml#/ProductDto'
     '400':
       description: The operation failed
       content:
@@ -25,31 +25,31 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 put:
-  summary: Update an existing order detail
-  operationId: updateOrderDetail
+  summary: Update an existing product
+  operationId: updateProduct
   security:
     - bearerAuth: []
   parameters:
-    - name: orderDetailId
+    - name: productId
       in: path
       required: true
       schema:
         type: integer
-        format: int64  # Modified to int64 for consistency with the model
+        format: int64  # Updated to int64 for consistency with the model
   requestBody:
-    description: OrderDetail to update
+    description: Product to update
     required: true
     content:
       application/json:
         schema:
-          $ref: '../model/order-detail.yml#/OrderDetailDto'
+          $ref: '../model/product.yml#/ProductDto'
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/order-detail.yml#/OrderDetailDto'
+            $ref: '../model/product.yml#/ProductDto'
     '400':
       description: The operation failed
       content:
@@ -58,17 +58,17 @@ put:
             $ref: '../component/error.yml#/ErrorResponse'
 
 delete:
-  summary: Delete an existing order detail
-  operationId: deleteOrderDetail
+  summary: Delete an existing product
+  operationId: deleteProduct
   security:
     - bearerAuth: []
   parameters:
-    - name: orderDetailId
+    - name: productId
       in: path
       required: true
       schema:
         type: integer
-        format: int64  # Modified to int64
+        format: int64  # Updated to int64 for consistency with the model
   responses:
     '200':
       description: The operation was successful
