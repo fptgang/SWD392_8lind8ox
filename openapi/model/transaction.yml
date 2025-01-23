@@ -9,19 +9,24 @@ TransactionDto:
       format: int64
     type:
       type: string
+      enum: [DEPOSIT, WITHDRAW, ORDER, PAYOUT]
+    paymentMethod:
+      type: string
+      enum: [PAYPAL, VNPAY]
     dateTime:
       type: string
       format: date-time
-    paymentMethod:
-      type: string
     amount:
       type: number
       format: double
     oldBalance:
       type: number
       format: double
+    newBalance:
+      type: number
+      format: double
     orderId:
       type: integer
       format: int64
-    isVisible:
+    success:
       type: boolean

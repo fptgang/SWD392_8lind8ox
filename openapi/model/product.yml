@@ -1,27 +1,27 @@
-PromotionalCampaignDto:
+ProductDto:
   type: object
   properties:
-    campaignId:
+    productId:
       type: integer
       format: int64
-    creatorId:
+    type:
+      type: string
+      enum:
+        - BLIND_BOX
+        - PACK
+    brandId:
       type: integer
       format: int64
-    title:
+    name:
       type: string
     description:
       type: string
-    startDate:
-      type: string
-      format: date-time
-    endDate:
-      type: string
-      format: date-time
-    discountRate:
+    currentPrice:
       type: number
       format: double
-    promoCode:
-      type: string
+    promotionalCampaignId:
+      type: integer
+      format: int64
     isVisible:
       type: boolean
     createdAt:
@@ -30,7 +30,7 @@ PromotionalCampaignDto:
     updatedAt:
       type: string
       format: date-time
-    products:
+    images:
       type: array
       items:
-        $ref: "product.yml#/ProductDto"
+        $ref: "image.yml#/ImageDto"

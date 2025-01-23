@@ -9,7 +9,7 @@ get:
       required: true
       schema:
         type: integer
-        format: int32
+        format: int64  # Updated to int64 to match the `campaignId` in the DTO
   responses:
     '200':
       description: The operation was successful
@@ -35,7 +35,7 @@ put:
       required: true
       schema:
         type: integer
-        format: int32
+        format: int64  # Updated to int64 for consistency with the `campaignId`
   requestBody:
     description: PromotionalCampaign to update
     required: true
@@ -68,7 +68,7 @@ delete:
       required: true
       schema:
         type: integer
-        format: int32
+        format: int64  # Updated to int64 for consistency with the `campaignId`
   responses:
     '200':
       description: The operation was successful

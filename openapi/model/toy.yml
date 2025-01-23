@@ -1,22 +1,23 @@
-CategoryDto:
+ToyDto:
   type: object
   properties:
-    categoryId:
+    toyId:
       type: integer
       format: int64
     name:
       type: string
     description:
       type: string
+    rarity:
+      type: string
+      enum:
+        - REGULAR
+        - SECRET
     isVisible:
       type: boolean
-    createdDate:
+    createdAt:
       type: string
       format: date-time
-    updatedDate:
+    updatedAt:
       type: string
       format: date-time
-    blindBoxes:
-      type: array
-      items:
-        $ref: "blindbox.yml#/BlindBoxDto"

@@ -37,13 +37,18 @@ components:
       $ref: "model/promotional-campaign.yml#/PromotionalCampaignDto"
     VideoDto:
       $ref: "model/video.yml#/VideoDto"
-    CategoryDto:
-      $ref: "model/category.yml#/CategoryDto"
+    BrandDto:
+      $ref: "model/brand.yml#/BrandDto"
     ImageDto:
       $ref: "model/image.yml#/ImageDto"
     OrderDto:
       $ref: "model/order.yml#/OrderDto"
-
+    ToyDto:
+      $ref: "model/toy.yml#/ToyDto"
+    ProductDto:
+      $ref: "model/product.yml#/ProductDto"
+    PackDto:
+      $ref: "model/pack.yml#/PackDto"
 paths:
   /auth/me:
     $ref: "path/auth/me.yml"
@@ -69,10 +74,10 @@ paths:
     $ref: "path/blindbox.yml"
   /blind-boxes/{blindBoxId}:
     $ref: "path/blindbox-blindboxId.yml"
-  /categories:
-    $ref: "path/category.yml"
-  /categories/{categoryId}:
-    $ref: "path/category-categoryId.yml"
+  /brands:
+    $ref: "path/brand.yml"
+  /brands/{brandId}:
+    $ref: "path/brand-brandId.yml"
   /orders:
     $ref: "path/order.yml"
   /orders/{orderId}:
@@ -105,3 +110,11 @@ paths:
     $ref: "path/promotional-campaign.yml"
   /promotional-campaigns/{campaignId}:
     $ref: "path/promotional-campaign-campaignId.yml"
+  /toys:
+    $ref: "path/toy.yml"
+  /toys/{toyId}:
+    $ref: "path/toy-toyId.yml"
+  /products:
+    $ref: "path/product.yml"
+  /products/{productId}:
+    $ref: "path/product-productId.yml"

@@ -1,10 +1,10 @@
 get:
-  summary: Get a category by ID
-  operationId: getCategoryById
+  summary: Get a brand by ID
+  operationId: getBrandById
   security:
     - bearerAuth: []
   parameters:
-    - name: categoryId
+    - name: brandId
       in: path
       required: true
       schema:
@@ -15,7 +15,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../model/category.yml#/CategoryDto'
+            $ref: '../model/brand.yml#/BrandDto'
     '400':
       description: The operation failed
       content:
@@ -24,30 +24,30 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 put:
-  summary: Update an existing category
-  operationId: updateCategory
+  summary: Update an existing brand
+  operationId: updateBrand
   security:
     - bearerAuth: []
   parameters:
-    - name: categoryId
+    - name: brandId
       in: path
       required: true
       schema:
         type: integer
   requestBody:
-    description: Category to update
+    description: Brand to update
     required: true
     content:
       application/json:
         schema:
-          $ref: '../model/category.yml#/CategoryDto'
+          $ref: '../model/brand.yml#/BrandDto'
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/category.yml#/CategoryDto'
+            $ref: '../model/brand.yml#/BrandDto'
     '400':
       description: The operation failed
       content:
@@ -56,12 +56,12 @@ put:
             $ref: '../component/error.yml#/ErrorResponse'
 
 delete:
-  summary: Delete an existing category
-  operationId: deleteCategory
+  summary: Delete an existing brand
+  operationId: deleteBrand
   security:
     - bearerAuth: []
   parameters:
-    - name: categoryId
+    - name: brandId
       in: path
       required: true
       schema:

@@ -1,24 +1,23 @@
-VideoDto:
+BrandDto:
   type: object
   properties:
-    videoId:
+    brandId:
       type: integer
       format: int64
-    accountId:
-      type: integer
-      format: int64
-    orderDetailId:
-      type: integer
-      format: int64
-    url:
+    name:
       type: string
     description:
       type: string
+    isVisible:
+      type: boolean
     createdAt:
       type: string
       format: date-time
     updatedAt:
       type: string
       format: date-time
-    isVisible:
-      type: boolean
+    blindBoxes:
+      type: array
+      items:
+        type: integer
+        format: int64

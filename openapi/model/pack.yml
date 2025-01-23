@@ -1,32 +1,11 @@
 PackDto:
-  type: object
-  properties:
-    packId:
-      type: integer
-      format: int64
-    name:
-      type: string
-    description:
-      type: string
-    quantity:
-      type: integer
-      format: int32
-    price:
-      type: number
-      format: double
-    isVisible:
-      type: boolean
-    createdDate:
-      type: string
-      format: date-time
-    updatedDate:
-      type: string
-      format: date-time
-    blindBoxes:
-      type: array
-      items:
-        $ref: "blindbox.yml#/BlindBoxDto"
-    orderDetails:
-      type: array
-      items:
-        $ref: "order-detail.yml#/OrderDetailDto"
+  allOf:
+    - $ref: 'product.yml#/ProductDto'
+    - type: object
+      properties:
+        guaranteedToys:
+          type: array
+          items:
+            $ref: 'toy.yml#/ToyDto'
+        toyCount:
+          type: integer

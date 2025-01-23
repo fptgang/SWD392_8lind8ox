@@ -9,10 +9,11 @@ NotificationDto:
       format: int64
     message:
       type: string
-    createdDate:
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
       type: string
       format: date-time
     isRead:
-      type: boolean
-    isVisible:
       type: boolean
