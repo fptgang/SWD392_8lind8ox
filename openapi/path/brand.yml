@@ -1,6 +1,6 @@
 get:
-  summary: Get a list of categories
-  operationId: getCategories
+  summary: Get a list of brands
+  operationId: getBrands
   security:
     - bearerAuth: []
   parameters:

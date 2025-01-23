@@ -4,7 +4,7 @@ import com.fptgang.backend.model.Brand;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface CategoryService {
+public interface BrandService {
     Brand create(Brand brand);
     Brand findById(long id);
     Brand update(Brand brand);

@@ -50,9 +50,9 @@ public class OrderServiceImpl implements OrderService {
     public Page<Order> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
         var spec = OpenApiHelper.<Order>filterToSpec(filter);
         spec = spec.and(OpenApiHelper.searchToSpec(search));
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
+//        if (!includeInvisible) {
+//            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
+//        }
         return orderRepos.findAll(spec, pageable);
     }
 }
