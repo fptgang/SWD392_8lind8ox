@@ -1,0 +1,23 @@
+CategoryDto:
+  type: object
+  properties:
+    categoryId:
+      type: integer
+      format: int64
+    name:
+      type: string
+    description:
+      type: string
+    isVisible:
+      type: boolean
+    createdDate:
+      type: string
+      format: date-time
+    updatedDate:
+      type: string
+      format: date-time
+    blindBoxes:
+      type: array
+      items:
+        type: integer
+        format: int64

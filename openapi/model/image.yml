@@ -4,17 +4,17 @@ ImageDto:
     imageId:
       type: integer
       format: int64
-    accountId:
+    uploaderId:
       type: integer
       format: int64
-    blindBoxId:
+    productId:
       type: integer
       format: int64
-    imageURL:
+    imageUrl:
       type: string
     isVisible:
       type: boolean
-    createdDate:
+    createdAt:
       type: string
       format: date-time
 

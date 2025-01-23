@@ -1,0 +1,36 @@
+ProductDto:
+  type: object
+  properties:
+    productId:
+      type: integer
+      format: int64
+    type:
+      type: string
+      enum:
+        - BLIND_BOX
+        - PACK
+    brandId:
+      type: integer
+      format: int64
+    name:
+      type: string
+    description:
+      type: string
+    currentPrice:
+      type: number
+      format: double
+    promotionalCampaignId:
+      type: integer
+      format: int64
+    isVisible:
+      type: boolean
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+    images:
+      type: array
+      items:
+        $ref: "image.yml#/ImageDto"
