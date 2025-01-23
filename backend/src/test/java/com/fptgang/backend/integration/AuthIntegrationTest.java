@@ -3,7 +3,6 @@ package com.fptgang.backend.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fptgang.backend.TestcontainersConfiguration;
 import com.fptgang.backend.api.model.*;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.*;
@@ -84,7 +83,7 @@ public class AuthIntegrationTest {
         assertThat(acc.getFirstName()).isEqualTo("Bob");
         assertThat(acc.getLastName()).isNull();
         assertThat(acc.getAvatarUrl()).isNull();
-        assertThat(acc.getRole()).isEqualTo(AccountDto.RoleEnum.CLIENT);
+        assertThat(acc.getRole()).isEqualTo(AccountDto.RoleEnum.CUSTOMER);
         assertThat(acc.getIsVerified()).isFalse();
 
         accessToken = response.getToken();
@@ -111,7 +110,7 @@ public class AuthIntegrationTest {
         assertThat(acc.getFirstName()).isEqualTo("Bob");
         assertThat(acc.getLastName()).isNull();
         assertThat(acc.getAvatarUrl()).isNull();
-        assertThat(acc.getRole()).isEqualTo(AccountDto.RoleEnum.CLIENT);
+        assertThat(acc.getRole()).isEqualTo(AccountDto.RoleEnum.CUSTOMER);
         assertThat(acc.getIsVerified()).isFalse();
     }
 

@@ -8,7 +8,6 @@ import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.mapper.AccountMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.RefreshToken;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.security.PasswordEncoderConfig;
 import com.fptgang.backend.service.*;
@@ -101,7 +100,7 @@ public class AuthServiceImpl implements AuthService {
                                 .firstName(firstName)
                                 .lastName(lastName)
                                 .avatarUrl(picture)
-                                .role(Role.CLIENT)  // TODO CHANGE THIS
+                                .role(Account.Role.CUSTOMER)  // TODO CHANGE THIS
                                 .isVerified(true)
                                 .verifiedAt(LocalDateTime.now())
                                 .build()
@@ -128,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
                                 .email(dto.getEmail())
                                 .firstName(dto.getFirstName())
                                 .lastName(dto.getLastName())
-                                .role(Role.CLIENT)  // TODO CHANGE THIS
+                                .role(Account.Role.CUSTOMER)  // TODO CHANGE THIS
                                 .password(hashPass)
                                 .build());
                 log.info("User {} registered using Email-Password", dto.getEmail());

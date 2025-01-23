@@ -5,7 +5,6 @@ import com.fptgang.backend.TestcontainersConfiguration;
 import com.fptgang.backend.api.model.AccountDto;
 import com.fptgang.backend.api.model.GetAccounts200Response;
 import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,7 @@ class AccountIntegrationTest {
                         .lastName("x")
                         .password("pwd")
                         .avatarUrl("string")
-                        .role(Role.ADMIN)
+                        .role(Account.Role.ADMIN)
                         .isVisible(true)
                         .build(),
                 Account.builder().email("b@test.com")
@@ -56,7 +55,7 @@ class AccountIntegrationTest {
                         .lastName("y")
                         .password("pwd")
                         .avatarUrl("string")
-                        .role(Role.ADMIN)
+                        .role(Account.Role.ADMIN)
                         .isVerified(true)
                         .isVisible(true)
                         .build()

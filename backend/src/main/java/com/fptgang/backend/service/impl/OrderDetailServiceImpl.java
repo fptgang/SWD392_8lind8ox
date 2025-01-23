@@ -41,7 +41,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     public OrderDetail deleteById(long id) {
         OrderDetail orderDetail = orderDetailRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("OrderDetail does not exist"));
-        orderDetail.setVisible(false);
+//        orderDetail.setVisible(false);
         return orderDetailRepos.save(orderDetail);
     }
 

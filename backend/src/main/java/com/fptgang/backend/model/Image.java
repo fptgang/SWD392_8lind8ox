@@ -2,16 +2,17 @@ package com.fptgang.backend.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "images")
+@Table(name = "image")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Image {
@@ -19,20 +20,20 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uploader_id", nullable = false)
+    private Account uploader;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
+    private String imageUrl;
+
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
-
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "blind_box_id")
-    private BlindBox blindBox;
-
-    private String imageURL;
-
     @CreationTimestamp
-    private LocalDateTime createdDate;
-
+    private LocalDateTime createdAt;
 }

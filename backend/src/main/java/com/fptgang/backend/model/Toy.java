@@ -9,48 +9,32 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "promotional_campaign")
+@Table(name = "toy")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PromotionalCampaign {
+public class Toy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long campaignId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account creator;
+    @Column(name = "toy_id")
+    private Long toyId;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     @Searchable
-    private String title;
+    private String name;
 
-    @Column(nullable = false, columnDefinition = "TEXT", length = 100000)
+    @Column(nullable = false, columnDefinition = "TEXT", length = 100_000)
     @Searchable
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime startDate;
-
-    @Column(nullable = false)
-    private LocalDateTime endDate;
-
-    @Column(nullable = false, precision = 5, scale = 2)
-    private BigDecimal discountRate;
-
-    @Column(nullable = false)
-    @Searchable
-    private String promoCode;
-
-    @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
-    private List<Product> products;
+    @Enumerated(EnumType.STRING)
+    private Rarity rarity;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
@@ -60,4 +44,17 @@ public class PromotionalCampaign {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "unboxedToys", fetch = FetchType.LAZY)
+    // This is the inverse side
+    private List<OrderDetail> orderDetails;
+
+    @ManyToMany(mappedBy = "guaranteedToys", fetch = FetchType.LAZY)
+    // This is the inverse side
+    private List<Pack> packs;
+
+    public enum Rarity {
+        REGULAR,
+        SECRET
+    }
 }

@@ -98,8 +98,7 @@ public class SecurityConfig {
         return RoleHierarchyImpl.fromHierarchy(
                 """
                         ROLE_ADMIN > ROLE_STAFF
-                        ROLE_STAFF > ROLE_CLIENT
-                        ROLE_STAFF > ROLE_FREELANCER
+                        ROLE_STAFF > ROLE_CUSTOMER
                 """
         );
     }

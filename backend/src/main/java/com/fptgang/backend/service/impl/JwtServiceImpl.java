@@ -3,7 +3,6 @@ package com.fptgang.backend.service.impl;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.RefreshToken;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.service.JwtService;
 import com.fptgang.backend.service.RefreshTokenService;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +31,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public @NotNull Jwt generateJwt(String email, Role role) {
+    public @NotNull Jwt generateJwt(String email, Account.Role role) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("Backend")
@@ -56,7 +55,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public @NotNull String generateToken(String email, Role role) {
+    public @NotNull String generateToken(String email, Account.Role role) {
         return generateJwt(email, role).getTokenValue();
     }
 

@@ -1,22 +1,21 @@
 package com.fptgang.backend.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "`order`") // Escape the reserved keyword "order"
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
@@ -24,21 +23,31 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
-    @ManyToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "account_id")
     private Account account;
 
-    @OneToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_id")
-    private Transaction transaction;
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
-    @CreationTimestamp
-    private LocalDateTime orderDate;
-    private BigDecimal totalAmount;
-    private String status;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-    @OneToMany(mappedBy = "order",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderDetail> orderDetails = new ArrayList<>() ;
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPrice;
+
+    public enum Status {
+        PENDING,
+        COMPLETED,
+        CANCELED
+    }
 }
+
 

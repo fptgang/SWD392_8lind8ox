@@ -1,7 +1,6 @@
 package com.fptgang.backend.security;
 
 import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return createUserDetails(account.getEmail(), account.getRole());
     }
 
-    public UserDetails createUserDetails(String email, Role role) {
+    public UserDetails createUserDetails(String email, Account.Role role) {
         LOGGER.debug("New UserDetails for {}", email);
         return new AppUser(
                 email,

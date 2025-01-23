@@ -1,6 +1,6 @@
 package com.fptgang.backend.util;
 
-import com.fptgang.backend.model.Role;
+import com.fptgang.backend.model.Account;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -46,13 +46,13 @@ public class SecurityUtil {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     @NotNull
-    public static boolean hasPermission(Role role) {
+    public static boolean hasPermission(Account.Role role) {
         return requireCurrentUserRole().hasPermission(role);
     }
 
     @NotNull
-    public static boolean isRole(Role... roles) {
-        for (Role role : roles) {
+    public static boolean isRole(Account.Role... roles) {
+        for (Account.Role role : roles) {
             if (isRole(role)) {
                 return true;
             }
@@ -61,7 +61,7 @@ public class SecurityUtil {
     }
 
     @NotNull
-    public static Role requireCurrentUserRole() {
+    public static Account.Role requireCurrentUserRole() {
         var role = getCurrentUserRole();
         if (role == null)
             throw new AccessDeniedException("User is not authenticated");
@@ -69,7 +69,7 @@ public class SecurityUtil {
     }
 
     @Nullable
-    public static Role getCurrentUserRole() {
+    public static Account.Role getCurrentUserRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof JwtAuthenticationToken auth) {
@@ -81,7 +81,7 @@ public class SecurityUtil {
                 role = role.substring(5);
             }
 
-            return Role.valueOf(role);
+            return Account.Role.valueOf(role);
         }
 
         return null;
@@ -104,9 +104,9 @@ public class SecurityUtil {
     }
 
     @Nullable
-    public static Role getRoleFromJwt(Jwt jwt) {
+    public static Account.Role getRoleFromJwt(Jwt jwt) {
         try {
-            return Role.valueOf(jwt.getClaimAsString("scope"));
+            return Account.Role.valueOf(jwt.getClaimAsString("scope"));
         } catch (IllegalArgumentException e) {
             throw new AccessDeniedException("JWT containing invalid role");
         }

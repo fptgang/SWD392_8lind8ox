@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     public Order deleteById(long id) {
         Order order = orderRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
-        order.setVisible(false);
+//        order.setVisible(false);
         return orderRepos.save(order);
     }
 
