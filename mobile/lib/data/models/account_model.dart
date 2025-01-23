@@ -1,21 +1,21 @@
 import 'package:equatable/equatable.dart';
 
 class AccountModel extends Equatable {
+  static const AccountModel empty = AccountModel();
   final int? accountId;
   final String? email;
-  String? firstName;
-  String? lastName;
+  final String? firstName;
+  final String? lastName;
   final String? password;
-  String? avatarUrl;
-  double? balance;
-  // AccountDtoRoleEnum? role;
-  bool? isVerified;
-  DateTime? verifiedAt;
-  bool? isVisible;
-  DateTime? createdAt;
-  DateTime? updatedAt;
+  final String? avatarUrl;
+  final double? balance;
+  final bool? isVerified;
+  final DateTime? verifiedAt;
+  final bool? isVisible;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
-  AccountModel({
+  const AccountModel({
     this.accountId,
     this.email,
     this.password,
@@ -23,7 +23,6 @@ class AccountModel extends Equatable {
     this.lastName,
     this.avatarUrl,
     this.balance,
-    // this.role,
     this.isVerified,
     this.verifiedAt,
     this.isVisible,
@@ -32,20 +31,18 @@ class AccountModel extends Equatable {
   });
 
   @override
-  // TODO: implement props
   List<Object?> get props => [
-        accountId,
-        email,
-        password,
-        firstName,
-        lastName,
-        avatarUrl,
-        balance,
-        // role,
-        isVerified,
-        verifiedAt,
-        isVisible,
-        createdAt,
-        updatedAt,
-      ];
+    accountId,
+    email,
+    password,
+    firstName,
+    lastName,
+    avatarUrl,
+    balance,
+    isVerified,
+    verifiedAt,
+    isVisible,
+    createdAt,
+    updatedAt,
+  ];
 }

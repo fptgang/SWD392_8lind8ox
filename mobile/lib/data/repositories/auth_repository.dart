@@ -5,6 +5,8 @@ import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/auth_response_model.dart';
 import 'package:mobile/data/models/jwt_response_model.dart';
 
+import '../../enum/enum.dart';
+
 @lazySingleton
 @injectable
 abstract class AuthRepository {
@@ -16,4 +18,5 @@ abstract class AuthRepository {
   void resetPassword(String token, String password, String confirmPassword);
   void logout();
   Future<JwtResponseModel> refreshToken(String refreshToken);
+  Stream<AuthenticationStatus> get status;
 }
