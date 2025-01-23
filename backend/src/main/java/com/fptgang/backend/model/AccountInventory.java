@@ -1,27 +1,31 @@
 package com.fptgang.backend.model;
 
-import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-
 @Entity
-@Table(name = "notification")
+@Table(name = "account_inventory")
 @Data
 @NoArgsConstructor
-public class Notification {
+public class AccountInventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long notificationId;
+    private Long inventoryId;
+
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
-    private String message;
-    private LocalDateTime createDate;
-    private Boolean isRead;
+
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    private LocalDateTime acquiredDate;
+
+    @ManyToOne
+    @JoinColumn(name = "source_order_detail_id")
+    private OrderDetail sourceOrderDetail;
 }

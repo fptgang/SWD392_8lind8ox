@@ -41,7 +41,7 @@ public class NotificationServiceImpl implements NotificationService {
     public Notification deleteById(long id) {
         Notification notification = notificationRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Notification does not exist"));
-        notification.setVisible(false);
+//        notification.setVisible(false);
         return notificationRepos.save(notification);
     }
 

@@ -22,27 +22,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "account")
 public class Account {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long accountId;
 
     @Column(nullable = false, unique = true)
-    @Searchable
     private String email;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
-    @Searchable
     private String firstName;
 
     @Column(columnDefinition = "NVARCHAR(255)")
     @Nullable
-    @Searchable
     private String lastName;
 
-    //nullable because it is needed for google sign in
-    @Column
     @Nullable
     private String password;
 
@@ -52,7 +47,6 @@ public class Account {
     @Column(precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) DEFAULT 0.00")
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @Column()
     private LocalDateTime updateBalanceAt;
 
     @Column(nullable = false)
@@ -74,25 +68,19 @@ public class Account {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<RefreshToken> refreshTokens = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // Relationships from original USER entity
+    @OneToMany(mappedBy = "account")
     private List<Order> orders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Notification> notifications = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Video> videos = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Image> images = new ArrayList<>();
-
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PromotionalCampaign> campaigns = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account")
     private List<Transaction> transactions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "creator")
+    private List<PromotionalCampaign> campaigns = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account")
+    private List<Notification> notifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account")
+    private List<AccountInventory> inventoryItems = new ArrayList<>();
 }

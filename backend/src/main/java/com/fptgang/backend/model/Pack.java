@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "packages")
+@Table(name = "packs")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,23 +24,22 @@ public class Pack {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long packId;
 
-    @Searchable
-    @Column(columnDefinition = "NVARCHAR(255)")
     private String name;
-    @Searchable
-    @Column(columnDefinition = "TEXT")
     private String description;
-    private Integer quantity;
-    private BigDecimal price;
-    @CreationTimestamp
-    private LocalDateTime createdDate;
-    @UpdateTimestamp
-    private LocalDateTime updatedDate;
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
-    @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<BlindBox> blindBoxes = new ArrayList<>();
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal packagePrice;
+
+    @ManyToOne
+    @JoinColumn(name = "secret_item_id")
+    private Item secretItem;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal secretChance;
+
+    @ManyToOne
+    private Brand brand;
 
     @OneToMany(mappedBy = "pack", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderDetail> orderDetails = new ArrayList<>();
+    private List<PackContent> contents = new ArrayList<>();
 }

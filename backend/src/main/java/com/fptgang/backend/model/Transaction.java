@@ -11,32 +11,38 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "transactions")
+@Table(name = "transaction")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
-    @ManyToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    private String type;
-    @CreationTimestamp
-    private LocalDateTime dateTime;
-    private String paymentMethod;
-    private BigDecimal amount;
-    private BigDecimal oldBalance;
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
-    @OneToOne(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "transaction_type_id")
+    private TransactionType transactionType;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_method_id")
+    private PaymentMethod paymentMethod;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
     private Order order;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(transactionId);
-    }
+    private LocalDateTime dateTime;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal oldBalance;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal newBalance;
 }

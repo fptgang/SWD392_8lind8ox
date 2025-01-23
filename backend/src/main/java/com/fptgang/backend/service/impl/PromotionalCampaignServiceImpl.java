@@ -41,7 +41,7 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
     public PromotionalCampaign deleteById(long id) {
         PromotionalCampaign promotionalCampaign = promotionalCampaignRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("PromotionalCampaign does not exist"));
-        promotionalCampaign.setVisible(false);
+//        promotionalCampaign.setVisible(false);
         return promotionalCampaignRepos.save(promotionalCampaign);
     }
 

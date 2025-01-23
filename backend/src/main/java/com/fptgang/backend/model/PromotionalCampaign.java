@@ -14,37 +14,31 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
-@Table(name = "promotional_campaigns")
+@Table(name = "PROMOTIONAL_CAMPAIGN")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class PromotionalCampaign {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long campaignId;
 
-    @ManyToOne( cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id")
+    @ManyToOne
+    @JoinColumn(name = "account_id")
     private Account creator;
 
-    @Searchable
-    @Column(columnDefinition = "NVARCHAR(255)")
     private String title;
-    @Searchable
-    @Column(columnDefinition = "TEXT")
     private String description;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    @Column(precision = 5, scale = 2)
     private BigDecimal discountRate;
-    private String code;
-    private Long quantity; // -1 for infinite
-    @CreationTimestamp
-    private LocalDateTime createdDate;
-    @UpdateTimestamp
-    private LocalDateTime updatedDate;
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
-    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    private String promoCode;
+    private Integer usageLimit;
+
+    @OneToMany(mappedBy = "campaign")
     private List<BlindBox> blindBoxes = new ArrayList<>();
 }

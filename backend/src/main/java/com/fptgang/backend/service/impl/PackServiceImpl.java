@@ -41,7 +41,7 @@ public class PackServiceImpl implements PackService {
     public Pack deleteById(long id) {
         Pack pack = packRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Package does not exist"));
-        pack.setVisible(false);
+//        pack.setVisible(false);
         return packRepos.save(pack);
     }
 
