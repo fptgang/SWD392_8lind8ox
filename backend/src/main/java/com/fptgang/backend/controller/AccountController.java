@@ -5,7 +5,7 @@ import com.fptgang.backend.api.model.AccountDto;
 import com.fptgang.backend.api.model.GetAccounts200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.mapper.AccountMapper;
-import com.fptgang.backend.model.Role;
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.AccountService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
@@ -56,7 +56,7 @@ public class AccountController implements AccountsApi {
     public ResponseEntity<GetAccounts200Response> getAccounts(Pageable pageable, String filter, String search) {
         log.info("Getting accounts");
         var page = OpenApiHelper.toPageable(pageable);
-        var includeInvisible = SecurityUtil.hasPermission(Role.ADMIN);
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var res = accountService
                 .getAll(page, filter, search, includeInvisible)
                 .map(accountMapper::toDTO);
@@ -68,18 +68,18 @@ public class AccountController implements AccountsApi {
     public ResponseEntity<AccountDto> updateAccount(Integer accountId, AccountDto accountDto) {
         log.info("Updating account " + accountId);
 
-        if (!SecurityUtil.hasPermission(Role.ADMIN)) {
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             accountDto.setBalance(null);
             accountDto.setRole(null);
             accountDto.setIsVisible(null);
         }
 
-        if (!SecurityUtil.hasPermission(Role.STAFF)) {
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
             accountDto.setIsVerified(null);
             accountDto.setVerifiedAt(null);
         }
 
-        if (SecurityUtil.isRole(Role.CLIENT, Role.FREELANCER)) {
+        if (SecurityUtil.isRole(Account.Role.CUSTOMER)) {
             if (!accountService.findByEmail(SecurityUtil.getCurrentUserEmail())
                     .getAccountId()
                     .equals(Long.valueOf(accountId))) {

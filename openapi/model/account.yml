@@ -22,7 +22,7 @@ AccountDto:
       format: date-time
     role:
       type: string
-      enum: [ADMIN, STAFF, CLIENT, FREELANCER]
+      enum: [ADMIN, STAFF, CUSTOMER]
     isVerified:
       type: boolean
     verifiedAt:

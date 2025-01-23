@@ -3,6 +3,7 @@ package com.fptgang.backend.model;
 import com.fptgang.backend.util.Searchable;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -67,4 +68,20 @@ public class Account {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public enum Role {
+        ADMIN,
+        STAFF,
+        CUSTOMER;
+
+        @NotNull
+        public boolean hasPermission(Role perm) {
+            return switch (this) {
+                case ADMIN -> true;
+                case STAFF ->
+                        this == perm || perm == Role.CUSTOMER;
+                default -> this == perm;
+            };
+        }
+    }
 }

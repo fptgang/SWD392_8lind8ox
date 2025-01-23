@@ -4,7 +4,6 @@ import com.fptgang.backend.TestcontainersConfiguration;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.RefreshToken;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.RefreshTokenRepos;
 import com.fptgang.backend.service.impl.RefreshTokenServiceImpl;
@@ -59,7 +58,7 @@ public class RefreshTokenServiceTest {
         testAccount = new Account();
         testAccount.setEmail("Sender@example.com");
         testAccount.setPassword("password");
-        testAccount.setRole(Role.ADMIN);
+        testAccount.setRole(Account.Role.ADMIN);
         testAccount.setVisible(true);
         testAccount.setBalance(BigDecimal.valueOf(0));
         testAccount.setVerified(false);

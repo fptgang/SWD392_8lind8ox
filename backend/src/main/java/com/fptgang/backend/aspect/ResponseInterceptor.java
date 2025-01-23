@@ -1,7 +1,7 @@
 package com.fptgang.backend.aspect;
 
 import com.fptgang.backend.api.model.AccountDto;
-import com.fptgang.backend.model.Role;
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.util.SecurityUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -42,10 +42,10 @@ public class ResponseInterceptor {
     private void intercept(AccountDto dto) {
         dto.setPassword(null);
 
-        Role role = SecurityUtil.getCurrentUserRole();
+        Account.Role role = SecurityUtil.getCurrentUserRole();
 
         // If the role is staff or above
-        if (role != null && role.hasPermission(Role.STAFF)) {
+        if (role != null && role.hasPermission(Account.Role.STAFF)) {
             return;
         }
 

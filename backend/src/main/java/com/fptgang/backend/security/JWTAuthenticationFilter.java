@@ -1,6 +1,6 @@
 package com.fptgang.backend.security;
 
-import com.fptgang.backend.model.Role;
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.JwtService;
 import com.fptgang.backend.util.SecurityUtil;
 import jakarta.servlet.FilterChain;
@@ -56,7 +56,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String email = SecurityUtil.getEmailFromJwt(jwt);
-        Role role = SecurityUtil.getRoleFromJwt(jwt);
+        Account.Role role = SecurityUtil.getRoleFromJwt(jwt);
 
         if (role == null) {
             LOGGER.debug("JWT using invalid role {}", token);

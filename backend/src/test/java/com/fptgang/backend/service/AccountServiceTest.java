@@ -2,7 +2,6 @@ package com.fptgang.backend.service;
 
 import com.fptgang.backend.TestcontainersConfiguration;
 import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -44,7 +43,7 @@ class AccountServiceTest {
         account.setVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
         account.setVerified(false);
-        account.setRole(Role.CLIENT);
+        account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
         return accountService.create(account);
@@ -57,7 +56,7 @@ class AccountServiceTest {
         account.setVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
         account.setVerified(false);
-        account.setRole(Role.CLIENT);
+        account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
         return accountService.create(account);
@@ -133,7 +132,7 @@ class AccountServiceTest {
         account.setVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
         account.setVerified(false);
-        account.setRole(Role.CLIENT);
+        account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
 
@@ -185,7 +184,7 @@ class AccountServiceTest {
         account4.setVisible(true);
         account4.setBalance(BigDecimal.valueOf(0));
         account4.setVerified(false);
-        account4.setRole(Role.CLIENT);
+        account4.setRole(Account.Role.CUSTOMER);
         account4.setFirstName("John");
         account4.setLastName("Doe");
         accountService.create(account4);

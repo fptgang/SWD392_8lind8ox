@@ -2,7 +2,6 @@ package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.AccountDto;
 import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Role;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,38 +103,34 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
         return dto;
     }
 
-    public Role mapRoleAccount(AccountDto.RoleEnum roleEnum) {
+    public Account.Role mapRoleAccount(AccountDto.RoleEnum roleEnum) {
         if (roleEnum == null) {
-            return null; // Or a default Role, e.g., Role.CLIENT
+            return null; // Or a default Role, e.g., Role.CUSTOMER
         }
 
         switch (roleEnum) {
             case ADMIN:
-                return Role.ADMIN;
+                return Account.Role.ADMIN;
             case STAFF:
-                return Role.STAFF;
-            case CLIENT:
-                return Role.CLIENT;
-            case FREELANCER:
-                return Role.FREELANCER;
+                return Account.Role.STAFF;
+            case CUSTOMER:
+                return Account.Role.CUSTOMER;
             default:
                 throw new IllegalArgumentException("Unknown RoleEnum: " + roleEnum);
         }
     }
 
-    public AccountDto.RoleEnum mapRoleAccountDto(Role roleEnum) {
+    public AccountDto.RoleEnum mapRoleAccountDto(Account.Role roleEnum) {
         if (roleEnum == null) {
-            return null; // Or a default Role, e.g., Role.CLIENT
+            return null; // Or a default Role, e.g., Role.CUSTOMER
         }
         switch (roleEnum) {
             case ADMIN:
                 return AccountDto.RoleEnum.ADMIN;
             case STAFF:
                 return AccountDto.RoleEnum.STAFF;
-            case CLIENT:
-                return AccountDto.RoleEnum.CLIENT;
-            case FREELANCER:
-                return AccountDto.RoleEnum.FREELANCER;
+            case CUSTOMER:
+                return AccountDto.RoleEnum.CUSTOMER;
             default:
                 throw new IllegalArgumentException("Unknown RoleEnum: " + roleEnum);
         }

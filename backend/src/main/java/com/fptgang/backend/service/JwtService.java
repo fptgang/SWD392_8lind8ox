@@ -1,6 +1,6 @@
 package com.fptgang.backend.service;
 
-import com.fptgang.backend.model.Role;
+import com.fptgang.backend.model.Account;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -8,12 +8,12 @@ import javax.annotation.Nullable;
 
 public interface JwtService {
     @NotNull
-    Jwt generateJwt(String email, Role role);
+    Jwt generateJwt(String email, Account.Role role);
 
     String createJwtFromRefreshToken(String token);
 
     @NotNull
-    String generateToken(String email, Role role);
+    String generateToken(String email, Account.Role role);
 
     @Nullable
     Jwt parseToken(String token);
