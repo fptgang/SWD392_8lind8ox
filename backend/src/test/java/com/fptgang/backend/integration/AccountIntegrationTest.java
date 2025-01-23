@@ -30,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @Import(TestcontainersConfiguration.class)
-@Disabled
 class AccountIntegrationTest {
     @Autowired
     private MockMvc mockMvc;

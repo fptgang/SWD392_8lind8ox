@@ -27,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @Import(TestcontainersConfiguration.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Disabled
 public class AuthIntegrationTest {
     private static final String SESSION_ID = UUID.randomUUID().toString();
 
