@@ -12,7 +12,8 @@ public enum Role {
     public boolean hasPermission(Role perm) {
         return switch (this) {
             case ADMIN -> true;
-            case STAFF -> this == perm || perm == Role.CLIENT || perm == Role.FREELANCER;
+            case STAFF ->
+                    this == perm || perm == Role.CLIENT || perm == Role.FREELANCER;
             default -> this == perm;
         };
     }

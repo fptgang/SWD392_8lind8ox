@@ -31,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Brand update(Brand brand) {
-        if (brand.getCategoryId() == null) {
+        if (brand.getBrandId() == null) {
             throw new IllegalArgumentException("Category does not exist");
         }
         return categoryRepos.save(brand);

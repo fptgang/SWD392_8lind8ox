@@ -12,10 +12,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.List;
 
 @Entity
 @Data
@@ -29,12 +25,15 @@ public class Account {
     private Long accountId;
 
     @Column(nullable = false, unique = true)
+    @Searchable
     private String email;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
+    @Searchable
     private String firstName;
 
     @Column(columnDefinition = "NVARCHAR(255)")
+    @Searchable
     @Nullable
     private String lastName;
 
@@ -47,6 +46,7 @@ public class Account {
     @Column(precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) DEFAULT 0.00")
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Nullable
     private LocalDateTime updateBalanceAt;
 
     @Column(nullable = false)
@@ -67,20 +67,4 @@ public class Account {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    // Relationships from original USER entity
-    @OneToMany(mappedBy = "account")
-    private List<Order> orders = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account")
-    private List<Transaction> transactions = new ArrayList<>();
-
-    @OneToMany(mappedBy = "creator")
-    private List<PromotionalCampaign> campaigns = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account")
-    private List<Notification> notifications = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account")
-    private List<AccountInventory> inventoryItems = new ArrayList<>();
 }
