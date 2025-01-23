@@ -7,23 +7,32 @@ OrderDetailDto:
     orderId:
       type: integer
       format: int64
-    blindBoxId:
+    productId:
       type: integer
       format: int64
-    packId:
+    promotionalCampaignId:
       type: integer
       format: int64
-    isVisible:
-      type: boolean
-    price:
+    originalProductPrice:
       type: number
       format: double
-    requestOpen:
+    discountPrice:
+      type: number
+      format: double
+    requestUnbox:
       type: boolean
-    reSell:
-      type: boolean
-    createdDate:
+    unboxedToys:
+      type: array
+      items:
+        $ref: "toy.yml#/ToyDto"
+    toyCount:
+      type: integer
+    videoId:
+      type: integer
+      format: int64
+    createdAt:
       type: string
       format: date-time
-
-
+    updatedAt:
+      type: string
+      format: date-time

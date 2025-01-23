@@ -43,7 +43,12 @@ components:
       $ref: "model/image.yml#/ImageDto"
     OrderDto:
       $ref: "model/order.yml#/OrderDto"
-
+    ToyDto:
+      $ref: "model/toy.yml#/ToyDto"
+    ProductDto:
+      $ref: "model/product.yml#/ProductDto"
+    PackDto:
+      $ref: "model/pack.yml#/PackDto"
 paths:
   /auth/me:
     $ref: "path/auth/me.yml"
@@ -105,3 +110,11 @@ paths:
     $ref: "path/promotional-campaign.yml"
   /promotional-campaigns/{campaignId}:
     $ref: "path/promotional-campaign-campaignId.yml"
+  /toys:
+    $ref: "path/toy.yml"
+  /toys/{toyId}:
+    $ref: "path/toy-toyId.yml"
+  /products:
+    $ref: "path/product.yml"
+  /products/{productId}:
+    $ref: "path/product-productId.yml"

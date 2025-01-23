@@ -20,20 +20,17 @@ PromotionalCampaignDto:
     discountRate:
       type: number
       format: double
-    code:
+    promoCode:
       type: string
-    quantity:
-      type: integer
-      format: int64
     isVisible:
       type: boolean
-    createdDate:
+    createdAt:
       type: string
       format: date-time
-    updatedDate:
+    updatedAt:
       type: string
       format: date-time
-    blindBoxes:
+    products:
       type: array
       items:
-        $ref: "blindbox.yml#/BlindBoxDto"
+        $ref: "product.yml#/ProductDto"

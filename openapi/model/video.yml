@@ -7,14 +7,17 @@ VideoDto:
     accountId:
       type: integer
       format: int64
-    blindBoxId:
+    orderDetailId:
       type: integer
       format: int64
     url:
       type: string
     description:
       type: string
-    uploadDate:
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
       type: string
       format: date-time
     isVisible:

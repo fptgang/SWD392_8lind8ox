@@ -7,20 +7,19 @@ OrderDto:
     accountId:
       type: integer
       format: int64
-    transactionId:
-      type: integer
-      format: int64
-    orderDate:
-      type: string
-      format: date-time
-    totalAmount:
-      type: number
-      format: double
     status:
       type: string
-    isVisible:
-      type: boolean
+      enum: [PENDING, COMPLETED, CANCELED]
     orderDetails:
       type: array
       items:
         $ref: "order-detail.yml#/OrderDetailDto"
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+    totalPrice:
+      type: number
+      format: double
