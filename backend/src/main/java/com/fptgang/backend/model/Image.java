@@ -25,8 +25,12 @@ public class Image {
     private Account uploader;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "blind_box_id", nullable = false)
+    private BlindBox blindBox;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pack_id", nullable = false)
+    private Pack pack;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String imageUrl;

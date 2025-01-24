@@ -31,7 +31,7 @@ public class PackServiceImpl implements PackService {
 
     @Override
     public Pack update(Pack pack) {
-        if (pack.getProductId() == null) {
+        if (pack.getPackId() == null) {
             throw new IllegalArgumentException("Package does not exist");
         }
         return packRepos.save(pack);
