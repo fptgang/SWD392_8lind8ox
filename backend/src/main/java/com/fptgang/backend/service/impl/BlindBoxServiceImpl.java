@@ -31,7 +31,7 @@ public class BlindBoxServiceImpl implements BlindBoxService {
 
     @Override
     public BlindBox update(BlindBox blindBox) {
-        if (blindBox.getProductId() == null) {
+        if (blindBox.getBlindBoxId() == null) {
             throw new IllegalArgumentException("BlindBox does not exist");
         }
         return blindBoxRepos.save(blindBox);

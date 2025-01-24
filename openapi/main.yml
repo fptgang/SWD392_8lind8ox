@@ -45,8 +45,6 @@ components:
       $ref: "model/order.yml#/OrderDto"
     ToyDto:
       $ref: "model/toy.yml#/ToyDto"
-    ProductDto:
-      $ref: "model/product.yml#/ProductDto"
     PackDto:
       $ref: "model/pack.yml#/PackDto"
 paths:
@@ -114,7 +112,4 @@ paths:
     $ref: "path/toy.yml"
   /toys/{toyId}:
     $ref: "path/toy-toyId.yml"
-  /products:
-    $ref: "path/product.yml"
-  /products/{productId}:
-    $ref: "path/product-productId.yml"
+

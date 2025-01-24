@@ -18,7 +18,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
     @Autowired
     private OrderRepos orderRepos;
     @Autowired
-    private ProductRepos productRepos;
+    private BlindBoxRepos productRepos;
     @Autowired
     private PackRepos packRepos;
     @Autowired
@@ -55,8 +55,10 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             if(dto.getOrderId() != null) {
                 entity.setOrder(orderRepos.findById(dto.getOrderId()).get());
             }
-            if(dto.getProductId() != null) {
-                entity.setProduct(productRepos.findById(dto.getProductId()).get());
+            if(dto.getBlindBoxId() != null) {
+                entity.setBlindBox(productRepos.findById(dto.getBlindBoxId()).get());
+            }else if(dto.getPackId() != null){
+                entity.setPack(packRepos.findById(dto.getPackId()).get());
             }
             if(dto.getPromotionalCampaignId() !=null){
                 entity.setPromotionalCampaign(promotionalCampaignRepos.findById( dto.getPromotionalCampaignId()).get());
@@ -77,7 +79,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         dto.setOriginalProductPrice(entity.getOriginalProductPrice());
         dto.setRequestUnbox(entity.isRequestUnbox());
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
-        dto.setProductId(entity.getProduct() != null ? entity.getProduct().getProductId() : null);
+        dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
         if(entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         }

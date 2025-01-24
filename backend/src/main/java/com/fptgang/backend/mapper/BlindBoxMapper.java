@@ -2,10 +2,8 @@ package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.BlindBoxDto;
 import com.fptgang.backend.model.BlindBox;
-import com.fptgang.backend.model.Product;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.BrandRepos;
-import com.fptgang.backend.repository.PackRepos;
 import com.fptgang.backend.repository.PromotionalCampaignRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +31,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             return null;
         }
 
-        Optional<BlindBox> existingBlindBoxOptional = blindBoxRepos.findById(dto.getProductId());
+        Optional<BlindBox> existingBlindBoxOptional = blindBoxRepos.findById(dto.getBlindBoxId());
 
         if (existingBlindBoxOptional.isPresent()) {
             BlindBox existingBlindBox = existingBlindBoxOptional.get();
@@ -51,12 +49,14 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             return existingBlindBox;
         } else {
             BlindBox entity = new BlindBox();
-            entity.setProductId(dto.getProductId());
+            entity.setBlindBoxId(dto.getBlindBoxId());
             entity.setName(dto.getName());
             entity.setDescription(dto.getDescription());
             entity.setCurrentPrice(dto.getCurrentPrice());
-            entity.setType(Product.Type.valueOf(dto.getType().getValue()));
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
+            entity.setBrand(dto.getBrandId() != null?
+                    brandRepos.findById(dto.getBrandId()).get()
+                    : null);
             if (dto.getPromotionalCampaignId() != null) {
                 entity.setPromotionalCampaign(promotionalCampaignRepos.findById(dto.getPromotionalCampaignId()).get());
             }
@@ -77,11 +77,11 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             return null;
         }
         BlindBoxDto dto = new BlindBoxDto();
-        dto.setProductId(entity.getProductId());
+        dto.setBlindBoxId(entity.getBlindBoxId());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setCurrentPrice(entity.getCurrentPrice());
-        dto.setType(BlindBoxDto.TypeEnum.valueOf(entity.getType().toString()));
+        dto.setBrandId(entity.getBrand() != null ? entity.getBrand().getBrandId() : null);
         dto.setPromotionalCampaignId(entity.getPromotionalCampaign() != null ? entity.getPromotionalCampaign().getCampaignId() : null);
         if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
