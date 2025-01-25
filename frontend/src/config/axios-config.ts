@@ -8,8 +8,8 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
-    // Only attempt refresh if it's a 401 error and we have a refresh token
+    console.log("attempting to refresh token");
+    // Only attempt refresh if it's a 401 error, and we have a refresh token
     if (
       error.response?.status === 401 &&
       originalRequest &&
