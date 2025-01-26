@@ -1,34 +1,11 @@
 import React, { useMemo } from "react";
 import { BaseRecord, useMany } from "@refinedev/core";
-import {
-  useTable,
-  List,
-  EditButton,
-  ShowButton,
-  DeleteButton,
-  TagField,
-  EmailField,
-  DateField,
-  FilterDropdown,
-} from "@refinedev/antd";
-import {
-  Table,
-  Space,
-  Select,
-  Badge,
-  Tooltip,
-  Typography,
-  Tag,
-  Input,
-} from "antd";
-import {
-  UserOutlined,
-  DollarOutlined,
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { useTable, List, EditButton, ShowButton, DeleteButton, TagField, EmailField, DateField, FilterDropdown } from "@refinedev/antd";
+import { Table, Space, Select, Badge, Tooltip, Typography, Tag, Input } from "antd";
+import { UserOutlined, DollarOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { ROLE_COLOR_MAP } from "../../utils/constants";
 import { AccountDto } from "../../../generated/models/AccountDto";
+import { formatCurrency } from "../../utils/currency-formatter";
 
 const { Text } = Typography;
 
@@ -68,10 +45,7 @@ export const AccountsList: React.FC = () => {
   };
 
   const formatBalance = (balance: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(balance);
+    return formatCurrency(balance);
   };
 
   return (

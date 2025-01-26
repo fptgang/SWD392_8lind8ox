@@ -67,7 +67,7 @@ public class AccountController implements AccountsApi {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AccountDto> updateAccount(Integer accountId, AccountDto accountDto) {
         log.info("Updating account " + accountId);
-
+        accountDto.setAccountId(Long.valueOf(accountId));
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             accountDto.setBalance(null);
             accountDto.setRole(null);

@@ -55,19 +55,28 @@ import {
   OrdersList,
   OrdersShow,
 } from "./pages/orders";
-import { ToysCreate, ToysEdit, ToysList, ToysShow } from "./pages/toys";
-import {
-  ProductsCreate,
-  ProductsEdit,
-  ProductsList,
-  ProductsShow,
-} from "./pages/products";
+
 import {
   PromotionalCampaignsCreate,
   PromotionalCampaignsEdit,
   PromotionalCampaignsList,
   PromotionalCampaignsShow,
 } from "./pages/promotional-campaigns";
+import { resources } from "./config/resources";
+import CustomerFooter from "./components/footer/customer-footer";
+import CustomerProducts from "./pages/customer/products";
+import CustomerDeals from "./pages/customer/deals";
+import ProfilePage from "./pages/accounts/profile";
+import CustomerOrders from "./pages/customer/orders";
+import CartPage from "./pages/cart";
+import { AccountLayout } from "./pages/accounts/components/AccountLayout";
+import { SecuritySettings } from "./pages/accounts/components/SecuritySettings";
+import { WalletSettings } from "./pages/accounts/components/WalletSettings";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import CheckoutPage from "./pages/checkout/checkout";
+import { OrderSuccess } from "./pages/checkout/order-success";
+import { OrderFailed } from "./pages/checkout/order-failed";
 
 function App() {
   return (
@@ -75,6 +84,8 @@ function App() {
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <AntdApp>
+          <Provider store={store}>
+
             <DevtoolsProvider>
               <Refine
                 dataProvider={dataProvider(API_URL, axiosInstance)}
@@ -82,68 +93,7 @@ function App() {
                 // accessControlProvider={accessControlProvider}
                 authProvider={authProvider}
                 routerProvider={routerBindings}
-                resources={[
-                  {
-                    name: "accounts",
-                    list: "/admin/accounts",
-                    create: "/admin/accounts/create",
-                    edit: "/admin/accounts/edit/:id",
-                    show: "/admin/accounts/show/:id",
-                    meta: {
-                      label: "Accounts",
-                      canDelete: true,
-                    },
-                  },
-                  {
-                    name: "brands",
-                    list: "/admin/brands",
-                    create: "/admin/brands/create",
-                    edit: "/admin/brands/edit/:id",
-                    show: "/admin/brands/show/:id",
-                  },
-                  {
-                    name: "packs",
-                    list: "/admin/packs",
-                    create: "/admin/packs/create",
-                    edit: "/admin/packs/edit/:id",
-                    show: "/admin/packs/show/:id",
-                  },
-                  {
-                    name: "orders",
-                    list: "/admin/orders",
-                    create: "/admin/orders/create",
-                    edit: "/admin/orders/edit/:id",
-                    show: "/admin/orders/show/:id",
-                  },
-                  {
-                    name: "toys",
-                    list: "/admin/toys",
-                    create: "/admin/toys/create",
-                    edit: "/admin/toys/edit/:id",
-                    show: "/admin/toys/show/:id",
-                  },
-                  {
-                    name: "promotional-campaigns",
-                    list: "/admin/promotional-campaigns",
-                    create: "/admin/promotional-campaigns/create",
-                    edit: "/admin/promotional-campaigns/edit/:id",
-                    show: "/admin/promotional-campaigns/show/:id",
-                  },
-                  {
-                    name: "blind-boxes",
-                    list: "/admin/blind-boxes",
-                    create: "/admin/blind-boxes/create",
-                    edit: "/admin/blind-boxes/edit/:id",
-                    show: "/admin/blind-boxes/show/:id",
-                  },
-                  {
-                    name: "products",
-                    list: "/admin/products",
-                    create: "/admin/products/create",
-                    edit: "/admin/products/edit/:id",
-                    show: "/admin/products/show/:id",
-                  },
-                ]}
+                resources={resources}
                 options={{
                   syncWithLocation: true,
                   warnWhenUnsavedChanges: true,
@@ -152,36 +102,82 @@ function App() {
                 }}
               >
                 <Routes>
+                  {/* Public Routes */}
                   <Route
                     element={
                       <ClientLayout
                         HeaderContent={() => <Header />}
                         InnerContent={() => <Outlet />}
-                        FooterContent={() => <Footer />}
+                        FooterContent={() => <CustomerFooter />}
                       />
                     }
                   >
+                    {/* Main Customer Routes */}
                     <Route index element={<LandingPage />} />
+                    <Route path="products" element={<CustomerProducts />} />
+                    <Route path="deals" element={<CustomerDeals />} />
+                    <Route path="blind-boxes" element={<BlindBoxesList />} />
+                    <Route path="blind-boxes/:id" element={<BlindBoxesShow />} />
+                    <Route path="packs" element={<PacksList />} />
+                    <Route path="packs/:id" element={<PacksShow />} />
+                    <Route path="orders" element={<OrdersList />} />
+                    <Route path="orders/:id" element={<CustomerOrders />} />
+
+                    
+                    {/* Customer Account Routes */}
                     <Route
-                      path="/settings"
-                      element={<Navigate to="/admin" />}
-                    />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="*" element={<ErrorComponent />} />
+                      path="account"
+                      element={
+                        <Authenticated 
+                          key={"authenticated"}
+                        fallback={<Navigate to="/login" />}>
+                          <AccountLayout />
+                        </Authenticated>
+                      }
+                    >
+                      <Route path="profile" element={<ProfilePage />} />
+                      <Route path="security" element={<SecuritySettings />} />
+                      <Route path="wallet" element={<WalletSettings />} />
+                      <Route path="orders" element={<OrdersList />} />
+                      <Route path="orders/:id" element={<OrdersShow />} />
+                    </Route>
+
+                    {/* Cart and Checkout */}
+                    <Route path="cart" element={<CartPage />} />
+                    <Route
+                      path="checkout"
+                      element={
+                        <Authenticated 
+                          key={"authenticated"}
+                        fallback={<Navigate to="/login" />}>
+                          <Outlet />
+                        </Authenticated>
+                      }
+                    >
+                      <Route index element={<CheckoutPage />} />
+                      <Route path="success" element={<OrderSuccess />} />
+                      <Route path="failed" element={<OrderFailed />} />
+                    </Route>
+
+                    {/* Auth Routes */}
+                    <Route path="login" element={<Login />} />
+                    <Route path="register" element={<Register />} />
+                    <Route path="forgot-password" element={<ForgotPassword />} />
+                    <Route path="reset-password" element={<ResetPassword />} />
                   </Route>
+
+                  {/* Admin Routes */}
                   <Route
-                    path="/admin"
+                    path="admin"
                     element={
                       localStorage.getItem("role") === "ADMIN" ? (
                         <Authenticated
-                          key="authenticated-inner"
-                          fallback={<Navigate to={"/"} replace />}
+                          key="authenticated-admin"
+                          fallback={<Navigate to="/login" replace />}
                         >
                           <ThemedLayoutV2
                             Header={Header}
-                            Sider={(props) => (
-                              <ThemedSiderV2 {...props} fixed />
-                            )}
+                            Sider={(props) => <ThemedSiderV2 {...props} fixed />}
                           >
                             <Outlet />
                           </ThemedLayoutV2>
@@ -191,91 +187,54 @@ function App() {
                       )
                     }
                   >
-                    <Route
-                      index
-                      element={<NavigateToResource resource="accounts" />}
-                    />
+                    <Route index element={<NavigateToResource resource="dashboard" />} />
+                    
+                    {/* Admin Management Routes */}
                     <Route path="accounts">
                       <Route index element={<AccountsList />} />
                       <Route path="create" element={<UsersCreate />} />
                       <Route path="edit/:id" element={<AccountsEdit />} />
                       <Route path="show/:id" element={<AccountsShow />} />
                     </Route>
+
                     <Route path="brands">
                       <Route index element={<BrandsList />} />
                       <Route path="create" element={<BrandsCreate />} />
                       <Route path="edit/:id" element={<BrandsEdit />} />
                       <Route path="show/:id" element={<BrandsShow />} />
                     </Route>
+
                     <Route path="blind-boxes">
                       <Route index element={<BlindBoxesList />} />
                       <Route path="create" element={<BlindBoxesCreate />} />
                       <Route path="edit/:id" element={<BlindBoxesEdit />} />
                       <Route path="show/:id" element={<BlindBoxesShow />} />
                     </Route>
+
                     <Route path="packs">
                       <Route index element={<PacksList />} />
                       <Route path="create" element={<PacksCreate />} />
                       <Route path="edit/:id" element={<PacksEdit />} />
                       <Route path="show/:id" element={<PacksShow />} />
                     </Route>
+
                     <Route path="orders">
                       <Route index element={<OrdersList />} />
                       <Route path="create" element={<OrdersCreate />} />
                       <Route path="edit/:id" element={<OrdersEdit />} />
                       <Route path="show/:id" element={<OrdersShow />} />
                     </Route>
-                    <Route path="toys">
-                      <Route index element={<ToysList />} />
-                      <Route path="create" element={<ToysCreate />} />
-                      <Route path="edit/:id" element={<ToysEdit />} />
-                      <Route path="show/:id" element={<ToysShow />} />
-                    </Route>
-                    <Route path="products">
-                      <Route index element={<ProductsList />} />
-                      <Route path="create" element={<ProductsCreate />} />
-                      <Route path="edit/:id" element={<ProductsEdit />} />
-                      <Route path="show/:id" element={<ProductsShow />} />
-                    </Route>
+
                     <Route path="promotional-campaigns">
                       <Route index element={<PromotionalCampaignsList />} />
-                      <Route
-                        path="create"
-                        element={<PromotionalCampaignsCreate />}
-                      />
-                      <Route
-                        path="edit/:id"
-                        element={<PromotionalCampaignsEdit />}
-                      />
-                      <Route
-                        path="show/:id"
-                        element={<PromotionalCampaignsShow />}
-                      />
+                      <Route path="create" element={<PromotionalCampaignsCreate />} />
+                      <Route path="edit/:id" element={<PromotionalCampaignsEdit />} />
+                      <Route path="show/:id" element={<PromotionalCampaignsShow />} />
                     </Route>
+                  </Route>
 
-                    <Route path="*" element={<ErrorComponent />} />
-                  </Route>
-                  <Route
-                    element={
-                      <Authenticated
-                        key="authenticated-outer"
-                        fallback={<Outlet />}
-                      >
-                        {localStorage.getItem("role") === "ADMIN" ? (
-                          <NavigateToResource />
-                        ) : (
-                          <Navigate to="/" />
-                        )}
-                      </Authenticated>
-                    }
-                  >
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route
-                      path="/forgot-password"
-                      element={<ForgotPassword />}
-                    />
-                  </Route>
+                  {/* Catch-all Error Route */}
+                  <Route path="*" element={<ErrorComponent />} />
                 </Routes>
 
                 <RefineKbar />
@@ -284,6 +243,7 @@ function App() {
               </Refine>
               <DevtoolsPanel />
             </DevtoolsProvider>
+            </Provider>
           </AntdApp>
         </ColorModeContextProvider>
       </RefineKbarProvider>
