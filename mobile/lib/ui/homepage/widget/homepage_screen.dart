@@ -8,7 +8,7 @@ import 'package:mobile/ui/homepage/widget/recommended_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mobile/ui/login/widgets/login_screen.dart';
+import 'package:mobile/ui/login/login_screen.dart';
 
 class HomePageScreen extends StatelessWidget {
   // final AuthRepository authRepository;

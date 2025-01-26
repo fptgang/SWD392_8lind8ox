@@ -17,6 +17,7 @@ class ForgotPasswordEvent extends ResetPasswordEvent{
   List<Object?> get props => [];
 }
 
+
 class RequestResetPasswordEvent extends ResetPasswordEvent{
   final String? email;
   const RequestResetPasswordEvent(this.email);
