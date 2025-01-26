@@ -30,7 +30,3 @@ PromotionalCampaignDto:
     updatedAt:
       type: string
       format: date-time
-    products:
-      type: array
-      items:
-        $ref: "product.yml#/ProductDto"

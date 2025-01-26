@@ -41,5 +41,8 @@ public class Brand {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Product> products;
+    private List<BlindBox> blindBoxes;
+
+    @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pack> packs;
 }

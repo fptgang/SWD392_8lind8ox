@@ -36,6 +36,38 @@ import axiosInstance from "./config/axios-config";
 import ClientLayout from "./components/layout";
 import Footer from "./components/ui/footer/footer";
 import LandingPage from "./pages/landing";
+import {
+  BrandsCreate,
+  BrandsEdit,
+  BrandsList,
+  BrandsShow,
+} from "./pages/brands";
+import {
+  BlindBoxesCreate,
+  BlindBoxesEdit,
+  BlindBoxesList,
+  BlindBoxesShow,
+} from "./pages/blind-boxes";
+import { PacksCreate, PacksEdit, PacksList, PacksShow } from "./pages/packs";
+import {
+  OrdersCreate,
+  OrdersEdit,
+  OrdersList,
+  OrdersShow,
+} from "./pages/orders";
+import { ToysCreate, ToysEdit, ToysList, ToysShow } from "./pages/toys";
+import {
+  ProductsCreate,
+  ProductsEdit,
+  ProductsList,
+  ProductsShow,
+} from "./pages/products";
+import {
+  PromotionalCampaignsCreate,
+  PromotionalCampaignsEdit,
+  PromotionalCampaignsList,
+  PromotionalCampaignsShow,
+} from "./pages/promotional-campaigns";
 
 function App() {
   return (
@@ -47,7 +79,7 @@ function App() {
               <Refine
                 dataProvider={dataProvider(API_URL, axiosInstance)}
                 notificationProvider={notificationProvider}
-                accessControlProvider={accessControlProvider}
+                // accessControlProvider={accessControlProvider}
                 authProvider={authProvider}
                 routerProvider={routerBindings}
                 resources={[
@@ -61,6 +93,55 @@ function App() {
                       label: "Accounts",
                       canDelete: true,
                     },
+                  },
+                  {
+                    name: "brands",
+                    list: "/admin/brands",
+                    create: "/admin/brands/create",
+                    edit: "/admin/brands/edit/:id",
+                    show: "/admin/brands/show/:id",
+                  },
+                  {
+                    name: "packs",
+                    list: "/admin/packs",
+                    create: "/admin/packs/create",
+                    edit: "/admin/packs/edit/:id",
+                    show: "/admin/packs/show/:id",
+                  },
+                  {
+                    name: "orders",
+                    list: "/admin/orders",
+                    create: "/admin/orders/create",
+                    edit: "/admin/orders/edit/:id",
+                    show: "/admin/orders/show/:id",
+                  },
+                  {
+                    name: "toys",
+                    list: "/admin/toys",
+                    create: "/admin/toys/create",
+                    edit: "/admin/toys/edit/:id",
+                    show: "/admin/toys/show/:id",
+                  },
+                  {
+                    name: "promotional-campaigns",
+                    list: "/admin/promotional-campaigns",
+                    create: "/admin/promotional-campaigns/create",
+                    edit: "/admin/promotional-campaigns/edit/:id",
+                    show: "/admin/promotional-campaigns/show/:id",
+                  },
+                  {
+                    name: "blind-boxes",
+                    list: "/admin/blind-boxes",
+                    create: "/admin/blind-boxes/create",
+                    edit: "/admin/blind-boxes/edit/:id",
+                    show: "/admin/blind-boxes/show/:id",
+                  },
+                  {
+                    name: "products",
+                    list: "/admin/products",
+                    create: "/admin/products/create",
+                    edit: "/admin/products/edit/:id",
+                    show: "/admin/products/show/:id",
                   },
                 ]}
                 options={{
@@ -120,6 +201,58 @@ function App() {
                       <Route path="edit/:id" element={<AccountsEdit />} />
                       <Route path="show/:id" element={<AccountsShow />} />
                     </Route>
+                    <Route path="brands">
+                      <Route index element={<BrandsList />} />
+                      <Route path="create" element={<BrandsCreate />} />
+                      <Route path="edit/:id" element={<BrandsEdit />} />
+                      <Route path="show/:id" element={<BrandsShow />} />
+                    </Route>
+                    <Route path="blind-boxes">
+                      <Route index element={<BlindBoxesList />} />
+                      <Route path="create" element={<BlindBoxesCreate />} />
+                      <Route path="edit/:id" element={<BlindBoxesEdit />} />
+                      <Route path="show/:id" element={<BlindBoxesShow />} />
+                    </Route>
+                    <Route path="packs">
+                      <Route index element={<PacksList />} />
+                      <Route path="create" element={<PacksCreate />} />
+                      <Route path="edit/:id" element={<PacksEdit />} />
+                      <Route path="show/:id" element={<PacksShow />} />
+                    </Route>
+                    <Route path="orders">
+                      <Route index element={<OrdersList />} />
+                      <Route path="create" element={<OrdersCreate />} />
+                      <Route path="edit/:id" element={<OrdersEdit />} />
+                      <Route path="show/:id" element={<OrdersShow />} />
+                    </Route>
+                    <Route path="toys">
+                      <Route index element={<ToysList />} />
+                      <Route path="create" element={<ToysCreate />} />
+                      <Route path="edit/:id" element={<ToysEdit />} />
+                      <Route path="show/:id" element={<ToysShow />} />
+                    </Route>
+                    <Route path="products">
+                      <Route index element={<ProductsList />} />
+                      <Route path="create" element={<ProductsCreate />} />
+                      <Route path="edit/:id" element={<ProductsEdit />} />
+                      <Route path="show/:id" element={<ProductsShow />} />
+                    </Route>
+                    <Route path="promotional-campaigns">
+                      <Route index element={<PromotionalCampaignsList />} />
+                      <Route
+                        path="create"
+                        element={<PromotionalCampaignsCreate />}
+                      />
+                      <Route
+                        path="edit/:id"
+                        element={<PromotionalCampaignsEdit />}
+                      />
+                      <Route
+                        path="show/:id"
+                        element={<PromotionalCampaignsShow />}
+                      />
+                    </Route>
+
                     <Route path="*" element={<ErrorComponent />} />
                   </Route>
                   <Route

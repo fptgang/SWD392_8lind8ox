@@ -50,7 +50,10 @@ public class PromotionalCampaign {
     private String promoCode;
 
     @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
-    private List<Product> products;
+    private List<BlindBox> blindBoxes;
+
+    @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
+    private List<Pack> packs;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;

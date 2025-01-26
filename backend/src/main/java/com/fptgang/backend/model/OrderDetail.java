@@ -29,8 +29,12 @@ public class OrderDetail {
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "product_id")
-    private Product product;
+    @JoinColumn(nullable = false, name = "blind_box_id")
+    private BlindBox blindBox;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "pack_id")
+    private Pack pack;
 
     @ManyToOne
     @JoinColumn(name = "campaign_id")

@@ -7,7 +7,10 @@ OrderDetailDto:
     orderId:
       type: integer
       format: int64
-    productId:
+    blindBoxId:
+      type: integer
+      format: int64
+    packId:
       type: integer
       format: int64
     promotionalCampaignId:
