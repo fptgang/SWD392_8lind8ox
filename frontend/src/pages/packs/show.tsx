@@ -17,22 +17,16 @@ import {
   CalendarOutlined,
   TagOutlined,
 } from "@ant-design/icons";
-import { ImageDto, ToyDto, ToyDtoRarityEnum } from "../../../generated";
+import { ImageDto, PackDto, ToyDto, ToyDtoRarityEnum } from "../../../generated";
 
 const { Title, Text } = Typography;
 
 export const PacksShow = () => {
-  const { query } = useShow();
-  const { data, isLoading } = query;
-  const record = data?.data;
+  const { query } = useShow<PackDto>();
+  const { data , isLoading } = query;
+  const record = data?.data as PackDto;
 
-  const { data: productData, isLoading: productIsLoading } = useOne({
-    resource: "products",
-    id: record?.productId || "",
-    queryOptions: {
-      enabled: !!record,
-    },
-  });
+
 
   const rarityColorMap: Record<ToyDtoRarityEnum, string> = {
     REGULAR: "default",
@@ -74,10 +68,10 @@ export const PacksShow = () => {
             <Row gutter={[16, 16]}>
               <Col span={12}>
                 <Label>Product</Label>
-                {productIsLoading ? (
+                {isLoading ? (
                   <Spin size="small" />
                 ) : (
-                  <Text strong>#{productData?.data?.id}</Text>
+                  <Text strong>#{record.packId}</Text>
                 )}
               </Col>
 

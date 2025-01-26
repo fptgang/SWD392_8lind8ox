@@ -20,16 +20,12 @@ import {
   DeleteOutlined,
   PictureOutlined,
 } from "@ant-design/icons";
+import { BlindBoxDto } from "../../../generated";
 
 const { Text } = Typography;
 
-const PRODUCT_TYPE_COLOR = {
-  BLIND_BOX: "purple",
-  PACK: "blue",
-};
-
 export const BlindBoxesList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable({
+  const { tableProps, searchFormProps } = useTable<BlindBoxDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -84,38 +80,23 @@ export const BlindBoxesList: React.FC = () => {
 
       <Table
         {...tableProps}
-        rowKey="productId"
+        rowKey="blindBoxId"
         className="overflow-x-auto"
         scroll={{ x: true }}
       >
         <Table.Column
-          dataIndex="productId"
+          dataIndex="blindBoxId"
           title={
             <Tooltip title="Unique product identifier">
               <Space>
                 <GiftOutlined />
-                <span>Product ID</span>
+                <span>BlindBox Id</span>
               </Space>
             </Tooltip>
           }
           sorter
           className="font-medium"
         />
-
-        <Table.Column
-          dataIndex="type"
-          title="Type"
-          filters={[
-            { text: "Blind Box", value: "BLIND_BOX" },
-            { text: "Pack", value: "PACK" },
-          ]}
-          render={(value: keyof typeof PRODUCT_TYPE_COLOR) => (
-            <Tag color={PRODUCT_TYPE_COLOR[value]} className="capitalize">
-              {value.replace("_", " ")}
-            </Tag>
-          )}
-        />
-
         <Table.Column
           dataIndex="name"
           title="Name"
@@ -218,13 +199,13 @@ export const BlindBoxesList: React.FC = () => {
         <Table.Column
           title="Actions"
           fixed="right"
-          render={(_, record: BaseRecord) => (
+          render={(_, record: BlindBoxDto) => (
             <Space size="middle">
               <Tooltip title="Edit Product">
                 <EditButton
                   hideText
                   size="small"
-                  recordItemId={record.productId}
+                  recordItemId={record.blindBoxId}
                   icon={<EditOutlined className="text-blue-600" />}
                   className="hover:text-blue-700"
                 />
@@ -233,7 +214,7 @@ export const BlindBoxesList: React.FC = () => {
                 <ShowButton
                   hideText
                   size="small"
-                  recordItemId={record.productId}
+                  recordItemId={record.blindBoxId}
                   className="text-green-600 hover:text-green-700"
                 />
               </Tooltip>
@@ -241,13 +222,12 @@ export const BlindBoxesList: React.FC = () => {
                 <DeleteButton
                   hideText
                   size="small"
-                  recordItemId={record.productId}
+                  recordItemId={record.blindBoxId}
                   icon={<DeleteOutlined className="text-red-600" />}
                   className="hover:text-red-700"
                   confirmTitle="Delete Product"
                   confirmOkText="Delete"
                   confirmCancelText="Cancel"
-                  confirmOkButtonProps={{ danger: true }}
                 />
               </Tooltip>
             </Space>

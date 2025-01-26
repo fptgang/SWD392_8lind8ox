@@ -20,16 +20,13 @@ import {
   DeleteOutlined,
   BoxPlotOutlined,
 } from "@ant-design/icons";
+import { PackDto } from "../../../generated";
 
 const { Text } = Typography;
 
-const TYPE_COLOR_MAP = {
-  BLIND_BOX: "purple",
-  PACK: "blue",
-};
 
 export const PacksList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable({
+  const { tableProps, searchFormProps } = useTable<PackDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -89,12 +86,12 @@ export const PacksList: React.FC = () => {
         scroll={{ x: true }}
       >
         <Table.Column
-          dataIndex="productId"
+          dataIndex="packId"
           title={
             <Tooltip title="Unique product identifier">
               <Space>
                 <GiftOutlined />
-                <span>Product ID</span>
+                <span>Pack ID</span>
               </Space>
             </Tooltip>
           }
@@ -102,19 +99,7 @@ export const PacksList: React.FC = () => {
           className="font-medium"
         />
 
-        <Table.Column
-          dataIndex="type"
-          title="Type"
-          filters={[
-            { text: "Blind Box", value: "BLIND_BOX" },
-            { text: "Pack", value: "PACK" },
-          ]}
-          render={(value: keyof typeof TYPE_COLOR_MAP) => (
-            <Tag color={TYPE_COLOR_MAP[value]} className="capitalize">
-              {value.replace("_", " ")}
-            </Tag>
-          )}
-        />
+  
 
         <Table.Column
           dataIndex="name"
@@ -242,13 +227,13 @@ export const PacksList: React.FC = () => {
         <Table.Column
           title="Actions"
           fixed="right"
-          render={(_, record: BaseRecord) => (
+          render={(_, record: PackDto) => (
             <Space size="middle">
               <Tooltip title="Edit Pack">
                 <EditButton
                   hideText
                   size="small"
-                  recordItemId={record.productId}
+                  recordItemId={record.packId}
                   icon={<EditOutlined className="text-blue-600" />}
                   className="hover:text-blue-700"
                 />
@@ -257,7 +242,7 @@ export const PacksList: React.FC = () => {
                 <ShowButton
                   hideText
                   size="small"
-                  recordItemId={record.productId}
+                  recordItemId={record.packId}
                   className="text-green-600 hover:text-green-700"
                 />
               </Tooltip>
@@ -265,13 +250,12 @@ export const PacksList: React.FC = () => {
                 <DeleteButton
                   hideText
                   size="small"
-                  recordItemId={record.productId}
+                  recordItemId={record.packId}
                   icon={<DeleteOutlined className="text-red-600" />}
                   className="hover:text-red-700"
                   confirmTitle="Delete Pack"
                   confirmOkText="Delete"
                   confirmCancelText="Cancel"
-                  confirmOkButtonProps={{ danger: true }}
                 />
               </Tooltip>
             </Space>

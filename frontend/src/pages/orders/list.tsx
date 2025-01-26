@@ -127,7 +127,7 @@ export const OrdersList: React.FC = () => {
             if (accountIsLoading)
               return <Text type="secondary">Loading...</Text>;
             const account = accountData?.data?.find(
-              (item) => item.accountId === value
+              (item) => item?.accountId === value
             );
             return account ? (
               <Text>
