@@ -66,11 +66,55 @@ All URIs are relative to *http://localhost:8080/api/v1*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *DefaultApi* | [**createAccount**](doc//DefaultApi.md#createaccount) | **POST** /accounts | Create an account
+*DefaultApi* | [**createBlindBox**](doc//DefaultApi.md#createblindbox) | **POST** /blind-boxes | Create a blind box
+*DefaultApi* | [**createBrand**](doc//DefaultApi.md#createbrand) | **POST** /brands | Create a brand
+*DefaultApi* | [**createImage**](doc//DefaultApi.md#createimage) | **POST** /images | Create an image
+*DefaultApi* | [**createNotification**](doc//DefaultApi.md#createnotification) | **POST** /notifications | Create a notification
+*DefaultApi* | [**createOrder**](doc//DefaultApi.md#createorder) | **POST** /orders | Create an order
+*DefaultApi* | [**createOrderDetail**](doc//DefaultApi.md#createorderdetail) | **POST** /order-details | Create an order detail
+*DefaultApi* | [**createPack**](doc//DefaultApi.md#createpack) | **POST** /packs | Create a pack
+*DefaultApi* | [**createPromotionalCampaign**](doc//DefaultApi.md#createpromotionalcampaign) | **POST** /promotional-campaigns | Create a promotional campaign
+*DefaultApi* | [**createTransaction**](doc//DefaultApi.md#createtransaction) | **POST** /transactions | Create a transaction
+*DefaultApi* | [**createVideo**](doc//DefaultApi.md#createvideo) | **POST** /videos | Create a video
+*DefaultApi* | [**createVideo_0**](doc//DefaultApi.md#createvideo_0) | **POST** /toys | Create a video
 *DefaultApi* | [**deleteAccount**](doc//DefaultApi.md#deleteaccount) | **DELETE** /accounts/{accountId} | Delete an existing account
+*DefaultApi* | [**deleteBlindBox**](doc//DefaultApi.md#deleteblindbox) | **DELETE** /blind-boxes/{blindBoxId} | Delete an existing blind box
+*DefaultApi* | [**deleteBrand**](doc//DefaultApi.md#deletebrand) | **DELETE** /brands/{brandId} | Delete an existing brand
+*DefaultApi* | [**deleteImage**](doc//DefaultApi.md#deleteimage) | **DELETE** /images/{imageId} | Delete an existing image
+*DefaultApi* | [**deleteNotification**](doc//DefaultApi.md#deletenotification) | **DELETE** /notifications/{notificationId} | Delete an existing notification
+*DefaultApi* | [**deleteOrder**](doc//DefaultApi.md#deleteorder) | **DELETE** /orders/{orderId} | Delete an existing order
+*DefaultApi* | [**deleteOrderDetail**](doc//DefaultApi.md#deleteorderdetail) | **DELETE** /order-details/{orderDetailId} | Delete an existing order detail
+*DefaultApi* | [**deletePack**](doc//DefaultApi.md#deletepack) | **DELETE** /packs/{packId} | Delete an existing pack
+*DefaultApi* | [**deletePromotionalCampaign**](doc//DefaultApi.md#deletepromotionalcampaign) | **DELETE** /promotional-campaigns/{campaignId} | Delete an existing promotional campaign
+*DefaultApi* | [**deleteTransaction**](doc//DefaultApi.md#deletetransaction) | **DELETE** /transactions/{transactionId} | Delete an existing transaction
+*DefaultApi* | [**deleteVideo**](doc//DefaultApi.md#deletevideo) | **DELETE** /videos/{videoId} | Delete an existing video
+*DefaultApi* | [**deleteVideo_0**](doc//DefaultApi.md#deletevideo_0) | **DELETE** /toys/{toyId} | Delete an existing video
 *DefaultApi* | [**forgotPassword**](doc//DefaultApi.md#forgotpassword) | **POST** /auth/forgot-password | Forgot password
 *DefaultApi* | [**getAccountById**](doc//DefaultApi.md#getaccountbyid) | **GET** /accounts/{accountId} | Get an account by ID
 *DefaultApi* | [**getAccounts**](doc//DefaultApi.md#getaccounts) | **GET** /accounts | Get a list of accounts
+*DefaultApi* | [**getBlindBoxById**](doc//DefaultApi.md#getblindboxbyid) | **GET** /blind-boxes/{blindBoxId} | Get a blind box by ID
+*DefaultApi* | [**getBlindBoxes**](doc//DefaultApi.md#getblindboxes) | **GET** /blind-boxes | Get a list of blind boxes
+*DefaultApi* | [**getBrandById**](doc//DefaultApi.md#getbrandbyid) | **GET** /brands/{brandId} | Get a brand by ID
+*DefaultApi* | [**getBrands**](doc//DefaultApi.md#getbrands) | **GET** /brands | Get a list of brands
 *DefaultApi* | [**getCurrentUser**](doc//DefaultApi.md#getcurrentuser) | **GET** /auth/me | Get current user information
+*DefaultApi* | [**getImageById**](doc//DefaultApi.md#getimagebyid) | **GET** /images/{imageId} | Get an image by imageId
+*DefaultApi* | [**getImages**](doc//DefaultApi.md#getimages) | **GET** /images | Get a list of images
+*DefaultApi* | [**getNotificationById**](doc//DefaultApi.md#getnotificationbyid) | **GET** /notifications/{notificationId} | Get a notification by notificationId
+*DefaultApi* | [**getNotifications**](doc//DefaultApi.md#getnotifications) | **GET** /notifications | Get a list of notifications
+*DefaultApi* | [**getOrderById**](doc//DefaultApi.md#getorderbyid) | **GET** /orders/{orderId} | Get an order by orderId
+*DefaultApi* | [**getOrderDetailById**](doc//DefaultApi.md#getorderdetailbyid) | **GET** /order-details/{orderDetailId} | Get an order detail by orderDetailId
+*DefaultApi* | [**getOrderDetails**](doc//DefaultApi.md#getorderdetails) | **GET** /order-details | Get a list of order details
+*DefaultApi* | [**getOrders**](doc//DefaultApi.md#getorders) | **GET** /orders | Get a list of orders
+*DefaultApi* | [**getPackById**](doc//DefaultApi.md#getpackbyid) | **GET** /packs/{packId} | Get a pack by packId
+*DefaultApi* | [**getPacks**](doc//DefaultApi.md#getpacks) | **GET** /packs | Get a list of packs
+*DefaultApi* | [**getPromotionalCampaignById**](doc//DefaultApi.md#getpromotionalcampaignbyid) | **GET** /promotional-campaigns/{campaignId} | Get a promotional campaign by campaignId
+*DefaultApi* | [**getPromotionalCampaigns**](doc//DefaultApi.md#getpromotionalcampaigns) | **GET** /promotional-campaigns | Get a list of promotional campaigns
+*DefaultApi* | [**getTransactionById**](doc//DefaultApi.md#gettransactionbyid) | **GET** /transactions/{transactionId} | Get a transaction by transactionId
+*DefaultApi* | [**getTransactions**](doc//DefaultApi.md#gettransactions) | **GET** /transactions | Get a list of transactions
+*DefaultApi* | [**getVideoById**](doc//DefaultApi.md#getvideobyid) | **GET** /videos/{videoId} | Get a video by videoId
+*DefaultApi* | [**getVideoById_0**](doc//DefaultApi.md#getvideobyid_0) | **GET** /toys/{toyId} | Get a video by videoId
+*DefaultApi* | [**getVideos**](doc//DefaultApi.md#getvideos) | **GET** /videos | Get a list of videos
+*DefaultApi* | [**getVideos_0**](doc//DefaultApi.md#getvideos_0) | **GET** /toys | Get a list of videos
 *DefaultApi* | [**login**](doc//DefaultApi.md#login) | **POST** /auth/login | Login to an account
 *DefaultApi* | [**loginWithGoogle**](doc//DefaultApi.md#loginwithgoogle) | **POST** /auth/login-with-google | Login with Google
 *DefaultApi* | [**logout**](doc//DefaultApi.md#logout) | **GET** /auth/logout | Logout from the account
@@ -78,22 +122,56 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**register**](doc//DefaultApi.md#register) | **POST** /auth/register | Register a new account
 *DefaultApi* | [**resetPassword**](doc//DefaultApi.md#resetpassword) | **POST** /auth/reset-password | Reset password
 *DefaultApi* | [**updateAccount**](doc//DefaultApi.md#updateaccount) | **PUT** /accounts/{accountId} | Update an existing account
+*DefaultApi* | [**updateBlindBox**](doc//DefaultApi.md#updateblindbox) | **PUT** /blind-boxes/{blindBoxId} | Update an existing blind box
+*DefaultApi* | [**updateBrand**](doc//DefaultApi.md#updatebrand) | **PUT** /brands/{brandId} | Update an existing brand
+*DefaultApi* | [**updateImage**](doc//DefaultApi.md#updateimage) | **PUT** /images/{imageId} | Update an existing image
+*DefaultApi* | [**updateNotification**](doc//DefaultApi.md#updatenotification) | **PUT** /notifications/{notificationId} | Update an existing notification
+*DefaultApi* | [**updateOrder**](doc//DefaultApi.md#updateorder) | **PUT** /orders/{orderId} | Update an existing order
+*DefaultApi* | [**updateOrderDetail**](doc//DefaultApi.md#updateorderdetail) | **PUT** /order-details/{orderDetailId} | Update an existing order detail
+*DefaultApi* | [**updatePack**](doc//DefaultApi.md#updatepack) | **PUT** /packs/{packId} | Update an existing pack
+*DefaultApi* | [**updatePromotionalCampaign**](doc//DefaultApi.md#updatepromotionalcampaign) | **PUT** /promotional-campaigns/{campaignId} | Update an existing promotional campaign
+*DefaultApi* | [**updateTransaction**](doc//DefaultApi.md#updatetransaction) | **PUT** /transactions/{transactionId} | Update an existing transaction
+*DefaultApi* | [**updateVideo**](doc//DefaultApi.md#updatevideo) | **PUT** /videos/{videoId} | Update an existing video
+*DefaultApi* | [**updateVideo_0**](doc//DefaultApi.md#updatevideo_0) | **PUT** /toys/{toyId} | Update an existing video
 
 
 ## Documentation For Models
 
  - [AccountDto](doc//AccountDto.md)
  - [AuthResponseDto](doc//AuthResponseDto.md)
+ - [BlindBoxDto](doc//BlindBoxDto.md)
+ - [BrandDto](doc//BrandDto.md)
  - [ErrorResponse](doc//ErrorResponse.md)
  - [ForgotPasswordRequestDto](doc//ForgotPasswordRequestDto.md)
  - [GetAccounts200Response](doc//GetAccounts200Response.md)
- - [GetAccountsPageableParameter](doc//GetAccountsPageableParameter.md)
+ - [GetBlindBoxes200Response](doc//GetBlindBoxes200Response.md)
+ - [GetBrands200Response](doc//GetBrands200Response.md)
+ - [GetImages200Response](doc//GetImages200Response.md)
+ - [GetNotifications200Response](doc//GetNotifications200Response.md)
+ - [GetOrderDetails200Response](doc//GetOrderDetails200Response.md)
+ - [GetOrders200Response](doc//GetOrders200Response.md)
+ - [GetPacks200Response](doc//GetPacks200Response.md)
+ - [GetPromotionalCampaigns200Response](doc//GetPromotionalCampaigns200Response.md)
+ - [GetTransactions200Response](doc//GetTransactions200Response.md)
+ - [GetVideos200Response](doc//GetVideos200Response.md)
+ - [ImageDto](doc//ImageDto.md)
  - [JwtResponseDto](doc//JwtResponseDto.md)
  - [LoginRequestDto](doc//LoginRequestDto.md)
+ - [NotificationDto](doc//NotificationDto.md)
+ - [OrderDetailDto](doc//OrderDetailDto.md)
+ - [OrderDto](doc//OrderDto.md)
+ - [PackDto](doc//PackDto.md)
+ - [PackageDto](doc//PackageDto.md)
  - [Page](doc//Page.md)
+ - [Pageable](doc//Pageable.md)
+ - [PromotionCampaignDto](doc//PromotionCampaignDto.md)
+ - [PromotionalCampaignDto](doc//PromotionalCampaignDto.md)
  - [RefreshTokenDto](doc//RefreshTokenDto.md)
  - [RegisterRequestDto](doc//RegisterRequestDto.md)
  - [ResetPasswordRequestDto](doc//ResetPasswordRequestDto.md)
+ - [ToyDto](doc//ToyDto.md)
+ - [TransactionDto](doc//TransactionDto.md)
+ - [VideoDto](doc//VideoDto.md)
 
 
 ## Documentation For Authorization

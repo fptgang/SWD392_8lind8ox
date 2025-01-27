@@ -32,16 +32,39 @@ part 'api/default_api.dart';
 
 part 'model/account_dto.dart';
 part 'model/auth_response_dto.dart';
+part 'model/blind_box_dto.dart';
+part 'model/brand_dto.dart';
 part 'model/error_response.dart';
 part 'model/forgot_password_request_dto.dart';
 part 'model/get_accounts200_response.dart';
-part 'model/get_accounts_pageable_parameter.dart';
+part 'model/get_blind_boxes200_response.dart';
+part 'model/get_brands200_response.dart';
+part 'model/get_images200_response.dart';
+part 'model/get_notifications200_response.dart';
+part 'model/get_order_details200_response.dart';
+part 'model/get_orders200_response.dart';
+part 'model/get_packs200_response.dart';
+part 'model/get_promotional_campaigns200_response.dart';
+part 'model/get_transactions200_response.dart';
+part 'model/get_videos200_response.dart';
+part 'model/image_dto.dart';
 part 'model/jwt_response_dto.dart';
 part 'model/login_request_dto.dart';
+part 'model/notification_dto.dart';
+part 'model/order_detail_dto.dart';
+part 'model/order_dto.dart';
+part 'model/pack_dto.dart';
+part 'model/package_dto.dart';
 part 'model/page.dart';
+part 'model/pageable.dart';
+part 'model/promotion_campaign_dto.dart';
+part 'model/promotional_campaign_dto.dart';
 part 'model/refresh_token_dto.dart';
 part 'model/register_request_dto.dart';
 part 'model/reset_password_request_dto.dart';
+part 'model/toy_dto.dart';
+part 'model/transaction_dto.dart';
+part 'model/video_dto.dart';
 
 
 /// An [ApiClient] instance that uses the default values obtained from

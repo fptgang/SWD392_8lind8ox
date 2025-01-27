@@ -186,26 +186,72 @@ class ApiClient {
           return AccountDto.fromJson(value);
         case 'AuthResponseDto':
           return AuthResponseDto.fromJson(value);
+        case 'BlindBoxDto':
+          return BlindBoxDto.fromJson(value);
+        case 'BrandDto':
+          return BrandDto.fromJson(value);
         case 'ErrorResponse':
           return ErrorResponse.fromJson(value);
         case 'ForgotPasswordRequestDto':
           return ForgotPasswordRequestDto.fromJson(value);
         case 'GetAccounts200Response':
           return GetAccounts200Response.fromJson(value);
-        case 'GetAccountsPageableParameter':
-          return GetAccountsPageableParameter.fromJson(value);
+        case 'GetBlindBoxes200Response':
+          return GetBlindBoxes200Response.fromJson(value);
+        case 'GetBrands200Response':
+          return GetBrands200Response.fromJson(value);
+        case 'GetImages200Response':
+          return GetImages200Response.fromJson(value);
+        case 'GetNotifications200Response':
+          return GetNotifications200Response.fromJson(value);
+        case 'GetOrderDetails200Response':
+          return GetOrderDetails200Response.fromJson(value);
+        case 'GetOrders200Response':
+          return GetOrders200Response.fromJson(value);
+        case 'GetPacks200Response':
+          return GetPacks200Response.fromJson(value);
+        case 'GetPromotionalCampaigns200Response':
+          return GetPromotionalCampaigns200Response.fromJson(value);
+        case 'GetTransactions200Response':
+          return GetTransactions200Response.fromJson(value);
+        case 'GetVideos200Response':
+          return GetVideos200Response.fromJson(value);
+        case 'ImageDto':
+          return ImageDto.fromJson(value);
         case 'JwtResponseDto':
           return JwtResponseDto.fromJson(value);
         case 'LoginRequestDto':
           return LoginRequestDto.fromJson(value);
+        case 'NotificationDto':
+          return NotificationDto.fromJson(value);
+        case 'OrderDetailDto':
+          return OrderDetailDto.fromJson(value);
+        case 'OrderDto':
+          return OrderDto.fromJson(value);
+        case 'PackDto':
+          return PackDto.fromJson(value);
+        case 'PackageDto':
+          return PackageDto.fromJson(value);
         case 'Page':
           return Page.fromJson(value);
+        case 'Pageable':
+          return Pageable.fromJson(value);
+        case 'PromotionCampaignDto':
+          return PromotionCampaignDto.fromJson(value);
+        case 'PromotionalCampaignDto':
+          return PromotionalCampaignDto.fromJson(value);
         case 'RefreshTokenDto':
           return RefreshTokenDto.fromJson(value);
         case 'RegisterRequestDto':
           return RegisterRequestDto.fromJson(value);
         case 'ResetPasswordRequestDto':
           return ResetPasswordRequestDto.fromJson(value);
+        case 'ToyDto':
+          return ToyDto.fromJson(value);
+        case 'TransactionDto':
+          return TransactionDto.fromJson(value);
+        case 'VideoDto':
+          return VideoDto.fromJson(value);
         default:
           dynamic match;
           if (value is List && (match = _regList.firstMatch(targetType)?.group(1)) != null) {

@@ -14,6 +14,10 @@ class HomePageScreen extends StatelessWidget {
   // final AuthRepository authRepository;
   const HomePageScreen({super.key});
 
+  static Route<void> route() {
+    return MaterialPageRoute<void>(builder: (_) => const HomePageScreen());
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

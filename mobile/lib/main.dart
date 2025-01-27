@@ -1,27 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive/hive.dart';
-import 'package:mobile/data/repositories/auth_repository.dart';
-import 'package:mobile/ui/auth/widget/auth_tab.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
+import 'package:mobile/ui/login/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'blocs/authentication/authentication_bloc.dart';
+import 'blocs/authentication/authentication_state.dart';
+import 'data/repositories/auth_repository.dart';
 import 'di/injection.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
-//ui -> bloc -> repository -> data provider (openapi generated code)
+import 'enum/enum.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
+NavigatorState get navigator => navigatorKey.currentState!;
+
+
 void main() async {
-  // await configureDependencies();
+  WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox("authentication");
   configureDependencies();
-  // final authRepository = getIt<AuthRepository>();
-  runApp(MyApp());
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // final AuthRepository authRepository;
   const MyApp({super.key});
 
   @override
@@ -30,17 +35,58 @@ class MyApp extends StatelessWidget {
       designSize: const Size(414, 896),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (BuildContext context, Widget? child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          navigatorKey: navigatorKey,
-          title: '8lind 8ox',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
+      child: MultiProvider(
+        providers: [
+          Provider<AuthRepository>(
+            create: (_) => getIt<AuthRepository>(),
           ),
-          home: HomePageScreen(),
+          BlocProvider(
+            create: (context) => getIt<AuthenticationBloc>()
+              ..add(AuthenticationSubscriptionRequested()),
+          ),
+        ],
+        child: const AppView(),
+      ),
+    );
+  }
+}
+
+class AppView extends StatefulWidget {
+  const AppView({super.key});
+
+  @override
+  State<AppView> createState() => _AppViewState();
+}
+
+class _AppViewState extends State<AppView> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      builder: (context, child) {
+        return BlocListener<AuthenticationBloc, AuthenticationState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case AuthenticationStatus.authenticated:
+                navigator.pushAndRemoveUntil<void>(
+                  HomePageScreen.route(),
+                      (route) => false,
+                );
+                break;
+              case AuthenticationStatus.unauthenticated:
+                navigator.pushAndRemoveUntil<void>(
+                  LoginScreen.route(),
+                      (route) => false,
+                );
+                break;
+              case AuthenticationStatus.unknown:
+                break;
+            }
+          },
+          child: child,
         );
       },
+      onGenerateRoute: (_) => SplashScreen.route(),
     );
   }
 }

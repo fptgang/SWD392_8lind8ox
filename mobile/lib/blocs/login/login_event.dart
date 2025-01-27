@@ -24,12 +24,11 @@ class LoginPasswordChanged extends LoginEvent {
 }
 
 class LoginSubmitted extends LoginEvent {
-  final bool autoLogin;
 
-  const LoginSubmitted(this.autoLogin);
+  const LoginSubmitted();
 
-  @override
-  List<Object> get props => [autoLogin];
 }
 
-class LoginWithGoogle extends LoginEvent {}
+class LoginWithGoogle extends LoginEvent {
+  const LoginWithGoogle();
+}

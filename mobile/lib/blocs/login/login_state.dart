@@ -1,69 +1,40 @@
 import 'package:equatable/equatable.dart';
+import 'package:formz/formz.dart';
 
-import '../../enum/enum.dart';
+import '../../validation/password.dart';
+import '../../validation/username.dart';
 
 class LoginState extends Equatable {
-  final String? email;
-  final String? password;
-  final AuthenticationStatus? status;
-
-  LoginState({
-    this.email,
-    this.password,
-    this.status = AuthenticationStatus.unknown,
+  const LoginState({
+    this.token = "",
+    this.status = FormzSubmissionStatus.initial,
+    this.username = const Username.pure(),
+    this.password = const Password.pure(),
+    this.isValid = false,
   });
 
+  final String token;
+  final FormzSubmissionStatus status;
+  final Username username;
+  final Password password;
+  final bool isValid;
+
   LoginState copyWith({
-    String? status,
+    String? token,
+    FormzSubmissionStatus? status,
+    Username? username,
+    Password? password,
+    bool? isValid,
   }) {
     return LoginState(
-        status: AuthenticationStatus.unknown,
+      token: token ?? this.token,
+      status: status ?? this.status,
+      username: username ?? this.username,
+      password: password ?? this.password,
+      isValid: isValid ?? this.isValid,
     );
   }
 
   @override
-  // TODO: implement props
-  List<Object?> get props => [
-        email,
-        password,
-        status,
-      ];
-}
-
-class Loading extends LoginState {}
-
-class LoginSuccess extends LoginState {
-  final String? token;
-
-  LoginSuccess({this.token});
-
-// LoginState copyWith({
-//   int? accountId,
-//   String? email,
-//   String? firstName,
-//   String? lastName,
-//   String? avatarUrl,
-//   double? balance,
-//   // AccountDtoRoleEnum? role,
-//   bool? isVerified,
-//   DateTime? verifiedAt,
-//   bool? isVisible,
-//   DateTime? createdAt,
-//   DateTime? updatedAt,
-// }) {
-//   return LoginSuccess(
-//     accountId: accountId ?? this.accountId,
-//     email: email ?? this.email,
-//     firstName: firstName ?? this.firstName,
-//     lastName: lastName ?? this.lastName,
-//     avatarUrl: avatarUrl ?? this.avatarUrl,
-//     balance: balance ?? this.balance,
-//     // role: role ?? this.role,
-//     isVerified: isVerified ?? this.isVerified,
-//     verifiedAt: verifiedAt ?? this.verifiedAt,
-//     isVisible: isVisible ?? this.isVisible,
-//     createdAt: createdAt ?? this.createdAt,
-//     updatedAt: updatedAt ?? this.updatedAt,
-//   );
-// }
+  List<Object> get props => [token, status, username, password];
 }

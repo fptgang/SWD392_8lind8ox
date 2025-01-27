@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **password** | **String** |  | [optional] 
 **avatarUrl** | **String** |  | [optional] 
 **balance** | **double** |  | [optional] 
+**updateBalanceAt** | [**DateTime**](DateTime.md) |  | [optional] 
 **role** | **String** |  | [optional] 
 **isVerified** | **bool** |  | [optional] 
 **verifiedAt** | [**DateTime**](DateTime.md) |  | [optional] 

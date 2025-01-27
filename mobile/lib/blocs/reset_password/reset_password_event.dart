@@ -8,24 +8,42 @@ abstract class ResetPasswordEvent{
 
 }
 
-class ForgotPasswordEvent extends ResetPasswordEvent{
-  final bool isClickForgotPassword;
+class ResetPasswordEmailChanged extends ResetPasswordEvent{
+  const ResetPasswordEmailChanged(this.email);
 
-  const ForgotPasswordEvent(this.isClickForgotPassword);
+  final String email;
 
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [email];
+}
+
+class PasswordChanged extends ResetPasswordEvent {
+  final String password;
+
+  const PasswordChanged(this.password);
+
+  @override
+  List<Object?> get props => [password];
+}
+
+class ConfirmPasswordChanged extends ResetPasswordEvent {
+  final String confirmPassword;
+
+  const ConfirmPasswordChanged(this.confirmPassword);
+
+  @override
+  List<Object?> get props => [confirmPassword];
 }
 
 
-class RequestResetPasswordEvent extends ResetPasswordEvent{
-  final String? email;
-  const RequestResetPasswordEvent(this.email);
-
-  @override
-  List<Object?> get props => [email];
+class ForgotPassword extends ResetPasswordEvent{
+  const ForgotPassword();
 }
 
-class ResetPasswordResponseEvent extends ResetPasswordEvent{
 
+class RequestResetPassword extends ResetPasswordEvent{
+  const RequestResetPassword();
+}
+
+class ResetPasswordResponse extends ResetPasswordEvent{
 }

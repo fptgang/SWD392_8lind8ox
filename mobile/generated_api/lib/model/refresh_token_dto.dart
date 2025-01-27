@@ -19,7 +19,6 @@ class RefreshTokenDto {
     this.ipAddress,
     this.sessionId,
     this.clientInfo,
-    this.createdAt,
     this.expiryDate,
   });
 
@@ -77,14 +76,6 @@ class RefreshTokenDto {
   /// source code must fall back to having a nullable type.
   /// Consider adding a "default:" property in the specification file to hide this note.
   ///
-  DateTime? createdAt;
-
-  ///
-  /// Please note: This property should have been non-nullable! Since the specification file
-  /// does not include a default value (using the "default:" property), however, the generated
-  /// source code must fall back to having a nullable type.
-  /// Consider adding a "default:" property in the specification file to hide this note.
-  ///
   DateTime? expiryDate;
 
   @override
@@ -95,7 +86,6 @@ class RefreshTokenDto {
     other.ipAddress == ipAddress &&
     other.sessionId == sessionId &&
     other.clientInfo == clientInfo &&
-    other.createdAt == createdAt &&
     other.expiryDate == expiryDate;
 
   @override
@@ -107,11 +97,10 @@ class RefreshTokenDto {
     (ipAddress == null ? 0 : ipAddress!.hashCode) +
     (sessionId == null ? 0 : sessionId!.hashCode) +
     (clientInfo == null ? 0 : clientInfo!.hashCode) +
-    (createdAt == null ? 0 : createdAt!.hashCode) +
     (expiryDate == null ? 0 : expiryDate!.hashCode);
 
   @override
-  String toString() => 'RefreshTokenDto[refreshTokenId=$refreshTokenId, accountId=$accountId, token=$token, ipAddress=$ipAddress, sessionId=$sessionId, clientInfo=$clientInfo, createdAt=$createdAt, expiryDate=$expiryDate]';
+  String toString() => 'RefreshTokenDto[refreshTokenId=$refreshTokenId, accountId=$accountId, token=$token, ipAddress=$ipAddress, sessionId=$sessionId, clientInfo=$clientInfo, expiryDate=$expiryDate]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -144,11 +133,6 @@ class RefreshTokenDto {
       json[r'clientInfo'] = this.clientInfo;
     } else {
       json[r'clientInfo'] = null;
-    }
-    if (this.createdAt != null) {
-      json[r'createdAt'] = this.createdAt!.toUtc().toIso8601String();
-    } else {
-      json[r'createdAt'] = null;
     }
     if (this.expiryDate != null) {
       json[r'expiryDate'] = this.expiryDate!.toUtc().toIso8601String();
@@ -183,7 +167,6 @@ class RefreshTokenDto {
         ipAddress: mapValueOfType<String>(json, r'ipAddress'),
         sessionId: mapValueOfType<String>(json, r'sessionId'),
         clientInfo: mapValueOfType<String>(json, r'clientInfo'),
-        createdAt: mapDateTime(json, r'createdAt', r''),
         expiryDate: mapDateTime(json, r'expiryDate', r''),
       );
     }

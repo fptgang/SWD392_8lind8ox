@@ -14,7 +14,6 @@ Name | Type | Description | Notes
 **ipAddress** | **String** |  | [optional] 
 **sessionId** | **String** |  | [optional] 
 **clientInfo** | **String** |  | [optional] 
-**createdAt** | [**DateTime**](DateTime.md) |  | [optional] 
 **expiryDate** | [**DateTime**](DateTime.md) |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

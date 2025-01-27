@@ -20,6 +20,7 @@ class AccountDto {
     this.password,
     this.avatarUrl,
     this.balance,
+    this.updateBalanceAt,
     this.role,
     this.isVerified,
     this.verifiedAt,
@@ -84,6 +85,14 @@ class AccountDto {
   ///
   double? balance;
 
+  ///
+  /// Please note: This property should have been non-nullable! Since the specification file
+  /// does not include a default value (using the "default:" property), however, the generated
+  /// source code must fall back to having a nullable type.
+  /// Consider adding a "default:" property in the specification file to hide this note.
+  ///
+  DateTime? updateBalanceAt;
+
   AccountDtoRoleEnum? role;
 
   ///
@@ -135,6 +144,7 @@ class AccountDto {
     other.password == password &&
     other.avatarUrl == avatarUrl &&
     other.balance == balance &&
+    other.updateBalanceAt == updateBalanceAt &&
     other.role == role &&
     other.isVerified == isVerified &&
     other.verifiedAt == verifiedAt &&
@@ -152,6 +162,7 @@ class AccountDto {
     (password == null ? 0 : password!.hashCode) +
     (avatarUrl == null ? 0 : avatarUrl!.hashCode) +
     (balance == null ? 0 : balance!.hashCode) +
+    (updateBalanceAt == null ? 0 : updateBalanceAt!.hashCode) +
     (role == null ? 0 : role!.hashCode) +
     (isVerified == null ? 0 : isVerified!.hashCode) +
     (verifiedAt == null ? 0 : verifiedAt!.hashCode) +
@@ -160,7 +171,7 @@ class AccountDto {
     (updatedAt == null ? 0 : updatedAt!.hashCode);
 
   @override
-  String toString() => 'AccountDto[accountId=$accountId, email=$email, firstName=$firstName, lastName=$lastName, password=$password, avatarUrl=$avatarUrl, balance=$balance, role=$role, isVerified=$isVerified, verifiedAt=$verifiedAt, isVisible=$isVisible, createdAt=$createdAt, updatedAt=$updatedAt]';
+  String toString() => 'AccountDto[accountId=$accountId, email=$email, firstName=$firstName, lastName=$lastName, password=$password, avatarUrl=$avatarUrl, balance=$balance, updateBalanceAt=$updateBalanceAt, role=$role, isVerified=$isVerified, verifiedAt=$verifiedAt, isVisible=$isVisible, createdAt=$createdAt, updatedAt=$updatedAt]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -198,6 +209,11 @@ class AccountDto {
       json[r'balance'] = this.balance;
     } else {
       json[r'balance'] = null;
+    }
+    if (this.updateBalanceAt != null) {
+      json[r'updateBalanceAt'] = this.updateBalanceAt!.toUtc().toIso8601String();
+    } else {
+      json[r'updateBalanceAt'] = null;
     }
     if (this.role != null) {
       json[r'role'] = this.role;
@@ -258,6 +274,7 @@ class AccountDto {
         password: mapValueOfType<String>(json, r'password'),
         avatarUrl: mapValueOfType<String>(json, r'avatarUrl'),
         balance: mapValueOfType<double>(json, r'balance'),
+        updateBalanceAt: mapDateTime(json, r'updateBalanceAt', r''),
         role: AccountDtoRoleEnum.fromJson(json[r'role']),
         isVerified: mapValueOfType<bool>(json, r'isVerified'),
         verifiedAt: mapDateTime(json, r'verifiedAt', r''),
@@ -329,15 +346,13 @@ class AccountDtoRoleEnum {
 
   static const ADMIN = AccountDtoRoleEnum._(r'ADMIN');
   static const STAFF = AccountDtoRoleEnum._(r'STAFF');
-  static const CLIENT = AccountDtoRoleEnum._(r'CLIENT');
-  static const FREELANCER = AccountDtoRoleEnum._(r'FREELANCER');
+  static const CUSTOMER = AccountDtoRoleEnum._(r'CUSTOMER');
 
   /// List of all possible values in this [enum][AccountDtoRoleEnum].
   static const values = <AccountDtoRoleEnum>[
     ADMIN,
     STAFF,
-    CLIENT,
-    FREELANCER,
+    CUSTOMER,
   ];
 
   static AccountDtoRoleEnum? fromJson(dynamic value) => AccountDtoRoleEnumTypeTransformer().decode(value);
@@ -378,8 +393,7 @@ class AccountDtoRoleEnumTypeTransformer {
       switch (data) {
         case r'ADMIN': return AccountDtoRoleEnum.ADMIN;
         case r'STAFF': return AccountDtoRoleEnum.STAFF;
-        case r'CLIENT': return AccountDtoRoleEnum.CLIENT;
-        case r'FREELANCER': return AccountDtoRoleEnum.FREELANCER;
+        case r'CUSTOMER': return AccountDtoRoleEnum.CUSTOMER;
         default:
           if (!allowNull) {
             throw ArgumentError('Unknown enum value to decode: $data');

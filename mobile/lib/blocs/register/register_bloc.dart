@@ -1,19 +1,102 @@
-
-
 import 'package:bloc/bloc.dart';
+import 'package:formz/formz.dart';
 import 'package:mobile/blocs/register/register_event.dart';
 import 'package:mobile/blocs/register/register_state.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
+import 'package:openapi/api.dart';
 
-class RegisterBloc extends Bloc<RegisterEvent, RegisterState>{
+import '../../validation/password.dart';
+import '../../validation/username.dart';
+
+class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final AuthRepository _authRepository;
 
-
-  RegisterBloc(this._authRepository) : super(RegisterState()){
-    on<RegisterSubmitted>((onRegisterSubmitted));
+  RegisterBloc({required AuthRepository authRepository})
+      : _authRepository = authRepository,
+        super(const RegisterState()) {
+    on<RegisterEmailChanged>(_onEmailChanged);
+    on<RegisterPasswordChanged>(_onPasswordChanged);
+    on<RegisterConfirmPasswordChanged>(_onConfirmPasswordChanged);
+    on<RegisterFirstNameChanged>(_onFirstNameChanged);
+    on<RegisterLastNameChanged>(_onLastNameChanged);
+    on<RegisterSubmitted>(onRegisterSubmitted);
   }
 
-  void onRegisterSubmitted(RegisterSubmitted event, Emitter<RegisterState> emit ) async{
+void _onEmailChanged(
+  RegisterEmailChanged event,
+  Emitter<RegisterState> emit,
+) {
+  final email = EmailRegister.dirty(event.email);
+  emit(
+    state.copyWith(
+      email: email,
+      isValid: Formz.validate([state.password, email]),
+    ),
+  );
+}
+  void _onPasswordChanged(
+    RegisterPasswordChanged event,
+    Emitter<RegisterState> emit,
+  ) {
+    final password = Password.dirty(event.password);
+    emit(
+      state.copyWith(
+        password: password,
+        isValid: Formz.validate([password, state.email]),
+      ),
+    );
   }
 
+  void _onConfirmPasswordChanged(
+    RegisterConfirmPasswordChanged event,
+    Emitter<RegisterState> emit,
+  ) {
+    final password = Password.dirty(event.confirmPassword);
+    emit(
+      state.copyWith(
+        confirmPassword: event.confirmPassword,
+        isValid: Formz.validate([password, state.email]),
+      ),
+    );
+  }
+
+  void _onFirstNameChanged(
+    RegisterFirstNameChanged event,
+    Emitter<RegisterState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        firstName: event.firstName,
+        isValid: event.firstName.isNotEmpty && event.firstName.length > 2
+      ),
+    );
+  }
+
+  void _onLastNameChanged(
+    RegisterLastNameChanged event,
+    Emitter<RegisterState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        lastName: event.lastName,
+        isValid: event.lastName.isNotEmpty && event.lastName.length > 2
+      ),
+    );
+  }
+
+  void onRegisterSubmitted(RegisterSubmitted event, Emitter<RegisterState> emit) async {
+    try{
+      final registerRequestDto = RegisterRequestDto(
+        email: state.email.value,
+        password: state.password.value,
+        confirmPassword: state.confirmPassword,
+        firstName: state.firstName,
+        lastName: state.lastName
+      );
+      _authRepository.register(registerRequestDto);
+      emit(state.copyWith(status: FormzSubmissionStatus.success));
+    } catch (error) {
+      emit(state.copyWith(status: FormzSubmissionStatus.failure));
+    }
+  }
 }
