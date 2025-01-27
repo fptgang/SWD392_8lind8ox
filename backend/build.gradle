@@ -104,6 +104,10 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+tasks.named("bootRun") {
+	dependsOn tasks.named("openApiGenerate")
+}
+
 tasks.named('openApiGenerate') {
 	dependsOn clean
 }
