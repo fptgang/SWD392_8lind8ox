@@ -1,6 +1,7 @@
 import React from "react";
 import { Breadcrumb, Layout, Menu } from "antd";
 import { ThemedHeaderV2 } from "@refinedev/antd";
+import CustomerHeader from "../header/customer-header";
 
 const { Header, Content, Footer } = Layout;
 
@@ -17,9 +18,8 @@ export const ClientLayout: React.FC<AppProps> = ({
 }) => {
   return (
     <Layout>
-      <Header className="sticky top-0 z-[1] w-full flex items-center bg-inherit">
-        <HeaderContent />
-      </Header>
+      <CustomerHeader/>
+
       <Content>
         <InnerContent />
       </Content>

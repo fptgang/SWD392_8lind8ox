@@ -9,12 +9,10 @@ import { useNavigate } from "react-router";
 
 const { Title, Paragraph } = Typography;
 
-const text = "Find Top Freelancers for Your Next Project";
-
 const hooks = [
-  "Find Top Freelancers for Your Next Project",
-  "Connect with skilled professionals worldwide.",
-  "Hire the best talent for your business needs on Hireable.",
+  "Discover Exclusive Blind Box Collections",
+  "Unbox Mystery Treasures and Rare Finds",
+  "Start Your Collection Adventure Today",
 ];
 const Hero: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -71,8 +69,8 @@ const Hero: React.FC = () => {
               </motion.div>
             </Title>
             <Paragraph className="text-lg text-gray-600">
-              Connect with skilled professionals worldwide. Hire the best talent
-              for your business needs on Hireable.
+              Experience the thrill of unboxing exclusive collectibles. Each box holds a surprise
+              waiting to be discovered. Join our community of collectors today!
             </Paragraph>
             <div className="flex gap-4">
               <Button
@@ -80,14 +78,14 @@ const Hero: React.FC = () => {
                 size="large"
                 onClick={handleHireTalentButton}
               >
-                Hire Talent
+                Shop Blind Boxes
               </Button>
               <Button
                 size="large"
                 className="flex items-center"
                 onClick={handleLearnMore}
               >
-                Learn More <ArrowRightOutlined className="ml-2" />
+                View Series <ArrowRightOutlined className="ml-2" />
               </Button>
             </div>
           </div>

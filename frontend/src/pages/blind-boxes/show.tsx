@@ -7,7 +7,7 @@ import {
   BooleanField,
   DateField,
 } from "@refinedev/antd";
-import { Typography, Card, Row, Col, Image, Spin, Space, Tag } from "antd";
+import { Typography, Card, Row, Col, Image, Spin, Space, Tag, Button, message } from "antd";
 import {
   ShoppingOutlined,
   DollarOutlined,
@@ -15,28 +15,38 @@ import {
   EyeOutlined,
   CalendarOutlined,
   InfoCircleOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
+import { BlindBoxDto } from "../../../generated";
+import { useCart } from "../../hooks/useCart";
 
 const { Title, Text } = Typography;
 
 export const BlindBoxesShow = () => {
   const { query } = useShow();
   const { data, isLoading } = query;
-  const record = data?.data;
+  const record = data?.data as BlindBoxDto;
+  const { addItem } = useCart();
 
-  const { data: productData, isLoading: productIsLoading } = useOne({
-    resource: "products",
-    id: record?.productId || "",
-    queryOptions: {
-      enabled: !!record,
-    },
-  });
+  const handleAddToCart = () => {
+    if (record) {
+      addItem({
+        id: record.blindBoxId,
+        name: record.name,
+        price: record.price,
+        image: record.images?.[0]?.imageUrl || ''
+      });
+      message.success('Added to cart successfully!');
+    }
+  };
+
+ 
 
   return (
-    <Show isLoading={isLoading} wrapperProps={{ gutter: [16, 16] }}>
+    <Show isLoading={isLoading}>
       <Row gutter={[24, 24]}>
         {/* Image Gallery */}
-        {record?.images?.length > 0 && (
+        {(record?.images?.length ?? 0) > 0 && (
           <Col span={24}>
             <Card
               title={
@@ -48,7 +58,7 @@ export const BlindBoxesShow = () => {
               bordered={false}
             >
               <Space wrap>
-                {record.images.map((image: any) => (
+                {record?.images?.map((image: any) => (
                   <Image
                     key={image.imageId}
                     width={200}
@@ -76,18 +86,12 @@ export const BlindBoxesShow = () => {
             <Row gutter={[16, 16]}>
               <Col span={24}>
                 <Label>Product ID</Label>
-                {productIsLoading ? (
+                {isLoading ? (
                   <Spin size="small" />
                 ) : (
-                  <Text strong>#{productData?.data?.id}</Text>
+                  <Text strong>#{record.blindBoxId}</Text>
                 )}
               </Col>
-
-              <Col span={24}>
-                <Label>Type</Label>
-                <Tag color="purple">{record?.type}</Tag>
-              </Col>
-
               <Col span={24}>
                 <Label>Name</Label>
                 <Text strong style={{ fontSize: 18 }}>
@@ -117,14 +121,24 @@ export const BlindBoxesShow = () => {
             <Row gutter={[16, 16]}>
               <Col span={24}>
                 <Label>Current Price</Label>
-                <NumberField
-                  value={record?.currentPrice}
-                  options={{
-                    style: "currency",
-                    currency: "USD",
-                  }}
-                  style={{ fontSize: 16, fontWeight: 500 }}
-                />
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  <NumberField
+                    value={record?.currentPrice ?? 0}
+                    options={{
+                      style: "currency",
+                      currency: "USD",
+                    }}
+                    style={{ fontSize: 16, fontWeight: 500 }}
+                  />
+                  <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    onClick={handleAddToCart}
+                    block
+                  >
+                    Add to Cart
+                  </Button>
+                </Space>
               </Col>
 
               <Col span={24}>

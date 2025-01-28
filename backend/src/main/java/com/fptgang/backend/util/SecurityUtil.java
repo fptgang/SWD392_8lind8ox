@@ -53,7 +53,7 @@ public class SecurityUtil {
     @NotNull
     public static boolean isRole(Account.Role... roles) {
         for (Account.Role role : roles) {
-            if (isRole(role)) {
+            if (hasPermission(role)) {
                 return true;
             }
         }

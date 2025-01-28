@@ -2,6 +2,7 @@ import type { AuthProvider } from "@refinedev/core";
 import { API_URL } from "./utils/constants";
 
 import {
+  AccountDto,
   AccountDtoRoleEnum,
   AuthResponseDto,
   Configuration,
@@ -110,7 +111,7 @@ export const authProvider: AuthProvider = {
   getPermissions: async () => {
     return localStorage.getItem("role");
   },
-  getIdentity: async () => {
+  getIdentity: async () : Promise<AccountDto | null>=> {
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       const result = await api
@@ -124,12 +125,7 @@ export const authProvider: AuthProvider = {
           if (response.role) {
             localStorage.setItem("role", response.role);
           }
-          return {
-            id: response.accountId,
-            name: response.firstName + " " + response.lastName,
-            avatar: response.avatarUrl ?? "https://i.pravatar.cc/300",
-            role: response.role,
-          };
+          return response;
         })
         .catch((error) => {
           console.log(error);
