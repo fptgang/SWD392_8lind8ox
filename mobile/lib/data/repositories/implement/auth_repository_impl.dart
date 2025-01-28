@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:injectable/injectable.dart';
 import 'package:mobile/data/mapper/auth_response_mapper.dart';
 import 'package:mobile/data/mapper/jwt_response_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
@@ -9,7 +11,6 @@ import 'package:mobile/data/models/jwt_response_model.dart';
 import 'package:openapi/api.dart';
 import '../../../enum/enum.dart';
 import '../auth_repository.dart';
-
 
 class AuthRepositoryImpl implements AuthRepository {
   final _controller = StreamController<AuthenticationStatus>();
@@ -35,15 +36,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResponseModel> login(LoginRequestDto loginRequestDto) async {
-    AuthResponseDto? dto = await _apiService.login(loginRequestDto);
-    if (dto == null) {
-      throw Exception('Login failed, please try again');
+    try{
+      AuthResponseDto? dto = await _apiService.login(loginRequestDto);
+      debugPrint("ddddddddddto: $dto");
+      if (dto == null) {
+        throw Exception('Login failed, please try again');
+      }
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+            () => _controller.add(AuthenticationStatus.authenticated),
+      );
+      debugPrint("dto: $dto");
+      debugPrint("AuthMapper.toModel(dto): ${AuthMapper.toModel(dto)}");
+      debugPrint("${AuthenticationStatus.authenticated}");
+      return AuthMapper.toModel(dto);
     }
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-          () => _controller.add(AuthenticationStatus.authenticated),
-    );
-    return AuthMapper.toModel(dto);
+    catch(e){
+      throw Exception('Login failed repository, please try again, ${e.toString()}');
+    }
 
   }
 
@@ -98,17 +108,32 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<String?> signInWithGoogle() async {
-    const List<String> scopes = <String>[
-      'email',
-      'https://www.googleapis.com/auth/contacts.readonly',
-    ];
-    GoogleSignIn _googleSignIn = GoogleSignIn(
-      // Optional clientId
-      // clientId: 'your-client_id.apps.googleusercontent.com',
-      scopes: scopes,
-    );
-    await _googleSignIn.signIn();
-    throw UnimplementedError();
+    const GOOGLE_CLIENT_ID = "456982582712-hhilqsfqccnkfvrc8mnqkcf0klchmesm.apps.googleusercontent.com";
+
+    try{
+      const List<String> scopes = <String>[
+        'email',
+        'https://www.googleapis.com/auth/contacts.readonly',
+      ];
+      GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: GOOGLE_CLIENT_ID,
+        scopes: scopes,
+      );
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+      await googleSignIn.canAccessScopes(scopes);
+      if (account == null) {
+        return null;
+      }
+      final GoogleSignInAuthentication googleAuth = await account.authentication;
+      return googleAuth.idToken;
+    }
+    catch(e){
+      throw Exception('Google sign in failed, please try again, ${e.toString()}');
+    }
   }
+
+  // Future<void> signOut() async {
+  //   await _googleSignIn.signOut();
+  // }
  
 }

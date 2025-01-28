@@ -5,6 +5,7 @@ import 'package:mobile/data/repositories/auth_repository.dart';
 import 'package:mobile/ui/login/widget/LoginForm.dart';
 
 import '../../blocs/login/login_bloc.dart';
+import '../../di/injection.dart';
 import '../core/theme/theme.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -13,15 +14,12 @@ class LoginScreen extends StatelessWidget {
   static Route<void> route() {
     return MaterialPageRoute<void>(builder: (_) => LoginScreen());
   }
-
-  final AuthRepository authRepository = GetIt.instance<AuthRepository>();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: BlocProvider<LoginBloc>(
-        create: (context) => LoginBloc(authRepository: authRepository),
+        create: (context) => getIt<LoginBloc>(),
         child: Scaffold(
           backgroundColor: getColorSkin().backgroundColor,
           body: Center(

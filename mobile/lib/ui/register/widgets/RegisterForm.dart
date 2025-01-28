@@ -48,46 +48,29 @@ class RegisterForm extends StatelessWidget {
                   ),
                 ],
               ),
+              SizedBox(height: 20.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: _FirstnameInput(),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: _LastnameInput(),
+                  ),
+                ],
+              ),
 
               SizedBox(height: 20.h),
 
               _UsernameInput(),
-              // TextField(
-              //   decoration: InputDecoration(
-              //     labelText: "Email",
-              //     border: OutlineInputBorder(
-              //         borderRadius: BorderRadius.circular(12)),
-              //   ),
-              // ),
               SizedBox(height: 20.h),
-              // TextField(
-              //   obscureText: true,
-              //   decoration: InputDecoration(
-              //     labelText: "Password",
-              //     suffixIcon: const Icon(Icons.visibility_off),
-              //     border: OutlineInputBorder(
-              //         borderRadius: BorderRadius.circular(12)),
-              //   ),
-              // ),
+
               _PasswordInput(),
-
               SizedBox(height: 20.h),
-
-              // ElevatedButton(
-              //   onPressed: () {},
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: getColorSkin().accentColor,
-              //     minimumSize: const Size(double.infinity, 50),
-              //     shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(12)),
-              //   ),
-              //   child: Text(
-              //     "Sign Up",
-              //     style: TextStyle(fontSize: 18, color: getColorSkin().backgroundColor),
-              //   ),
-              // ),
+              _ConfirmPasswordInput(),
+              SizedBox(height: 20.h),
               _RegisterButton(),
-
               SizedBox(height: 20.h),
               Center(
                 child: Text(
@@ -96,36 +79,42 @@ class RegisterForm extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: getColorSkin().backgroundColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: getColorSkin().lightGrey400)),
-                    ),
-                    icon: Icon(Icons.g_mobiledata, color: getColorSkin().black),
-                    label: Text("Continue with Google",
-                        style: TextStyle(color: getColorSkin().black)),
-                  ),
 
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: ElevatedButton.icon(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: getColorSkin().backgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: getColorSkin().lightGrey400),
+                        ),
+                      ),
+                      icon: Icon(Icons.g_mobiledata, color: getColorSkin().black),
+                      label: FittedBox(
+                        child: Text(
+                          "Continue with Google",
+                          style: TextStyle(color: getColorSkin().black),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Flexible(
+                    child: TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        "Continue as Guest",
+                        style: TextStyle(fontSize: 16, color: getColorSkin().black),
+                      ),
+                    ),
+                  ),
                 ],
               ),
 
-              SizedBox(height: 20),
-
-              // Continue as Guest
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  "Continue as Guest",
-                  style: TextStyle(
-                      fontSize: 16, color: getColorSkin().black),
-                ),
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -183,6 +172,51 @@ class _UsernameInput extends StatelessWidget {
     );
   }
 }
+class _FirstnameInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+          (RegisterBloc bloc) => bloc.state.email.displayError,
+    );
+
+    return TextField(
+      key: const Key('RegisterForm_firstnameInput_textField'),
+      onChanged: (email) {
+        context.read<RegisterBloc>().add(RegisterEmailChanged(email));
+      },
+      decoration: InputDecoration(
+        labelText: 'First name',
+        errorText: displayError != null ? 'invalid name' : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+}
+class _LastnameInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+          (RegisterBloc bloc) => bloc.state.email.displayError,
+    );
+
+    return TextField(
+      key: const Key('RegisterForm_lastnameInput_textField'),
+      onChanged: (email) {
+        context.read<RegisterBloc>().add(RegisterEmailChanged(email));
+      },
+      decoration: InputDecoration(
+        labelText: 'Last name',
+        errorText: displayError != null ? 'invalid last name' : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+}
+
 
 class _PasswordInput extends StatelessWidget {
   @override
@@ -198,7 +232,32 @@ class _PasswordInput extends StatelessWidget {
       },
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'password',
+        labelText: 'Password',
+        errorText: displayError != null ? 'invalid password' : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        suffixIcon: const Icon(Icons.visibility_off),
+      ),
+    );
+  }
+}
+
+class _ConfirmPasswordInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+          (RegisterBloc bloc) => bloc.state.password.displayError,
+    );
+
+    return TextField(
+      key: const Key('RegisterForm_confirmPasswordInput_textField'),
+      onChanged: (password) {
+        context.read<RegisterBloc>().add(RegisterPasswordChanged(password));
+      },
+      obscureText: true,
+      decoration: InputDecoration(
+        labelText: 'Confirm password',
         errorText: displayError != null ? 'invalid password' : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -220,24 +279,27 @@ class _RegisterButton extends StatelessWidget {
 
     final isValid = context.select((RegisterBloc bloc) => bloc.state.isValid);
 
-    return ElevatedButton(
-      key: const Key('RegisterForm_continue_raisedButton'),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: getColorSkin().accentColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        key: const Key('RegisterForm_continue_raisedButton'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: getColorSkin().accentColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 12,
+          ),
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 12,
+        onPressed: isValid
+            ? () => context.read<RegisterBloc>().add(RegisterSubmitted())
+            : null,
+        child: Text(
+          'Create account',
+          style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
         ),
-      ),
-      onPressed: isValid
-          ? () => context.read<RegisterBloc>().add(RegisterSubmitted())
-          : null,
-      child: Text(
-        'Sign In',
-        style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
       ),
     );
   }

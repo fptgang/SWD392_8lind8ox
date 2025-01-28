@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:mobile/main.dart';
+import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
 import 'package:mobile/ui/register/register_screen.dart';
 
 import '../../../blocs/login/login_bloc.dart';
@@ -24,6 +25,8 @@ class LoginForm extends StatelessWidget {
             ..showSnackBar(
               const SnackBar(content: Text('Authentication Failure')),
             );
+        } else if (state.status.isSuccess){
+          navigator.pushReplacement(HomePageScreen.route());
         }
       },
       child: Card(
@@ -226,6 +229,7 @@ class _LoginButton extends StatelessWidget {
     if (isInProgressOrSuccess) return const CircularProgressIndicator();
 
     final isValid = context.select((LoginBloc bloc) => bloc.state.isValid);
+    debugPrint('isValid: $isValid');
 
     return ElevatedButton(
       key: const Key('loginForm_continue_raisedButton'),

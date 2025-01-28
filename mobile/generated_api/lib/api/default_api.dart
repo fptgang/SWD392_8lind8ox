@@ -2879,6 +2879,7 @@ class DefaultApi {
   /// * [LoginRequestDto] loginRequestDto (required):
   Future<AuthResponseDto?> login(LoginRequestDto loginRequestDto,) async {
     final response = await loginWithHttpInfo(loginRequestDto,);
+    print("API response: $response");
     if (response.statusCode >= HttpStatus.badRequest) {
       throw ApiException(response.statusCode, await _decodeBodyBytes(response));
     }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:injectable/injectable.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
 
@@ -11,8 +12,11 @@ import 'authentication_state.dart';
 
 part 'authentication_event.dart';
 
+@injectable
 class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
+
+  @factoryMethod
   AuthenticationBloc({
     required AuthRepository authenticationRepository,
     required AccountRepository userRepository,
@@ -27,9 +31,9 @@ class AuthenticationBloc
   final AccountRepository _userRepository;
 
   Future<void> _onSubscriptionRequested(
-      AuthenticationSubscriptionRequested event,
-      Emitter<AuthenticationState> emit,
-      ) {
+    AuthenticationSubscriptionRequested event,
+    Emitter<AuthenticationState> emit,
+  ) {
     return emit.onEach(
       _authenticationRepository.status,
       onData: (status) async {
@@ -52,9 +56,9 @@ class AuthenticationBloc
   }
 
   void _onLogoutPressed(
-      AuthenticationLogoutPressed event,
-      Emitter<AuthenticationState> emit,
-      ) {
+    AuthenticationLogoutPressed event,
+    Emitter<AuthenticationState> emit,
+  ) {
     _authenticationRepository.logout();
   }
 

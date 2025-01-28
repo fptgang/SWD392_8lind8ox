@@ -1,4 +1,4 @@
-// dart format width=80
+  // dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
@@ -18,7 +18,7 @@ extension GetItInjectableX on _i174.GetIt {
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
   }) {
-    _i526.GetItHelper(
+    final gh =_i526.GetItHelper(
       this,
       environment,
       environmentFilter,

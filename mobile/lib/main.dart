@@ -22,7 +22,6 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox("authentication");
   configureDependencies();
-
   runApp(const MyApp());
 }
 
