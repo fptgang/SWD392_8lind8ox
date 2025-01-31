@@ -1,4 +1,7 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
+import 'package:mobile/enum/enum.dart';
+import 'package:mobile/main.dart';
 import 'package:mobile/ui/auth/widget/auth_tab.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/widget/cart_screen.dart';
@@ -9,6 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/ui/login/login_screen.dart';
+
+import '../../../blocs/authentication/authentication_bloc.dart';
+import '../../account/account_screen.dart';
 
 class HomePageScreen extends StatelessWidget {
   // final AuthRepository authRepository;
@@ -34,16 +40,16 @@ class HomePageScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Container(
-                          height: 50.h,
-                          width: 130.w,
+                          height: 40.h,
+                          width: 50.w,
                           decoration: BoxDecoration(
                             color: getColorSkin().lightGrey200,
                             borderRadius: BorderRadius.circular(25),
                           ),
-                          child: const TextField(
+                          child: TextField(
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 15),
+                                  horizontal: 20.w, vertical: 9.h),
                               border: InputBorder.none,
                               hintText: "Search here...",
                               // prefixIcon: Icon(Icons.search, color: getColorSkin().accentColor),
@@ -51,9 +57,9 @@ class HomePageScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 16.w),
+                      SizedBox(width: 10.w),
                       CircleAvatar(
-                        radius: 25,
+                        radius: 15,
                         backgroundColor: getColorSkin().accentColor,
                         child: Icon(Icons.search,
                             color: getColorSkin().backgroundColor),
@@ -67,7 +73,7 @@ class HomePageScreen extends StatelessWidget {
                                   builder: (context) => const CartScreen()));
                         },
                         child: CircleAvatar(
-                          radius: 25,
+                          radius: 10,
                           backgroundColor: getColorSkin().lightGrey,
                           child: Icon(Icons.add_shopping_cart,
                               color: getColorSkin().black),
@@ -76,18 +82,21 @@ class HomePageScreen extends StatelessWidget {
                       SizedBox(width: 16.w),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginScreen()));
+                          final authStatus = context.read<AuthenticationBloc>().state.status;
+                          debugPrint("authStatus: $authStatus");
+                          if (authStatus == AuthenticationStatus.authenticated) {
+                            Navigator.of(context).push(AccountScreen.route());
+                          } else if (authStatus == AuthenticationStatus.unauthenticated || authStatus == AuthenticationStatus.unknown) {
+                            Navigator.of(context).push(LoginScreen.route());
+                          }
                         },
                         child: CircleAvatar(
-                          radius: 25,
+                          radius: 10,
                           backgroundColor: getColorSkin().lightGrey,
-                          child:
-                          Icon(Icons.person, color: getColorSkin().black),
+                          child: Icon(Icons.person, color: getColorSkin().black),
                         ),
                       ),
+
                     ],
                   ),
                   SizedBox(height: 20.h),

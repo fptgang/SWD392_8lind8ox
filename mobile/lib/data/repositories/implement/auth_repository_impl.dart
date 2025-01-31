@@ -73,8 +73,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   void logout() async {
-    _controller.add(AuthenticationStatus.unauthenticated);
-    await _apiService.logout();
+   try{
+      await _apiService.logout();
+      debugPrint('Logout success repo impl');
+      // await Future.delayed(
+      //   const Duration(milliseconds: 300),
+      //       () => _controller.add(AuthenticationStatus.unauthenticated),
+      // );
+    }
+    catch(e){
+      throw Exception('Logout failed, please try again, ${e.toString()}');
+   }
   }
 
   @override
@@ -92,17 +101,37 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   void register(RegisterRequestDto registerRequestDto) async {
-    await _apiService.register(registerRequestDto);
+    try{
+      debugPrint('RegisterSubmitted auth repo impl: $registerRequestDto');
+      await _apiService.register(registerRequestDto);
+      debugPrint('RegisterSubmitted auth repo impl');
+    }
+    catch(e){
+      debugPrint('RegisterSubmitted auth repo impl error: $registerRequestDto');
+      throw Exception('Register failed, please try again, ${e.toString()}');
+    }
   }
 
   @override
   void forgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto) async {
-    await _apiService.forgotPassword(forgotPasswordRequestDto);
+   try{
+      await _apiService.forgotPassword(forgotPasswordRequestDto);
+      debugPrint('Forgot password success repo impl');
+    }
+    catch(e){
+      throw Exception('Forgot password failed, please try again, ${e.toString()}');
+   }
   }
 
   @override
   void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) async{
-    await _apiService.resetPassword(resetPasswordRequestDto);
+    try{
+      await _apiService.resetPassword(resetPasswordRequestDto);
+      debugPrint('Reset password success repo impl');
+    }
+    catch(e){
+      throw Exception('Reset password failed, please try again, ${e.toString()}');
+    }
   }
 
 

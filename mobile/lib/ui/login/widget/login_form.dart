@@ -2,10 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
 import 'package:mobile/ui/register/register_screen.dart';
 
+import '../../../blocs/authentication/authentication_bloc.dart';
 import '../../../blocs/login/login_bloc.dart';
 import '../../../blocs/login/login_event.dart';
 import '../../../blocs/login/login_state.dart';
@@ -208,8 +210,8 @@ class _PasswordInput extends StatelessWidget {
       },
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'password',
-        errorText: displayError != null ? 'invalid password' : null,
+        labelText: 'Password',
+        errorText: displayError != null ? 'Invalid password' : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -231,24 +233,34 @@ class _LoginButton extends StatelessWidget {
     final isValid = context.select((LoginBloc bloc) => bloc.state.isValid);
     debugPrint('isValid: $isValid');
 
-    return ElevatedButton(
-      key: const Key('loginForm_continue_raisedButton'),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: getColorSkin().accentColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+    return BlocListener<LoginBloc, LoginState>(
+      listener: (context, loginState) {
+        if (loginState.status == FormzSubmissionStatus.success) {
+          final token = Hive.box("authentication").get("loginToken");
+          context.read<AuthenticationBloc>().add(
+            AuthenticationLoggedIn(token: token),
+          );
+        }
+      },
+      child: ElevatedButton(
+        key: const Key('loginForm_continue_raisedButton'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: getColorSkin().accentColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 12,
+          ),
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 12,
+        onPressed: isValid
+            ? () => context.read<LoginBloc>().add(LoginSubmitted())
+            : null,
+        child: Text(
+          'Sign In',
+          style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
         ),
-      ),
-      onPressed: isValid
-          ? () => context.read<LoginBloc>().add(LoginSubmitted())
-          : null,
-      child: Text(
-        'Sign In',
-        style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
       ),
     );
   }

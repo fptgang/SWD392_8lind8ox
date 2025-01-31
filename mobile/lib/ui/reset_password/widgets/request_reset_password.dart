@@ -39,11 +39,11 @@ class RequestResetPasswordScreen extends StatelessWidget {
             "Please enter your email account to send the link verification to reset your password.",
             style: TextStyle(
               fontSize: 16,
-              color: getColorSkin().grey,
+              color: getColorSkin().black38,
             ),
           ),
           SizedBox(height: 30.h),
-          _EmailInput(emailController: emailController),
+          _EmailInput(),
           Spacer(),
           _ForgotButton(),
           SizedBox(height: 20.h),
@@ -54,9 +54,6 @@ class RequestResetPasswordScreen extends StatelessWidget {
 }
 
 class _EmailInput extends StatelessWidget {
-  final TextEditingController emailController;
-
-  const _EmailInput({required this.emailController});
   @override
   Widget build(BuildContext context) {
     final displayError = context.select(
@@ -64,23 +61,24 @@ class _EmailInput extends StatelessWidget {
     );
 
     return TextField(
-      controller: emailController,
+      onChanged: (email) => context.read<ResetPasswordBloc>().add(ResetPasswordEmailChanged(email)),
       keyboardType: TextInputType.emailAddress,
-      style: TextStyle(color: getColorSkin().lightGrey700),
+      style: TextStyle(color: getColorSkin().black),
       key: const Key('forgotPasswordForm_usernameInput_textField'),
       decoration: InputDecoration(
-        errorText: displayError != null ? 'invalid email' : null,
+        errorText: displayError != null ? 'Invalid email' : null,
         hintText: "Email Address",
-        hintStyle: TextStyle(color: getColorSkin().lightGrey700),
-        prefixIcon: Icon(Icons.email_outlined, color: getColorSkin().lightGrey400),
+        hintStyle: TextStyle(color: getColorSkin().black38),
+        prefixIcon: Icon(Icons.email_outlined, color: getColorSkin().black38),
         filled: true,
         fillColor: getColorSkin().backgroundColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: getColorSkin().black38, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: getColorSkin().lightGrey700, width: 2),
+          borderSide: BorderSide(color: getColorSkin().black38, width: 2),
         ),
       ),
     );
@@ -109,9 +107,9 @@ class _ForgotButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: isValid
-            ? () => context.read<ResetPasswordBloc>().add(ForgotPassword())
-            : null,
+        onPressed: (){
+          context.read<ResetPasswordBloc>().add(ForgotPassword());
+        },
         child: Text(
           "Send Email",
           style: TextStyle(fontSize: 18, color: getColorSkin().backgroundColor),

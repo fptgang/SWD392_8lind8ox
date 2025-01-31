@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:formz/formz.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
+import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/reset_password/widgets/password_field.dart';
 import 'package:mobile/ui/reset_password/widgets/password_strength.dart';
 
@@ -11,51 +13,66 @@ import '../../blocs/reset_password/reset_password_state.dart';
 
 
 class NewPasswordScreen extends StatelessWidget {
-  const NewPasswordScreen({super.key});
+  final String token;
+
+  const NewPasswordScreen({super.key, required this.token});
 
   static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const NewPasswordScreen());
+    return MaterialPageRoute<void>(builder: (_) => const NewPasswordScreen(token: ""));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: getColorSkin().backgroundColor,
-      appBar: AppBar(
+    return BlocListener<ResetPasswordBloc, ResetPasswordState>(
+      listener: (context, state) {
+        if (state.status.isFailure) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(content: Text('Authentication Failure')),
+            );
+        } else if (state.status.isSuccess) {
+          Navigator.push(context, LoginScreen.route());
+        }
+      },
+      child: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: getColorSkin().backgroundColor),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: getColorSkin().backgroundColor,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: getColorSkin().backgroundColor),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "New Password",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: getColorSkin().backgroundColor,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "New Password",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: getColorSkin().backgroundColor,
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              "Create a strong password for updating\nj*********0@gmail.com",
-              style: TextStyle(
-                fontSize: 16,
-                color: getColorSkin().lightGrey300,
+              SizedBox(height: 8.h),
+              Text(
+                "Create a strong password for updating\nj*********0@gmail.com",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: getColorSkin().lightGrey300,
+                ),
               ),
-            ),
-            SizedBox(height: 30.h),
-            _PasswordFields(),
-            const Spacer(),
-            _SubmitButton(),
-            SizedBox(height: 20.h),
-          ],
+              SizedBox(height: 30.h),
+              _PasswordFields(),
+              const Spacer(),
+              _SubmitButton(),
+              SizedBox(height: 20.h),
+            ],
+          ),
         ),
       ),
     );

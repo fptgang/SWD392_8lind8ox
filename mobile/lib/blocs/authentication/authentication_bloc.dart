@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
@@ -25,6 +26,7 @@ class AuthenticationBloc
         super(const AuthenticationState.unknown()) {
     on<AuthenticationSubscriptionRequested>(_onSubscriptionRequested);
     on<AuthenticationLogoutPressed>(_onLogoutPressed);
+    on<AuthenticationLoggedIn>(_onLoggedIn);
   }
 
   final AuthRepository _authenticationRepository;
@@ -59,7 +61,28 @@ class AuthenticationBloc
     AuthenticationLogoutPressed event,
     Emitter<AuthenticationState> emit,
   ) {
-    _authenticationRepository.logout();
+    try{
+      _authenticationRepository.logout();
+      emit(const AuthenticationState.unauthenticated());
+      debugPrint('Logout success');
+    } catch (_) {
+      emit(state);
+      debugPrint('Logout failed');
+    }
+  }
+
+
+  void _onLoggedIn(
+      AuthenticationLoggedIn event,
+      Emitter<AuthenticationState> emit,
+      ) {
+    try{
+      emit(AuthenticationState.authenticated(AccountModel.empty));
+      debugPrint('login success');
+    } catch (_) {
+      emit(state);
+      debugPrint('login failed');
+    }
   }
 
   Future<AccountModel?> _tryGetUser() async {
@@ -71,3 +94,4 @@ class AuthenticationBloc
     }
   }
 }
+  

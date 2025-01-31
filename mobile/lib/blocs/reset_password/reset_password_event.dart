@@ -45,5 +45,11 @@ class RequestResetPassword extends ResetPasswordEvent{
   const RequestResetPassword();
 }
 
-class ResetPasswordResponse extends ResetPasswordEvent{
+class ResetPasswordResponse extends ResetPasswordEvent {
+  final String token;
+
+  ResetPasswordResponse({required this.token});
+
+  @override
+  List<Object?> get props => [token];
 }

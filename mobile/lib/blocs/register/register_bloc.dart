@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 import 'package:mobile/blocs/register/register_event.dart';
 import 'package:mobile/blocs/register/register_state.dart';
@@ -51,38 +52,41 @@ void _onEmailChanged(
     RegisterConfirmPasswordChanged event,
     Emitter<RegisterState> emit,
   ) {
-    final password = Password.dirty(event.confirmPassword);
+    // final password = Password.dirty(event.confirmPassword);
+    debugPrint('ConfirmPasswordChanged event: ${event.confirmPassword}');
+    debugPrint('ConfirmPasswordChanged satte: ${state.confirmPassword}');
     emit(
       state.copyWith(
         confirmPassword: event.confirmPassword,
-        isValid: Formz.validate([password, state.email]),
+        isValid: state.password.value == event.confirmPassword
       ),
     );
   }
 
   void _onFirstNameChanged(
-    RegisterFirstNameChanged event,
-    Emitter<RegisterState> emit,
-  ) {
+      RegisterFirstNameChanged event,
+      Emitter<RegisterState> emit,
+      ) {
     emit(
       state.copyWith(
         firstName: event.firstName,
-        isValid: event.firstName.isNotEmpty && event.firstName.length > 2
+        isValid: event.firstName.isNotEmpty && event.firstName.length > 2,
       ),
     );
   }
 
   void _onLastNameChanged(
-    RegisterLastNameChanged event,
-    Emitter<RegisterState> emit,
-  ) {
+      RegisterLastNameChanged event,
+      Emitter<RegisterState> emit,
+      ) {
     emit(
       state.copyWith(
         lastName: event.lastName,
-        isValid: event.lastName.isNotEmpty && event.lastName.length > 2
+        isValid: event.lastName.isNotEmpty && event.lastName.length > 2,
       ),
     );
   }
+
 
   void onRegisterSubmitted(RegisterSubmitted event, Emitter<RegisterState> emit) async {
     try{
@@ -93,6 +97,8 @@ void _onEmailChanged(
         firstName: state.firstName,
         lastName: state.lastName
       );
+      debugPrint('RegisterSubmittedww: ${state.confirmPassword}');
+      debugPrint('RegisterSubmitted: $registerRequestDto');
       _authRepository.register(registerRequestDto);
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } catch (error) {

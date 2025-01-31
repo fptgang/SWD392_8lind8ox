@@ -9,6 +9,7 @@ import '../../../blocs/register/register_bloc.dart';
 import '../../../blocs/register/register_state.dart';
 
 import '../../core/theme/theme.dart';
+import '../../homepage/widget/homepage_screen.dart';
 import '../../login/login_screen.dart';
 
 class RegisterForm extends StatelessWidget {
@@ -24,6 +25,8 @@ class RegisterForm extends StatelessWidget {
             ..showSnackBar(
               const SnackBar(content: Text('Authentication Failure')),
             );
+        } else if (state.status.isSuccess){
+          navigator.pushReplacement(LoginScreen.route());
         }
       },
       child: Card(
@@ -105,7 +108,12 @@ class RegisterForm extends StatelessWidget {
                   SizedBox(width: 8),
                   Flexible(
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        navigator.pushAndRemoveUntil<void>(
+                          HomePageScreen.route(),
+                              (route) => false,
+                        );
+                      },
                       child: Text(
                         "Continue as Guest",
                         style: TextStyle(fontSize: 16, color: getColorSkin().black),
@@ -182,7 +190,7 @@ class _FirstnameInput extends StatelessWidget {
     return TextField(
       key: const Key('RegisterForm_firstnameInput_textField'),
       onChanged: (email) {
-        context.read<RegisterBloc>().add(RegisterEmailChanged(email));
+        context.read<RegisterBloc>().add(RegisterFirstNameChanged(email));
       },
       decoration: InputDecoration(
         labelText: 'First name',
@@ -204,7 +212,7 @@ class _LastnameInput extends StatelessWidget {
     return TextField(
       key: const Key('RegisterForm_lastnameInput_textField'),
       onChanged: (email) {
-        context.read<RegisterBloc>().add(RegisterEmailChanged(email));
+        context.read<RegisterBloc>().add(RegisterLastNameChanged(email));
       },
       decoration: InputDecoration(
         labelText: 'Last name',
@@ -226,14 +234,14 @@ class _PasswordInput extends StatelessWidget {
     );
 
     return TextField(
-      key: const Key('RegisterForm_passwordInput_textField'),
+      key: const Key('registerForm_passwordInput_textField'),
       onChanged: (password) {
         context.read<RegisterBloc>().add(RegisterPasswordChanged(password));
       },
       obscureText: true,
       decoration: InputDecoration(
         labelText: 'Password',
-        errorText: displayError != null ? 'invalid password' : null,
+        errorText: displayError != null ? 'Invalid password' : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -251,14 +259,14 @@ class _ConfirmPasswordInput extends StatelessWidget {
     );
 
     return TextField(
-      key: const Key('RegisterForm_confirmPasswordInput_textField'),
+      key: const Key('registerForm_confirmPasswordInput_textField'),
       onChanged: (password) {
-        context.read<RegisterBloc>().add(RegisterPasswordChanged(password));
+        context.read<RegisterBloc>().add(RegisterConfirmPasswordChanged(password));
       },
       obscureText: true,
       decoration: InputDecoration(
         labelText: 'Confirm password',
-        errorText: displayError != null ? 'invalid password' : null,
+        errorText: displayError != null ? 'Invalid password' : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -282,7 +290,7 @@ class _RegisterButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        key: const Key('RegisterForm_continue_raisedButton'),
+        key: const Key('registerForm_continue_raisedButton'),
         style: ElevatedButton.styleFrom(
           backgroundColor: getColorSkin().accentColor,
           shape: RoundedRectangleBorder(
