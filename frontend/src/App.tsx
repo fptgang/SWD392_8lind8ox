@@ -35,7 +35,7 @@ import { notificationProvider } from "./providers/notification-provider";
 import axiosInstance from "./config/axios-config";
 import ClientLayout from "./components/layout";
 import Footer from "./components/ui/footer/footer";
-import LandingPage from "./pages/landing";
+import LandingPage from "./pages/customer/landing";
 import {
   BrandsCreate,
   BrandsEdit,
@@ -64,7 +64,7 @@ import {
 } from "./pages/promotional-campaigns";
 import { resources } from "./config/resources";
 import CustomerFooter from "./components/footer/customer-footer";
-import CustomerProducts from "./pages/customer/products";
+import CustomerProducts from "./pages/customer/products/list";
 import CustomerDeals from "./pages/customer/deals";
 import ProfilePage from "./pages/accounts/profile";
 import CustomerOrders from "./pages/customer/orders";
@@ -74,9 +74,10 @@ import { SecuritySettings } from "./pages/accounts/components/SecuritySettings";
 import { WalletSettings } from "./pages/accounts/components/WalletSettings";
 import { Provider } from "react-redux";
 import { store } from "./store";
-import CheckoutPage from "./pages/checkout/checkout";
 import { OrderSuccess } from "./pages/checkout/order-success";
 import { OrderFailed } from "./pages/checkout/order-failed";
+import CheckoutPage from "./pages/checkout";
+import CustomerProductShow from "./pages/customer/products/show";
 
 function App() {
   return (
@@ -115,6 +116,7 @@ function App() {
                     {/* Main Customer Routes */}
                     <Route index element={<LandingPage />} />
                     <Route path="products" element={<CustomerProducts />} />
+                    <Route path="products/:id" element={<CustomerProductShow />} />
                     <Route path="deals" element={<CustomerDeals />} />
                     <Route path="blind-boxes" element={<BlindBoxesList />} />
                     <Route path="blind-boxes/:id" element={<BlindBoxesShow />} />

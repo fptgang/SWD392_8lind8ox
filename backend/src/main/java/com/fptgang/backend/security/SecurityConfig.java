@@ -11,6 +11,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -72,6 +73,12 @@ public class SecurityConfig {
                                         "/swagger-ui.html",
                                         "/api/v1/mail/**"
                                 ).permitAll()
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/brands/**",
+                                        "/api/v1/categories/**",
+                                        "/api/v1/blind-boxes/**"
+
+                                ).permitAll()
                                 .anyRequest().authenticated();
                     }
                 })
@@ -97,9 +104,9 @@ public class SecurityConfig {
     public RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.fromHierarchy(
                 """
-                        ROLE_ADMIN > ROLE_STAFF
-                        ROLE_STAFF > ROLE_CUSTOMER
-                """
+                                ROLE_ADMIN > ROLE_STAFF
+                                ROLE_STAFF > ROLE_CUSTOMER
+                        """
         );
     }
 

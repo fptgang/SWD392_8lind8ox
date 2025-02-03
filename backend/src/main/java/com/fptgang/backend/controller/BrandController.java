@@ -59,7 +59,13 @@ public class BrandController implements BrandsApi{
     public ResponseEntity<GetBrands200Response> getBrands(Pageable pageable, String filter, String search) {
         log.info("Getting brands");
         var page = OpenApiHelper.toPageable(pageable);
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var includeInvisible = false;
+        try{
+             includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        }catch (Exception e){
+            log.error("Error getting permission", e);
+        }
+
         var res = brandService.getAll(page, filter, search, includeInvisible).map(brandMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetBrands200Response.class);
     }

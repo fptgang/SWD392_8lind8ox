@@ -28,7 +28,7 @@ const CustomerHeader: React.FC = () => {
         </Link>
       </Menu.Item>
       <Menu.Item key="orders">
-        <Link to="/orders">
+        <Link to="/account/orders">
           <ShoppingCartOutlined /> My Orders
         </Link>
       </Menu.Item>
