@@ -22,6 +22,13 @@ class RequestResetPasswordScreen extends StatelessWidget {
               const SnackBar(content: Text('Authentication Failure')),
             );
         }
+        else if(state.status.isSuccess){
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(content: Text('Email sent')),
+            );
+        }
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

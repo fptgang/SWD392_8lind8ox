@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
@@ -28,7 +29,8 @@ class LoginForm extends StatelessWidget {
               const SnackBar(content: Text('Authentication Failure')),
             );
         } else if (state.status.isSuccess){
-          navigator.pushReplacement(HomePageScreen.route());
+          // navigator.pushReplacement(HomePageScreen.route());
+          context.go('/homepage');
         }
       },
       child: Card(
@@ -70,13 +72,14 @@ class LoginForm extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ForgotPasswordScreen(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) =>
+                      //         ForgotPasswordScreen(),
+                      //   ),
+                      // );
+                      context.go('/forgot-password');
                     },
                     child: Text(
                       'Forgot Password?',
@@ -153,7 +156,7 @@ class LoginForm extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      navigator.pushReplacement(RegisterScreen.route());
+                      context.go('/sign-up');
                     },
                     child: Text(
                       'Sign Up',

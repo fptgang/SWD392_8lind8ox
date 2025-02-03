@@ -1,0 +1,4 @@
+android {
+    namespace "name.avioli.unilinks"  // This is the standard namespace for uni_links
+    // ... rest of the configuration
+}

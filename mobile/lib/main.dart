@@ -1,57 +1,86 @@
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
+import 'package:mobile/ui/account/account_screen.dart';
+import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
+import 'package:mobile/ui/cart/widget/cart_screen.dart';
 import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
 import 'package:mobile/ui/login/login_screen.dart';
+import 'package:mobile/ui/register/register_screen.dart';
+import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
 import 'package:mobile/ui/reset_password/new_password_screen.dart';
 import 'package:provider/provider.dart';
-// import 'package:uni_links/uni_links.dart';
 import 'blocs/authentication/authentication_bloc.dart';
 import 'blocs/authentication/authentication_state.dart';
-import 'blocs/deeplink/deeplink_bloc.dart';
-import 'blocs/deeplink/deeplink_event.dart';
-import 'blocs/deeplink/deeplink_state.dart';
 import 'data/repositories/auth_repository.dart';
 import 'di/injection.dart';
 import 'enum/enum.dart';
+
+final getIt = GetIt.instance;
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
 NavigatorState get navigator => navigatorKey.currentState!;
 
+late AppLinks _appLinks;
+StreamSubscription<Uri>? _linkSubscription;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await initDeepLinks();
+  // await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   await Hive.openBox("authentication");
+
   configureDependencies();
   // runApp(MaterialApp.router(routerConfig: router));
   runApp(const MyApp());
 }
 
+Future<void> initDeepLinks() async {
+  _appLinks = AppLinks();
+
+  _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+    debugPrint('onAppLink: $uri');
+    openAppLink(uri);
+  });
+}
+
+void openAppLink(Uri uri) {
+  if (uri.path == "/reset-password") {
+    final token = uri.queryParameters["token"] ?? "";
+    navigatorKey.currentContext?.go("/reset-password", extra: {"token": token});
+  }
+}
+
+
 final router = GoRouter(
+  navigatorKey: navigatorKey,
+  initialLocation: '/homepage',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (_, __) => Scaffold(
-        appBar: AppBar(title: const Text('Home Screen')),
-      ),
-      routes: [
-        GoRoute(
-          path: 'details',
-          builder: (_, __) => Scaffold(
-            appBar: AppBar(title: const Text('Details Screen')),
-          ),
-        ),
-      ],
+    GoRoute(path: '/homepage', builder: (context, state) => const HomePageScreen()),
+    GoRoute(path: '/forgot-password',builder: (context, state) =>  ForgotPasswordScreen()),
+    GoRoute(path: '/reset-password', builder: (context, state) {
+        final token = state.uri.queryParameters['token'] ?? '';
+        return NewPasswordScreen(token: token);
+      },
     ),
+    GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
+    GoRoute(path: '/sign-up', builder: (context, state) =>  RegisterScreen()),
+    GoRoute(path: '/account', builder: (context, state) =>  AccountScreen()),
+    GoRoute(path: '/splash', builder: (context, state) =>  SplashScreen()),
+    GoRoute(path: '/blind-box-detail', builder: (context, state) => ProductDetailScreen()),
+    GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
   ],
 );
 
@@ -90,36 +119,26 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
       builder: (context, child) {
         return BlocListener<AuthenticationBloc, AuthenticationState>(
               listener: (context, state) {
                 switch (state.status) {
                   case AuthenticationStatus.authenticated:
-                    navigator.pushAndRemoveUntil<void>(
-                      HomePageScreen.route(),
-                          (route) => false,
-                    );
+                    context.go('/homepage');
                     break;
                   case AuthenticationStatus.unauthenticated:
-                    navigator.pushAndRemoveUntil<void>(
-                      LoginScreen.route(),
-                          (route) => false,
-                    );
+                    context.go('/login');
                     break;
                   case AuthenticationStatus.unknown:
-                    navigator.pushAndRemoveUntil<void>(
-                      SplashScreen.route(),
-                          (route) => false,
-                    );
+                    context.go('/splash');
                     break;
                 }
               },
             child: child ?? const SizedBox.shrink());
       },
-      onGenerateRoute: (_) => SplashScreen.route(),
     );
   }
 }

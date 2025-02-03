@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formz/formz.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/main.dart';
 import '../../../blocs/register/register_event.dart';
 import '../../../blocs/register/register_bloc.dart';
@@ -26,7 +27,7 @@ class RegisterForm extends StatelessWidget {
               const SnackBar(content: Text('Authentication Failure')),
             );
         } else if (state.status.isSuccess){
-          navigator.pushReplacement(LoginScreen.route());
+          context.go('/login');
         }
       },
       child: Card(
@@ -109,10 +110,11 @@ class RegisterForm extends StatelessWidget {
                   Flexible(
                     child: TextButton(
                       onPressed: () {
-                        navigator.pushAndRemoveUntil<void>(
-                          HomePageScreen.route(),
-                              (route) => false,
-                        );
+                        // navigator.pushAndRemoveUntil<void>(
+                        //   HomePageScreen.route(),
+                        //       (route) => false,
+                        // );
+                        context.go('/homepage');
                       },
                       child: Text(
                         "Continue as Guest",
@@ -135,10 +137,11 @@ class RegisterForm extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       // Navigator.of(context).pop();
-                      navigator.pushAndRemoveUntil<void>(
-                        LoginScreen.route(),
-                            (route) => false,
-                      );
+                      // navigator.pushAndRemoveUntil<void>(
+                      //   LoginScreen.route(),
+                      //       (route) => false,
+                      // );
+                      context.go('/login');
                     },
                     child: Text(
                       'Sign In',

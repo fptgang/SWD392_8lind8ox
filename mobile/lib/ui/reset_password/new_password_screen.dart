@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formz/formz.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/reset_password/widgets/password_field.dart';
@@ -32,7 +33,8 @@ class NewPasswordScreen extends StatelessWidget {
               const SnackBar(content: Text('Authentication Failure')),
             );
         } else if (state.status.isSuccess) {
-          Navigator.push(context, LoginScreen.route());
+          // Navigator.push(context, LoginScreen.route());
+          context.go('/login');
         }
       },
       child: Scaffold(

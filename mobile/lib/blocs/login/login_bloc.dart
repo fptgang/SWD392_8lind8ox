@@ -74,10 +74,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   void _onLoginWithGoogle(LoginWithGoogle event, Emitter<LoginState> emit) async {
     try {
       final String? token = await _authRepository.signInWithGoogle();
+      debugPrint("toke11n: $token");
       if (token == null) {
         emit(state.copyWith(status: FormzSubmissionStatus.failure));
         return;
       }
+      debugPrint("token: $token");
       final result = await _authRepository.loginWithGoogle(token);
       final box = Hive.box("authentication");
       await box.put("loginToken", result.getToken);

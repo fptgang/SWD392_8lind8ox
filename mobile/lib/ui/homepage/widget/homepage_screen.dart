@@ -1,16 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/data/repositories/auth_repository.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/enum/enum.dart';
-import 'package:mobile/main.dart';
-import 'package:mobile/ui/auth/widget/auth_tab.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/widget/cart_screen.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/homepage/widget/category_item.dart';
 import 'package:mobile/ui/homepage/widget/recommended_item.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 
 import '../../../blocs/authentication/authentication_bloc.dart';
@@ -85,9 +83,11 @@ class HomePageScreen extends StatelessWidget {
                           final authStatus = context.read<AuthenticationBloc>().state.status;
                           debugPrint("authStatus: $authStatus");
                           if (authStatus == AuthenticationStatus.authenticated) {
-                            Navigator.of(context).push(AccountScreen.route());
+                            // Navigator.of(context).push(AccountScreen.route())
+                            context.go('/account');
                           } else if (authStatus == AuthenticationStatus.unauthenticated || authStatus == AuthenticationStatus.unknown) {
-                            Navigator.of(context).push(LoginScreen.route());
+                            // Navigator.of(context).push(LoginScreen.route());
+                            context.go('/login');
                           }
                         },
                         child: CircleAvatar(
