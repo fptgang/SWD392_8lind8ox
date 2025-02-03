@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
@@ -26,11 +28,32 @@ NavigatorState get navigator => navigatorKey.currentState!;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   await Hive.initFlutter();
   await Hive.openBox("authentication");
   configureDependencies();
+  // runApp(MaterialApp.router(routerConfig: router));
   runApp(const MyApp());
 }
+
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (_, __) => Scaffold(
+        appBar: AppBar(title: const Text('Home Screen')),
+      ),
+      routes: [
+        GoRoute(
+          path: 'details',
+          builder: (_, __) => Scaffold(
+            appBar: AppBar(title: const Text('Details Screen')),
+          ),
+        ),
+      ],
+    ),
+  ],
+);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -71,10 +94,7 @@ class AppView extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       builder: (context, child) {
-        return MultiBlocListener(
-          listeners: [
-            // Listen to AuthenticationBloc
-            BlocListener<AuthenticationBloc, AuthenticationState>(
+        return BlocListener<AuthenticationBloc, AuthenticationState>(
               listener: (context, state) {
                 switch (state.status) {
                   case AuthenticationStatus.authenticated:
@@ -97,30 +117,7 @@ class AppView extends StatelessWidget {
                     break;
                 }
               },
-            ),
-
-            // Listen to DeepLinkBloc
-          // BlocListener<DeeplinkBloc, DeeplinkState>(
-          //   listener: (context, state) {
-          //     if (state is InitialDeepLinkFound) {
-          //       final token = state.token;
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //           builder: (context) => NewPasswordScreen(token: token),
-          //         ),
-          //       );
-          //     } else if (state is DeepLinkError) {
-          //       ScaffoldMessenger.of(context).showSnackBar(
-          //         SnackBar(content: Text(state.error)),
-          //       );
-          //     }
-          //   }, // Your main app widget tree
-          // ),
-
-          ],
-          child: child ?? const SizedBox.shrink(),
-        );
+            child: child ?? const SizedBox.shrink());
       },
       onGenerateRoute: (_) => SplashScreen.route(),
     );

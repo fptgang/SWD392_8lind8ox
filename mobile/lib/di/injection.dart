@@ -6,6 +6,7 @@ import 'package:mobile/blocs/deeplink/deeplink_bloc.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
 import 'package:mobile/data/repositories/implement/account_repository_impl.dart';
 import 'package:mobile/di/injection.config.dart';
+import 'package:openapi/api.dart';
 
 import '../blocs/login/login_bloc.dart';
 import '../data/repositories/auth_repository.dart';
@@ -33,5 +34,7 @@ Future<void> configureDependencies() async {
   getIt.registerFactory<LoginBloc>(() => LoginBloc(
     authRepository: getIt<AuthRepository>(),
   ));
+  getIt.registerLazySingleton<DefaultApi>(() => DefaultApi(ApiClient(basePath: "http://172.16.0.2:8080/api/v1")));
+
   // getIt.registerFactory<DeeplinkBloc>(() => DeeplinkBloc());
 }

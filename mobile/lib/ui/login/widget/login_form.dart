@@ -134,7 +134,7 @@ class LoginForm extends StatelessWidget {
                       ),
                     ),
                     icon: Icon(Icons.g_mobiledata,
-                        color: getColorSkin().black),
+                        color: getColorSkin().black, size: 35,),
                     label: Text(
                       'Continue with Google',
                       style: TextStyle(color: getColorSkin().black),
