@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/azure-blobs")
@@ -12,7 +13,7 @@ public class AzureBlobController {
 
     private final AzureBlobServiceImpl azureBlobService;
 
-    @Value("${azure.storage.container-name}")
+    @Value("${spring.cloud.azure.storage.blob.container-name}")
     private String containerName;
 
     public AzureBlobController(AzureBlobServiceImpl azureBlobService) {
@@ -20,18 +21,18 @@ public class AzureBlobController {
     }
 
     /**
-     * Endpoint to upload a file to Azure Blob Storage.
+     * Endpoint to upload a file (image, video, etc.) to Azure Blob Storage.
      *
-     * @param base64Data Base64 encoded string of the file content
+     * @param file Multipart file to upload (image/video)
      * @param blobName The name of the blob (file name)
      * @return URL of the uploaded file in Azure Blob Storage
      */
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadBlob(@RequestParam("base64Data") String base64Data,
+    public ResponseEntity<String> uploadBlob(@RequestParam("file") MultipartFile file,
                                              @RequestParam("blobName") String blobName) {
         try {
-            // Call AzureBlobService to upload the Base64 data to Azure Blob Storage
-            String blobUrl = azureBlobService.upload(base64Data, blobName);
+            // Call AzureBlobService to upload the file to Azure Blob Storage
+            String blobUrl = azureBlobService.upload(file, blobName);
 
             // Return the blob URL
             return ResponseEntity.status(HttpStatus.CREATED).body("Blob uploaded successfully: " + blobUrl);

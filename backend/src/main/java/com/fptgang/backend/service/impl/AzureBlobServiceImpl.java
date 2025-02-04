@@ -5,31 +5,35 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.fptgang.backend.service.AzureBlobService;
-import org.apache.commons.codec.binary.Base64;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Service
 public class AzureBlobServiceImpl implements AzureBlobService {
 
-    @Value("${azure.storage.connection-string}")
+    @Value("${spring.cloud.azure.storage.blob.connection-string}")
     private String connectionString;
 
-    @Value("${azure.storage.container-name}")
+    @Value("${spring.cloud.azure.storage.blob.container-name}")
     private String containerName;
 
+    @Value("${spring.cloud.azure.storage.blob.sas-token}")
+    private String sasToken;
+
     @Override
-    public String upload(String base64Data, String blobName) {
+    public String upload(MultipartFile file, String blobName) {
         try {
-            // Convert the base64 string to a byte array
-            byte[] data = Base64.decodeBase64(base64Data);
+            // Get the byte data from MultipartFile
+            byte[] data = file.getBytes();
 
             // Create a BlobServiceClient using the connection string
+            String endpoint = "https://hirable.blob.core.windows.net/" + containerName + "?" + sasToken;
             BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-                    .connectionString(connectionString)
+                    .endpoint(endpoint)  // Endpoint with SAS token appended
                     .buildClient();
 
             // Get the BlobContainerClient for the specific container
@@ -39,14 +43,14 @@ public class AzureBlobServiceImpl implements AzureBlobService {
             BlobClient blobClient = containerClient.getBlobClient(blobName);
 
             // Convert the byte array into an InputStream
-            InputStream dataStream = new ByteArrayInputStream(data);
+            InputStream dataStream = file.getInputStream();
 
             // Upload the data to the Azure Blob Storage
             blobClient.upload(dataStream, data.length, true); // Overwrite if the blob already exists
 
             // Return the URL of the uploaded blob
             return blobClient.getBlobUrl();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Error uploading file to Azure Blob Storage", e);
         }
