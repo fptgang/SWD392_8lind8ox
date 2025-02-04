@@ -68,7 +68,7 @@ class HomePageScreen extends StatelessWidget {
                           context.push('/cart');
                         },
                         child: CircleAvatar(
-                          radius: 10,
+                          radius: 15,
                           backgroundColor: getColorSkin().lightGrey,
                           child: Icon(Icons.add_shopping_cart,
                               color: getColorSkin().black),
@@ -80,15 +80,13 @@ class HomePageScreen extends StatelessWidget {
                           final authStatus = context.read<AuthenticationBloc>().state.status;
                           debugPrint("authStatus: $authStatus");
                           if (authStatus == AuthenticationStatus.authenticated) {
-                            // Navigator.of(context).push(AccountScreen.route())
-                            context.go('/account');
+                            context.push('/account');
                           } else if (authStatus == AuthenticationStatus.unauthenticated || authStatus == AuthenticationStatus.unknown) {
-                            // Navigator.of(context).push(LoginScreen.route());
-                            context.go('/login');
+                            context.push('/login');
                           }
                         },
                         child: CircleAvatar(
-                          radius: 10,
+                          radius: 15,
                           backgroundColor: getColorSkin().lightGrey,
                           child: Icon(Icons.person, color: getColorSkin().black),
                         ),
@@ -232,11 +230,7 @@ class HomePageScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       return GestureDetector(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (context) {
-                                return const ProductDetailScreen();
-                              },
-                            ));
+                            context.push('/blind-box-detail');
                           },
                           child: buildRecommendedItem());
                     },

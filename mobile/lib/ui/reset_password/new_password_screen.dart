@@ -4,10 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
-import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/reset_password/widgets/password_field.dart';
 import 'package:mobile/ui/reset_password/widgets/password_strength.dart';
-
 import '../../blocs/reset_password/reset_password_bloc.dart';
 import '../../blocs/reset_password/reset_password_event.dart';
 import '../../blocs/reset_password/reset_password_state.dart';
@@ -34,7 +32,7 @@ class NewPasswordScreen extends StatelessWidget {
             );
         } else if (state.status.isSuccess) {
           // Navigator.push(context, LoginScreen.route());
-          context.go('/login');
+          context.push('/login');
         }
       },
       child: Scaffold(

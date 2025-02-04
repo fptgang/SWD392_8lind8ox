@@ -30,7 +30,7 @@ class LoginForm extends StatelessWidget {
             );
         } else if (state.status.isSuccess){
           // navigator.pushReplacement(HomePageScreen.route());
-          context.go('/homepage');
+          context.push('/main/home');
         }
       },
       child: Card(
@@ -72,13 +72,6 @@ class LoginForm extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) =>
-                      //         ForgotPasswordScreen(),
-                      //   ),
-                      // );
                       context.push('/forgot-password');
                     },
                     child: Text(
@@ -156,7 +149,7 @@ class LoginForm extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      context.go('/sign-up');
+                      context.push('/sign-up');
                     },
                     child: Text(
                       'Sign Up',

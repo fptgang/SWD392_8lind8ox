@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/data/mapper/auth_response_mapper.dart';
 import 'package:mobile/data/mapper/jwt_response_mapper.dart';
@@ -17,6 +19,7 @@ import '../auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final _controller = StreamController<AuthenticationStatus>();
+  var box = Hive.box('authentication');
 
   Stream<AuthenticationStatus> get status async* {
     await Future<void>.delayed(const Duration(seconds: 1));
@@ -26,10 +29,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   void dispose() => _controller.close();
 
-  DefaultApi _apiService = getIt<DefaultApi>();
+  final DefaultApi _apiService = getIt<DefaultApi>();
 
-  AuthRepository() {
-    _apiService = DefaultApi();
+  AuthRepositoryImpl() {
+    _apiService.apiClient.authentication?.applyToParams([], {
+      "Authorization": "Bearer ${box.get('loginToken')}",
+    });
   }
 
   @override

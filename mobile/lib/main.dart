@@ -80,6 +80,7 @@ final router = GoRouter(
     GoRoute(path: '/splash', builder: (context, state) =>  SplashScreen()),
     GoRoute(path: '/blind-box-detail', builder: (context, state) => ProductDetailScreen()),
     GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
+    GoRoute(path: '/blind-box-detail', builder: (context, state) => ProductDetailScreen()),
     GoRoute(
       path: '/main',
       builder: (context, state) => const MainScreen(),

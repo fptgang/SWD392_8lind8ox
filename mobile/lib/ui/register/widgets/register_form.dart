@@ -27,7 +27,7 @@ class RegisterForm extends StatelessWidget {
               const SnackBar(content: Text('Authentication Failure')),
             );
         } else if (state.status.isSuccess){
-          context.go('/login');
+          context.push('/login');
         }
       },
       child: Card(
@@ -141,7 +141,7 @@ class RegisterForm extends StatelessWidget {
                       //   LoginScreen.route(),
                       //       (route) => false,
                       // );
-                      context.go('/login');
+                      context.push('/login');
                     },
                     child: Text(
                       'Sign In',
