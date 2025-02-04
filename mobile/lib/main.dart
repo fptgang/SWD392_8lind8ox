@@ -14,6 +14,7 @@ import 'package:mobile/ui/account/account_screen.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/widget/cart_screen.dart';
 import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
+import 'package:mobile/ui/information/widget/bottom_navigation_bar.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/register/register_screen.dart';
 import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
@@ -38,12 +39,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await initDeepLinks();
-  // await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   await Hive.openBox("authentication");
-
   configureDependencies();
-  // runApp(MaterialApp.router(routerConfig: router));
   runApp(const MyApp());
 }
 
@@ -57,7 +56,7 @@ Future<void> initDeepLinks() async {
 }
 
 void openAppLink(Uri uri) {
-  if (uri.path == "/reset-password") {
+  if (uri.path == "${dotenv.env['BASE_URL']}/reset-password") {
     final token = uri.queryParameters["token"] ?? "";
     navigatorKey.currentContext?.go("/reset-password", extra: {"token": token});
   }
@@ -66,9 +65,9 @@ void openAppLink(Uri uri) {
 
 final router = GoRouter(
   navigatorKey: navigatorKey,
-  initialLocation: '/homepage',
+  initialLocation: '/main',
   routes: [
-    GoRoute(path: '/homepage', builder: (context, state) => const HomePageScreen()),
+    // GoRoute(path: '/homepage', builder: (context, state) => const HomePageScreen()),
     GoRoute(path: '/forgot-password',builder: (context, state) =>  ForgotPasswordScreen()),
     GoRoute(path: '/reset-password', builder: (context, state) {
         final token = state.uri.queryParameters['token'] ?? '';
@@ -81,6 +80,15 @@ final router = GoRouter(
     GoRoute(path: '/splash', builder: (context, state) =>  SplashScreen()),
     GoRoute(path: '/blind-box-detail', builder: (context, state) => ProductDetailScreen()),
     GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
+    GoRoute(
+      path: '/main',
+      builder: (context, state) => const MainScreen(),
+      routes: [
+        GoRoute(path: 'home', builder: (context, state) => const HomePageScreen()),
+        GoRoute(path: 'account', builder: (context, state) => AccountScreen()),
+        GoRoute(path: 'cart', builder: (context, state) => const CartScreen()),
+      ],
+    ),
   ],
 );
 
@@ -127,7 +135,7 @@ class AppView extends StatelessWidget {
               listener: (context, state) {
                 switch (state.status) {
                   case AuthenticationStatus.authenticated:
-                    context.go('/homepage');
+                    context.go('/main');
                     break;
                   case AuthenticationStatus.unauthenticated:
                     context.go('/login');

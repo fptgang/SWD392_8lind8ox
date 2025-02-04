@@ -47,8 +47,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Accepts URIs that begin with YOUR_SCHEME://YOUR_HOST -->
                 <data
-                    android:scheme="http"
-                    android:host="localhost:5173" />
+                    android:scheme="blindbox"
+                    android:host="192.168.56.1:8080" />
             </intent-filter>
 
             <!-- App Links / Unique Links with assetlinks.json -->

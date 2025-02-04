@@ -24,7 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
@@ -41,6 +41,9 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final PasswordResetTokenService passwordResetTokenService;
     private final AccountMapper accountMapper;
+
+    @Value("${FRONTEND_CORS_SERVER}")
+    private String frontendServerUrl;
 
     public AuthServiceImpl(AccountRepos accountRepos,
                            JwtService tokenService,
@@ -162,7 +165,7 @@ public class AuthServiceImpl implements AuthService {
         String resetToken = passwordResetTokenService.generateToken(dto.getEmail());
 
         // Create reset password link
-        String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
+        String resetLink = frontendServerUrl + "/reset-password?token=" + resetToken;
 
         // Send email
         String emailBody = String.format("""

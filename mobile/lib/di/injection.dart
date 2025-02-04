@@ -32,7 +32,7 @@ Future<void> configureDependencies() async {
         authRepository: getIt<AuthRepository>(),
       ));
   getIt.registerLazySingleton<DefaultApi>(
-      () => DefaultApi(ApiClient(basePath: 'http://40.65.165.76/api/v1')));
+      () => DefaultApi(ApiClient(basePath: dotenv.env['BASE_URL'] ?? '')));
 
   // getIt.registerFactory<DeeplinkBloc>(() => DeeplinkBloc());
 }

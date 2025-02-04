@@ -65,10 +65,7 @@ class HomePageScreen extends StatelessWidget {
                       SizedBox(width: 16.w),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const CartScreen()));
+                          context.push('/cart');
                         },
                         child: CircleAvatar(
                           radius: 10,

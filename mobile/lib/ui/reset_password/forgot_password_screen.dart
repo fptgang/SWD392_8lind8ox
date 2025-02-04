@@ -1,12 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/blocs/reset_password/reset_password_bloc.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
-import 'package:mobile/ui/reset_password/widgets/pin_code.dart';
 import 'package:mobile/ui/reset_password/widgets/request_reset_password.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {

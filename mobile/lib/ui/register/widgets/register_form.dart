@@ -114,7 +114,7 @@ class RegisterForm extends StatelessWidget {
                         //   HomePageScreen.route(),
                         //       (route) => false,
                         // );
-                        context.go('/homepage');
+                        context.push('/main');
                       },
                       child: Text(
                         "Continue as Guest",

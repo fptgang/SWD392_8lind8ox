@@ -79,7 +79,7 @@ class LoginForm extends StatelessWidget {
                       //         ForgotPasswordScreen(),
                       //   ),
                       // );
-                      context.go('/forgot-password');
+                      context.push('/forgot-password');
                     },
                     child: Text(
                       'Forgot Password?',
