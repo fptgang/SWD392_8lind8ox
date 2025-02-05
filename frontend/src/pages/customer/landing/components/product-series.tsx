@@ -50,45 +50,50 @@ const ProductSeries: React.FC = () => {
       <Row gutter={[16, 24]}>
         {series.map((item :BlindBoxDto) => (
           <Col xs={24} sm={12} md={8} key={item.blindBoxId}>
-            <Card
-              hoverable
-              onClick={() => handleCardClick(item)}
-              className="h-full overflow-hidden flex flex-col"
-            >
-              <div className="relative h-48 overflow-hidden group">
-                <img
-                  src={'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg'}
-                  alt={item.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-              </div>
-              <div className="flex flex-col flex-grow p-4">
-                <div className="flex-grow">
-                  <Title level={4} className="!mb-1">{item.name}</Title>
-                  <Text type="secondary" className="block min-h-3 max-h-[4em]"
-                  ellipsis={{
-                    expanded: false,
-                    symbol: '...',
-                  }}
-                  >{item.description}</Text>
-                  
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center space-x-2">
-                      <Text type="secondary" className="text-sm">{item.currentPrice} sold</Text>
+            <div className="relative">
+              <Card
+                hoverable
+                onClick={() => handleCardClick(item)}
+                className="h-full overflow-hidden flex flex-col"
+              >
+                <div className="relative h-48 overflow-hidden group">
+                  <img
+                    src={'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg'}
+                    alt={item.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
+                <div className="flex flex-col flex-grow p-4">
+                  <div className="flex-grow">
+                    <Title level={4} className="!mb-1">{item.name}</Title>
+                    <Text type="secondary" className="block min-h-3 max-h-[4em]"
+                    ellipsis={{
+                      expanded: false,
+                      symbol: '...',
+                    }}
+                    >{item.description}</Text>
+                    
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center space-x-2">
+                        <Text type="secondary" className="text-sm">{item.currentPrice} sold</Text>
+                      </div>
+                      <Text className="text-xl font-bold text-red-600">{item.currentPrice}</Text>
                     </div>
-                    <Text className="text-xl font-bold text-red-600">{item.currentPrice}</Text>
                   </div>
                 </div>
-                
-                <Button 
-                  type="primary" 
-                  icon={<ShoppingOutlined />}
-                  className="w-full mt-4"
-                >
-                  Add to Cart
-                </Button>
-              </div>
-            </Card>
+              </Card>
+              <Button 
+                type="primary" 
+                icon={<ShoppingOutlined />}
+                className="absolute bottom-4 left-4 right-4"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Add your cart logic here
+                }}
+              >
+                Add to Cart
+              </Button>
+            </div>
           </Col>
         ))}
       </Row>

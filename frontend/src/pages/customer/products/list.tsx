@@ -1,5 +1,5 @@
 import React from 'react';
-import { useList } from '@refinedev/core';
+import { useGo, useList } from '@refinedev/core';
 import { Card, Col, Row, Typography, Space, Input, Select, Pagination, Slider, Form, Button, Spin } from 'antd';
 import { SearchOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { BlindBoxDto, BrandDto } from '../../../../generated';
@@ -15,20 +15,23 @@ const CustomerProducts: React.FC = () => {
   const [selectedBrand, setSelectedBrand] = React.useState<string | null>(null);
   const [priceRange, setPriceRange] = React.useState<[number, number]>([0, 1000]);
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [sortBy, setSortBy] = React.useState('popular');
+  const [sortBy, setSortBy] = React.useState('newest');
+  const go = useGo();
 
+  function handleCardClick(blindBoxId: number |undefined): void {
+    go({
+      to: `/products/${blindBoxId}`,
+    })
+  }
   const { data: brandsData } = useList<BrandDto>({
     resource: 'brands',
-    filters: [
-      {
-        field: 'isVisible',
-        operator: 'eq',
-        value: true,
-      },
-    ],
+    pagination: {
+      current: 0,
+      pageSize: 100,
+    },
   });
 
-  const { data, isLoading } = useList<BlindBoxDto>({
+  const { data, isLoading  } = useList<BlindBoxDto>({
     resource: 'blind-boxes',
     queryOptions: {
       enabled: true,
@@ -39,14 +42,20 @@ const CustomerProducts: React.FC = () => {
       pageSize: 12,
     },
     meta: {
-        
       query: {
         q: searchTerm,
       },
     },
+    sorters: [
+      {
+        field: sortBy === 'popular' ? 'soldCount' : sortBy === 'newest' ? 'createdAt' : 'currentPrice',
+        order: sortBy === 'price-asc' || sortBy === 'price-desc' ? (sortBy === 'price-asc' ? 'asc' : 'desc') : 'desc',
+      },
+    ]
+    ,
     filters: [
       {
-        field: 'brandId',
+        field: 'brand.brandId',
         operator: 'eq',
         value: selectedBrand,
       },
@@ -61,16 +70,17 @@ const CustomerProducts: React.FC = () => {
         value: priceRange[1],
       },
       {
-        field: 'isVisible',
-        operator: 'eq',
-        value: true,
-      },
+        field:"search",
+        operator: "contains",
+        value: searchTerm,
+      }
     ],
   });
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
+    
   };
 
   const handleBrandChange = (value: string | null) => {
@@ -101,9 +111,10 @@ const CustomerProducts: React.FC = () => {
           id: String(product.blindBoxId || ''),
           name: product.name || '',
           price: product.currentPrice || 0,
-          image: product.images?.[0] || '/placeholder-image.jpg',
+          image: 'https://www.rainforest-alliance.org/wp-content/uploads/2021/06/capybara-square-1.jpg.optimal.jpg',
         });
     }
+    
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -115,6 +126,11 @@ const CustomerProducts: React.FC = () => {
               allowClear
               enterButton={<SearchOutlined />}
               size="large"
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch(e.target.value);
+                }
+              }}
               onSearch={handleSearch}
               className="w-full"
             />
@@ -184,19 +200,16 @@ const CustomerProducts: React.FC = () => {
               data?.data?.map((product: BlindBoxDto) => (
                 <Col xs={12} sm={8} md={8} lg={6} key={product.blindBoxId}>
                   <Card
+                    onClick={()=>handleCardClick(product.blindBoxId)}
                     hoverable
                     cover={
                       <div className="relative pt-[100%] overflow-hidden">
                         <img
                           alt={product.name}
-                          src={product.images?.[0] || '/placeholder-image.jpg'}
+                          src={'https://www.rainforest-alliance.org/wp-content/uploads/2021/06/capybara-square-1.jpg.optimal.jpg'}
                           className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                         />
-                        {product.discount > 0 && (
-                          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-sm text-xs font-bold">
-                            -{product.discount}%
-                          </div>
-                        )}
+                    
                       </div>
                     }
                     bodyStyle={{ padding: '12px' }}
@@ -211,11 +224,7 @@ const CustomerProducts: React.FC = () => {
                         <Text className="text-lg font-bold text-red-500">
                           ${product.currentPrice}
                         </Text>
-                        {product.originalPrice && product.originalPrice > product.currentPrice && (
-                          <Text delete className="text-xs text-gray-400">
-                            ${product.originalPrice}
-                          </Text>
-                        )}
+                    
                       </div>
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <Text>Sold {product.soldCount || 0}</Text>

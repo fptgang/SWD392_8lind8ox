@@ -63,7 +63,7 @@ public class BrandController implements BrandsApi{
         try{
              includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         }catch (Exception e){
-            log.error("Error getting permission", e);
+            log.error("Error getting permission {}", e.getMessage());
         }
 
         var res = brandService.getAll(page, filter, search, includeInvisible).map(brandMapper::toDTO);

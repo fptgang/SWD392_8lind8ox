@@ -43,7 +43,7 @@ export const UsersCreate: React.FC = () => {
   ];
 
   return (
-    <Create saveButtonProps={saveButtonProps}>
+    (<Create saveButtonProps={saveButtonProps}>
       <Card
         title={
           <span className="text-lg font-semibold flex items-center gap-2">
@@ -214,6 +214,6 @@ export const UsersCreate: React.FC = () => {
           </Row>
         </Form>
       </Card>
-    </Create>
+    </Create>)
   );
 };

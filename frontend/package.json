@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
+    "@ant-design/plots": "^2.3.3",
     "@reduxjs/toolkit": "^2.5.0",
     "@refinedev/antd": "^5.44.0",
     "@refinedev/cli": "^2.16.21",
@@ -16,14 +17,20 @@
     "@refinedev/simple-rest": "^5.0.1",
     "@uiw/react-md-editor": "^3.19.5",
     "antd": "^5.17.0",
+    "antd-style": "^3.7.1",
     "axios": "^1.6.2",
     "buffer": "^6.0.3",
     "casbin": "^5.37.0",
     "framer-motion": "^11.17.0",
     "gapi-script": "^1.2.0",
+    "i18next": "^24.2.2",
+    "i18next-browser-languagedetector": "^8.0.2",
+    "i18next-http-backend": "^3.0.2",
     "query-string": "^7.1.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-i18next": "^15.4.0",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-redux": "^9.2.0",
     "react-router": "^7.0.2",
     "react-toastify": "^11.0.2",
@@ -66,5 +73,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "refine": {
+    "projectId": "HC85dn-RQLFdc-7emtiC"
   }
 }

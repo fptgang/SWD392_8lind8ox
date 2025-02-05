@@ -12,7 +12,6 @@ const { Text } = Typography;
 export const AccountsList: React.FC = () => {
   const { tableProps, setFilters } = useTable<AccountDto>({
     syncWithLocation: true,
-  
     sorters: {
       initial: [
         {

@@ -35,7 +35,7 @@ public class Order {
     private List<OrderDetail> orderDetails;
 
     //TODO: add shipping info
-    
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

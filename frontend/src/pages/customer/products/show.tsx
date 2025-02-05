@@ -17,10 +17,14 @@ function CustomerProductShow() {
     id: id || '',
   });
 
- 
+  const { data: brandData, isLoading: isBrandLoading } = useOne<BrandDto>({
+    resource: 'brands',
+    id: data?.data?.brandId || '',
+  });
 
   const product = data?.data;
-  
+  const brand = brandData?.data;
+
   const handleAddToCart = () => {
     if (product) {
       addItem({
@@ -36,24 +40,13 @@ function CustomerProductShow() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isBrandLoading) {
     return <div>Loading...</div>;
   }
 
   if (!product) {
     return <div>Product not found</div>;
   }
-
-  const { data : brandData, isLoading :isBrandLoading } = useOne<BrandDto>({
-    resource: 'brands',
-    id: product?.brandId || '',
-  });
-  const brand = data?.data;
-
-  if (isBrandLoading) {
-    return <div>Loading...</div>;
-  }
-
 
   return (
     <div className="container mx-auto px-4 py-8">
