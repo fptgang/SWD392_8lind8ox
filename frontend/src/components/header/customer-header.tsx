@@ -28,7 +28,7 @@ const CustomerHeader: React.FC = () => {
         </Link>
       </Menu.Item>
       <Menu.Item key="orders">
-        <Link to="/orders">
+        <Link to="/account/orders">
           <ShoppingCartOutlined /> My Orders
         </Link>
       </Menu.Item>
@@ -112,9 +112,7 @@ const CustomerHeader: React.FC = () => {
 
           {/* Right Icons */}
           <Space size="large">
-            {isAuthenticated?.authenticated ? (
-              <>
-                <Popover
+          <Popover
                   placement="bottomRight"
                   trigger="hover"
                   content={
@@ -178,6 +176,8 @@ const CustomerHeader: React.FC = () => {
                     <ShoppingCartOutlined style={{ fontSize: '20px', color: token.colorText, cursor: 'pointer' }} />
                   </Badge>
                 </Popover>
+            {isAuthenticated?.authenticated ? (
+              <>
                 <Dropdown overlay={profileMenu} trigger={['click']}>
                   <Avatar
                     icon={<UserOutlined />}

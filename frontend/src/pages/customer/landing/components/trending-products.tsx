@@ -2,22 +2,15 @@ import React from "react";
 import { Card, Typography, Row, Col, Button, Tag, Carousel, Spin } from "antd";
 import { ThunderboltOutlined, StarOutlined, ShoppingOutlined } from "@ant-design/icons";
 import { useList } from "@refinedev/core";
-import { BlindBoxDto } from "../../../../generated";
-import { useCart } from "../../../hooks/useCart";
+import { BlindBoxDto } from "../../../../../generated";
+import { useCart } from "../../../../hooks/useCart";
 
 const { Title, Text } = Typography;
 
 const TrendingProducts: React.FC = () => {
   const { addItem } = useCart();
   const { data, isLoading, isError } = useList<BlindBoxDto>({
-    resource: "blind-boxes",
-    filters: [
-      {
-        field: "isVisible",
-        operator: "eq",
-        value: true
-      },
-    ],
+    resource: "blind-boxes",   
     pagination: {
       pageSize: 4
     },
@@ -31,10 +24,10 @@ const TrendingProducts: React.FC = () => {
 
   const handleAddToCart = (product: BlindBoxDto) => {
     addItem({
-      id: product.blindBoxId || '',
+      id: (product.blindBoxId || '').toString(),
       name: product.name || '',
       price: product.currentPrice || 0,
-      image: product.images?.[0] || '/placeholder-image.jpg',
+      image: 'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg',
     });
   };
 
@@ -76,7 +69,7 @@ const TrendingProducts: React.FC = () => {
                 <div className="relative pt-[100%] overflow-hidden group">
                   <img
                     alt={product.name}
-                    src={product?.images?.[0] || '/placeholder-image.jpg'}
+                    src={'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg'}
                     className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>

@@ -1,4 +1,4 @@
-import { Authenticated, Refine } from "@refinedev/core";
+import { Authenticated, I18nProvider, Refine } from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
@@ -35,7 +35,7 @@ import { notificationProvider } from "./providers/notification-provider";
 import axiosInstance from "./config/axios-config";
 import ClientLayout from "./components/layout";
 import Footer from "./components/ui/footer/footer";
-import LandingPage from "./pages/landing";
+import LandingPage from "./pages/customer/landing";
 import {
   BrandsCreate,
   BrandsEdit,
@@ -62,9 +62,8 @@ import {
   PromotionalCampaignsList,
   PromotionalCampaignsShow,
 } from "./pages/promotional-campaigns";
-import { resources } from "./config/resources";
 import CustomerFooter from "./components/footer/customer-footer";
-import CustomerProducts from "./pages/customer/products";
+import CustomerProducts from "./pages/customer/products/list";
 import CustomerDeals from "./pages/customer/deals";
 import ProfilePage from "./pages/accounts/profile";
 import CustomerOrders from "./pages/customer/orders";
@@ -74,18 +73,31 @@ import { SecuritySettings } from "./pages/accounts/components/SecuritySettings";
 import { WalletSettings } from "./pages/accounts/components/WalletSettings";
 import { Provider } from "react-redux";
 import { store } from "./store";
-import CheckoutPage from "./pages/checkout/checkout";
 import { OrderSuccess } from "./pages/checkout/order-success";
 import { OrderFailed } from "./pages/checkout/order-failed";
+import CheckoutPage from "./pages/checkout";
+import CustomerProductShow from "./pages/customer/products/show";
+import { DashboardPage } from "./pages/dashboard";
+import { getResources } from "./config/resources";
+import { useTranslation } from "react-i18next";
 
 function App() {
+  const { t, i18n } = useTranslation();
+
+  const i18nProvider: I18nProvider = {
+    translate: (key: string, options?: any): string => String(t(key, options)),
+    changeLocale: (lang: string) => {
+      i18n.changeLanguage(lang)
+      console.log("changeLocale", lang);
+    },
+    getLocale: () => i18n.language,
+  };
   return (
-    <BrowserRouter>
+    (<BrowserRouter>
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <AntdApp>
           <Provider store={store}>
-
             <DevtoolsProvider>
               <Refine
                 dataProvider={dataProvider(API_URL, axiosInstance)}
@@ -93,12 +105,14 @@ function App() {
                 // accessControlProvider={accessControlProvider}
                 authProvider={authProvider}
                 routerProvider={routerBindings}
-                resources={resources}
+                i18nProvider={i18nProvider}
+                resources={getResources()}
                 options={{
                   syncWithLocation: true,
                   warnWhenUnsavedChanges: true,
                   useNewQueryKeys: true,
                   title: { text: "8lind8ox", icon: <AppIcon /> },
+                  projectId: "HC85dn-RQLFdc-7emtiC"
                 }}
               >
                 <Routes>
@@ -115,6 +129,7 @@ function App() {
                     {/* Main Customer Routes */}
                     <Route index element={<LandingPage />} />
                     <Route path="products" element={<CustomerProducts />} />
+                    <Route path="products/:id" element={<CustomerProductShow />} />
                     <Route path="deals" element={<CustomerDeals />} />
                     <Route path="blind-boxes" element={<BlindBoxesList />} />
                     <Route path="blind-boxes/:id" element={<BlindBoxesShow />} />
@@ -159,13 +174,13 @@ function App() {
                       <Route path="failed" element={<OrderFailed />} />
                     </Route>
 
+                  </Route>
+
                     {/* Auth Routes */}
                     <Route path="login" element={<Login />} />
                     <Route path="register" element={<Register />} />
                     <Route path="forgot-password" element={<ForgotPassword />} />
                     <Route path="reset-password" element={<ResetPassword />} />
-                  </Route>
-
                   {/* Admin Routes */}
                   <Route
                     path="admin"
@@ -188,6 +203,7 @@ function App() {
                     }
                   >
                     <Route index element={<NavigateToResource resource="dashboard" />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
                     
                     {/* Admin Management Routes */}
                     <Route path="accounts">
@@ -247,7 +263,7 @@ function App() {
           </AntdApp>
         </ColorModeContextProvider>
       </RefineKbarProvider>
-    </BrowserRouter>
+    </BrowserRouter>)
   );
 }
 

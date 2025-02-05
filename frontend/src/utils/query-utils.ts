@@ -26,22 +26,27 @@ export const generateFilterQuery = (filters: LogicalFilter[]): string => {
   }
 
   const multiFilters = [];
+  let search = "";
 
   for (const filter of filters) {
+    if(filter.field === "search"){
+      search = filter.value;
+      continue;
+    }
     const filterField = generateFilterField(filter);
     if (filterField.length == 0) continue;
     multiFilters.push(filterField);
   }
 
   if (multiFilters.length == 0) {
-    return "";
+    return  "search=" + encodeURIComponent(search);
   }
 
   if (multiFilters.length == 1) {
-    return "filter=" + encodeURIComponent(multiFilters[0]);
+    return "filter=" + encodeURIComponent(multiFilters[0] + "&search=" + encodeURIComponent(search));
   }
 
-  return "filter=" + encodeURIComponent(JSON.stringify(multiFilters));
+  return "filter=" + encodeURIComponent(JSON.stringify(multiFilters)) + "&search=" + encodeURIComponent(search);
 };
 
 function generateFilterField(filter: LogicalFilter): string {

@@ -25,7 +25,7 @@ import { BlindBoxDto } from "../../../generated";
 const { Text } = Typography;
 
 export const BlindBoxesList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable<BlindBoxDto>({
+  const { tableProps, setFilters } = useTable<BlindBoxDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -72,12 +72,19 @@ export const BlindBoxesList: React.FC = () => {
         <Input.Search
           placeholder="Search products..."
           className="max-w-md"
-          {...(searchFormProps.onFinish && {
-            onSearch: searchFormProps.onFinish,
-          })}
+          allowClear
+          onSearch={(value) => {
+            setFilters([
+              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              {
+                field: "search",
+                operator: "contains",
+                value: value || undefined,
+              }
+            ]);
+          }}
         />
       </div>
-
       <Table
         {...tableProps}
         rowKey="blindBoxId"

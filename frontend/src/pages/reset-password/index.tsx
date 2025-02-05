@@ -80,7 +80,7 @@ export const ResetPassword: React.FC = () => {
   };
 
   return (
-    <div
+    (<div
       style={{
         maxWidth: token.screenSMMin,
         margin: `${token.marginLG * 2}px auto`,
@@ -156,7 +156,7 @@ export const ResetPassword: React.FC = () => {
           </Form.Item>
         </Form>
       </Card>
-    </div>
+    </div>)
   );
 };
 

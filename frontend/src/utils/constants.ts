@@ -9,6 +9,5 @@ export const ROLE_OPTIONS = [
 export const ROLE_COLOR_MAP = {
   ADMIN: "purple", // Purple represents authority and power
   STAFF: "cyan", // Cyan for support/operational roles
-  FREELANCER: "orange", // Orange for dynamic/independent workers
-  CLIENT: "geekblue", // GeekBlue for business/client relationships
+  CUSTOMER: "orange", // Orange for dynamic/independent workers
 };

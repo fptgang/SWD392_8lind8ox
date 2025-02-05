@@ -9,6 +9,7 @@ function buildHeaders(headers: any) {
   const token: string | null = localStorage.getItem(TOKEN_KEY);
   if (token) {
     headers["Authorization"] = `Bearer ${token}`
+    
   }
 
   return headers

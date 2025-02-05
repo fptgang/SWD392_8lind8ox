@@ -86,28 +86,49 @@ const CartPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Title level={2}>Shopping Cart</Title>
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <Table
-          columns={columns}
-          dataSource={cartItems}
-          pagination={false}
-          rowKey="id"
-        />
-        <div className="flex justify-end mt-6">
-          <div className="text-right">
-            <div className="text-lg font-semibold mb-2">
-              Total: ${total.toFixed(2)}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <Table
+              columns={columns}
+              dataSource={cartItems}
+              pagination={false}
+              rowKey="id"
+            />
+          </div>
+        </div>
+        <div className="md:col-span-1">
+          <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+            <Title level={4}>Order Summary</Title>
+            <div className="space-y-4">
+              <div className="flex justify-between py-2 border-b">
+                <span>Subtotal</span>
+                <span className="font-semibold">${total.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+              <div className="flex justify-between py-2 text-lg font-semibold">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+              <div className="space-y-2">
+                <Button 
+                  type="primary" 
+                  size="large" 
+                  block 
+                  onClick={() => nav({
+                    to: '/checkout',
+                  })}
+                >
+                  Proceed to Checkout
+                </Button>
+                <Button size="large" block href="/products">
+                  Continue Shopping
+                </Button>
+              </div>
             </div>
-            <Space>
-              <Button size="large" href="/products">
-                Continue Shopping
-              </Button>
-              <Button type="primary" size="large" onClick={() => nav({
-                to: '/checkout',
-              })}>
-                Proceed to Checkout
-              </Button>
-            </Space>
           </div>
         </div>
       </div>
