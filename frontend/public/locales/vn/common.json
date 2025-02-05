@@ -1,0 +1,291 @@
+{
+    "pages": {
+      "login": {
+        "__description": "Các khóa này được sử dụng bởi các component <AuthPage type='login' />",
+        "title": "Đăng nhập vào tài khoản của bạn",
+        "signin": "Đăng nhập",
+        "signup": "Đăng ký",
+        "divider": "hoặc",
+        "fields": {
+          "email": "Email",
+          "password": "Mật khẩu"
+        },
+        "errors": {
+          "validEmail": "Địa chỉ email không hợp lệ",
+          "requiredEmail": "Email là bắt buộc",
+          "requiredPassword": "Mật khẩu là bắt buộc"
+        },
+        "buttons": {
+          "submit": "Đăng nhập",
+          "forgotPassword": "Quên mật khẩu?",
+          "noAccount": "Chưa có tài khoản?",
+          "rememberMe": "Ghi nhớ đăng nhập"
+        }
+      },
+      "forgotPassword": {
+        "__description": "Các khóa này được sử dụng bởi các component <AuthPage type='forgotPassword' />",
+        "title": "Quên mật khẩu?",
+        "signin": "Đăng nhập",
+        "fields": {
+          "email": "Email"
+        },
+        "errors": {
+          "validEmail": "Địa chỉ email không hợp lệ",
+          "requiredEmail": "Email là bắt buộc"
+        },
+        "buttons": {
+          "submit": "Gửi hướng dẫn đặt lại mật khẩu",
+          "haveAccount": "Đã có tài khoản?"
+        }
+      },
+      "register": {
+        "__description": "Các khóa này được sử dụng bởi các component <AuthPage type='register' />",
+        "title": "Đăng ký tài khoản",
+        "signin": "Đăng nhập",
+        "divider": "hoặc",
+        "fields": {
+          "email": "Email",
+          "password": "Mật khẩu"
+        },
+        "errors": {
+          "validEmail": "Địa chỉ email không hợp lệ",
+          "requiredEmail": "Email là bắt buộc",
+          "requiredPassword": "Mật khẩu là bắt buộc"
+        },
+        "buttons": {
+          "submit": "Đăng ký",
+          "haveAccount": "Đã có tài khoản?"
+        }
+      },
+      "updatePassword": {
+        "__description": "Các khóa này được sử dụng bởi các component <AuthPage type='updatePassword' />",
+        "title": "Cập nhật mật khẩu",
+        "fields": {
+          "password": "Mật khẩu mới",
+          "confirmPassword": "Xác nhận mật khẩu mới"
+        },
+        "errors": {
+          "confirmPasswordNotMatch": "Mật khẩu không khớp",
+          "requiredPassword": "Mật khẩu là bắt buộc",
+          "requiredConfirmPassword": "Xác nhận mật khẩu là bắt buộc"
+        },
+        "buttons": {
+          "submit": "Cập nhật"
+        }
+      },
+      "error": {
+        "__description": "Các khóa này được sử dụng bởi các component <ErrorPage />",
+        "info": "Có thể bạn đã quên thêm component {{action}} vào resource {{resource}}",
+        "404": "Xin lỗi, trang bạn truy cập không tồn tại.",
+        "resource404": "Bạn có chắc đã tạo resource {{resource}}.",
+        "backHome": "Trở về trang chủ"
+      }
+    },
+    "actions": {
+      "__description": "Các khóa này được sử dụng bởi gói @refinedev/kbar",
+      "list": "Danh sách",
+      "create": "Tạo mới",
+      "edit": "Chỉnh sửa",
+      "show": "Hiển thị"
+    },
+    "buttons": {
+      "__description": "Các khóa này được sử dụng bởi các nút và breadcrumb",
+      "create": "Tạo mới",
+      "save": "Lưu",
+      "logout": "Đăng xuất",
+      "delete": "Xóa",
+      "edit": "Chỉnh sửa",
+      "cancel": "Hủy",
+      "confirm": "Bạn có chắc chắn?",
+      "filter": "Lọc",
+      "clear": "Xóa",
+      "refresh": "Làm mới",
+      "show": "Hiển thị",
+      "undo": "Hoàn tác",
+      "import": "Nhập",
+      "clone": "Sao chép",
+      "notAccessTitle": "Bạn không có quyền truy cập"
+    },
+    "warnWhenUnsavedChanges": "Bạn có chắc muốn rời đi? Có những thay đổi chưa được lưu.",
+    "notifications": {
+      "__description": "Các khóa này được sử dụng bởi notification provider",
+      "success": "Thành công",
+      "error": "Lỗi (mã trạng thái: {{statusCode}})",
+      "undoable": "Bạn có {{seconds}} giây để hoàn tác",
+      "createSuccess": "Đã tạo {{resource}} thành công",
+      "createError": "Có lỗi khi tạo {{resource}} (mã trạng thái: {{statusCode}})",
+      "deleteSuccess": "Đã xóa {{resource}} thành công",
+      "deleteError": "Có lỗi khi xóa {{resource}} (mã trạng thái: {{statusCode}})",
+      "editSuccess": "Đã chỉnh sửa {{resource}} thành công",
+      "editError": "Có lỗi khi chỉnh sửa {{resource}} (mã trạng thái: {{statusCode}})",
+      "importProgress": "Đang nhập: {{processed}}/{{total}}"
+    },
+    "loading": "Đang tải",
+    "posts": {
+      "__description": "Các khóa này được sử dụng trong bản dịch cho resource 'posts'",
+      "posts": "Bài viết",
+      "fields": {
+        "id": "Id",
+        "title": "Tiêu đề",
+        "category": "Danh mục",
+        "status": {
+          "title": "Trạng thái",
+          "published": "Đã xuất bản",
+          "draft": "Bản nháp",
+          "rejected": "Đã từ chối"
+        },
+        "content": "Nội dung",
+        "createdAt": "Ngày tạo"
+      },
+      "titles": {
+        "create": "Tạo bài viết",
+        "edit": "Chỉnh sửa bài viết",
+        "list": "Bài viết",
+        "show": "Xem bài viết"
+      }
+    },
+    "table": {
+      "__description": "Khóa này được sử dụng bởi các component Inferencer trong view 'list'",
+      "actions": "Hành động"
+    },
+    "documentTitle": {
+      "__description": "Các khóa này được sử dụng bởi các component <DocumentTitleHandler />",
+      "default": "refine",
+      "suffix": " | Refine",
+      "post": {
+        "list": "Bài viết | Refine",
+        "show": "#{{id}} Xem bài viết | Refine",
+        "edit": "#{{id}} Chỉnh sửa bài viết | Refine",
+        "create": "Tạo bài viết mới | Refine",
+        "clone": "#{{id}} Sao chép bài viết | Refine"
+      }
+    },
+    "autoSave": {
+      "__description": "Các khóa này được sử dụng bởi <AutoSaveIndicator /> và tính năng tự động lưu",
+      "success": "đã lưu",
+      "error": "lỗi tự động lưu",
+      "loading": "đang lưu...",
+      "idle": "đang chờ thay đổi"
+    },
+    "resources": {
+      "dashboard": {
+        "label": "Bảng điều khiển"
+      },
+      "accounts": {
+        "label": "Tài khoản",
+        "titles": {
+          "create": "Tạo tài khoản",
+          "edit": "Chỉnh sửa tài khoản",
+          "list": "Tài khoản",
+          "show": "Xem tài khoản"
+        }
+      },
+      "brands": {
+        "label": "Thương hiệu",
+        "titles": {
+          "create": "Tạo thương hiệu",
+          "edit": "Chỉnh sửa thương hiệu",
+          "list": "Thương hiệu",
+          "show": "Xem thương hiệu"
+        }
+      },
+      "packs": {
+        "label": "Gói",
+        "titles": {
+          "create": "Tạo gói",
+          "edit": "Chỉnh sửa gói",
+          "list": "Gói",
+          "show": "Xem gói"
+        }
+      },
+      "orders": {
+        "label": "Đơn hàng",
+        "titles": {
+          "create": "Tạo đơn hàng",
+          "edit": "Chỉnh sửa đơn hàng",
+          "list": "Đơn hàng",
+          "show": "Xem đơn hàng"
+        }
+      },
+      "promotions": {
+        "label": "Chiến dịch khuyến mãi",
+        "titles": {
+          "create": "Tạo chiến dịch",
+          "edit": "Chỉnh sửa chiến dịch",
+          "list": "Chiến dịch khuyến mãi",
+          "show": "Xem chiến dịch"
+        }
+      },
+      "blindBoxes": {
+        "label": "Hộp quà bí mật",
+        "titles": {
+          "create": "Tạo hộp quà bí mật",
+          "edit": "Chỉnh sửa hộp quà bí mật",
+          "list": "Hộp quà bí mật",
+          "show": "Xem hộp quà bí mật"
+        }
+      },
+      "catalog": {
+        "label": "Danh mục"
+      },
+      "sales": {
+        "label": "Bán hàng"
+      },
+      "marketing": {
+        "label": "Marketing"
+      },
+      "user-management": {
+        "label": "Quản lý người dùng"
+      }
+    },
+    "dashboard": {
+      "__description": "Các khóa này được sử dụng bởi các component dashboard",
+      "title": "Bảng điều khiển",
+      "overview": {
+        "title": "Tổng quan"
+      },
+      "filter": {
+        "date": {
+          "lastWeek": "Tuần trước",
+          "lastMonth": "Tháng trước"
+        }
+      },
+      "dailyRevenue": {
+        "title": "Doanh thu hàng ngày"
+      },
+      "revenue": {
+        "title": "Doanh thu"
+      },
+      "dailyOrders": {
+        "title": "Đơn hàng hàng ngày"
+      },
+      "orders": {
+        "title": "Đơn hàng"
+      },
+      "newCustomers": {
+        "title": "Khách hàng mới"
+      },
+      "timeline": {
+        "title": "Dòng thời gian"
+      },
+      "deliveryMap": {
+        "title": "Bản đồ giao hàng"
+      },
+      "recentOrders": {
+        "title": "Đơn hàng gần đây"
+      },
+      "trendingProducts": {
+        "title": "Sản phẩm thịnh hành"
+      }
+    },
+    "enum": {
+      "orderStatuses": {
+        "PENDING": "Đang chờ",
+        "COMPLETED": "Đã hoàn thành",
+        "CANCELED": "Đã hủy"
+      }
+    },
+    "customersRoute": {
+      "label": "Khách hàng"
+    }
+  }
