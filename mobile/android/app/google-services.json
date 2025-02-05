@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "3547727424",
+    "project_id": "lind8ox-6a2c1",
+    "storage_bucket": "lind8ox-6a2c1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3547727424:android:3e4dcd59dcf0d1ec29c1a5",
+        "android_client_info": {
+          "package_name": "com.example.blindbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "3547727424-dd830mm0li4cmi4q2kcr7ndorfpgi5rs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.blindbox",
+            "certificate_hash": "ee1abc13fdaa2440152b153d496177a007f13ac4"
+          }
+        },
+        {
+          "client_id": "3547727424-2446h6nufhmprjiulioc37pr7phh5kjv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCdPLuq50dJ8jfVIEdk0ltozlBbrMO-9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "3547727424-2446h6nufhmprjiulioc37pr7phh5kjv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
