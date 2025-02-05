@@ -31,7 +31,7 @@ public class AzureBlobServiceImpl implements AzureBlobService {
             byte[] data = file.getBytes();
 
             // Create a BlobServiceClient using the connection string
-            String endpoint = "https://hirable.blob.core.windows.net/" + containerName + "?" + sasToken;
+            String endpoint = connectionString + containerName + "?" + sasToken;
             BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                     .endpoint(endpoint)  // Endpoint with SAS token appended
                     .buildClient();
