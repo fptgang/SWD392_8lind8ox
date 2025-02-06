@@ -54,4 +54,9 @@ public class ImageServiceImpl implements ImageService {
         }
         return imageRepos.findAll(spec, pageable);
     }
+
+    @Override
+    public String GenerateSasToken() {
+        return "";
+    }
 }
