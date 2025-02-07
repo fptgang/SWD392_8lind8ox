@@ -70,17 +70,16 @@ class CartItem extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Quantity Selector
                         Row(
                           children: [
                             IconButton(
                               onPressed: () {},
-                              icon: const Icon(Icons.remove, size: 18),
+                              icon: Icon(Icons.remove, size: 18, color: getColorSkin().primaryRed800),
                             ),
                             const Text("01", style: TextStyle(fontSize: 14)),
                             IconButton(
                               onPressed: () {},
-                              icon: const Icon(Icons.add, size: 18),
+                              icon: Icon(Icons.add, size: 18, color: getColorSkin().primaryRed800),
                             ),
                           ],
                         ),

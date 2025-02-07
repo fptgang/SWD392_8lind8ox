@@ -14,20 +14,20 @@ class CartScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: getColorSkin().backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: getColorSkin().primaryRed650,
         elevation: 0,
         title: Text(
-          "Cart (03)",
-          style: TextStyle(color: getColorSkin().black, fontWeight: FontWeight.bold),
+          "Cart",
+          style: TextStyle(color: getColorSkin().white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: getColorSkin().black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: getColorSkin().white),
+        //   onPressed: () => Navigator.pop(context),
+        // ),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite_border, color: getColorSkin().black),
+            icon: Icon(Icons.favorite_border, color: getColorSkin().white),
             onPressed: () {},
           ),
         ],
@@ -106,7 +106,7 @@ class CartScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: getColorSkin().accentColor,
+                    backgroundColor: getColorSkin().primaryRed650,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -115,7 +115,7 @@ class CartScreen extends StatelessWidget {
                   child: Text(
                     "Checkout",
                     style: TextStyle(
-                        color: getColorSkin().black, fontWeight: FontWeight.bold),
+                        color: getColorSkin().white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],

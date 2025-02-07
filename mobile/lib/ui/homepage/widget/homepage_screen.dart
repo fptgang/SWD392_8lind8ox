@@ -25,6 +25,7 @@ class HomePageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
         body: SafeArea(
@@ -38,8 +39,8 @@ class HomePageScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Container(
-                          height: 40.h,
-                          width: 50.w,
+                          height: 50.h,
+                          width: 40.w,
                           decoration: BoxDecoration(
                             color: getColorSkin().lightGrey200,
                             borderRadius: BorderRadius.circular(25),
@@ -47,9 +48,10 @@ class HomePageScreen extends StatelessWidget {
                           child: TextField(
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 20.w, vertical: 9.h),
+                                  horizontal: 20.w, vertical: 10.h),
                               border: InputBorder.none,
                               hintText: "Search here...",
+                              hintStyle: TextStyle(color: getColorSkin().black),
                               // prefixIcon: Icon(Icons.search, color: getColorSkin().accentColor),
                             ),
                           ),
@@ -57,22 +59,10 @@ class HomePageScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10.w),
                       CircleAvatar(
-                        radius: 15,
-                        backgroundColor: getColorSkin().accentColor,
+                        radius: 22,
+                        backgroundColor: getColorSkin().primaryRed600,
                         child: Icon(Icons.search,
                             color: getColorSkin().backgroundColor),
-                      ),
-                      SizedBox(width: 16.w),
-                      GestureDetector(
-                        onTap: () {
-                          context.push('/cart');
-                        },
-                        child: CircleAvatar(
-                          radius: 15,
-                          backgroundColor: getColorSkin().lightGrey,
-                          child: Icon(Icons.add_shopping_cart,
-                              color: getColorSkin().black),
-                        ),
                       ),
                       SizedBox(width: 16.w),
                       GestureDetector(
@@ -86,12 +76,11 @@ class HomePageScreen extends StatelessWidget {
                           }
                         },
                         child: CircleAvatar(
-                          radius: 15,
+                          radius: 22,
                           backgroundColor: getColorSkin().lightGrey,
                           child: Icon(Icons.person, color: getColorSkin().black),
                         ),
                       ),
-
                     ],
                   ),
                   SizedBox(height: 20.h),
@@ -99,7 +88,7 @@ class HomePageScreen extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: getColorSkin().yellow,
+                      color: getColorSkin().primaryRed50,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -108,23 +97,24 @@ class HomePageScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                               Text(
                                 "Get Your Special Sale Up to 50%",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
+                                  color: getColorSkin().primaryRed900,
                                 ),
                               ),
                               SizedBox(height: 8.h),
                               ElevatedButton(
                                 onPressed: () {},
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: getColorSkin().black,
+                                  backgroundColor: getColorSkin().primaryRed600,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: Text("Shop Now", style: TextStyle(color: getColorSkin().backgroundColor)),
+                                child: Text("Shop Now", style: TextStyle(color: getColorSkin().white)),
                               ),
                             ],
                           ),

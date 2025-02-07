@@ -199,6 +199,45 @@ class AppColors extends ThemeExtension<AppColors> {
   //fec107
   final Color boldYellow;
 
+  /// Primary Red
+  final Color primaryRed50;
+  final Color primaryRed100;
+  final Color primaryRed200;
+  final Color primaryRed300;
+  final Color primaryRed400;
+  final Color primaryRed500;
+  final Color primaryRed550;
+  final Color primaryRed600;
+  final Color primaryRed650;
+  final Color primaryRed700;
+  final Color primaryRed800;
+  final Color primaryRed900;
+  final Color primaryRed950;
+
+  /// Secondary Blue
+  final Color secondaryBlue50;
+  final Color secondaryBlue100;
+  final Color secondaryBlue200;
+  final Color secondaryBlue300;
+  final Color secondaryBlue400;
+  final Color secondaryBlue500;
+  final Color secondaryBlue600;
+  final Color secondaryBlue700;
+  final Color secondaryBlue800;
+  final Color secondaryBlue900;
+
+  /// Tertiary Green
+  final Color tertiaryGreen50;
+  final Color tertiaryGreen100;
+  final Color tertiaryGreen200;
+  final Color tertiaryGreen300;
+  final Color tertiaryGreen400;
+  final Color tertiaryGreen500;
+  final Color tertiaryGreen600;
+  final Color tertiaryGreen700;
+  final Color tertiaryGreen800;
+  final Color tertiaryGreen900;
+
   AppColors({
     required this.textColor,
     required this.backgroundColor,
@@ -270,6 +309,39 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.lightGreen,
     required this.lightBrown,
     required this.boldYellow,
+    required this.primaryRed50,
+    required this.primaryRed100,
+    required this.primaryRed200,
+    required this.primaryRed300,
+    required this.primaryRed400,
+    required this.primaryRed500,
+    required this.primaryRed550,
+    required this.primaryRed600,
+    required this.primaryRed650,
+    required this.primaryRed700,
+    required this.primaryRed800,
+    required this.primaryRed900,
+    required this.primaryRed950,
+    required this.secondaryBlue50,
+    required this.secondaryBlue100,
+    required this.secondaryBlue200,
+    required this.secondaryBlue300,
+    required this.secondaryBlue400,
+    required this.secondaryBlue500,
+    required this.secondaryBlue600,
+    required this.secondaryBlue700,
+    required this.secondaryBlue800,
+    required this.secondaryBlue900,
+    required this.tertiaryGreen50,
+    required this.tertiaryGreen100,
+    required this.tertiaryGreen200,
+    required this.tertiaryGreen300,
+    required this.tertiaryGreen400,
+    required this.tertiaryGreen500,
+    required this.tertiaryGreen600,
+    required this.tertiaryGreen700,
+    required this.tertiaryGreen800,
+    required this.tertiaryGreen900,
   });
 
   static AppColors defaultInstance() {
@@ -344,6 +416,39 @@ class AppColors extends ThemeExtension<AppColors> {
       lightGreen: const Color(0xFFbce4b3),
       lightBrown: const Color(0xFFf9f5ec),
       boldYellow: const Color(0xFFfec107),
+      primaryRed50: const Color(0xFFFDF3F3),
+      primaryRed100: const Color(0xFFFDE3E3),
+      primaryRed200: const Color(0xFFFCCCCC),
+      primaryRed300: const Color(0xFFF8A9A9),
+      primaryRed400: const Color(0xFFF27777),
+      primaryRed500: const Color(0xFFE74C4C),
+      primaryRed550: const Color(0xFFff0000),
+      primaryRed600: const Color(0xFFd70000),
+      primaryRed650: const Color(0xFFC62B2B),
+      primaryRed700: const Color(0xFFB22323),
+      primaryRed800: const Color(0xFF932121),
+      primaryRed900: const Color(0xFF7B2121),
+      primaryRed950: const Color(0xFF500000),
+      secondaryBlue50: const Color(0xFFF1F6FD),
+      secondaryBlue100: const Color(0xFFDFECFA),
+      secondaryBlue200: const Color(0xFFC5DEF8),
+      secondaryBlue300: const Color(0xFF9EC9F2),
+      secondaryBlue400: const Color(0xFF70ACEA),
+      secondaryBlue500: const Color(0xFF4E8DE3),
+      secondaryBlue600: const Color(0xFF3971D7),
+      secondaryBlue700: const Color(0xFF2F5BC1),
+      secondaryBlue800: const Color(0xFF2D4DA0),
+      secondaryBlue900: const Color(0xFF29427F),
+      tertiaryGreen50:  const Color(0xFFF4FBF2),
+      tertiaryGreen100: const Color(0xFFE6F6E2),
+      tertiaryGreen200: const Color(0xFFCDECC6),
+      tertiaryGreen300: const Color(0xFFA6DB9A),
+      tertiaryGreen400: const Color(0xFF75C26C),
+      tertiaryGreen500: const Color(0xFF4FAB52),
+      tertiaryGreen600: const Color(0xFF346C29),
+      tertiaryGreen700: const Color(0xFF3C5625),
+      tertiaryGreen800: const Color(0xFF264720),
+      tertiaryGreen900: const Color(0xFF10260D),
     );
   }
 
