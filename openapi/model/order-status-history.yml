@@ -15,8 +15,10 @@ OrderStatusHistoryDto:
       enum:
         - CREATED
         - COURIER_ACCEPTED
-        - SHIPPED
+        - SHIPPING
         - DELIVERED
+        - RECEIVED
+        - COMPLETED
     createdAt:
       type: string
       format: date-time
