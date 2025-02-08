@@ -13,6 +13,7 @@ public interface ImageService {
     default Page<Image> getAll(Pageable pageable, String filter, String search) {
         return getAll(pageable, filter, search, false);
     }
+    String GenerateSasToken();
     default Page<Image> getAll(Pageable pageable, String filter) {
         return getAll(pageable, filter, null, false);
     }
