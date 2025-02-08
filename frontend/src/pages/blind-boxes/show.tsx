@@ -28,17 +28,6 @@ export const BlindBoxesShow = () => {
   const record = data?.data as BlindBoxDto;
   const { addItem } = useCart();
 
-  const handleAddToCart = () => {
-    if (record) {
-      addItem({
-        id: record.blindBoxId,
-        name: record.name,
-        price: record.price,
-        image: record.images?.[0]?.imageUrl || ''
-      });
-      message.success('Added to cart successfully!');
-    }
-  };
 
  
 
@@ -130,14 +119,6 @@ export const BlindBoxesShow = () => {
                     }}
                     style={{ fontSize: 16, fontWeight: 500 }}
                   />
-                  <Button
-                    type="primary"
-                    icon={<ShoppingCartOutlined />}
-                    onClick={handleAddToCart}
-                    block
-                  >
-                    Add to Cart
-                  </Button>
                 </Space>
               </Col>
 

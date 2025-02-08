@@ -22,7 +22,7 @@ import {
 const { Text } = Typography;
 
 export const BrandsList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable({
+  const { tableProps, searchFormProps,setFilters } = useTable({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -53,13 +53,21 @@ export const BrandsList: React.FC = () => {
 
   return (
     <List>
-      <div className="mb-6">
+   <div className="mb-6">
         <Input.Search
           placeholder="Search brands..."
           className="max-w-md"
-          {...(searchFormProps.onFinish && {
-            onSearch: searchFormProps.onFinish,
-          })}
+          allowClear
+          onSearch={(value) => {
+            setFilters([
+              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              {
+                field: "search",
+                operator: "contains",
+                value: value || undefined,
+              }
+            ]);
+          }}
         />
       </div>
 

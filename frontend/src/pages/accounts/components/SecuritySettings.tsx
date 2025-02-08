@@ -16,6 +16,9 @@ export const SecuritySettings: React.FC = () => {
     <div>
       <Title level={4}>Security Settings</Title>
       <Card style={{ marginTop: 16 }}>
+        <Space direction="vertical" size="middle">
+          <Title level={5}>Change Password</Title>
+          </Space>
         <Form
           form={form}
           layout="vertical"

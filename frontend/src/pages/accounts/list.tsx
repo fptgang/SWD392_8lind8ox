@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { BaseRecord, useMany } from "@refinedev/core";
 import { useTable, List, EditButton, ShowButton, DeleteButton, TagField, EmailField, DateField, FilterDropdown } from "@refinedev/antd";
 import { Table, Space, Select, Badge, Tooltip, Typography, Tag, Input } from "antd";
@@ -10,7 +10,7 @@ import { formatCurrency } from "../../utils/currency-formatter";
 const { Text } = Typography;
 
 export const AccountsList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable<AccountDto>({
+  const { tableProps, setFilters } = useTable<AccountDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -32,10 +32,16 @@ export const AccountsList: React.FC = () => {
           operator: "eq",
           value: undefined,
         },
+        {
+          field:"search",
+          operator: "contains",
+          value: undefined,
+        }
       ],
     },
   });
 
+ 
   const getVerificationStatus = (isVerified: boolean | null) => {
     return isVerified ? (
       <Badge status="success" text="Verified" />
@@ -44,19 +50,30 @@ export const AccountsList: React.FC = () => {
     );
   };
 
+
+
   const formatBalance = (balance: number) => {
     return formatCurrency(balance);
   };
 
   return (
     <List>
-      <div className="mb-6">
+       <div className="mb-6">
         <Input.Search
           placeholder="Search accounts..."
           className="max-w-md"
-          {...(searchFormProps.onFinish && {
-            onSearch: searchFormProps.onFinish,
-          })}
+          allowClear
+          onSearch={(value) => {
+            // Use the destructured setFilters
+            setFilters([
+              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              {
+                field: "search",
+                operator: "contains",
+                value: value || undefined,
+              }
+            ]);
+          }}
         />
       </div>
 
@@ -66,6 +83,7 @@ export const AccountsList: React.FC = () => {
         className="overflow-x-auto"
         scroll={{ x: true }}
       >
+        
         <Table.Column
           dataIndex={["accountId"]}
           title={

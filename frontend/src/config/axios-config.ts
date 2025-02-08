@@ -1,6 +1,7 @@
 import axios from "axios";
 import { REFRESH_TOKEN_KEY, TOKEN_KEY } from "../authProvider";
 import api from "./openapi-config";
+import { Http2ServerResponse } from "http2";
 
 const axiosInstance = axios.create();
 
@@ -26,17 +27,18 @@ axiosInstance.interceptors.response.use(
     console.log("Response Success:", response);
     return response;
   },
-  async (error) => {
+  async (error 
+  ) => {
     console.error("Response Error:", error);
     const originalRequest = error.config;
 
     console.log("attempting to refresh token");
     console.log("refresh token", localStorage.getItem(REFRESH_TOKEN_KEY));
-
+    console.log("error", error);
     // Only attempt refresh if it's a 401 error, and we have a refresh token
     if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
+      (error.response?.status === 401) || 
+      (error.code === "ERR_NETWORK" && error.config?.headers?.Authorization)
     ) {
       console.log("attempting to refresh token  2");
       const refresh_token = localStorage.getItem(REFRESH_TOKEN_KEY);

@@ -23,7 +23,6 @@ const CustomerProfile: React.FC = () => {
         firstName: data.data.firstName,
         lastName: data.data.lastName,
         email: data.data.email,
-        phone: data.data.phone,
       });
     }
   }, [data?.data, form]);

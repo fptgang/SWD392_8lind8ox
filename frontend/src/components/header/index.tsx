@@ -1,5 +1,5 @@
 import type { RefineThemedLayoutV2HeaderProps } from "@refinedev/antd";
-import { useGetIdentity } from "@refinedev/core";
+import { useGetIdentity, useGetLocale, useTranslate } from "@refinedev/core";
 import {
   Avatar,
   Layout as AntdLayout,
@@ -7,9 +7,15 @@ import {
   Switch,
   theme,
   Typography,
+  Menu,
+  Dropdown,
+  Button,
 } from "antd";
 import React, { useContext } from "react";
 import { ColorModeContext } from "../../contexts/color-mode";
+import { useTranslation } from "@refinedev/core";
+import { DownOutlined } from "@ant-design/icons";
+import LanguageSelector from "../button/language-selector";
 
 const { Text } = Typography;
 const { useToken } = theme;
@@ -26,7 +32,15 @@ export const Header: React.FC<RefineThemedLayoutV2HeaderProps> = ({
   const { token } = useToken();
   const { data: user } = useGetIdentity<IUser>();
   const { mode, setMode } = useContext(ColorModeContext);
+  const { translate, getLocale, changeLocale } = useTranslation();
 
+  const currentLocale = getLocale();
+  
+  const menu = (
+    <Menu >
+     <LanguageSelector  />
+    </Menu>
+  );
   const headerStyles: React.CSSProperties = {
     backgroundColor: token.colorBgElevated,
     display: "flex",
@@ -51,6 +65,7 @@ export const Header: React.FC<RefineThemedLayoutV2HeaderProps> = ({
           onChange={() => setMode(mode === "light" ? "dark" : "light")}
           defaultChecked={mode === "dark"}
         />
+        <LanguageSelector  />
         <Space style={{ marginLeft: "8px" }} size="middle">
           {user?.name && <Text strong>{user.name}</Text>}
           {user?.avatar && <Avatar src={user?.avatar} alt={user?.name} />}

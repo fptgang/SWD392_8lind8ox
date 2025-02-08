@@ -34,6 +34,8 @@ public class Order {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
+    //TODO: add shipping info
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
