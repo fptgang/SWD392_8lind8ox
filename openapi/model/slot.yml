@@ -1,0 +1,29 @@
+SlotDto:
+  type: object
+  properties:
+    slotId:
+      type: integer
+      format: int64
+    position:
+      type: integer
+      format: int32
+    isOpened:
+      type: boolean
+    openedAt:
+      type: string
+      format: date-time
+    toyId:
+      type: integer
+      format: int64
+    setId:
+      type: integer
+      format: int64
+    orderDetailId:
+      type: integer
+      format: int64
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time

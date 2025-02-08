@@ -14,6 +14,10 @@ OrderDto:
       type: array
       items:
         $ref: "order-detail.yml#/OrderDetailDto"
+    orderStatusHistories:
+      type: array
+      items:
+        $ref: "order-status-history.yml#/OrderStatusHistoryDto"
     createdAt:
       type: string
       format: date-time

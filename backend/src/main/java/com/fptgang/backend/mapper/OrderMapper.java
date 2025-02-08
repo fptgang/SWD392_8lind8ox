@@ -20,6 +20,8 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
     private AccountRepos accountRepos;
     @Autowired
     private OrderDetailMapper orderDetailMapper;
+    @Autowired
+    private OrderStatusHistoryMapper orderStatusHistoryMapper;
 
     @Override
     public Order toEntity(OrderDto dto) {
@@ -31,22 +33,26 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
 
         if (existingOrderOptional.isPresent()) {
             Order existingOrder = existingOrderOptional.get();
-            existingOrder.setStatus(dto.getStatus() != null ? Order.Status.valueOf(dto.getStatus().name()) : existingOrder.getStatus());
             existingOrder.setTotalPrice(dto.getTotalPrice() != null ? dto.getTotalPrice() : existingOrder.getTotalPrice());
             if (dto.getOrderDetails() != null) {
                 existingOrder.setOrderDetails(dto.getOrderDetails().stream().map(orderDetailMapper::toEntity).collect(Collectors.toList()));
+            }
+            if (dto.getOrderStatusHistories() != null) {
+                existingOrder.setOrderStatusHistories(dto.getOrderStatusHistories().stream().map(orderStatusHistoryMapper::toEntity).collect(Collectors.toList()));
             }
             return existingOrder;
         } else {
             Order entity = new Order();
             entity.setOrderId(dto.getOrderId());
-            entity.setStatus(Order.Status.valueOf(dto.getStatus().name()));
             entity.setTotalPrice(dto.getTotalPrice());
             if (dto.getAccountId() != null) {
-                entity.setAccount(accountRepos.findById(dto.getAccountId()).get());
+                entity.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
             }
             if (dto.getOrderDetails() != null) {
                 entity.setOrderDetails(dto.getOrderDetails().stream().map(orderDetailMapper::toEntity).collect(Collectors.toList()));
+            }
+            if (dto.getOrderStatusHistories() != null) {
+                entity.setOrderStatusHistories(dto.getOrderStatusHistories().stream().map(orderStatusHistoryMapper::toEntity).collect(Collectors.toList()));
             }
             if (dto.getCreatedAt() != null) {
                 entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
@@ -66,10 +72,10 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
 
         OrderDto dto = new OrderDto();
         dto.setOrderId(entity.getOrderId());
-        dto.setStatus(OrderDto.StatusEnum.valueOf(entity.getStatus().name()));
         dto.setTotalPrice(entity.getTotalPrice());
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setOrderDetails(entity.getOrderDetails().stream().map(orderDetailMapper::toDTO).collect(Collectors.toList()));
+        dto.setOrderStatusHistories(entity.getOrderStatusHistories().stream().map(orderStatusHistoryMapper::toDTO).collect(Collectors.toList()));
         if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         }

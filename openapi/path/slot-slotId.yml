@@ -1,11 +1,11 @@
-
+# path/slot-slotId.yml
 get:
-  summary: Get a pack by packId
-  operationId: getPackById
+  summary: Get a slot by slotId
+  operationId: getSlotById
   security:
     - bearerAuth: []
   parameters:
-    - name: packId
+    - name: slotId
       in: path
       required: true
       schema:
@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../model/pack.yml#/PackDto'
+            $ref: '../model/slot.yml#/SlotDto'
     '400':
       description: The operation failed
       content:
@@ -26,31 +26,31 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 put:
-  summary: Update an existing pack
-  operationId: updatePack
+  summary: Update an existing slot
+  operationId: updateSlot
   security:
     - bearerAuth: []
   parameters:
-    - name: packId
+    - name: slotId
       in: path
       required: true
       schema:
         type: integer
         format: int32
   requestBody:
-    description: Pack to update
+    description: Slot to update
     required: true
     content:
       application/json:
         schema:
-          $ref: '../model/pack.yml#/PackDto'
+          $ref: '../model/slot.yml#/SlotDto'
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/pack.yml#/PackDto'
+            $ref: '../model/slot.yml#/SlotDto'
     '400':
       description: The operation failed
       content:
@@ -59,12 +59,12 @@ put:
             $ref: '../component/error.yml#/ErrorResponse'
 
 delete:
-  summary: Delete an existing pack
-  operationId: deletePack
+  summary: Delete an existing slot
+  operationId: deleteSlot
   security:
     - bearerAuth: []
   parameters:
-    - name: packId
+    - name: slotId
       in: path
       required: true
       schema:

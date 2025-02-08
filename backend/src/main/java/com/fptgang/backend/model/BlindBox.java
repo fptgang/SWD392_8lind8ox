@@ -4,13 +4,11 @@ import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,7 +18,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BlindBox{
+public class BlindBox {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long blindBoxId;
@@ -37,9 +35,6 @@ public class BlindBox{
     @Searchable
     private String description;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal currentPrice;
-
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
@@ -49,6 +44,16 @@ public class BlindBox{
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
+
+    @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Toy> toys;
+
+    @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StockKeepingUnit> skus;
+
+    @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Set> sets;
+
 
     @CreationTimestamp
     private LocalDateTime createdAt;

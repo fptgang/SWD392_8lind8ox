@@ -5,7 +5,7 @@ import com.fptgang.backend.model.Image;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.ImageRepos;
-import com.fptgang.backend.repository.PackRepos;
+import com.fptgang.backend.repository.SetRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
     @Autowired
     private AccountRepos accountRepos;
     @Autowired
-    private PackRepos packRepos;
+    private SetRepos setRepos;
 
     @Override
     public Image toEntity(ImageDto dto) {
@@ -35,31 +35,30 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
         if (existingImageOptional.isPresent()) {
             Image existingImage = existingImageOptional.get();
             existingImage.setImageUrl(dto.getImageUrl() != null ? dto.getImageUrl() : existingImage.getImageUrl());
-             existingImage.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingImage.isVisible());
-            if(dto.getBlindBoxId() != null) {
-                existingImage.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).get());
-            }else if(dto.getPackId() != null) {
-                existingImage.setPack(packRepos.findById(dto.getPackId()).get());
+            existingImage.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingImage.isVisible());
+            if (dto.getBlindBoxId() != null) {
+                existingImage.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).orElse(null));
+            } else if (dto.getPackId() != null) {
+                existingImage.setSet(setRepos.findById(dto.getPackId()).orElse(null));
             }
-            if(dto.getUploaderId() != null) {
-                existingImage.setUploader(accountRepos.findByAccountId(dto.getUploaderId()).get());
+            if (dto.getUploaderId() != null) {
+                existingImage.setUploader(accountRepos.findByAccountId(dto.getUploaderId()).orElse(null));
             }
-
             return existingImage;
         } else {
             Image entity = new Image();
             entity.setImageId(dto.getImageId());
             entity.setImageUrl(dto.getImageUrl());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
-            if(dto.getBlindBoxId() != null) {
-                entity.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).get());
-            }else if(dto.getPackId() != null) {
-                entity.setPack(packRepos.findById(dto.getPackId()).get());
+            if (dto.getBlindBoxId() != null) {
+                entity.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).orElse(null));
+            } else if (dto.getPackId() != null) {
+                entity.setSet(setRepos.findById(dto.getPackId()).orElse(null));
             }
-            if(dto.getUploaderId() != null) {
-                entity.setUploader(accountRepos.findByAccountId(dto.getUploaderId()).get());
+            if (dto.getUploaderId() != null) {
+                entity.setUploader(accountRepos.findByAccountId(dto.getUploaderId()).orElse(null));
             }
-            if(dto.getCreatedAt() != null) {
+            if (dto.getCreatedAt() != null) {
                 entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
             }
             return entity;
@@ -76,10 +75,10 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
         dto.setImageId(entity.getImageId());
         dto.setImageUrl(entity.getImageUrl());
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
-        dto.setPackId(entity.getPack() != null ? entity.getPack().getPackId() : null);
+        dto.setPackId(entity.getSet() != null ? entity.getSet().getSetId() : null);
         dto.setUploaderId(entity.getUploader() != null ? entity.getUploader().getAccountId() : null);
         dto.setIsVisible(entity.isVisible());
-        if(entity.getCreatedAt() != null) {
+        if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         }
         return dto;

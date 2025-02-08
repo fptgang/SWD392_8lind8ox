@@ -1,6 +1,6 @@
 get:
-  summary: Get a list of packs
-  operationId: getPacks
+  summary: Get a list of sets
+  operationId: getSets
   security:
     - bearerAuth: []
   parameters:
@@ -20,7 +20,7 @@ get:
                   content:
                     type: array
                     items:
-                      $ref: '../model/pack.yml#/PackDto'
+                      $ref: '../model/set.yml#/SetDto'
     '400':
       description: The operation failed
       content:
@@ -29,24 +29,24 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 post:
-  summary: Create a pack
-  operationId: createPack
+  summary: Create a set
+  operationId: createSet
   security:
     - bearerAuth: []
   requestBody:
-    description: Pack to create
+    description: Set to create
     required: true
     content:
       application/json:
         schema:
-          $ref: '../model/pack.yml#/PackDto'
+          $ref: '../model/set.yml#/SetDto'
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/pack.yml#/PackDto'
+            $ref: '../model/set.yml#/SetDto'
     '400':
       description: The operation failed
       content:

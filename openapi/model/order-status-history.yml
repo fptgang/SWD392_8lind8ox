@@ -1,0 +1,22 @@
+OrderStatusHistoryDto:
+  type: object
+  properties:
+    id:
+      type: integer
+      format: int64
+    orderId:
+      type: integer
+      format: int64
+    accountId:
+      type: integer
+      format: int64
+    state:
+      type: string
+      enum:
+        - CREATED
+        - COURIER_ACCEPTED
+        - SHIPPED
+        - DELIVERED
+    createdAt:
+      type: string
+      format: date-time

@@ -4,8 +4,8 @@ import com.fptgang.backend.api.model.PromotionalCampaignDto;
 import com.fptgang.backend.model.PromotionalCampaign;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.BlindBoxRepos;
-import com.fptgang.backend.repository.PackRepos;
 import com.fptgang.backend.repository.PromotionalCampaignRepos;
+import com.fptgang.backend.repository.SetRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
     @Autowired
     private BlindBoxRepos blindBoxRepos;
     @Autowired
-    private PackRepos packRepos;
+    private SetRepos setRepos;
     @Autowired
     private BlindBoxMapper blindBoxMapper;
 
@@ -43,6 +43,13 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             existingPromotionalCampaign.setDiscountRate(dto.getDiscountRate() != null ? dto.getDiscountRate() : existingPromotionalCampaign.getDiscountRate());
             existingPromotionalCampaign.setPromoCode(dto.getPromoCode() != null ? dto.getPromoCode() : existingPromotionalCampaign.getPromoCode());
             existingPromotionalCampaign.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingPromotionalCampaign.isVisible());
+            if (dto.getBlindBoxes() != null) {
+                existingPromotionalCampaign.setBlindBoxes(
+                        dto.getBlindBoxes().stream().map(
+                                blindBoxMapper::toEntity
+                        ).toList()
+                );
+            }
             return existingPromotionalCampaign;
         } else {
             PromotionalCampaign entity = new PromotionalCampaign();
@@ -54,6 +61,13 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             entity.setDiscountRate(dto.getDiscountRate());
             entity.setPromoCode(dto.getPromoCode());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
+            if (dto.getBlindBoxes() != null) {
+                entity.setBlindBoxes(
+                        dto.getBlindBoxes().stream().map(
+                                blindBoxMapper::toEntity
+                        ).toList()
+                );
+            }
             if (dto.getCreatorId() != null) {
                 entity.setCreator(accountRepos.findById(dto.getCreatorId()).get());
             }
@@ -89,6 +103,11 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
         if (entity.getUpdatedAt() != null) {
             dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         }
+        dto.setBlindBoxes(
+                entity.getBlindBoxes().stream().map(
+                        blindBoxMapper::toDTO
+                ).toList()
+        );
         return dto;
     }
 }

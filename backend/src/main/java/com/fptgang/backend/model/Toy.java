@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,7 +22,6 @@ import java.util.List;
 public class Toy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "toy_id")
     private Long toyId;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
@@ -31,6 +31,9 @@ public class Toy {
     @Column(nullable = false, columnDefinition = "TEXT", length = 100_000)
     @Searchable
     private String description;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal weight;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,13 +48,17 @@ public class Toy {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToMany(mappedBy = "unboxedToys", fetch = FetchType.LAZY)
-    // This is the inverse side
-    private List<OrderDetail> orderDetails;
+//    @ManyToMany(mappedBy = "unboxedToys", fetch = FetchType.LAZY)
+//    // This is the inverse side
+//    private List<OrderDetail> orderDetails;
 
-    @ManyToMany(mappedBy = "guaranteedToys", fetch = FetchType.LAZY)
-    // This is the inverse side
-    private List<Pack> packs;
+
+    @OneToMany(mappedBy = "toy", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Slot> slots;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blind_box_id")
+    private BlindBox blindBox;
 
     public enum Rarity {
         REGULAR,

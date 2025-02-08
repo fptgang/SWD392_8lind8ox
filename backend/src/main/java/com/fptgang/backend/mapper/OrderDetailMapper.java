@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
@@ -18,13 +17,11 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
     @Autowired
     private OrderRepos orderRepos;
     @Autowired
-    private BlindBoxRepos productRepos;
-    @Autowired
-    private PackRepos packRepos;
+    private StockKeepingUnitRepos skuRepos;
     @Autowired
     private PromotionalCampaignRepos promotionalCampaignRepos;
     @Autowired
-    private ToyMapper toyMapper;
+    private SlotRepos slotRepos;
 
     @Override
     public OrderDetail toEntity(OrderDetailDto dto) {
@@ -36,32 +33,43 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
 
         if (existingOrderDetailOptional.isPresent()) {
             OrderDetail existingOrderDetail = existingOrderDetailOptional.get();
-            existingOrderDetail.setDiscountPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : existingOrderDetail.getDiscountPrice());
-            existingOrderDetail.setOriginalProductPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : existingOrderDetail.getOriginalProductPrice());
-            existingOrderDetail.setRequestUnbox(dto.getRequestUnbox() != null ? dto.getRequestUnbox() : existingOrderDetail.isRequestUnbox());
-            existingOrderDetail.setToyCount(dto.getToyCount());
-            if(dto.getUnboxedToys()!=null){
-                existingOrderDetail.setUnboxedToys(
-                        dto.getUnboxedToys().stream().map(toyDto -> toyMapper.toEntity(toyDto)).collect(Collectors.toList())
-                );
+            existingOrderDetail.setCheckoutPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : existingOrderDetail.getCheckoutPrice());
+            existingOrderDetail.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : existingOrderDetail.getOriginalPrice());
+            if (dto.getOrderId() != null) {
+                existingOrderDetail.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
+            }
+            if (dto.getSkuId() != null) {
+                existingOrderDetail.setStockKeepingUnit(skuRepos.findById(dto.getSkuId()).orElse(null));
+            }
+            if (dto.getPromotionalCampaignId() != null) {
+                existingOrderDetail.setPromotionalCampaign(promotionalCampaignRepos.findById(dto.getPromotionalCampaignId()).orElse(null));
+            }
+            if (dto.getSlotId() != null) {
+                existingOrderDetail.setSlot(slotRepos.findById(dto.getSlotId()).orElse(null));
             }
             return existingOrderDetail;
         } else {
             OrderDetail entity = new OrderDetail();
             entity.setOrderDetailId(dto.getOrderDetailId());
-            entity.setDiscountPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : entity.getDiscountPrice());
-            entity.setOriginalProductPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : entity.getOriginalProductPrice());
-            entity.setRequestUnbox(dto.getRequestUnbox());
-            if(dto.getOrderId() != null) {
-                entity.setOrder(orderRepos.findById(dto.getOrderId()).get());
+            entity.setCheckoutPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : entity.getCheckoutPrice());
+            entity.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : entity.getOriginalPrice());
+            if (dto.getOrderId() != null) {
+                entity.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
             }
-            if(dto.getBlindBoxId() != null) {
-                entity.setBlindBox(productRepos.findById(dto.getBlindBoxId()).get());
-            }else if(dto.getPackId() != null){
-                entity.setPack(packRepos.findById(dto.getPackId()).get());
+            if (dto.getSkuId() != null) {
+                entity.setStockKeepingUnit(skuRepos.findById(dto.getSkuId()).orElse(null));
             }
-            if(dto.getPromotionalCampaignId() !=null){
-                entity.setPromotionalCampaign(promotionalCampaignRepos.findById( dto.getPromotionalCampaignId()).get());
+            if (dto.getPromotionalCampaignId() != null) {
+                entity.setPromotionalCampaign(promotionalCampaignRepos.findById(dto.getPromotionalCampaignId()).orElse(null));
+            }
+            if (dto.getSlotId() != null) {
+                entity.setSlot(slotRepos.findById(dto.getSlotId()).orElse(null));
+            }
+            if (dto.getCreatedAt() != null) {
+                entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
+            }
+            if (dto.getUpdatedAt() != null) {
+                entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
             }
             return entity;
         }
@@ -75,13 +83,17 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
 
         OrderDetailDto dto = new OrderDetailDto();
         dto.setOrderDetailId(entity.getOrderDetailId());
-        dto.setDiscountPrice(entity.getDiscountPrice());
-        dto.setOriginalProductPrice(entity.getOriginalProductPrice());
-        dto.setRequestUnbox(entity.isRequestUnbox());
+        dto.setDiscountPrice(entity.getCheckoutPrice());
+        dto.setOriginalProductPrice(entity.getOriginalPrice());
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
-        dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
-        if(entity.getCreatedAt() != null) {
+        dto.setSkuId(entity.getStockKeepingUnit() != null ? entity.getStockKeepingUnit().getSkuId() : null);
+        dto.setPromotionalCampaignId(entity.getPromotionalCampaign() != null ? entity.getPromotionalCampaign().getCampaignId() : null);
+        dto.setSlotId(entity.getSlot() != null ? entity.getSlot().getSlotId() : null);
+        if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        }
+        if (entity.getUpdatedAt() != null) {
+            dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         }
         return dto;
     }

@@ -1,8 +1,9 @@
 package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.PromotionalCampaignsApi;
-import com.fptgang.backend.api.controller.PromotionalCampaignsApi;
-import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.api.model.GetPromotionalCampaigns200Response;
+import com.fptgang.backend.api.model.Pageable;
+import com.fptgang.backend.api.model.PromotionalCampaignDto;
 import com.fptgang.backend.mapper.PromotionalCampaignMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.PromotionalCampaignService;
@@ -36,6 +37,7 @@ public class CampaignController implements PromotionalCampaignsApi {
     public Optional<NativeWebRequest> getRequest() {
         return PromotionalCampaignsApi.super.getRequest();
     }
+
     @Override
     public ResponseEntity<PromotionalCampaignDto> createPromotionalCampaign(PromotionalCampaignDto promotionalCampaignDto) {
         log.info("Creating promotional campaign");
@@ -47,14 +49,14 @@ public class CampaignController implements PromotionalCampaignsApi {
     @Override
     public ResponseEntity<Void> deletePromotionalCampaign(Long campaignId) {
         log.info("Deleting promotional campaign " + campaignId);
-        promotionCampaignService.deleteById(Long.valueOf(campaignId));
+        promotionCampaignService.deleteById(campaignId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<PromotionalCampaignDto> getPromotionalCampaignById(Long campaignId) {
         log.info("Getting promotional campaign by id " + campaignId);
-        return new ResponseEntity<>(promotionCampaignMapper.toDTO(promotionCampaignService.findById(Long.valueOf(campaignId))), HttpStatus.OK);
+        return new ResponseEntity<>(promotionCampaignMapper.toDTO(promotionCampaignService.findById(campaignId)), HttpStatus.OK);
     }
 
     @Override

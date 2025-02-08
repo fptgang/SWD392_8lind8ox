@@ -52,9 +52,6 @@ public class PromotionalCampaign {
     @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
     private List<BlindBox> blindBoxes;
 
-    @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
-    private List<Pack> packs;
-
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
 
