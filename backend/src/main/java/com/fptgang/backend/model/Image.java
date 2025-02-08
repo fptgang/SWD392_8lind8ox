@@ -29,8 +29,8 @@ public class Image {
     private BlindBox blindBox;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pack_id", nullable = false)
-    private Pack pack;
+    @JoinColumn(name = "set_id")
+    private Set set;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String imageUrl;

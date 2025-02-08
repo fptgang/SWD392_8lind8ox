@@ -1,0 +1,29 @@
+StockKeepingUnitDto:
+  type: object
+  properties:
+    skuId:
+      type: integer
+      format: int64
+    name:
+      type: string
+    imageId:
+      type: integer
+      format: int64
+    price:
+      type: number
+      format: double
+    stock:
+      type: integer
+      format: int32
+    specCount:
+      type: integer
+      format: int32
+    blindBoxId:
+      type: integer
+      format: int64
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time

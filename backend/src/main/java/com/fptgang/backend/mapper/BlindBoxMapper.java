@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -24,6 +25,10 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
     private BrandRepos brandRepos;
     @Autowired
     private ImageMapper imageMapper;
+    @Autowired
+    private ToyMapper toyMapper;
+    @Autowired
+    private StockKeepingUnitMapper skuMapper;
 
     @Override
     public BlindBox toEntity(BlindBoxDto dto) {
@@ -37,24 +42,28 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             BlindBox existingBlindBox = existingBlindBoxOptional.get();
             existingBlindBox.setName(dto.getName() != null ? dto.getName() : existingBlindBox.getName());
             existingBlindBox.setDescription(dto.getDescription() != null ? dto.getDescription() : existingBlindBox.getDescription());
-            existingBlindBox.setCurrentPrice(dto.getCurrentPrice() != null ? dto.getCurrentPrice() : existingBlindBox.getCurrentPrice());
+            existingBlindBox.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingBlindBox.isVisible());
             if (dto.getImages() != null) {
-                existingBlindBox.setImages(dto.getImages().stream().map(imageMapper::toEntity).toList());
+                existingBlindBox.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
+            }
+            if (dto.getToys() != null) {
+                existingBlindBox.setToys(dto.getToys().stream().map(toyMapper::toEntity).collect(Collectors.toList()));
+            }
+            if (dto.getSkus() != null) {
+                existingBlindBox.setSkus(dto.getSkus().stream().map(skuMapper::toEntity).collect(Collectors.toList()));
             }
             existingBlindBox.setBrand(dto.getBrandId() != null
                     && dto.getBrandId() != existingBlindBox.getBrand().getBrandId() ?
                     brandRepos.findById(dto.getBrandId()).get()
                     : existingBlindBox.getBrand());
-            existingBlindBox.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingBlindBox.isVisible());
             return existingBlindBox;
         } else {
             BlindBox entity = new BlindBox();
             entity.setBlindBoxId(dto.getBlindBoxId());
             entity.setName(dto.getName());
             entity.setDescription(dto.getDescription());
-            entity.setCurrentPrice(dto.getCurrentPrice());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
-            entity.setBrand(dto.getBrandId() != null?
+            entity.setBrand(dto.getBrandId() != null ?
                     brandRepos.findById(dto.getBrandId()).get()
                     : null);
             if (dto.getPromotionalCampaignId() != null) {
@@ -66,7 +75,15 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             if (dto.getUpdatedAt() != null) {
                 entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
             }
-
+            if (dto.getImages() != null) {
+                entity.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
+            }
+            if (dto.getToys() != null) {
+                entity.setToys(dto.getToys().stream().map(toyMapper::toEntity).collect(Collectors.toList()));
+            }
+            if (dto.getSkus() != null) {
+                entity.setSkus(dto.getSkus().stream().map(skuMapper::toEntity).collect(Collectors.toList()));
+            }
             return entity;
         }
     }
@@ -80,7 +97,6 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         dto.setBlindBoxId(entity.getBlindBoxId());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
-        dto.setCurrentPrice(entity.getCurrentPrice());
         dto.setBrandId(entity.getBrand() != null ? entity.getBrand().getBrandId() : null);
         dto.setPromotionalCampaignId(entity.getPromotionalCampaign() != null ? entity.getPromotionalCampaign().getCampaignId() : null);
         if (entity.getCreatedAt() != null) {
@@ -89,8 +105,9 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         if (entity.getUpdatedAt() != null) {
             dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         }
-
-        dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).toList());
+        dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).collect(Collectors.toList()));
+        dto.setToys(entity.getToys().stream().map(toyMapper::toDTO).collect(Collectors.toList()));
+        dto.setSkus(entity.getSkus().stream().map(skuMapper::toDTO).collect(Collectors.toList()));
         dto.setIsVisible(entity.isVisible());
         return dto;
     }

@@ -7,12 +7,24 @@ OrderDetailDto:
     orderId:
       type: integer
       format: int64
-    blindBoxId:
+    skuId:
       type: integer
       format: int64
-    packId:
+    originalPrice:
+      type: number
+      format: double
+    checkoutPrice:
+      type: number
+      format: double
+    slotId:
       type: integer
       format: int64
+#    blindBoxId:
+#      type: integer
+#      format: int64
+#    packId:
+#      type: integer
+#      format: int64
     promotionalCampaignId:
       type: integer
       format: int64
@@ -22,17 +34,17 @@ OrderDetailDto:
     discountPrice:
       type: number
       format: double
-    requestUnbox:
-      type: boolean
-    unboxedToys:
-      type: array
-      items:
-        $ref: "toy.yml#/ToyDto"
-    toyCount:
-      type: integer
-    videoId:
-      type: integer
-      format: int64
+#    requestUnbox:
+#      type: boolean
+#    unboxedToys:
+#      type: array
+#      items:
+#        $ref: "toy.yml#/ToyDto"
+#    toyCount:
+#      type: integer
+#    videoId:
+#      type: integer
+#      format: int64
     createdAt:
       type: string
       format: date-time
