@@ -24,8 +24,11 @@ public class Slot {
     @Column(nullable = false)
     private int position;
 
-    @Column(nullable = false)
-    private boolean isOpened;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isOpened = true;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible = true;
 
     @Column
     private LocalDateTime openedAt;
