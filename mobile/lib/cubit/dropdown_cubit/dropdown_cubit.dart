@@ -1,11 +1,25 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../locale_cubit/locale_cubit.dart';
 
 class DropdownCubit extends Cubit<Map<String, dynamic>> {
-  DropdownCubit()
-      : super({
+  DropdownCubit(LocaleCubit localeCubit) : super({
     'isOpen': false,
-    'selectedLanguage': {'code': 'en', 'name': 'English', 'flag': '🇺🇸'},
+    'selectedLanguage': _getInitialLanguage(localeCubit),
   });
+
+  static Map<String, String> _getInitialLanguage(LocaleCubit localeCubit) {
+    String languageCode = localeCubit.state.languageCode;
+    return languageList.firstWhere(
+          (lang) => lang['code'] == languageCode,
+      orElse: () => {'code': 'en', 'name': 'English', 'flag': '🇺🇸'},
+    );
+  }
+
+  static final List<Map<String, String>> languageList = [
+    {'code': 'en', 'name': 'English', 'flag': '🇺🇸'},
+    {'code': 'vi', 'name': 'Vietnamese', 'flag': '🇻🇳'},
+  ];
 
   void toggleDropdown() {
     emit({...state, 'isOpen': !state['isOpen']});

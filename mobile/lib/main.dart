@@ -115,18 +115,10 @@ class MyApp extends StatelessWidget {
             create: (context) => getIt<AuthenticationBloc>()
               ..add(AuthenticationSubscriptionRequested()),
           ),
+          BlocProvider(create: (_) => LocaleCubit()),
           BlocProvider(
-            create: (context) => LocaleCubit(),
-            child: MyApp(),
+            create: (context) => DropdownCubit(context.read<LocaleCubit>()),
           ),
-          BlocProvider(
-            create: (_) => DropdownCubit(),
-            child: MyApp(),
-          ),
-          // BlocProvider(
-          //   create: (context) => getIt<DeeplinkBloc>()
-          //     ..add(GetInitialDeepLink()),
-          // ),
         ],
         child: const AppView(),
       ),
