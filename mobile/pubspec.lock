@@ -371,16 +371,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
-  flutter_localization:
-    dependency: "direct main"
-    description:
-      name: flutter_localization
-      sha256: "424abdffbb54d11149d2df7d6933f03ca5736e4fdafa44271cd2aeb5678cf6b4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.1"
   flutter_localizations:
-    dependency: transitive
+    dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -898,7 +890,7 @@ packages:
     source: hosted
     version: "4.1.0"
   shared_preferences:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shared_preferences
       sha256: "688ee90fbfb6989c980254a56cb26ebe9bb30a3a2dff439a78894211f73de67a"
@@ -1110,14 +1102,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  universal_io:
-    dependency: transitive
-    description:
-      name: universal_io
-      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.2"
   uuid:
     dependency: "direct main"
     description:

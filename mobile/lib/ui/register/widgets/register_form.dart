@@ -1,17 +1,13 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/main.dart';
-import '../../../blocs/register/register_event.dart';
 import '../../../blocs/register/register_bloc.dart';
+import '../../../blocs/register/register_event.dart';
 import '../../../blocs/register/register_state.dart';
-
 import '../../core/theme/theme.dart';
-import '../../homepage/widget/homepage_screen.dart';
-import '../../login/login_screen.dart';
 
 class RegisterForm extends StatelessWidget {
   const RegisterForm({super.key});
@@ -24,7 +20,7 @@ class RegisterForm extends StatelessWidget {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              const SnackBar(content: Text('Authentication Failure')),
+              SnackBar(content: Text(AppLocalizations.of(context)!.authenticationFailed)),
             );
         } else if (state.status.isSuccess){
           context.push('/login');
@@ -39,14 +35,14 @@ class RegisterForm extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Create Account",
+                  Text(
+                   AppLocalizations.of(context)!.register,
                     style: TextStyle(
                         fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10.h),
                   Text(
-                    "Let's get started by filling out the form below.",
+                    AppLocalizations.of(context)!.registerDescription,
                     style: TextStyle(color: getColorSkin().grey
                         , fontSize: 16),
                   ),
@@ -78,7 +74,7 @@ class RegisterForm extends StatelessWidget {
               SizedBox(height: 20.h),
               Center(
                 child: Text(
-                  "Or sign up with",
+                  AppLocalizations.of(context)!.orSignInWith,
                   style: TextStyle(color: getColorSkin().grey, fontSize: 16),
                 ),
               ),
@@ -100,7 +96,7 @@ class RegisterForm extends StatelessWidget {
                       icon: Icon(Icons.g_mobiledata, color: getColorSkin().black),
                       label: FittedBox(
                         child: Text(
-                          "Continue with Google",
+                         AppLocalizations.of(context)!.loginWithGoogle,
                           style: TextStyle(color: getColorSkin().black),
                         ),
                       ),
@@ -117,7 +113,7 @@ class RegisterForm extends StatelessWidget {
                         context.push('/main');
                       },
                       child: Text(
-                        "Continue as Guest",
+                        AppLocalizations.of(context)!.loginAsGuest,
                         style: TextStyle(fontSize: 16, color: getColorSkin().black),
                       ),
                     ),
@@ -129,22 +125,17 @@ class RegisterForm extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Have an account? ',
+                    AppLocalizations.of(context)!.haveAccount,
                     style: TextStyle(
                       color: getColorSkin().grey,
                     ),
                   ),
                   TextButton(
                     onPressed: () {
-                      // Navigator.of(context).pop();
-                      // navigator.pushAndRemoveUntil<void>(
-                      //   LoginScreen.route(),
-                      //       (route) => false,
-                      // );
                       context.push('/login');
                     },
                     child: Text(
-                      'Sign In',
+                      AppLocalizations.of(context)!.login,
                       style: TextStyle(
                         color: getColorSkin().textColor,
                         fontWeight: FontWeight.bold,
@@ -175,7 +166,7 @@ class _UsernameInput extends StatelessWidget {
       },
       decoration: InputDecoration(
         labelText: 'Email',
-        errorText: displayError != null ? 'invalid email' : null,
+        errorText: displayError != null ? AppLocalizations.of(context)!.invalidEmail : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -196,8 +187,8 @@ class _FirstnameInput extends StatelessWidget {
         context.read<RegisterBloc>().add(RegisterFirstNameChanged(email));
       },
       decoration: InputDecoration(
-        labelText: 'First name',
-        errorText: displayError != null ? 'invalid name' : null,
+        labelText: AppLocalizations.of(context)!.firstName,
+        errorText: displayError != null ? AppLocalizations.of(context)!.invalidFirstName : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -218,8 +209,8 @@ class _LastnameInput extends StatelessWidget {
         context.read<RegisterBloc>().add(RegisterLastNameChanged(email));
       },
       decoration: InputDecoration(
-        labelText: 'Last name',
-        errorText: displayError != null ? 'invalid last name' : null,
+        labelText: AppLocalizations.of(context)!.lastName,
+        errorText: displayError != null ? AppLocalizations.of(context)!.invalidLastName : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -243,8 +234,8 @@ class _PasswordInput extends StatelessWidget {
       },
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'Password',
-        errorText: displayError != null ? 'Invalid password' : null,
+        labelText: AppLocalizations.of(context)!.password,
+        errorText: displayError != null ? AppLocalizations.of(context)!.invalidPassword : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -268,8 +259,8 @@ class _ConfirmPasswordInput extends StatelessWidget {
       },
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'Confirm password',
-        errorText: displayError != null ? 'Invalid password' : null,
+        labelText: AppLocalizations.of(context)!.confirmPassword,
+        errorText: displayError != null ? AppLocalizations.of(context)!.invalidPassword : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -308,7 +299,7 @@ class _RegisterButton extends StatelessWidget {
             ? () => context.read<RegisterBloc>().add(RegisterSubmitted())
             : null,
         child: Text(
-          'Create account',
+          AppLocalizations.of(context)!.register,
           style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
         ),
       ),

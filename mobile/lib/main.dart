@@ -22,9 +22,13 @@ import 'package:mobile/ui/reset_password/new_password_screen.dart';
 import 'package:provider/provider.dart';
 import 'blocs/authentication/authentication_bloc.dart';
 import 'blocs/authentication/authentication_state.dart';
+import 'cubit/dropdown_cubit/dropdown_cubit.dart';
+import 'cubit/locale_cubit/locale_cubit.dart';
 import 'data/repositories/auth_repository.dart';
 import 'di/injection.dart';
 import 'enum/enum.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 final getIt = GetIt.instance;
 
@@ -111,6 +115,14 @@ class MyApp extends StatelessWidget {
             create: (context) => getIt<AuthenticationBloc>()
               ..add(AuthenticationSubscriptionRequested()),
           ),
+          BlocProvider(
+            create: (context) => LocaleCubit(),
+            child: MyApp(),
+          ),
+          BlocProvider(
+            create: (_) => DropdownCubit(),
+            child: MyApp(),
+          ),
           // BlocProvider(
           //   create: (context) => getIt<DeeplinkBloc>()
           //     ..add(GetInitialDeepLink()),
@@ -128,27 +140,42 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router,
-      debugShowCheckedModeBanner: false,
-      builder: (context, child) {
-        return BlocListener<AuthenticationBloc, AuthenticationState>(
+    return BlocBuilder<LocaleCubit, Locale>(
+      builder: (context, locale) {
+        return MaterialApp.router(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('vi', 'VN'),
+          ],
+          locale: locale,
+          routerConfig: router,
+          debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            return BlocListener<AuthenticationBloc, AuthenticationState>(
               listener: (context, state) {
                 switch (state.status) {
                   case AuthenticationStatus.authenticated:
                     context.go('/main');
                     break;
                   case AuthenticationStatus.unauthenticated:
-                    context.go('/login');
+                    context.go('/main');
                     break;
                   case AuthenticationStatus.unknown:
                     context.go('/splash');
                     break;
                 }
               },
-            child: child ?? const SizedBox.shrink());
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+        );
       },
     );
   }
 }
-

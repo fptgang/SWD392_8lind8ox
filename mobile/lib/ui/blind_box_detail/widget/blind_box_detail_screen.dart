@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/ui/cart/widget/cart_screen.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   const ProductDetailScreen({super.key});
@@ -73,7 +74,7 @@ class ProductDetailScreen extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "From: \$975.00",
+                        "${AppLocalizations.of(context)!.from}: \$975.00",
                         style: TextStyle(
                             fontSize: 16, color: getColorSkin().black),
                       ),
@@ -135,8 +136,8 @@ class ProductDetailScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 16.h),
-                  const Text(
-                    "Description",
+                  Text(
+                    AppLocalizations.of(context)!.description,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8.h),
@@ -146,7 +147,7 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {},
-                    child: Text("Read more",
+                    child: Text(AppLocalizations.of(context)!.readMore,
                         style: TextStyle(color: getColorSkin().primaryRed950)),
                   ),
                   SizedBox(height: 16.h),
@@ -178,7 +179,7 @@ class ProductDetailScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14)),
                   ),
                   child: Text(
-                    "Add to Cart",
+                    AppLocalizations.of(context)!.addToCart,
                     style: TextStyle(color: getColorSkin().primaryRed950),
                   ),
                 ),
@@ -194,7 +195,7 @@ class ProductDetailScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14)),
                   ),
                   child: Text(
-                    "Buy Now",
+                    AppLocalizations.of(context)!.shopNow,
                     style: TextStyle(color: getColorSkin().white),
                   ),
                 ),

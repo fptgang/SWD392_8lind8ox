@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/ui/cart/widget/cart_item.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class CartScreen extends StatelessWidget {
         backgroundColor: getColorSkin().primaryRed650,
         elevation: 0,
         title: Text(
-          "Cart",
+          AppLocalizations.of(context)!.cart,
           style: TextStyle(color: getColorSkin().white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -71,7 +71,7 @@ class CartScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Sub-total", style: TextStyle(color: getColorSkin().grey)),
+                    Text(AppLocalizations.of(context)!.subTotal, style: TextStyle(color: getColorSkin().grey)),
                     const Text("\$2070.00",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16)),
@@ -92,7 +92,7 @@ class CartScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total Cost",
+                    Text(AppLocalizations.of(context)!.total,
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18)),
                     Text("\$2115.00",
@@ -113,7 +113,7 @@ class CartScreen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "Checkout",
+                    AppLocalizations.of(context)!.checkout,
                     style: TextStyle(
                         color: getColorSkin().white, fontWeight: FontWeight.bold),
                   ),

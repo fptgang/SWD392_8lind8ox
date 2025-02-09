@@ -18,9 +18,7 @@ class RegisterScreen extends StatelessWidget {
   final AuthRepository authRepository = GetIt.instance<AuthRepository>();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BlocProvider<RegisterBloc>(
+    return  BlocProvider<RegisterBloc>(
         create: (context) => RegisterBloc(authRepository: authRepository),
         child: Scaffold(
           backgroundColor: getColorSkin().backgroundColor,
@@ -35,7 +33,6 @@ class RegisterScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

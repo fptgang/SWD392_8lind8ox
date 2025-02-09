@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/ui/core/theme/theme.dart';
 
 class AccounTestScreen extends StatelessWidget {
   const AccounTestScreen({super.key});
@@ -14,7 +15,7 @@ class AccounTestScreen extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: getColorSkin().primaryRed650,
         leading: Builder(
           builder: (context) => IconButton(
             color: Colors.white,
@@ -27,7 +28,6 @@ class AccounTestScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-
             },
             icon: const Icon(
               Icons.more_vert,

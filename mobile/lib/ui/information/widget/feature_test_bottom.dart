@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/theme.dart';
+
 class FeatureScreen extends StatelessWidget {
   const FeatureScreen({super.key});
 
@@ -14,7 +16,7 @@ class FeatureScreen extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: getColorSkin().primaryRed650,
         leading: Builder(
           builder: (context) => IconButton(
             color: Colors.white,

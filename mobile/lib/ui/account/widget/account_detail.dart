@@ -1,16 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:formz/formz.dart';
 import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/authentication/authentication_state.dart';
-
-import '../../../blocs/login/login_bloc.dart';
-import '../../../blocs/login/login_state.dart';
 import '../../../enum/enum.dart';
-import '../../../main.dart';
 import '../../core/theme/theme.dart';
 import '../../homepage/widget/homepage_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AccountDetail extends StatelessWidget {
   const AccountDetail({super.key});
@@ -66,10 +61,9 @@ class _LogoutButton extends StatelessWidget {
             vertical: 12,
           ),
         ),
-        onPressed: () =>
-            context.read<AuthenticationBloc>().add(AuthenticationLogoutPressed()),
+        onPressed: () => context.read<AuthenticationBloc>().add(AuthenticationLogoutPressed()),
         child: Text(
-          'Logout',
+          AppLocalizations.of(context)!.logout,
           style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
         ),
       ),
