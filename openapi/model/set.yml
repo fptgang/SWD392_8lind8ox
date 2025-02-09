@@ -1,0 +1,27 @@
+SetDto:
+  type: object
+  properties:
+    setId:
+      type: integer
+      format: int64
+    currentPrice:
+      type: number
+      format: double
+    imageIds:
+      type: array
+      items:
+        $ref: "image.yml#/ImageDto"
+    isVisible:
+      type: boolean
+    slots:
+      type: array
+      items:
+        $ref: "slot.yml#/SlotDto"
+    blindBox:
+      $ref: "blindbox.yml#/BlindBoxDto"
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time

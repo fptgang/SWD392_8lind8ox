@@ -27,12 +27,13 @@ public class Order {
     @JoinColumn(nullable = false, name = "account_id")
     private Account account;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderStatusHistory> orderStatusHistories; // OrderStatusHistory>
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
+
+    //TODO: add shipping info
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -43,11 +44,6 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
-    public enum Status {
-        PENDING,
-        COMPLETED,
-        CANCELED
-    }
 }
 
 

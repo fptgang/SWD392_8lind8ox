@@ -32,7 +32,7 @@ const STATUS_COLOR_MAP: Record<
 };
 
 export const OrdersList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable<OrderDto>({
+  const { tableProps, searchFormProps,setFilters } = useTable<OrderDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -87,12 +87,19 @@ export const OrdersList: React.FC = () => {
         <Input.Search
           placeholder="Search orders..."
           className="max-w-md"
-          {...(searchFormProps.onFinish && {
-            onSearch: searchFormProps.onFinish,
-          })}
+          allowClear
+          onSearch={(value) => {
+            setFilters([
+              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              {
+                field: "search",
+                operator: "contains",
+                value: value || undefined,
+              }
+            ]);
+          }}
         />
       </div>
-
       <Table
         {...tableProps}
         rowKey="orderId"

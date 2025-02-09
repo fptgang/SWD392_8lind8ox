@@ -26,7 +26,7 @@ const { Text } = Typography;
 
 
 export const PacksList: React.FC = () => {
-  const { tableProps, searchFormProps } = useTable<PackDto>({
+  const { tableProps, setFilters } = useTable<PackDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -69,13 +69,21 @@ export const PacksList: React.FC = () => {
 
   return (
     <List>
-      <div className="mb-6">
+         <div className="mb-6">
         <Input.Search
           placeholder="Search packs..."
           className="max-w-md"
-          {...(searchFormProps.onFinish && {
-            onSearch: searchFormProps.onFinish,
-          })}
+          allowClear
+          onSearch={(value) => {
+            setFilters([
+              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              {
+                field: "search",
+                operator: "contains",
+                value: value || undefined,
+              }
+            ]);
+          }}
         />
       </div>
 

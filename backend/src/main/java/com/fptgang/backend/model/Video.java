@@ -26,9 +26,9 @@ public class Video {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_detail_id", nullable = false)
-    private OrderDetail orderDetail;
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "order_detail_id", nullable = false)
+//    private OrderDetail orderDetail;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String url;

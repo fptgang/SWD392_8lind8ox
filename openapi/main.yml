@@ -27,8 +27,8 @@ components:
       $ref: "model/transaction.yml#/TransactionDto"
     OrderDetailDto:
       $ref: "model/order-detail.yml#/OrderDetailDto"
-    PackageDto:
-      $ref: "model/pack.yml#/PackDto"
+    SetageDto:
+      $ref: "model/set.yml#/SetDto"
     NotificationDto:
       $ref: "model/notification.yml#/NotificationDto"
     BlindBoxDto:
@@ -45,8 +45,12 @@ components:
       $ref: "model/order.yml#/OrderDto"
     ToyDto:
       $ref: "model/toy.yml#/ToyDto"
-    PackDto:
-      $ref: "model/pack.yml#/PackDto"
+    SetDto:
+      $ref: "model/set.yml#/SetDto"
+    SlotDto:
+      $ref: "model/slot.yml#/SlotDto"
+    StockKeepingUnitDto:
+      $ref: "model/stock-keeping-unit.yml#/StockKeepingUnitDto"
 paths:
   /auth/me:
     $ref: "path/auth/me.yml"
@@ -84,10 +88,10 @@ paths:
     $ref: "path/transaction.yml"
   /transactions/{transactionId}:
     $ref: "path/transaction-transactionId.yml"
-  /packs:
-    $ref: "path/pack.yml"
-  /packs/{packId}:
-    $ref: "path/pack-packId.yml"
+  /sets:
+    $ref: "path/set.yml"
+  /sets/{setId}:
+    $ref: "path/set-setId.yml"
   /videos:
     $ref: "path/video.yml"
   /videos/{videoId}:
@@ -112,4 +116,11 @@ paths:
     $ref: "path/toy.yml"
   /toys/{toyId}:
     $ref: "path/toy-toyId.yml"
-
+  /skus:
+    $ref: "path/sku.yml"
+  /skus/{skuId}:
+    $ref: "path/sku-skuId.yml"
+  /slots:
+    $ref: "path/slot.yml"
+  /slots/{slotId}:
+    $ref: "path/slot-slotId.yml"

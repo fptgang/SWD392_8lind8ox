@@ -24,6 +24,10 @@ PromotionalCampaignDto:
       type: string
     isVisible:
       type: boolean
+    blindBoxes:
+      type: array
+      items:
+        $ref: "blindbox.yml#/BlindBoxDto"
     createdAt:
       type: string
       format: date-time

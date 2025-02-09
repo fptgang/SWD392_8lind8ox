@@ -1,0 +1,81 @@
+# path/slot-slotId.yml
+get:
+  summary: Get a slot by slotId
+  operationId: getSlotById
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: slotId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/slot.yml#/SlotDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+put:
+  summary: Update an existing slot
+  operationId: updateSlot
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: slotId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  requestBody:
+    description: Slot to update
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../model/slot.yml#/SlotDto'
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/slot.yml#/SlotDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+delete:
+  summary: Delete an existing slot
+  operationId: deleteSlot
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: slotId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+  responses:
+    '200':
+      description: The operation was successful
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'

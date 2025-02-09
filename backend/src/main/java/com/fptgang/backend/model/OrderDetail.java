@@ -11,7 +11,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "order_details")
@@ -29,12 +28,9 @@ public class OrderDetail {
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "blind_box_id")
-    private BlindBox blindBox;
+    @JoinColumn(nullable = false, name = "sku_id")
+    private StockKeepingUnit stockKeepingUnit;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "pack_id")
-    private Pack pack;
 
     @ManyToOne
     @JoinColumn(name = "campaign_id")
@@ -42,28 +38,29 @@ public class OrderDetail {
     private PromotionalCampaign promotionalCampaign;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal originalProductPrice;
+    private BigDecimal originalPrice;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal discountPrice;
+    private BigDecimal checkoutPrice;
 
-    @Column(nullable = false)
-    private boolean requestUnbox;
+//    @Column(nullable = false)
+//    private boolean requestUnbox;
+//
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "order_detail_toy",
+//            joinColumns = @JoinColumn(name = "order_detail_id"),
+//            inverseJoinColumns = @JoinColumn(name = "toy_id")
+//    )
+//    private List<Toy> unboxedToys;
+//
+//    @OneToOne(mappedBy = "orderDetail")
+//    @Nullable
+//    private Video video;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "order_detail_toy",
-            joinColumns = @JoinColumn(name = "order_detail_id"),
-            inverseJoinColumns = @JoinColumn(name = "toy_id")
-    )
-    private List<Toy> unboxedToys;
-
-    @Column(nullable = false)
-    private int toyCount;
-
-    @OneToOne(mappedBy = "orderDetail")
-    @Nullable
-    private Video video;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "slot_id")
+    private Slot slot;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
