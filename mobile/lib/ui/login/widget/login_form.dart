@@ -1,32 +1,28 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:mobile/main.dart';
-import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
-import 'package:mobile/ui/register/register_screen.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../blocs/authentication/authentication_bloc.dart';
 import '../../../blocs/login/login_bloc.dart';
 import '../../../blocs/login/login_event.dart';
 import '../../../blocs/login/login_state.dart';
 import '../../core/theme/theme.dart';
-import '../../reset_password/forgot_password_screen.dart';
-
 class LoginForm extends StatelessWidget {
+
   const LoginForm({super.key});
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Localization: ${AppLocalizations.of(context)}");
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.status.isFailure) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              const SnackBar(content: Text('Authentication Failure')),
+              SnackBar(content: Text(AppLocalizations.of(context)!.authenticationFailed)),
             );
         } else if (state.status.isSuccess){
           // navigator.pushReplacement(HomePageScreen.route());
@@ -44,7 +40,7 @@ class LoginForm extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'Welcome Back',
+                AppLocalizations.of(context)!.login,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -53,7 +49,7 @@ class LoginForm extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Fill out the information below in order to access your account.',
+                AppLocalizations.of(context)!.loginDescription,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -75,7 +71,7 @@ class LoginForm extends StatelessWidget {
                       context.push('/forgot-password');
                     },
                     child: Text(
-                      'Forgot Password?',
+                      AppLocalizations.of(context)!.forgotPassword,
                       style: TextStyle(
                         color: getColorSkin().textColor,
                         fontWeight: FontWeight.bold,
@@ -97,7 +93,7 @@ class LoginForm extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Text(
-                      'Or sign in with',
+                      AppLocalizations.of(context)!.orSignInWith,
                       style: TextStyle(color: getColorSkin().grey),
                     ),
                   ),
@@ -132,7 +128,7 @@ class LoginForm extends StatelessWidget {
                     icon: Icon(Icons.g_mobiledata,
                         color: getColorSkin().black, size: 35,),
                     label: Text(
-                      'Continue with Google',
+                      AppLocalizations.of(context)!.loginWithGoogle,
                       style: TextStyle(color: getColorSkin().black),
                     ),
                   ),
@@ -142,7 +138,7 @@ class LoginForm extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Don\'t have an account? ',
+                    AppLocalizations.of(context)!.dontHaveAccount,
                     style: TextStyle(
                       color: getColorSkin().grey,
                     ),
@@ -152,7 +148,7 @@ class LoginForm extends StatelessWidget {
                       context.push('/sign-up');
                     },
                     child: Text(
-                      'Sign Up',
+                      AppLocalizations.of(context)!.register,
                       style: TextStyle(
                         color: getColorSkin().textColor,
                         fontWeight: FontWeight.bold,
@@ -182,8 +178,8 @@ class _UsernameInput extends StatelessWidget {
         context.read<LoginBloc>().add(LoginUsernameChanged(username));
       },
       decoration: InputDecoration(
-        labelText: 'Email',
-        errorText: displayError != null ? 'invalid email' : null,
+        labelText: AppLocalizations.of(context)!.email,
+        errorText: displayError != null ? AppLocalizations.of(context)!.invalidEmail : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -206,8 +202,8 @@ class _PasswordInput extends StatelessWidget {
       },
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'Password',
-        errorText: displayError != null ? 'Invalid password' : null,
+        labelText: AppLocalizations.of(context)!.password,
+        errorText: displayError != null ? AppLocalizations.of(context)!.invalidPassword : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -254,7 +250,7 @@ class _LoginButton extends StatelessWidget {
             ? () => context.read<LoginBloc>().add(LoginSubmitted())
             : null,
         child: Text(
-          'Sign In',
+          AppLocalizations.of(context)!.login,
           style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
         ),
       ),

@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/enum/enum.dart';
-import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
-import 'package:mobile/ui/cart/widget/cart_screen.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/homepage/widget/category_item.dart';
 import 'package:mobile/ui/homepage/widget/recommended_item.dart';
-import 'package:mobile/ui/login/login_screen.dart';
-
-import '../../../blocs/authentication/authentication_bloc.dart';
-import '../../account/account_screen.dart';
+import '../../common/language_dropdown.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePageScreen extends StatelessWidget {
   // final AuthRepository authRepository;
@@ -25,6 +20,7 @@ class HomePageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
         body: SafeArea(
@@ -38,8 +34,8 @@ class HomePageScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Container(
-                          height: 40.h,
-                          width: 50.w,
+                          height: 50.h,
+                          width: 40.w,
                           decoration: BoxDecoration(
                             color: getColorSkin().lightGrey200,
                             borderRadius: BorderRadius.circular(25),
@@ -47,9 +43,10 @@ class HomePageScreen extends StatelessWidget {
                           child: TextField(
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 20.w, vertical: 9.h),
+                                  horizontal: 20.w, vertical: 10.h),
                               border: InputBorder.none,
-                              hintText: "Search here...",
+                              hintText: AppLocalizations.of(context)!.searchHint,
+                              hintStyle: TextStyle(color: getColorSkin().black),
                               // prefixIcon: Icon(Icons.search, color: getColorSkin().accentColor),
                             ),
                           ),
@@ -57,41 +54,13 @@ class HomePageScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10.w),
                       CircleAvatar(
-                        radius: 15,
-                        backgroundColor: getColorSkin().accentColor,
+                        radius: 22,
+                        backgroundColor: getColorSkin().primaryRed600,
                         child: Icon(Icons.search,
                             color: getColorSkin().backgroundColor),
                       ),
                       SizedBox(width: 16.w),
-                      GestureDetector(
-                        onTap: () {
-                          context.push('/cart');
-                        },
-                        child: CircleAvatar(
-                          radius: 15,
-                          backgroundColor: getColorSkin().lightGrey,
-                          child: Icon(Icons.add_shopping_cart,
-                              color: getColorSkin().black),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      GestureDetector(
-                        onTap: () {
-                          final authStatus = context.read<AuthenticationBloc>().state.status;
-                          debugPrint("authStatus: $authStatus");
-                          if (authStatus == AuthenticationStatus.authenticated) {
-                            context.push('/account');
-                          } else if (authStatus == AuthenticationStatus.unauthenticated || authStatus == AuthenticationStatus.unknown) {
-                            context.push('/login');
-                          }
-                        },
-                        child: CircleAvatar(
-                          radius: 15,
-                          backgroundColor: getColorSkin().lightGrey,
-                          child: Icon(Icons.person, color: getColorSkin().black),
-                        ),
-                      ),
-
+                      LanguageDropdown(),
                     ],
                   ),
                   SizedBox(height: 20.h),
@@ -99,7 +68,7 @@ class HomePageScreen extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: getColorSkin().yellow,
+                      color: getColorSkin().primaryRed50,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -108,23 +77,24 @@ class HomePageScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "Get Your Special Sale Up to 50%",
+                               Text(
+                                AppLocalizations.of(context)!.saleContent,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
+                                  color: getColorSkin().primaryRed900,
                                 ),
                               ),
                               SizedBox(height: 8.h),
                               ElevatedButton(
                                 onPressed: () {},
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: getColorSkin().black,
+                                  backgroundColor: getColorSkin().primaryRed600,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: Text("Shop Now", style: TextStyle(color: getColorSkin().backgroundColor)),
+                                child: Text(AppLocalizations.of(context)!.shopNow, style: TextStyle(color: getColorSkin().white)),
                               ),
                             ],
                           ),
@@ -142,8 +112,8 @@ class HomePageScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Select by Category",
+                      Text(
+                        AppLocalizations.of(context)!.selectByCategory,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -151,7 +121,7 @@ class HomePageScreen extends StatelessWidget {
                       ),
                       TextButton(
                           onPressed: () {},
-                          child: Text("See all",
+                          child: Text(AppLocalizations.of(context)!.seeAll,
                               style: TextStyle(color: getColorSkin().black))),
                     ],
                   ),
@@ -172,8 +142,8 @@ class HomePageScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Select by Case",
+                      Text(
+                        AppLocalizations.of(context)!.selectBySeries,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -181,7 +151,7 @@ class HomePageScreen extends StatelessWidget {
                       ),
                       TextButton(
                           onPressed: () {},
-                          child: Text("See all",
+                          child: Text(AppLocalizations.of(context)!.seeAll,
                               style: TextStyle(color: getColorSkin().black))),
                     ],
                   ),
@@ -202,8 +172,8 @@ class HomePageScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Recommended for You",
+                        Text(
+                        AppLocalizations.of(context)!.recommended,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -211,7 +181,7 @@ class HomePageScreen extends StatelessWidget {
                       ),
                       TextButton(
                           onPressed: () {},
-                          child: Text("See all",
+                          child: Text(AppLocalizations.of(context)!.seeAll,
                               style: TextStyle(color: getColorSkin().black))),
                     ],
                   ),

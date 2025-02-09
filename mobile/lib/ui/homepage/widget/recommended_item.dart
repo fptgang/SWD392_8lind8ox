@@ -4,10 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Widget buildRecommendedItem() {
   return Container(
-    // height: 130.h,
+    // color: getColorSkin().primaryRed50,
     decoration: BoxDecoration(
-      color: getColorSkin().lightGrey100,
+      color: getColorSkin().primaryRed50,
       borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: getColorSkin().primaryRed200),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,12 +22,13 @@ Widget buildRecommendedItem() {
                 height: 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                // color: getColorSkin().primaryRed50,
               ),
             ),
             Positioned(
               top: 8,
               right: 8,
-              child: Icon(Icons.favorite_border, color: getColorSkin().backgroundColor),
+              child: Icon(Icons.favorite_border, color: getColorSkin().primaryRed500),
             ),
           ],
         ),
@@ -35,12 +37,12 @@ Widget buildRecommendedItem() {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Himalayan Hood",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, color: getColorSkin().primaryRed950),
               ),
               SizedBox(height: 4),
-              Text("\$850.00", style: TextStyle(color: getColorSkin().grey)),
+              Text("\$850.00", style: TextStyle(color: getColorSkin().primaryRed800)),
             ],
           ),
         ),

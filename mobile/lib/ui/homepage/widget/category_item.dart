@@ -7,7 +7,7 @@ Widget buildCategoryItem(String title, String iconAsset) {
     children: [
       CircleAvatar(
         radius: 30,
-        backgroundColor: getColorSkin().lightGrey200,
+        backgroundColor: getColorSkin().primaryRed50,
         child: Image.asset(
           iconAsset,
           width: 30,
@@ -15,7 +15,7 @@ Widget buildCategoryItem(String title, String iconAsset) {
         ),
       ),
       SizedBox(height: 8.h),
-      Text(title, style: const TextStyle(fontSize: 14)),
+      Text(title, style: TextStyle(fontSize: 14, color: getColorSkin().primaryRed950)),
     ],
   );
 }

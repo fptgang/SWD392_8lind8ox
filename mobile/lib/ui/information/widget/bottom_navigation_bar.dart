@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/ui/cart/widget/cart_screen.dart';
 import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
 import 'package:mobile/ui/information/widget/search_test_bottom.dart';
 import '../../../blocs/bottom_navigation_bar/bottom_navigation_cubit.dart';
 import '../../account/account_screen.dart';
+import '../../common/custom_bottom_app_bar.dart';
 import '../../homepage/widget/homepage_screen.dart';
-import 'account_test_bottom.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -21,31 +22,31 @@ class MainScreen extends StatelessWidget {
       child: BlocBuilder<BottomNavigationCubit, int>(
         builder: (context, selectedIndex) {
           return Scaffold(
-            body: IndexedStack(
-              index: selectedIndex,
-              children: [
-                HomePageScreen(),
-                SearchScreen(),
-                FeatureScreen(),
-                AccounTestScreen(),
-              ],
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: selectedIndex,
-              onTap: (index) => context.read<BottomNavigationCubit>().changeTab(index),
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: Colors.black,
-              unselectedItemColor: Colors.grey,
-              items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-                BottomNavigationBarItem(icon: Icon(Icons.star), label: "Features"),
-                BottomNavigationBarItem(icon: Icon(Icons.person), label: "Account"),
-              ],
+            body: _buildBody(selectedIndex),
+            bottomNavigationBar: CustomBottomAppBar(
+              selectedIndex: selectedIndex,
+              onItemSelected: (index) => context.read<BottomNavigationCubit>().changeTab(index),
             ),
           );
         },
       ),
     );
+  }
+
+  Widget _buildBody(int selectedIndex) {
+    switch (selectedIndex) {
+      case 0:
+        return HomePageScreen();
+      case 1:
+        return SearchScreen();
+      case 2:
+        return CartScreen();
+      case 3:
+        return FeatureScreen();
+      case 4:
+        return AccountScreen();
+      default:
+        return HomePageScreen();
+    }
   }
 }

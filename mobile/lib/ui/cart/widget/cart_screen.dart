@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mobile/ui/cart/widget/cart_item.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -14,20 +14,20 @@ class CartScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: getColorSkin().backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: getColorSkin().primaryRed650,
         elevation: 0,
         title: Text(
-          "Cart (03)",
-          style: TextStyle(color: getColorSkin().black, fontWeight: FontWeight.bold),
+          AppLocalizations.of(context)!.cart,
+          style: TextStyle(color: getColorSkin().white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: getColorSkin().black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: getColorSkin().white),
+        //   onPressed: () => Navigator.pop(context),
+        // ),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite_border, color: getColorSkin().black),
+            icon: Icon(Icons.favorite_border, color: getColorSkin().white),
             onPressed: () {},
           ),
         ],
@@ -71,7 +71,7 @@ class CartScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Sub-total", style: TextStyle(color: getColorSkin().grey)),
+                    Text(AppLocalizations.of(context)!.subTotal, style: TextStyle(color: getColorSkin().grey)),
                     const Text("\$2070.00",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16)),
@@ -92,7 +92,7 @@ class CartScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total Cost",
+                    Text(AppLocalizations.of(context)!.total,
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18)),
                     Text("\$2115.00",
@@ -106,16 +106,16 @@ class CartScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: getColorSkin().accentColor,
+                    backgroundColor: getColorSkin().primaryRed650,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
-                    "Checkout",
+                    AppLocalizations.of(context)!.checkout,
                     style: TextStyle(
-                        color: getColorSkin().black, fontWeight: FontWeight.bold),
+                        color: getColorSkin().white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
