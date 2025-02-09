@@ -42,16 +42,9 @@ public class TransactionController implements TransactionsApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteTransaction(Long transactionId) {
-        log.info("Deleting transaction " + transactionId);
-        transactionService.deleteById(Long.valueOf(transactionId));
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Override
     public ResponseEntity<TransactionDto> getTransactionById(Long transactionId) {
         log.info("Getting transaction by id " + transactionId);
-        return new ResponseEntity<>(transactionMapper.toDTO(transactionService.findById(Long.valueOf(transactionId))), HttpStatus.OK);
+        return new ResponseEntity<>(transactionMapper.toDTO(transactionService.findById(transactionId)), HttpStatus.OK);
     }
 
     @Override
@@ -61,11 +54,5 @@ public class TransactionController implements TransactionsApi {
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var res = transactionService.getAll(page, filter, includeInvisible).map(transactionMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetTransactions200Response.class);
-    }
-
-    @Override
-    public ResponseEntity<TransactionDto> updateTransaction(Long transactionId, TransactionDto transactionDto) {
-        log.info("Updating transaction " + transactionId);
-        return ResponseEntity.ok(transactionMapper.toDTO(transactionService.update(transactionMapper.toEntity(transactionDto))));
     }
 }

@@ -40,16 +40,16 @@ public class AccountController implements AccountsApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteAccount(Integer accountId) {
+    public ResponseEntity<Void> deleteAccount(Long accountId) {
         log.info("Deleting account" + accountId);
-        accountService.deleteById(Long.valueOf(accountId));
+        accountService.deleteById(accountId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<AccountDto> getAccountById(Integer accountId) {
+    public ResponseEntity<AccountDto> getAccountById(Long accountId) {
         log.info("Getting account by id ");
-        return new ResponseEntity<>(accountMapper.toDTO(accountService.findById(Long.valueOf(accountId))), HttpStatus.OK);
+        return new ResponseEntity<>(accountMapper.toDTO(accountService.findById(accountId)), HttpStatus.OK);
     }
 
     @Override
@@ -65,9 +65,11 @@ public class AccountController implements AccountsApi {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<AccountDto> updateAccount(Integer accountId, AccountDto accountDto) {
+    public ResponseEntity<AccountDto> updateAccount(Long accountId, AccountDto accountDto) {
+        accountDto.setAccountId(accountId); // Override accountId
+
         log.info("Updating account " + accountId);
-        accountDto.setAccountId(Long.valueOf(accountId));
+
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             accountDto.setBalance(null);
             accountDto.setRole(null);
@@ -82,7 +84,7 @@ public class AccountController implements AccountsApi {
         if (SecurityUtil.isRole(Account.Role.CUSTOMER)) {
             if (!accountService.findByEmail(SecurityUtil.getCurrentUserEmail())
                     .getAccountId()
-                    .equals(Long.valueOf(accountId))) {
+                    .equals(accountId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }

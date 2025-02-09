@@ -8,7 +8,8 @@ get:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
   responses:
     '200':
       description: The operation was successful
@@ -33,14 +34,15 @@ put:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
   requestBody:
     description: Image to update
     required: true
     content:
-      application/json:
+      multipart/form-data:
         schema:
-          $ref: '../model/image.yml#/ImageDto'
+          $ref: '../model/image-blob.yml#/ImageBlobDto'
   responses:
     '200':
       description: The operation was successful
@@ -65,7 +67,8 @@ delete:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
   responses:
     '200':
       description: The operation was successful

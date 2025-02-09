@@ -45,14 +45,14 @@ public class OrderDetailController implements OrderDetailsApi {
     @Override
     public ResponseEntity<Void> deleteOrderDetail(Long orderDetailId) {
         log.info("Deleting order detail " + orderDetailId);
-        orderDetailService.deleteById(Long.valueOf(orderDetailId));
+        orderDetailService.deleteById(orderDetailId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<OrderDetailDto> getOrderDetailById(Long orderDetailId) {
         log.info("Getting order detail by id " + orderDetailId);
-        return new ResponseEntity<>(orderDetailMapper.toDTO(orderDetailService.findById(Long.valueOf(orderDetailId))), HttpStatus.OK);
+        return new ResponseEntity<>(orderDetailMapper.toDTO(orderDetailService.findById(orderDetailId)), HttpStatus.OK);
     }
 
     @Override
@@ -66,6 +66,8 @@ public class OrderDetailController implements OrderDetailsApi {
 
     @Override
     public ResponseEntity<OrderDetailDto> updateOrderDetail(Long orderDetailId, OrderDetailDto orderDetailDto) {
+        orderDetailDto.setOrderDetailId(orderDetailId); // Override orderDetailId
+
         log.info("Updating order detail " + orderDetailId);
         return ResponseEntity.ok(orderDetailMapper.toDTO(orderDetailService.update(orderDetailMapper.toEntity(orderDetailDto))));
     }

@@ -27,8 +27,6 @@ components:
       $ref: "model/transaction.yml#/TransactionDto"
     OrderDetailDto:
       $ref: "model/order-detail.yml#/OrderDetailDto"
-    SetageDto:
-      $ref: "model/set.yml#/SetDto"
     NotificationDto:
       $ref: "model/notification.yml#/NotificationDto"
     BlindBoxDto:

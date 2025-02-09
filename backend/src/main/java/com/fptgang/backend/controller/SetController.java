@@ -46,16 +46,16 @@ public class SetController implements SetsApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteSet(Integer setId) {
+    public ResponseEntity<Void> deleteSet(Long setId) {
         log.info("Deleting set " + setId);
-        setService.deleteById(Long.valueOf(setId));
+        setService.deleteById(setId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<SetDto> getSetById(Integer setId) {
+    public ResponseEntity<SetDto> getSetById(Long setId) {
         log.info("Getting set by id " + setId);
-        return new ResponseEntity<>(setMapper.toDTO(setService.findById(Long.valueOf(setId))), HttpStatus.OK);
+        return new ResponseEntity<>(setMapper.toDTO(setService.findById(setId)), HttpStatus.OK);
     }
 
     @Override
@@ -68,7 +68,9 @@ public class SetController implements SetsApi {
     }
 
     @Override
-    public ResponseEntity<SetDto> updateSet(Integer setId, SetDto setDto) {
+    public ResponseEntity<SetDto> updateSet(Long setId, SetDto setDto) {
+        setDto.setSetId(setId); // Override setId
+
         log.info("Updating set " + setId);
         return ResponseEntity.ok(setMapper.toDTO(setService.update(setMapper.toEntity(setDto))));
     }
