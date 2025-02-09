@@ -13,7 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -35,24 +38,27 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<ImageDto> createImage(ImageDto imageDto) {
-        log.info("Creating image");
-        ResponseEntity<ImageDto> response = new ResponseEntity<>(imageMapper
-                .toDTO(imageService.create(imageMapper.toEntity(imageDto))), HttpStatus.CREATED);
-        return response;
+    public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
+        ImageDto dto = new ImageDto()
+                .uploaderId(uploaderId)
+                .blindBoxId(blindBoxId)
+                .packId(packId)
+                .isVisible(isVisible);
+        return new ResponseEntity<>(imageMapper
+                .toDTO(imageService.create(imageMapper.toEntity(dto), imageBlob)), HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<Void> deleteImage(String imageId) {
+    public ResponseEntity<Void> deleteImage(Long imageId) {
         log.info("Deleting image " + imageId);
-        imageService.deleteById(Long.valueOf(imageId));
+        imageService.deleteById(imageId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<ImageDto> getImageById(String imageId) {
+    public ResponseEntity<ImageDto> getImageById(Long imageId) {
         log.info("Getting image by id " + imageId);
-        return new ResponseEntity<>(imageMapper.toDTO(imageService.findById(Long.valueOf(imageId))), HttpStatus.OK);
+        return new ResponseEntity<>(imageMapper.toDTO(imageService.findById(imageId)), HttpStatus.OK);
     }
 
     @Override
@@ -65,8 +71,14 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<ImageDto> updateImage(String imageId, ImageDto imageDto) {
-        log.info("Updating image " + imageId);
-        return ResponseEntity.ok(imageMapper.toDTO(imageService.update(imageMapper.toEntity(imageDto))));
+    public ResponseEntity<ImageDto> updateImage(Long imageId, Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
+        ImageDto dto = new ImageDto()
+                .imageId(imageId)
+                .uploaderId(uploaderId)
+                .blindBoxId(blindBoxId)
+                .packId(packId)
+                .isVisible(isVisible);
+        return ResponseEntity.ok(imageMapper
+                .toDTO(imageService.update(imageMapper.toEntity(dto), imageBlob)));
     }
 }

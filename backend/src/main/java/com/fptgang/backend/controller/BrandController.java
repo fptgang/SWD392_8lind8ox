@@ -43,16 +43,16 @@ public class BrandController implements BrandsApi{
     }
 
     @Override
-    public ResponseEntity<Void> deleteBrand(Integer brandId) {
+    public ResponseEntity<Void> deleteBrand(Long brandId) {
         log.info("Deleting brand " + brandId);
-        brandService.deleteById(Long.valueOf(brandId));
+        brandService.deleteById(brandId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<BrandDto> getBrandById(Integer brandId) {
+    public ResponseEntity<BrandDto> getBrandById(Long brandId) {
         log.info("Getting brand by id " + brandId);
-        return new ResponseEntity<>(brandMapper.toDTO(brandService.findById(Long.valueOf(brandId))), HttpStatus.OK);
+        return new ResponseEntity<>(brandMapper.toDTO(brandService.findById(brandId)), HttpStatus.OK);
     }
 
     @Override
@@ -71,7 +71,9 @@ public class BrandController implements BrandsApi{
     }
 
     @Override
-    public ResponseEntity<BrandDto> updateBrand(Integer brandId, BrandDto brandDto) {
+    public ResponseEntity<BrandDto> updateBrand(Long brandId, BrandDto brandDto) {
+        brandDto.setBrandId(brandId); // Override brandId
+
         log.info("Updating brand " + brandId);
         return ResponseEntity.ok(brandMapper.toDTO(brandService.update(brandMapper.toEntity(brandDto))));
     }

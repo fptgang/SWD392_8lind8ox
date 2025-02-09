@@ -70,6 +70,8 @@ public class CampaignController implements PromotionalCampaignsApi {
 
     @Override
     public ResponseEntity<PromotionalCampaignDto> updatePromotionalCampaign(Long campaignId, PromotionalCampaignDto promotionalCampaignDto) {
+        promotionalCampaignDto.setCampaignId(campaignId); // Override campaignId
+
         log.info("Updating promotional campaign " + campaignId);
         return ResponseEntity.ok(promotionCampaignMapper.toDTO(promotionCampaignService.update(promotionCampaignMapper.toEntity(promotionalCampaignDto))));
     }

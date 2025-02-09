@@ -46,14 +46,14 @@ public class BlindboxController implements BlindBoxesApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteBlindBox(Integer blindBoxId) {
+    public ResponseEntity<Void> deleteBlindBox(Long blindBoxId) {
         return BlindBoxesApi.super.deleteBlindBox(blindBoxId);
     }
 
     @Override
-    public ResponseEntity<BlindBoxDto> getBlindBoxById(Integer blindBoxId) {
+    public ResponseEntity<BlindBoxDto> getBlindBoxById(Long blindBoxId) {
         ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
-                .toDTO(blindBoxService.findById(Long.valueOf(blindBoxId))), HttpStatus.OK);
+                .toDTO(blindBoxService.findById(blindBoxId)), HttpStatus.OK);
         return response;
     }
 
@@ -78,7 +78,9 @@ public class BlindboxController implements BlindBoxesApi {
     }
 
     @Override
-    public ResponseEntity<BlindBoxDto> updateBlindBox(Integer blindBoxId, BlindBoxDto blindBoxDto) {
+    public ResponseEntity<BlindBoxDto> updateBlindBox(Long blindBoxId, BlindBoxDto blindBoxDto) {
+        blindBoxDto.setBlindBoxId(blindBoxId); // Override blindBoxId
+
         ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
                 .toDTO(blindBoxService.update(blindBoxMapper.toEntity(blindBoxDto))), HttpStatus.OK);
         return response;

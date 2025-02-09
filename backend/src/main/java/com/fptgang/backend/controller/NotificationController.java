@@ -43,19 +43,6 @@ public class NotificationController implements NotificationsApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteNotification(Integer notificationId) {
-        log.info("Deleting notification " + notificationId);
-        notificationService.deleteById(Long.valueOf(notificationId));
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<NotificationDto> getNotificationById(Integer notificationId) {
-        log.info("Getting notification by id " + notificationId);
-        return new ResponseEntity<>(notificationMapper.toDTO(notificationService.findById(Long.valueOf(notificationId))), HttpStatus.OK);
-    }
-
-    @Override
     public ResponseEntity<GetNotifications200Response> getNotifications(Pageable pageable, String filter, String search) {
         log.info("Getting notifications");
         var page = OpenApiHelper.toPageable(pageable);
@@ -65,7 +52,9 @@ public class NotificationController implements NotificationsApi {
     }
 
     @Override
-    public ResponseEntity<NotificationDto> updateNotification(Integer notificationId, NotificationDto notificationDto) {
+    public ResponseEntity<NotificationDto> updateNotification(Long notificationId, NotificationDto notificationDto) {
+        notificationDto.setNotificationId(notificationId); // Override notificationId
+
         log.info("Updating notification " + notificationId);
         return ResponseEntity.ok(notificationMapper.toDTO(notificationService.update(notificationMapper.toEntity(notificationDto))));
     }
