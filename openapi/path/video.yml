@@ -37,9 +37,9 @@ post:
     description: Video to create
     required: true
     content:
-      application/json:
+      multipart/form-data:
         schema:
-          $ref: '../model/video.yml#/VideoDto'
+          $ref: '../model/video-blob.yml#/VideoBlobDto'
   responses:
     '200':
       description: The operation was successful

@@ -4,6 +4,7 @@ import com.fptgang.backend.api.controller.VideosApi;
 import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.VideoMapper;
 import com.fptgang.backend.model.Account;
+import com.fptgang.backend.model.Video;
 import com.fptgang.backend.service.VideoService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -34,11 +36,13 @@ public class VideoController implements VideosApi {
     }
 
     @Override
-    public ResponseEntity<VideoDto> createVideo(VideoDto videoDto) {
-        log.info("Creating video");
-        ResponseEntity<VideoDto> response = new ResponseEntity<>(videoMapper
-                .toDTO(videoService.create(videoMapper.toEntity(videoDto))), HttpStatus.CREATED);
-        return response;
+    public ResponseEntity<VideoDto> createVideo(Long accountID, Long orderDetailId, MultipartFile videoBlob,Boolean isVisible) {
+        VideoDto dto = new VideoDto()
+                .accountId(accountID)
+                .orderDetailId(orderDetailId)
+                .isVisible(isVisible);
+        return new ResponseEntity<>(videoMapper
+                .toDTO(videoService.create(videoMapper.toEntity(dto), videoBlob)), HttpStatus.CREATED);
     }
 
     @Override
@@ -64,10 +68,13 @@ public class VideoController implements VideosApi {
     }
 
     @Override
-    public ResponseEntity<VideoDto> updateVideo(Long videoId, VideoDto videoDto) {
-        videoDto.setVideoId(videoId); // Override videoId
-
-        log.info("Updating video " + videoId);
-        return ResponseEntity.ok(videoMapper.toDTO(videoService.update(videoMapper.toEntity(videoDto))));
+    public ResponseEntity<VideoDto> updateVideo(Long videoId,Long accountID, Long orderDetailId, MultipartFile videoBlob,Boolean isVisible) {
+        VideoDto dto = new VideoDto()
+                .videoId(videoId)
+                .accountId(accountID)
+                .orderDetailId(orderDetailId)
+                .isVisible(isVisible);
+        return ResponseEntity.ok(videoMapper
+                .toDTO(videoService.update(videoMapper.toEntity(dto), videoBlob)));
     }
 }

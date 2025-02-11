@@ -1,0 +1,14 @@
+VideoBlobDto:
+  type: object
+  properties:
+    AccountId:
+      type: integer
+      format: int64
+    orderDetailId:
+      type: integer
+      format: int64
+    videoBlob:
+      type: string
+      format: binary
+    isVisible:
+      type: boolean
