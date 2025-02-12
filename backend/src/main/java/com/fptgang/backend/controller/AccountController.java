@@ -68,7 +68,7 @@ public class AccountController implements AccountsApi {
     public ResponseEntity<AccountDto> updateAccount(Long accountId, AccountDto accountDto) {
         accountDto.setAccountId(accountId); // Override accountId
 
-        log.info("Updating account " + accountId);
+        log.info("Updating account {}", accountId);
 
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             accountDto.setBalance(null);
@@ -82,9 +82,7 @@ public class AccountController implements AccountsApi {
         }
 
         if (SecurityUtil.isRole(Account.Role.CUSTOMER)) {
-            if (!accountService.findByEmail(SecurityUtil.getCurrentUserEmail())
-                    .getAccountId()
-                    .equals(accountId)) {
+            if (SecurityUtil.requireCurrentUserId() != accountId) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }
