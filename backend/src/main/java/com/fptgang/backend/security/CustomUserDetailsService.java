@@ -26,12 +26,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Account account = accountRepos.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return createUserDetails(account.getEmail(), account.getRole());
+        return createUserDetails(account.getAccountId(), account.getEmail(), account.getRole());
     }
 
-    public UserDetails createUserDetails(String email, Account.Role role) {
-        LOGGER.debug("New UserDetails for {}", email);
+    public UserDetails createUserDetails(long accountId, String email, Account.Role role) {
+        LOGGER.debug("New UserDetails for id={}, email={}", accountId, email);
         return new AppUser(
+                accountId,
                 email,
                 null, // never store password
                 List.of(new SimpleGrantedAuthority(role.toString()))

@@ -8,12 +8,12 @@ import javax.annotation.Nullable;
 
 public interface JwtService {
     @NotNull
-    Jwt generateJwt(String email, Account.Role role);
+    Jwt generateJwt(long accountId, String email, Account.Role role);
 
     String createJwtFromRefreshToken(String token);
 
     @NotNull
-    String generateToken(String email, Account.Role role);
+    String generateToken(long accountId, String email, Account.Role role);
 
     @Nullable
     Jwt parseToken(String token);
