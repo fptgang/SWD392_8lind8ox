@@ -4,7 +4,7 @@ import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/authentication/authentication_state.dart';
 import '../../../enum/enum.dart';
 import '../../core/theme/theme.dart';
-import '../../homepage/widget/homepage_screen.dart';
+import '../../homepage/homepage_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AccountDetail extends StatelessWidget {
@@ -17,7 +17,7 @@ class AccountDetail extends StatelessWidget {
       previous.status != current.status,
       listener: (context, state) {
         if (state.status == AuthenticationStatus.unauthenticated) {
-          Navigator.push(context, HomePageScreen.route());
+          // Navigator.push(context, HomePageScreen.route());
         }
       },
       child: Card(

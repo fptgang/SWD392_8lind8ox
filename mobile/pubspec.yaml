@@ -66,6 +66,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   shared_preferences: ^2.5.1
+  localstorage: ^5.0.0
 
 
 dev_dependencies:

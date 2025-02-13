@@ -1,8 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import '../locale_cubit/locale_cubit.dart';
 
 class DropdownCubit extends Cubit<Map<String, dynamic>> {
+
+  @factoryMethod
   DropdownCubit(LocaleCubit localeCubit) : super({
     'isOpen': false,
     'selectedLanguage': _getInitialLanguage(localeCubit),

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +8,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/widget/cart_screen.dart';
-import 'package:mobile/ui/homepage/widget/homepage_screen.dart';
-import 'package:mobile/ui/information/widget/bottom_navigation_bar.dart';
+import 'package:mobile/ui/checkout/checkout_screen.dart';
+import 'package:mobile/ui/homepage/homepage_screen.dart';
+import 'package:mobile/ui/common/bottom_navigation_bar.dart';
+import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
+import 'package:mobile/ui/information/widget/search_test_bottom.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/register/register_screen.dart';
 import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
@@ -38,6 +41,8 @@ NavigatorState get navigator => navigatorKey.currentState!;
 
 late AppLinks _appLinks;
 StreamSubscription<Uri>? _linkSubscription;
+
+// Locale locale = const Locale('en', 'US');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,18 +87,27 @@ final router = GoRouter(
     GoRoute(path: '/sign-up', builder: (context, state) =>  RegisterScreen()),
     GoRoute(path: '/account', builder: (context, state) =>  AccountScreen()),
     GoRoute(path: '/splash', builder: (context, state) =>  SplashScreen()),
-    GoRoute(path: '/blind-box-detail', builder: (context, state) => ProductDetailScreen()),
     GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
-    GoRoute(path: '/blind-box-detail', builder: (context, state) => ProductDetailScreen()),
+    GoRoute(
+      path: '/blind-box-detail/:id',
+      builder: (context, state) {
+        final blindBoxId = int.parse(state.pathParameters['id'] ?? '0');
+        return ProductDetailScreen(blindBoxId: blindBoxId);
+      },
+    ),
     GoRoute(
       path: '/main',
       builder: (context, state) => const MainScreen(),
       routes: [
         GoRoute(path: 'home', builder: (context, state) => const HomePageScreen()),
-        GoRoute(path: 'account', builder: (context, state) => AccountScreen()),
+        GoRoute(path: 'search', builder: (context, state) => const SearchScreen()),
         GoRoute(path: 'cart', builder: (context, state) => const CartScreen()),
+        GoRoute(path: 'new-releases', builder: (context, state) => const FeatureScreen()),
+        GoRoute(path: 'account', builder: (context, state) => AccountScreen()),
       ],
     ),
+    GoRoute(path: '/checkout', builder: (context, state) => CheckoutScreen()),
+
   ],
 );
 
@@ -115,10 +129,9 @@ class MyApp extends StatelessWidget {
             create: (context) => getIt<AuthenticationBloc>()
               ..add(AuthenticationSubscriptionRequested()),
           ),
-          BlocProvider(create: (_) => LocaleCubit()),
-          BlocProvider(
-            create: (context) => DropdownCubit(context.read<LocaleCubit>()),
-          ),
+          BlocProvider(create: (_) =>getIt<LocaleCubit>()),
+          BlocProvider(create: (_) => getIt<DropdownCubit>()),
+          BlocProvider(create: (_) => CartCubit()),
         ],
         child: const AppView(),
       ),
