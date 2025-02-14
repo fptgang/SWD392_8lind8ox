@@ -27,7 +27,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
             return null;
         }
 
-        Optional<Transaction> existingTransactionOptional = transactionRepos.findById(dto.getTransactionId());
+        Optional<Transaction> existingTransactionOptional = transactionRepos.findById(dto.getTransactionId()==null?0:dto.getTransactionId());
 
         if (existingTransactionOptional.isPresent()) {
             Transaction existingTransaction = existingTransactionOptional.get();
@@ -36,6 +36,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
             existingTransaction.setPaymentMethod(dto.getPaymentMethod() != null ? Transaction.PaymentMethod.valueOf(dto.getPaymentMethod().getValue()) : existingTransaction.getPaymentMethod());
             existingTransaction.setAmount(dto.getAmount() != null ? dto.getAmount() : existingTransaction.getAmount());
             existingTransaction.setOldBalance(dto.getOldBalance() != null ? dto.getOldBalance() : existingTransaction.getOldBalance());
+            existingTransaction.setNewBalance(dto.getNewBalance() != null ? dto.getNewBalance() : existingTransaction.getNewBalance());
             existingTransaction.setSuccess(dto.getSuccess() != null ? dto.getSuccess() : existingTransaction.isSuccess());
             // Set other fields similarly
 
@@ -47,13 +48,16 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
             entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getDateTime()));
             entity.setPaymentMethod(Transaction.PaymentMethod.valueOf(dto.getPaymentMethod().getValue()) );
             entity.setAmount(dto.getAmount());
-            entity.setOldBalance(dto.getOldBalance());
             entity.setSuccess(dto.getSuccess());
             if(dto.getAccountId() != null) {
-                entity.setAccount(accountRepos.findById(dto.getAccountId()).get());
+                entity.setAccount(accountRepos.findById(dto.getAccountId()).orElseThrow(
+                        () -> new IllegalArgumentException("Account does not exist")
+                ));
             }
             if(dto.getOrderId() != null) {
-                entity.setOrder(orderRepos.findById(dto.getOrderId()).get());
+                entity.setOrder(orderRepos.findById(dto.getOrderId()).orElseThrow(
+                        () -> new IllegalArgumentException("Order does not exist")
+                ));
             }
             // Set other fields similarly
 
@@ -74,6 +78,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         dto.setPaymentMethod(TransactionDto.PaymentMethodEnum.valueOf(entity.getPaymentMethod().toString()));
         dto.setAmount(entity.getAmount());
         dto.setOldBalance(entity.getOldBalance());
+        dto.setNewBalance(entity.getNewBalance());
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
         dto.setSuccess(entity.isSuccess());

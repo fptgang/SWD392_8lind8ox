@@ -46,8 +46,8 @@ public class Transaction {
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal newBalance;
 
-    @Column(nullable = false)
-    private boolean success;
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private boolean success=false;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
