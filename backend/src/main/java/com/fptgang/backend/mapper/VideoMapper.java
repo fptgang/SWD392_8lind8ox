@@ -24,9 +24,9 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             return null;
         }
 
-        Optional<Video> existingVideoOptional = videoRepos.findById(dto.getVideoId());
+        Optional<Video> existingVideoOptional = videoRepos.findById(dto.getVideoId() == null ? 0 : dto.getVideoId());
 
-        if (existingVideoOptional.isPresent()) {
+        if (existingVideoOptional.isPresent() && dto.getVideoId() != null) {
             Video existingVideo = existingVideoOptional.get();
             existingVideo.setUrl(dto.getUrl() != null ? dto.getUrl() : existingVideo.getUrl());
             existingVideo.setDescription(dto.getDescription() != null ? dto.getDescription() : existingVideo.getDescription());
@@ -39,7 +39,7 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             return existingVideo;
         } else {
             Video entity = new Video();
-            entity.setVideoId(dto.getVideoId());
+//            entity.setVideoId(dto.getVideoId());
             entity.setUrl(dto.getUrl());
             entity.setDescription(dto.getDescription());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());

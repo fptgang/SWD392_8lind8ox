@@ -36,9 +36,9 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             return null;
         }
 
-        Optional<BlindBox> existingBlindBoxOptional = blindBoxRepos.findById(dto.getBlindBoxId());
+        Optional<BlindBox> existingBlindBoxOptional = blindBoxRepos.findById(dto.getBlindBoxId() == null ? 0 : dto.getBlindBoxId());
 
-        if (existingBlindBoxOptional.isPresent()) {
+        if (existingBlindBoxOptional.isPresent() && dto.getBlindBoxId() != null) {
             BlindBox existingBlindBox = existingBlindBoxOptional.get();
             existingBlindBox.setName(dto.getName() != null ? dto.getName() : existingBlindBox.getName());
             existingBlindBox.setDescription(dto.getDescription() != null ? dto.getDescription() : existingBlindBox.getDescription());
@@ -59,7 +59,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             return existingBlindBox;
         } else {
             BlindBox entity = new BlindBox();
-            entity.setBlindBoxId(dto.getBlindBoxId());
+//            entity.setBlindBoxId(dto.getBlindBoxId());
             entity.setName(dto.getName());
             entity.setDescription(dto.getDescription());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());

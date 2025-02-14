@@ -29,7 +29,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
 
         Optional<Transaction> existingTransactionOptional = transactionRepos.findById(dto.getTransactionId()==null?0:dto.getTransactionId());
 
-        if (existingTransactionOptional.isPresent()) {
+        if (existingTransactionOptional.isPresent() && dto.getTransactionId() != null) {
             Transaction existingTransaction = existingTransactionOptional.get();
             existingTransaction.setType(dto.getType() != null ? Transaction.Type.valueOf(dto.getType().getValue()) : existingTransaction.getType());
             existingTransaction.setCreatedAt(dto.getDateTime() != null ? DateTimeUtil.fromOffsetToLocal(dto.getDateTime()) : existingTransaction.getCreatedAt());
@@ -43,7 +43,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
             return existingTransaction;
         } else {
             Transaction entity = new Transaction();
-            entity.setTransactionId(dto.getTransactionId());
+//            entity.setTransactionId(dto.getTransactionId());
             entity.setType(Transaction.Type.valueOf(dto.getType().getValue()) );
             entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getDateTime()));
             entity.setPaymentMethod(Transaction.PaymentMethod.valueOf(dto.getPaymentMethod().getValue()) );

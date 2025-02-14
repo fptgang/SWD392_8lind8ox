@@ -24,9 +24,9 @@ public class NotificationMapper extends BaseMapper<NotificationDto, Notification
             return null;
         }
 
-        Optional<Notification> existingNotificationOptional = notificationRepos.findById(dto.getNotificationId());
+        Optional<Notification> existingNotificationOptional = notificationRepos.findById(dto.getNotificationId() == null ? 0 : dto.getNotificationId());
 
-        if (existingNotificationOptional.isPresent()) {
+        if (existingNotificationOptional.isPresent() && dto.getNotificationId() != null) {
             Notification existingNotification = existingNotificationOptional.get();
             existingNotification.setMessage(dto.getMessage() != null ? dto.getMessage() : existingNotification.getMessage());
             existingNotification.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt().toLocalDateTime() : existingNotification.getCreatedAt());
@@ -38,7 +38,7 @@ public class NotificationMapper extends BaseMapper<NotificationDto, Notification
             return existingNotification;
         } else {
             Notification entity = new Notification();
-            entity.setNotificationId(dto.getNotificationId());
+//            entity.setNotificationId(dto.getNotificationId());
             entity.setMessage(dto.getMessage());
             entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
             entity.setRead(dto.getIsRead());

@@ -32,9 +32,9 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             return null;
         }
 
-        Optional<PromotionalCampaign> existingPromotionalCampaignOptional = promotionalCampaignRepos.findById(dto.getCampaignId());
+        Optional<PromotionalCampaign> existingPromotionalCampaignOptional = promotionalCampaignRepos.findById(dto.getCampaignId() == null ? 0 : dto.getCampaignId());
 
-        if (existingPromotionalCampaignOptional.isPresent()) {
+        if (existingPromotionalCampaignOptional.isPresent() && dto.getCampaignId() != null) {
             PromotionalCampaign existingPromotionalCampaign = existingPromotionalCampaignOptional.get();
             existingPromotionalCampaign.setTitle(dto.getTitle() != null ? dto.getTitle() : existingPromotionalCampaign.getTitle());
             existingPromotionalCampaign.setDescription(dto.getDescription() != null ? dto.getDescription() : existingPromotionalCampaign.getDescription());
@@ -53,7 +53,7 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             return existingPromotionalCampaign;
         } else {
             PromotionalCampaign entity = new PromotionalCampaign();
-            entity.setCampaignId(dto.getCampaignId());
+//            entity.setCampaignId(dto.getCampaignId());
             entity.setTitle(dto.getTitle());
             entity.setDescription(dto.getDescription());
             entity.setStartDate(DateTimeUtil.fromOffsetToLocal(dto.getStartDate()));

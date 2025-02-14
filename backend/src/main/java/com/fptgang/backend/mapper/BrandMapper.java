@@ -22,9 +22,9 @@ public class BrandMapper extends BaseMapper<BrandDto, Brand> {
             return null;
         }
 
-        Optional<Brand> existingBrandOptional = brandRepos.findById(dto.getBrandId());
+        Optional<Brand> existingBrandOptional = brandRepos.findById(dto.getBrandId() == null ? 0 : dto.getBrandId());
 
-        if (existingBrandOptional.isPresent()) {
+        if (existingBrandOptional.isPresent() && dto.getBrandId() != null) {
             Brand existingBrand = existingBrandOptional.get();
             existingBrand.setName(dto.getName() != null ? dto.getName() : existingBrand.getName());
             existingBrand.setDescription(dto.getDescription() != null ? dto.getDescription() : existingBrand.getDescription());
@@ -32,7 +32,7 @@ public class BrandMapper extends BaseMapper<BrandDto, Brand> {
             return existingBrand;
         } else {
             Brand entity = new Brand();
-            entity.setBrandId(dto.getBrandId());
+//            entity.setBrandId(dto.getBrandId());
             entity.setName(dto.getName());
             entity.setDescription(dto.getDescription());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
