@@ -26,9 +26,9 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
             return null;
         }
 
-        Optional<Toy> existingToyOptional = toyRepos.findById(dto.getToyId());
+        Optional<Toy> existingToyOptional = toyRepos.findById(dto.getToyId() == null ? 0 : dto.getToyId());
 
-        if (existingToyOptional.isPresent()) {
+        if (existingToyOptional.isPresent() && dto.getToyId() != null) {
             Toy existingToy = existingToyOptional.get();
             existingToy.setName(dto.getName() != null ? dto.getName() : existingToy.getName());
             existingToy.setDescription(dto.getDescription() != null ? dto.getDescription() : existingToy.getDescription());
@@ -41,7 +41,7 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
             return existingToy;
         } else {
             Toy entity = new Toy();
-            entity.setToyId(dto.getToyId());
+//            entity.setToyId(dto.getToyId());
             entity.setName(dto.getName());
             entity.setDescription(dto.getDescription());
             entity.setRarity(Toy.Rarity.valueOf(dto.getRarity().name()));

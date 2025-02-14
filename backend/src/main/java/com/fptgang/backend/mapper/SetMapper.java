@@ -31,9 +31,9 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
             return null;
         }
 
-        Optional<Set> existingSetOptional = setRepos.findById(dto.getSetId());
+        Optional<Set> existingSetOptional = setRepos.findById(dto.getSetId() == null ? 0 : dto.getSetId());
 
-        if (existingSetOptional.isPresent()) {
+        if (existingSetOptional.isPresent() && dto.getSetId() != null) {
             Set existingSet = existingSetOptional.get();
             existingSet.setCurrentPrice(dto.getCurrentPrice() != null ? dto.getCurrentPrice() : existingSet.getCurrentPrice());
             existingSet.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingSet.isVisible());
@@ -50,7 +50,7 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
             return existingSet;
         } else {
             Set entity = new Set();
-            entity.setSetId(dto.getSetId());
+//            entity.setSetId(dto.getSetId());
             entity.setCurrentPrice(dto.getCurrentPrice());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             entity.setBlindBox(dto.getBlindBox() != null ?

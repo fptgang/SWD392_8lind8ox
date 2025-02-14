@@ -29,9 +29,9 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
             return null;
         }
 
-        Optional<Order> existingOrderOptional = orderRepos.findById(dto.getOrderId());
+        Optional<Order> existingOrderOptional = orderRepos.findById(dto.getOrderId() == null ? 0 : dto.getOrderId());
 
-        if (existingOrderOptional.isPresent()) {
+        if (existingOrderOptional.isPresent() && dto.getOrderId() != null) {
             Order existingOrder = existingOrderOptional.get();
             existingOrder.setTotalPrice(dto.getTotalPrice() != null ? dto.getTotalPrice() : existingOrder.getTotalPrice());
             if (dto.getOrderDetails() != null) {
@@ -43,7 +43,7 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
             return existingOrder;
         } else {
             Order entity = new Order();
-            entity.setOrderId(dto.getOrderId());
+//            entity.setOrderId(dto.getOrderId());
             entity.setTotalPrice(dto.getTotalPrice());
             if (dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));

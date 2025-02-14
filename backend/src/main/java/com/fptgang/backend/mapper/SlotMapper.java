@@ -27,9 +27,9 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
             return null;
         }
 
-        Optional<Slot> existingSlotOptional = slotRepos.findById(dto.getSlotId());
+        Optional<Slot> existingSlotOptional = slotRepos.findById(dto.getSlotId() == null ? 0 : dto.getSlotId());
 
-        if (existingSlotOptional.isPresent()) {
+        if (existingSlotOptional.isPresent() && dto.getSlotId() != null) {
             Slot existingSlot = existingSlotOptional.get();
             existingSlot.setPosition(dto.getPosition() != null ? dto.getPosition() : existingSlot.getPosition());
             existingSlot.setOpened(dto.getIsOpened() != null ? dto.getIsOpened() : existingSlot.isOpened());
