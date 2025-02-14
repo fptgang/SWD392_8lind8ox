@@ -30,9 +30,9 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
             return null;
         }
 
-        Optional<Image> existingImageOptional = imageRepos.findById(dto.getImageId());
+        Optional<Image> existingImageOptional = imageRepos.findById(dto.getImageId() == null ? 0 : dto.getImageId());
 
-        if (existingImageOptional.isPresent()) {
+        if (existingImageOptional.isPresent() && dto.getImageId() != null) {
             Image existingImage = existingImageOptional.get();
             existingImage.setImageUrl(dto.getImageUrl() != null ? dto.getImageUrl() : existingImage.getImageUrl());
             existingImage.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingImage.isVisible());
@@ -47,7 +47,7 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
             return existingImage;
         } else {
             Image entity = new Image();
-            entity.setImageId(dto.getImageId());
+//            entity.setImageId(dto.getImageId());
             entity.setImageUrl(dto.getImageUrl());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             if (dto.getBlindBoxId() != null) {

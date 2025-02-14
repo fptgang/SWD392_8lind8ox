@@ -29,9 +29,9 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             return null;
         }
 
-        Optional<OrderDetail> existingOrderDetailOptional = orderDetailRepos.findById(dto.getOrderDetailId());
+        Optional<OrderDetail> existingOrderDetailOptional = orderDetailRepos.findById(dto.getOrderDetailId() == null ? 0 : dto.getOrderDetailId());
 
-        if (existingOrderDetailOptional.isPresent()) {
+        if (existingOrderDetailOptional.isPresent() && dto.getOrderDetailId() != null) {
             OrderDetail existingOrderDetail = existingOrderDetailOptional.get();
             existingOrderDetail.setCheckoutPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : existingOrderDetail.getCheckoutPrice());
             existingOrderDetail.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : existingOrderDetail.getOriginalPrice());
@@ -50,7 +50,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             return existingOrderDetail;
         } else {
             OrderDetail entity = new OrderDetail();
-            entity.setOrderDetailId(dto.getOrderDetailId());
+//            entity.setOrderDetailId(dto.getOrderDetailId());
             entity.setCheckoutPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : entity.getCheckoutPrice());
             entity.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : entity.getOriginalPrice());
             if (dto.getOrderId() != null) {

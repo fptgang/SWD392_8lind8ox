@@ -21,9 +21,9 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
             return null;
         }
 
-        Optional<Account> existingAccountOptional = accountRepos.findByAccountId(dto.getAccountId());
+        Optional<Account> existingAccountOptional = accountRepos.findByAccountId(dto.getAccountId() == null ? 0 : dto.getAccountId());
 
-        if (existingAccountOptional.isPresent()) {
+        if (existingAccountOptional.isPresent() && dto.getAccountId() != null) {
             Account existingAccount = existingAccountOptional.get();
             existingAccount.setEmail(dto.getEmail() != null ? dto.getEmail() : existingAccount.getEmail());
             existingAccount.setFirstName(dto.getFirstName() != null ? dto.getFirstName() : existingAccount.getFirstName());
@@ -39,7 +39,7 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
         } else {
 
             Account entity = new Account();
-            entity.setAccountId(dto.getAccountId());
+//            entity.setAccountId(dto.getAccountId());
             if (dto.getEmail() != null) {
                 entity.setEmail(dto.getEmail());
             }
