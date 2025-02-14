@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/ui/cart/widget/cart_screen.dart';
 import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
 import 'package:mobile/ui/information/widget/search_test_bottom.dart';
-import '../../../blocs/bottom_navigation_bar/bottom_navigation_cubit.dart';
-import '../../account/account_screen.dart';
-import '../../common/custom_bottom_app_bar.dart';
-import '../../homepage/widget/homepage_screen.dart';
+import '../../blocs/bottom_navigation_bar/bottom_navigation_cubit.dart';
+import '../account/account_screen.dart';
+import '../new_release/new_release_screen.dart';
+import 'custom_bottom_app_bar.dart';
+import '../homepage/homepage_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -42,7 +43,7 @@ class MainScreen extends StatelessWidget {
       case 2:
         return CartScreen();
       case 3:
-        return FeatureScreen();
+        return NewReleasesScreen();
       case 4:
         return AccountScreen();
       default:

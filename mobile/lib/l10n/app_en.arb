@@ -61,5 +61,8 @@
   "selectByCategory": "Select by category",
   "selectBySeries": "Select by series",
   "series": "Series",
-  "youAreNotLoggedIn": "You are not logged in"
+  "youAreNotLoggedIn": "You are not logged in",
+  "emptyCart": "Your cart is empty",
+  "blindBoxDetailError": "Cannot get blind box detail",
+  "blindBoxesError": "Cannot get blind boxes"
 }

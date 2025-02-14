@@ -32,7 +32,6 @@ class AccountScreen extends StatelessWidget {
         builder: (context, state) {
           if (state.status == AuthenticationStatus.unauthenticated ||
               state.status == AuthenticationStatus.unknown) {
-            // User is not authenticated, show login button
             return _buildLoginButton(context);
           }
 

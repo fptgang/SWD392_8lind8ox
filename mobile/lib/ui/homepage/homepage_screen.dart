@@ -5,8 +5,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/homepage/widget/category_item.dart';
+import 'package:mobile/ui/homepage/widget/new_release_products.dart';
 import 'package:mobile/ui/homepage/widget/recommended_item.dart';
-import '../../common/language_dropdown.dart';
+import '../common/language_dropdown.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePageScreen extends StatelessWidget {
@@ -22,6 +23,14 @@ class HomePageScreen extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        // appBar: AppBar(
+        //   title: Text(
+        //     AppLocalizations.of(context)!.account,
+        //     style: TextStyle(
+        //       color: getColorSkin().primaryRed900,
+        //     ),
+        //   ),
+        // ),
         backgroundColor: getColorSkin().backgroundColor,
         body: SafeArea(
           child: SingleChildScrollView(
@@ -108,6 +117,8 @@ class HomePageScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20.h),
 
+                  const NewReleaseProducts(),
+
                   // Category Section
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -185,26 +196,7 @@ class HomePageScreen extends StatelessWidget {
                               style: TextStyle(color: getColorSkin().black))),
                     ],
                   ),
-                  GridView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.9,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                    ),
-                    itemCount: 4,
-                    // Adjust the count as needed
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                          onTap: () {
-                            context.push('/blind-box-detail');
-                          },
-                          child: buildRecommendedItem());
-                    },
-                  ),
+                  RecommendedItems(),
                 ],
               ),
             ),

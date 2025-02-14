@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mobile/di/injection.dart';
 import '../../cubit/dropdown_cubit/dropdown_cubit.dart';
 import '../../cubit/locale_cubit/locale_cubit.dart';
 
@@ -14,7 +15,7 @@ class LanguageDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dropdownCubit = context.read<DropdownCubit>();
+    final dropdownCubit = getIt<DropdownCubit>();
 
     return Stack(
       children: [

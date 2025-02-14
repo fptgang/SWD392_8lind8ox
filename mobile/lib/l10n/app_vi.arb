@@ -60,6 +60,8 @@
   "selectByCategory": "Chọn theo dòng sản phẩm",
   "selectBySeries": "Chọn theo mùa",
   "series": "Bộ sưu tập",
-  "youAreNotLoggedIn": "Bạn chưa đăng nhập"
-
+  "youAreNotLoggedIn": "Bạn chưa đăng nhập",
+  "emptyCart": "Giỏ hàng của bạn đang trống",
+  "blindBoxDetailError": "Không tìm thấy thông tin chi tiết",
+  "blindBoxesError": "Không tìm thấy thông tin hộp mù"
 }

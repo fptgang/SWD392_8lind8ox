@@ -1,7 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+@Singleton()
+@injectable
 class LocaleCubit extends Cubit<Locale> {
   LocaleCubit() : super(Locale('vi')) {
     _loadSavedLocale();
