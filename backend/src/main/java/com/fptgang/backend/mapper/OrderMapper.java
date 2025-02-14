@@ -28,8 +28,10 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
         if (dto == null) {
             return null;
         }
-
-        Optional<Order> existingOrderOptional = orderRepos.findById(dto.getOrderId());
+        if (dto.getOrderId() == null) {
+            dto.setOrderId(-1l);
+        }
+        Optional<Order> existingOrderOptional = orderRepos.findById(dto.getOrderId());//no null check ???
 
         if (existingOrderOptional.isPresent()) {
             Order existingOrder = existingOrderOptional.get();
