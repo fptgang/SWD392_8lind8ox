@@ -56,10 +56,19 @@ public class OrderController implements OrdersApi {
     @Override
     public ResponseEntity<GetOrders200Response> getOrders(Pageable pageable, String filter, String search) {
         log.info("Getting orders");
+        boolean includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+
+        // If the user is not an admin, only allow fetching their own orders
+        if (!includeInvisible) {
+            String userEmail = SecurityUtil.requireCurrentUserEmail();
+            filter = (filter == null ? "" : filter + ",") + "account.email,eq," + userEmail;
+        }
+
         var page = OpenApiHelper.toPageable(pageable);
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = orderService.getAll(page, filter, search, includeInvisible).map(orderMapper::toDTO);
-        return OpenApiHelper.respondPage(res, GetOrders200Response.class);
+        var resultPage = orderService.getAll(page, filter, search, includeInvisible)
+                .map(orderMapper::toDTO);
+
+        return OpenApiHelper.respondPage(resultPage, GetOrders200Response.class);
     }
 
     @Override
