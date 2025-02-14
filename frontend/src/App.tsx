@@ -14,7 +14,6 @@ import { App as AntdApp } from "antd";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { authProvider } from "./authProvider";
 import { AppIcon } from "./components/app-icon";
-import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 
 import { ForgotPassword } from "./pages/forgotPassword";
@@ -80,6 +79,7 @@ import CustomerProductShow from "./pages/customer/products/show";
 import { DashboardPage } from "./pages/dashboard";
 import { getResources } from "./config/resources";
 import { useTranslation } from "react-i18next";
+import CustomerHeader from "./components/header/customer-header";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -87,183 +87,206 @@ function App() {
   const i18nProvider: I18nProvider = {
     translate: (key: string, options?: any): string => String(t(key, options)),
     changeLocale: (lang: string) => {
-      i18n.changeLanguage(lang)
+      i18n.changeLanguage(lang);
       console.log("changeLocale", lang);
     },
     getLocale: () => i18n.language,
   };
   return (
-    (<BrowserRouter>
+    <BrowserRouter>
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <AntdApp>
-          <Provider store={store}>
-            <DevtoolsProvider>
-              <Refine
-                dataProvider={dataProvider(API_URL, axiosInstance)}
-                notificationProvider={notificationProvider}
-                // accessControlProvider={accessControlProvider}
-                authProvider={authProvider}
-                routerProvider={routerBindings}
-                i18nProvider={i18nProvider}
-                resources={getResources()}
-                options={{
-                  syncWithLocation: true,
-                  warnWhenUnsavedChanges: true,
-                  useNewQueryKeys: true,
-                  title: { text: "8lind8ox", icon: <AppIcon /> },
-                  projectId: "HC85dn-RQLFdc-7emtiC"
-                }}
-              >
-                <Routes>
-                  {/* Public Routes */}
-                  <Route
-                    element={
-                      <ClientLayout
-                        HeaderContent={() => <Header />}
-                        InnerContent={() => <Outlet />}
-                        FooterContent={() => <CustomerFooter />}
+            <Provider store={store}>
+              <DevtoolsProvider>
+                <Refine
+                  dataProvider={dataProvider(API_URL, axiosInstance)}
+                  notificationProvider={notificationProvider}
+                  // accessControlProvider={accessControlProvider}
+                  authProvider={authProvider}
+                  routerProvider={routerBindings}
+                  i18nProvider={i18nProvider}
+                  resources={getResources()}
+                  options={{
+                    syncWithLocation: true,
+                    warnWhenUnsavedChanges: true,
+                    useNewQueryKeys: true,
+                    title: { text: "8lind8ox", icon: <AppIcon /> },
+                    projectId: "HC85dn-RQLFdc-7emtiC",
+                  }}
+                >
+                  <Routes>
+                    {/* Public Routes */}
+                    <Route
+                      element={
+                        <ClientLayout
+                          HeaderContent={() => <CustomerHeader />}
+                          InnerContent={() => <Outlet />}
+                          FooterContent={() => <CustomerFooter />}
+                        />
+                      }
+                    >
+                      {/* Main Customer Routes */}
+                      <Route index element={<LandingPage />} />
+                      <Route path="products" element={<CustomerProducts />} />
+                      <Route
+                        path="products/:id"
+                        element={<CustomerProductShow />}
                       />
-                    }
-                  >
-                    {/* Main Customer Routes */}
-                    <Route index element={<LandingPage />} />
-                    <Route path="products" element={<CustomerProducts />} />
-                    <Route path="products/:id" element={<CustomerProductShow />} />
-                    <Route path="deals" element={<CustomerDeals />} />
-                    <Route path="blind-boxes" element={<BlindBoxesList />} />
-                    <Route path="blind-boxes/:id" element={<BlindBoxesShow />} />
-                    <Route path="packs" element={<PacksList />} />
-                    <Route path="packs/:id" element={<PacksShow />} />
-                    <Route path="orders" element={<OrdersList />} />
-                    <Route path="orders/:id" element={<CustomerOrders />} />
-
-                    
-                    {/* Customer Account Routes */}
-                    <Route
-                      path="account"
-                      element={
-                        <Authenticated 
-                          key={"authenticated"}
-                        fallback={<Navigate to="/login" />}>
-                          <AccountLayout />
-                        </Authenticated>
-                      }
-                    >
-                      <Route path="profile" element={<ProfilePage />} />
-                      <Route path="security" element={<SecuritySettings />} />
-                      <Route path="wallet" element={<WalletSettings />} />
+                      <Route path="deals" element={<CustomerDeals />} />
+                      <Route path="blind-boxes" element={<BlindBoxesList />} />
+                      <Route
+                        path="blind-boxes/:id"
+                        element={<BlindBoxesShow />}
+                      />
+                      <Route path="packs" element={<PacksList />} />
+                      <Route path="packs/:id" element={<PacksShow />} />
                       <Route path="orders" element={<OrdersList />} />
-                      <Route path="orders/:id" element={<OrdersShow />} />
-                    </Route>
+                      <Route path="orders/:id" element={<CustomerOrders />} />
 
-                    {/* Cart and Checkout */}
-                    <Route path="cart" element={<CartPage />} />
-                    <Route
-                      path="checkout"
-                      element={
-                        <Authenticated 
-                          key={"authenticated"}
-                        fallback={<Navigate to="/login" />}>
-                          <Outlet />
-                        </Authenticated>
-                      }
-                    >
-                      <Route index element={<CheckoutPage />} />
-                      <Route path="success" element={<OrderSuccess />} />
-                      <Route path="failed" element={<OrderFailed />} />
-                    </Route>
+                      {/* Customer Account Routes */}
+                      <Route
+                        path="account"
+                        element={
+                          <Authenticated
+                            key={"authenticated"}
+                            fallback={<Navigate to="/login" />}
+                          >
+                            <AccountLayout />
+                          </Authenticated>
+                        }
+                      >
+                        <Route path="profile" element={<ProfilePage />} />
+                        <Route path="security" element={<SecuritySettings />} />
+                        <Route path="wallet" element={<WalletSettings />} />
+                        <Route path="orders" element={<OrdersList />} />
+                        <Route path="orders/:id" element={<OrdersShow />} />
+                      </Route>
 
-                  </Route>
+                      {/* Cart and Checkout */}
+                      <Route path="cart" element={<CartPage />} />
+                      <Route
+                        path="checkout"
+                        element={
+                          <Authenticated
+                            key={"authenticated"}
+                            fallback={<Navigate to="/login" />}
+                          >
+                            <Outlet />
+                          </Authenticated>
+                        }
+                      >
+                        <Route index element={<CheckoutPage />} />
+                        <Route path="success" element={<OrderSuccess />} />
+                        <Route path="failed" element={<OrderFailed />} />
+                      </Route>
+                    </Route>
 
                     {/* Auth Routes */}
                     <Route path="login" element={<Login />} />
                     <Route path="register" element={<Register />} />
-                    <Route path="forgot-password" element={<ForgotPassword />} />
+                    <Route
+                      path="forgot-password"
+                      element={<ForgotPassword />}
+                    />
                     <Route path="reset-password" element={<ResetPassword />} />
-                  {/* Admin Routes */}
-                  <Route
-                    path="admin"
-                    element={
-                      localStorage.getItem("role") === "ADMIN" ? (
-                        <Authenticated
-                          key="authenticated-admin"
-                          fallback={<Navigate to="/login" replace />}
-                        >
-                          <ThemedLayoutV2
-                            Header={Header}
-                            Sider={(props) => <ThemedSiderV2 {...props} fixed />}
+                    {/* Admin Routes */}
+                    <Route
+                      path="admin"
+                      element={
+                        localStorage.getItem("role") === "ADMIN" ? (
+                          <Authenticated
+                            key="authenticated-admin"
+                            fallback={<Navigate to="/login" replace />}
                           >
-                            <Outlet />
-                          </ThemedLayoutV2>
-                        </Authenticated>
-                      ) : (
-                        <Navigate to="/" />
-                      )
-                    }
-                  >
-                    <Route index element={<NavigateToResource resource="dashboard" />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    
-                    {/* Admin Management Routes */}
-                    <Route path="accounts">
-                      <Route index element={<AccountsList />} />
-                      <Route path="create" element={<UsersCreate />} />
-                      <Route path="edit/:id" element={<AccountsEdit />} />
-                      <Route path="show/:id" element={<AccountsShow />} />
+                            <ThemedLayoutV2
+                              Header={CustomerHeader}
+                              Sider={(props) => (
+                                <ThemedSiderV2 {...props} fixed />
+                              )}
+                            >
+                              <Outlet />
+                            </ThemedLayoutV2>
+                          </Authenticated>
+                        ) : (
+                          <Navigate to="/" />
+                        )
+                      }
+                    >
+                      <Route
+                        index
+                        element={<NavigateToResource resource="dashboard" />}
+                      />
+                      <Route path="dashboard" element={<DashboardPage />} />
+
+                      {/* Admin Management Routes */}
+                      <Route path="accounts">
+                        <Route index element={<AccountsList />} />
+                        <Route path="create" element={<UsersCreate />} />
+                        <Route path="edit/:id" element={<AccountsEdit />} />
+                        <Route path="show/:id" element={<AccountsShow />} />
+                      </Route>
+
+                      <Route path="brands">
+                        <Route index element={<BrandsList />} />
+                        <Route path="create" element={<BrandsCreate />} />
+                        <Route path="edit/:id" element={<BrandsEdit />} />
+                        <Route path="show/:id" element={<BrandsShow />} />
+                      </Route>
+
+                      <Route path="blind-boxes">
+                        <Route index element={<BlindBoxesList />} />
+                        <Route path="create" element={<BlindBoxesCreate />} />
+                        <Route path="edit/:id" element={<BlindBoxesEdit />} />
+                        <Route path="show/:id" element={<BlindBoxesShow />} />
+                      </Route>
+
+                      <Route path="packs">
+                        <Route index element={<PacksList />} />
+                        <Route path="create" element={<PacksCreate />} />
+                        <Route path="edit/:id" element={<PacksEdit />} />
+                        <Route path="show/:id" element={<PacksShow />} />
+                      </Route>
+
+                      <Route path="orders">
+                        <Route index element={<OrdersList />} />
+                        <Route path="create" element={<OrdersCreate />} />
+                        <Route path="edit/:id" element={<OrdersEdit />} />
+                        <Route path="show/:id" element={<OrdersShow />} />
+                      </Route>
+
+                      <Route path="promotional-campaigns">
+                        <Route index element={<PromotionalCampaignsList />} />
+                        <Route
+                          path="create"
+                          element={<PromotionalCampaignsCreate />}
+                        />
+                        <Route
+                          path="edit/:id"
+                          element={<PromotionalCampaignsEdit />}
+                        />
+                        <Route
+                          path="show/:id"
+                          element={<PromotionalCampaignsShow />}
+                        />
+                      </Route>
                     </Route>
 
-                    <Route path="brands">
-                      <Route index element={<BrandsList />} />
-                      <Route path="create" element={<BrandsCreate />} />
-                      <Route path="edit/:id" element={<BrandsEdit />} />
-                      <Route path="show/:id" element={<BrandsShow />} />
-                    </Route>
+                    {/* Catch-all Error Route */}
+                    <Route path="*" element={<ErrorComponent />} />
+                  </Routes>
 
-                    <Route path="blind-boxes">
-                      <Route index element={<BlindBoxesList />} />
-                      <Route path="create" element={<BlindBoxesCreate />} />
-                      <Route path="edit/:id" element={<BlindBoxesEdit />} />
-                      <Route path="show/:id" element={<BlindBoxesShow />} />
-                    </Route>
-
-                    <Route path="packs">
-                      <Route index element={<PacksList />} />
-                      <Route path="create" element={<PacksCreate />} />
-                      <Route path="edit/:id" element={<PacksEdit />} />
-                      <Route path="show/:id" element={<PacksShow />} />
-                    </Route>
-
-                    <Route path="orders">
-                      <Route index element={<OrdersList />} />
-                      <Route path="create" element={<OrdersCreate />} />
-                      <Route path="edit/:id" element={<OrdersEdit />} />
-                      <Route path="show/:id" element={<OrdersShow />} />
-                    </Route>
-
-                    <Route path="promotional-campaigns">
-                      <Route index element={<PromotionalCampaignsList />} />
-                      <Route path="create" element={<PromotionalCampaignsCreate />} />
-                      <Route path="edit/:id" element={<PromotionalCampaignsEdit />} />
-                      <Route path="show/:id" element={<PromotionalCampaignsShow />} />
-                    </Route>
-                  </Route>
-
-                  {/* Catch-all Error Route */}
-                  <Route path="*" element={<ErrorComponent />} />
-                </Routes>
-
-                <RefineKbar />
-                <UnsavedChangesNotifier />
-                <DocumentTitleHandler />
-              </Refine>
-              <DevtoolsPanel />
-            </DevtoolsProvider>
+                  <RefineKbar />
+                  <UnsavedChangesNotifier />
+                  <DocumentTitleHandler />
+                </Refine>
+                <DevtoolsPanel />
+              </DevtoolsProvider>
             </Provider>
           </AntdApp>
         </ColorModeContextProvider>
       </RefineKbarProvider>
-    </BrowserRouter>)
+    </BrowserRouter>
   );
 }
 
