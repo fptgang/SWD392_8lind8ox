@@ -5,7 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface TransactionService {
-    Transaction create(Transaction transaction);
+    String createVNPay(Transaction transaction,String vnp_IpAddr);
+    String create(Transaction transaction,String vnp_IpAddr);
     Transaction findById(long id);
     Transaction update(Transaction transaction);
     Transaction deleteById(long id);

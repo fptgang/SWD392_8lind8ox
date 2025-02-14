@@ -33,6 +33,9 @@ public class Order {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Transaction transaction;
+
     //TODO: add shipping info
 
     @CreationTimestamp

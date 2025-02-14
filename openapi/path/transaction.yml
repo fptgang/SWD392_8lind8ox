@@ -46,7 +46,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: '../model/transaction.yml#/TransactionDto'
+            type: string
     '400':
       description: The operation failed
       content:
