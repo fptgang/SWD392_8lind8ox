@@ -14,6 +14,7 @@ import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,23 +47,42 @@ public class TransactionController implements TransactionsApi {
 
     @Override
     public ResponseEntity<String> createTransaction(TransactionDto transactionDto) {
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only admin can create transactions");
+        }
         String response = transactionService.create(transactionMapper.toEntity(transactionDto), SecurityUtil.getRemoteAddress());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<TransactionDto> getTransactionById(Long transactionId) {
-        log.info("Getting transaction by id " + transactionId);
+        log.info("Getting transaction by id {}", transactionId);
+        Transaction transaction = transactionService.findById(transactionId);
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            String currentEmail = SecurityUtil.requireCurrentUserEmail();
+            if (!transaction.getAccount().getEmail().equalsIgnoreCase(currentEmail)) {
+                throw new AccessDeniedException("You are not allowed to view this transaction");
+            }
+        }
         return new ResponseEntity<>(transactionMapper.toDTO(transactionService.findById(transactionId)), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<GetTransactions200Response> getTransactions(Pageable pageable, String filter, String search) {
-        log.info("Getting transactions");
+        log.info("Fetching transactions");
+        boolean includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+
+        // If the user is not an admin, only allow fetching their own transactions
+        if (!includeInvisible) {
+            String userEmail = SecurityUtil.requireCurrentUserEmail();
+            filter = (filter == null ? "" : filter + ",") + "account.email,eq," + userEmail;
+        }
+
         var page = OpenApiHelper.toPageable(pageable);
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = transactionService.getAll(page, filter, includeInvisible).map(transactionMapper::toDTO);
-        return OpenApiHelper.respondPage(res, GetTransactions200Response.class);
+        var resultPage = transactionService.getAll(page, filter, includeInvisible)
+                .map(transactionMapper::toDTO);
+
+        return OpenApiHelper.respondPage(resultPage, GetTransactions200Response.class);
     }
 
     @GetMapping("/vnpay_ipn")

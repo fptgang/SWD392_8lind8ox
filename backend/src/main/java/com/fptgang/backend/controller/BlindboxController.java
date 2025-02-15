@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -40,6 +41,9 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<BlindBoxDto> createBlindBox(BlindBoxDto blindBoxDto) {
+        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+            throw new AccessDeniedException("Only staff and admins can create blind boxes.");
+        }
         ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
                 .toDTO(blindBoxService.create(blindBoxMapper.toEntity(blindBoxDto))), HttpStatus.CREATED);
         return response;
@@ -47,6 +51,9 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<Void> deleteBlindBox(Long blindBoxId) {
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only admins can delete blind boxes.");
+        }
         return BlindBoxesApi.super.deleteBlindBox(blindBoxId);
     }
 
@@ -79,6 +86,9 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<BlindBoxDto> updateBlindBox(Long blindBoxId, BlindBoxDto blindBoxDto) {
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only staff and admins can update blind boxes.");
+        }
         blindBoxDto.setBlindBoxId(blindBoxId); // Override blindBoxId
 
         ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
