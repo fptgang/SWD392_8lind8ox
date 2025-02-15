@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -40,6 +41,9 @@ public class SetController implements SetsApi {
     @Override
     public ResponseEntity<SetDto> createSet(SetDto setDto) {
         log.info("Creating set");
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only admin can create sets");
+        }
         ResponseEntity<SetDto> response = new ResponseEntity<>(setMapper
                 .toDTO(setService.create(setMapper.toEntity(setDto))), HttpStatus.CREATED);
         return response;
@@ -48,6 +52,9 @@ public class SetController implements SetsApi {
     @Override
     public ResponseEntity<Void> deleteSet(Long setId) {
         log.info("Deleting set " + setId);
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only admin can delete sets");
+        }
         setService.deleteById(setId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -55,6 +62,9 @@ public class SetController implements SetsApi {
     @Override
     public ResponseEntity<SetDto> getSetById(Long setId) {
         log.info("Getting set by id " + setId);
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only admins can view detailed set info.");
+        }
         return new ResponseEntity<>(setMapper.toDTO(setService.findById(setId)), HttpStatus.OK);
     }
 
@@ -70,8 +80,9 @@ public class SetController implements SetsApi {
     @Override
     public ResponseEntity<SetDto> updateSet(Long setId, SetDto setDto) {
         setDto.setSetId(setId); // Override setId
-
-        log.info("Updating set " + setId);
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only admins can update sets.");
+        }
         return ResponseEntity.ok(setMapper.toDTO(setService.update(setMapper.toEntity(setDto))));
     }
 }
