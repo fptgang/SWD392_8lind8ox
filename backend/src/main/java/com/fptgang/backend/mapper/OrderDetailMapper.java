@@ -33,7 +33,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
 
         if (existingOrderDetailOptional.isPresent() && dto.getOrderDetailId() != null) {
             OrderDetail existingOrderDetail = existingOrderDetailOptional.get();
-            existingOrderDetail.setCheckoutPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : existingOrderDetail.getCheckoutPrice());
+            existingOrderDetail.setCheckoutPrice(dto.getCheckoutPrice() != null ? dto.getCheckoutPrice() : existingOrderDetail.getCheckoutPrice());
             existingOrderDetail.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : existingOrderDetail.getOriginalPrice());
             if (dto.getOrderId() != null) {
                 existingOrderDetail.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
@@ -51,7 +51,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         } else {
             OrderDetail entity = new OrderDetail();
 //            entity.setOrderDetailId(dto.getOrderDetailId());
-            entity.setCheckoutPrice(dto.getDiscountPrice() != null ? dto.getDiscountPrice() : entity.getCheckoutPrice());
+            entity.setCheckoutPrice(dto.getCheckoutPrice() != null ? dto.getCheckoutPrice() : entity.getCheckoutPrice());
             entity.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : entity.getOriginalPrice());
             if (dto.getOrderId() != null) {
                 entity.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
@@ -83,7 +83,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
 
         OrderDetailDto dto = new OrderDetailDto();
         dto.setOrderDetailId(entity.getOrderDetailId());
-        dto.setDiscountPrice(entity.getCheckoutPrice());
+        dto.setCheckoutPrice(entity.getCheckoutPrice());
         dto.setOriginalProductPrice(entity.getOriginalPrice());
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
         dto.setSkuId(entity.getStockKeepingUnit() != null ? entity.getStockKeepingUnit().getSkuId() : null);

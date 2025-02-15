@@ -31,9 +31,9 @@ OrderDetailDto:
     originalProductPrice:
       type: number
       format: double
-    discountPrice:
-      type: number
-      format: double
+#    discountPrice:
+#      type: number
+#      format: double
 #    requestUnbox:
 #      type: boolean
 #    unboxedToys:
