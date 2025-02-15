@@ -1,5 +1,6 @@
 package com.fptgang.backend.controller;
 
+import com.fptgang.backend.model.Order;
 import com.fptgang.backend.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class MailController {
     @PostMapping("/send")
     public ResponseEntity<?> sendMail(@RequestParam String to) {
         try {
-            String from = "Nguoi Yeu Cua Duyen <vi@mail.biddify.fun>";
+            String from = "";
             String subject = "Happy New Year From your boyfriend";
             String html = "<h1>your gift below</h1><p><a href=\"https://happy-new-year-my-mimi-hj4h.vercel.app/\">Click here</a></p>";
             emailService.sendMail(
@@ -38,5 +39,6 @@ public class MailController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send email");
         }
     }
+
 
 }
