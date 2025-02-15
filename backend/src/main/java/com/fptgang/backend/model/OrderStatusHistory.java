@@ -35,7 +35,7 @@ public class OrderStatusHistory {
     private LocalDateTime createdAt;
 
     public enum State {
-        CREATED, COURIER_ACCEPTED, SHIPPING, DELIVERED, RECEIVED, COMPLETED
+        CREATED, COURIER_ACCEPTED, SHIPPING, DELIVERED, RECEIVED, COMPLETED, CANCELED
     }
 
 }
