@@ -18,7 +18,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,8 +41,6 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final PasswordResetTokenService passwordResetTokenService;
     private final AccountMapper accountMapper;
-    @Value("${FRONTEND_CORS_SERVER}")
-    private String link;
 
     public AuthServiceImpl(AccountRepos accountRepos,
                            JwtService tokenService,
@@ -165,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
         String resetToken = passwordResetTokenService.generateToken(dto.getEmail());
 
         // Create reset password link
-        String resetLink =link + "/reset-password?token=" + resetToken;
+        String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
 
         // Send email
         String emailBody = String.format("""
