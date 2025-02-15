@@ -4,14 +4,12 @@ import com.fptgang.backend.api.controller.ImagesApi;
 import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.ImageMapper;
 import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Image;
 import com.fptgang.backend.service.ImageService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -41,9 +39,6 @@ public class ImageController implements ImagesApi {
 
     @Override
     public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
-            throw new AccessDeniedException("Only staff and admins can upload images.");
-        }
         ImageDto dto = new ImageDto()
                 .uploaderId(uploaderId)
                 .blindBoxId(blindBoxId)
@@ -56,9 +51,6 @@ public class ImageController implements ImagesApi {
     @Override
     public ResponseEntity<Void> deleteImage(Long imageId) {
         log.info("Deleting image " + imageId);
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admins can delete images.");
-        }
         imageService.deleteById(imageId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -66,16 +58,7 @@ public class ImageController implements ImagesApi {
     @Override
     public ResponseEntity<ImageDto> getImageById(Long imageId) {
         log.info("Getting image by id " + imageId);
-        Image image = imageService.findById(imageId);
-
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            Long currentUserId = SecurityUtil.requireCurrentUserId();
-            if (!image.getUploader().getAccountId().equals(currentUserId)) {
-                throw new AccessDeniedException("You can only view images you uploaded.");
-            }
-        }
-
-        return new ResponseEntity<>(imageMapper.toDTO(image), HttpStatus.OK);
+        return new ResponseEntity<>(imageMapper.toDTO(imageService.findById(imageId)), HttpStatus.OK);
     }
 
     @Override
@@ -89,9 +72,6 @@ public class ImageController implements ImagesApi {
 
     @Override
     public ResponseEntity<ImageDto> updateImage(Long imageId, Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admins can update images.");
-        }
         ImageDto dto = new ImageDto()
                 .imageId(imageId)
                 .uploaderId(uploaderId)

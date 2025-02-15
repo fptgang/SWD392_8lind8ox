@@ -10,7 +10,6 @@ import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -37,9 +36,6 @@ public class BrandController implements BrandsApi{
 
     @Override
     public ResponseEntity<BrandDto> createBrand(BrandDto brandDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
-            throw new AccessDeniedException("Only staff and admins can create brands.");
-        }
         log.info("Creating brand");
         ResponseEntity<BrandDto> response = new ResponseEntity<>(brandMapper
                 .toDTO(brandService.create(brandMapper.toEntity(brandDto))), HttpStatus.CREATED);
@@ -49,9 +45,6 @@ public class BrandController implements BrandsApi{
     @Override
     public ResponseEntity<Void> deleteBrand(Long brandId) {
         log.info("Deleting brand " + brandId);
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admins can delete brands.");
-        }
         brandService.deleteById(brandId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -79,9 +72,6 @@ public class BrandController implements BrandsApi{
 
     @Override
     public ResponseEntity<BrandDto> updateBrand(Long brandId, BrandDto brandDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
-            throw new AccessDeniedException("Only staff and admins can update brands.");
-        }
         brandDto.setBrandId(brandId); // Override brandId
 
         log.info("Updating brand " + brandId);

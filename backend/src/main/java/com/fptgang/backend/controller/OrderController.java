@@ -4,14 +4,12 @@ import com.fptgang.backend.api.controller.OrdersApi;
 import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.OrderMapper;
 import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Order;
 import com.fptgang.backend.service.OrderService;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -37,9 +35,6 @@ public class OrderController implements OrdersApi {
     @Override
     public ResponseEntity<OrderDto> createOrder(OrderDto orderDto) {
         log.info("Creating order");
-        if (!SecurityUtil.hasPermission(Account.Role.CUSTOMER)) {
-            throw new AccessDeniedException("Only customers can create orders.");
-        }
         ResponseEntity<OrderDto> response = new ResponseEntity<>(orderMapper
                 .toDTO(orderService.create(orderMapper.toEntity(orderDto))), HttpStatus.CREATED);
         return response;
@@ -48,9 +43,6 @@ public class OrderController implements OrdersApi {
     @Override
     public ResponseEntity<Void> deleteOrder(Long orderId) {
         log.info("Deleting order " + orderId);
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admins can delete orders.");
-        }
         orderService.deleteById(orderId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -58,17 +50,7 @@ public class OrderController implements OrdersApi {
     @Override
     public ResponseEntity<OrderDto> getOrderById(Long orderId) {
         log.info("Getting order by id " + orderId);
-        Order order = orderService.findById(orderId);
-
-        // Restrict customers to their own orders
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            String currentEmail = SecurityUtil.requireCurrentUserEmail();
-            if (!order.getAccount().getEmail().equalsIgnoreCase(currentEmail)) {
-                throw new AccessDeniedException("You can only view your own orders.");
-            }
-        }
-
-        return new ResponseEntity<>(orderMapper.toDTO(order), HttpStatus.OK);
+        return new ResponseEntity<>(orderMapper.toDTO(orderService.findById(orderId)), HttpStatus.OK);
     }
 
     @Override
