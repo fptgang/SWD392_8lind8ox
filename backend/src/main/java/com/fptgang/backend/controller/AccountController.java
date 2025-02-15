@@ -12,6 +12,7 @@ import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +43,9 @@ public class AccountController implements AccountsApi {
     @Override
     public ResponseEntity<Void> deleteAccount(Long accountId) {
         log.info("Deleting account" + accountId);
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            throw new AccessDeniedException("Only admins can delete accounts.");
+        }
         accountService.deleteById(accountId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -56,16 +60,24 @@ public class AccountController implements AccountsApi {
     public ResponseEntity<GetAccounts200Response> getAccounts(Pageable pageable, String filter, String search) {
         log.info("Getting accounts");
         var page = OpenApiHelper.toPageable(pageable);
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = accountService
-                .getAll(page, filter, search, includeInvisible)
-                .map(accountMapper::toDTO);
-        return OpenApiHelper.respondPage(res, GetAccounts200Response.class);
+        boolean includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+
+        if (!includeInvisible && SecurityUtil.isRole(Account.Role.STAFF)) {
+            filter = (filter == null ? "" : filter + ",") + "role,eq,CUSTOMER";
+        }
+
+        if (SecurityUtil.isRole(Account.Role.CUSTOMER)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        var resultPage = accountService.getAll(page, filter, search, includeInvisible).map(accountMapper::toDTO);
+        return OpenApiHelper.respondPage(resultPage, GetAccounts200Response.class);
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AccountDto> updateAccount(Long accountId, AccountDto accountDto) {
+       
         accountDto.setAccountId(accountId); // Override accountId
 
         log.info("Updating account {}", accountId);
