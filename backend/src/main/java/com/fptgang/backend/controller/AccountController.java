@@ -60,18 +60,11 @@ public class AccountController implements AccountsApi {
     public ResponseEntity<GetAccounts200Response> getAccounts(Pageable pageable, String filter, String search) {
         log.info("Getting accounts");
         var page = OpenApiHelper.toPageable(pageable);
-        boolean includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-
-        if (!includeInvisible && SecurityUtil.isRole(Account.Role.STAFF)) {
-            filter = (filter == null ? "" : filter + ",") + "role,eq,CUSTOMER";
-        }
-
-        if (SecurityUtil.isRole(Account.Role.CUSTOMER)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        var resultPage = accountService.getAll(page, filter, search, includeInvisible).map(accountMapper::toDTO);
-        return OpenApiHelper.respondPage(resultPage, GetAccounts200Response.class);
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var res = accountService
+                .getAll(page, filter, search, includeInvisible)
+                .map(accountMapper::toDTO);
+        return OpenApiHelper.respondPage(res, GetAccounts200Response.class);
     }
 
     @Override
