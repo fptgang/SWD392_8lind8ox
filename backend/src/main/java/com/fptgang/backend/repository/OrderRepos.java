@@ -21,7 +21,7 @@ public interface OrderRepos extends JpaRepository<Order, Long>, JpaSpecification
 
     // Query to sum daily revenue
     @Query("""
-        SELECT DATE(o.createdAt) AS date, SUM(o.totalPrice) AS totalRevenue
+        SELECT DATE(o.createdAt) AS date, SUM(o.checkoutPrice) AS totalRevenue
         FROM Order o
         GROUP BY DATE(o.createdAt)
         ORDER BY DATE(o.createdAt)
@@ -30,7 +30,7 @@ public interface OrderRepos extends JpaRepository<Order, Long>, JpaSpecification
 
     // Monthly Revenue
     @Query("""
-        SELECT DATE_FORMAT(o.createdAt, '%Y-%m') AS month, SUM(o.totalPrice) AS totalRevenue
+        SELECT DATE_FORMAT(o.createdAt, '%Y-%m') AS month, SUM(o.checkoutPrice) AS totalRevenue
         FROM Order o
         GROUP BY DATE_FORMAT(o.createdAt, '%Y-%m')
         ORDER BY DATE_FORMAT(o.createdAt, '%Y-%m')
