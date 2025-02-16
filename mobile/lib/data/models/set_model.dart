@@ -2,7 +2,7 @@ import 'package:openapi/api.dart';
 
 class SetModel {
   int? setId;
-  double? currentPrice;
+  double currentPrice;
   List<ImageDto> imageIds;
   bool? isVisible;
   List<SlotDto> slots;
@@ -12,7 +12,7 @@ class SetModel {
 
   SetModel({
     this.setId,
-    this.currentPrice,
+    required this.currentPrice,
     this.imageIds = const [],
     this.isVisible,
     this.slots = const [],
@@ -23,7 +23,7 @@ class SetModel {
 
   List<Object> get props => [
     setId!,
-    currentPrice!,
+    currentPrice,
     imageIds,
     isVisible!,
     slots,

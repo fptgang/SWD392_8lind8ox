@@ -23,4 +23,6 @@ class LocaleCubit extends Cubit<Locale> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('languageCode', locale.languageCode);
   }
+
+  String get languageCode => state.languageCode;
 }

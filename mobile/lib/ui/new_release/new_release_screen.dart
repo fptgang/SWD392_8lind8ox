@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mobile/data/repositories/set_repository.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/new_release/widget/drawer.dart';
 
-import '../../cubit/category_cubit/category_cubit.dart';
+import '../../cubit/set_cubit/set_cubit.dart';
+import '../../di/injection.dart';
+
 
 class NewReleasesScreen extends StatelessWidget {
   final List<Map<String, String>> allProducts = [
@@ -19,7 +22,7 @@ class NewReleasesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CategoryCubit(),
+      create: (context) => SetCubit(getIt<SetRepository>())..getSets(),
       child: Scaffold(
         drawer: CategoryDrawer(),
         appBar: AppBar(
@@ -42,35 +45,34 @@ class NewReleasesScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BlocBuilder<CategoryCubit, String>(
-                builder: (context, selectedCategory) {
-                  // Filter products based on category
-                  final filteredProducts = allProducts
-                      .where((product) => selectedCategory == "Popular" || product["category"] == selectedCategory)
-                      .toList();
-
-                  return Expanded(
-                    child: GridView.builder(
-                      padding: EdgeInsets.only(top: 8.h),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12.w,
-                        mainAxisSpacing: 12.h,
-                        childAspectRatio: 0.75,
-                      ),
-                      itemCount: filteredProducts.length,
-                      itemBuilder: (context, index) {
-                        final product = filteredProducts[index];
-                        return buildProductItem(
-                          product["image"]!,
-                          product["title"]!,
-                          product["price"]!,
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
+              // BlocBuilder<SetCubit, String>(
+              //   builder: (context, selectedCategory) {
+              //     final filteredProducts = allProducts
+              //         .where((product) => selectedCategory == "Popular" || product["category"] == selectedCategory)
+              //         .toList();
+              //
+              //     return Expanded(
+              //       child: GridView.builder(
+              //         padding: EdgeInsets.only(top: 8.h),
+              //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              //           crossAxisCount: 2,
+              //           crossAxisSpacing: 12.w,
+              //           mainAxisSpacing: 12.h,
+              //           childAspectRatio: 0.75,
+              //         ),
+              //         itemCount: filteredProducts.length,
+              //         itemBuilder: (context, index) {
+              //           final product = filteredProducts[index];
+              //           return buildProductItem(
+              //             product["image"]!,
+              //             product["title"]!,
+              //             product["price"]!,
+              //           );
+              //         },
+              //       ),
+              //     );
+              //   },
+              // ),
             ],
           ),
         ),
@@ -135,3 +137,5 @@ class NewReleasesScreen extends StatelessWidget {
     );
   }
 }
+
+

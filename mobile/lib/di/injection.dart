@@ -6,6 +6,7 @@ import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/blindbox_detail/blindbox_detail_bloc.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/cubit/locale_cubit/locale_cubit.dart';
+import 'package:mobile/cubit/set_cubit/set_cubit.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
 import 'package:mobile/data/repositories/brand_repository.dart';
 import 'package:mobile/data/repositories/implement/account_repository_impl.dart';
@@ -46,7 +47,7 @@ Future<void> configureDependencies() async {
           () => DefaultApi(ApiClient(basePath: dotenv.env['BASE_URL'] ?? '')..authentication?.applyToParams([], {
         "Authorization": "Bearer ${box.get('loginToken')}",
       })));
-
+  getIt.registerLazySingleton<SetCubit>(() => SetCubit(getIt<SetRepository>()));
 
   //factory
   getIt.registerFactory<AuthenticationBloc>(() => AuthenticationBloc(
@@ -61,6 +62,6 @@ Future<void> configureDependencies() async {
 
   //cubit factory
   getIt.registerFactory<DropdownCubit>(() => DropdownCubit(getIt<LocaleCubit>()));
-  getIt.registerFactory<CartCubit>(() => CartCubit());
+  getIt.registerLazySingleton<CartCubit>(() => CartCubit());
   getIt.registerFactory<BlindBoxesCubit>(() => BlindBoxesCubit(getIt<BlindBoxRepository>()));
 }

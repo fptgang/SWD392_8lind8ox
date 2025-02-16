@@ -27,7 +27,6 @@ class BlindBoxDetailBloc extends Bloc<BlindBoxDetailEvent, BlindBoxDetailState> 
 
     try {
       debugPrint('Calling repository for ID: ${event.id}');
-      // Change this line to use event.id instead of state.id
       final blindBox = await _blindBoxRepository.getBlindBoxById(event.id);
 
       debugPrint('Repository returned data:');

@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
+import 'package:mobile/cubit/set_cubit/set_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
@@ -129,9 +130,9 @@ class MyApp extends StatelessWidget {
             create: (context) => getIt<AuthenticationBloc>()
               ..add(AuthenticationSubscriptionRequested()),
           ),
-          BlocProvider(create: (_) =>getIt<LocaleCubit>()),
+          BlocProvider(create: (_) => getIt<LocaleCubit>()),
           BlocProvider(create: (_) => getIt<DropdownCubit>()),
-          BlocProvider(create: (_) => CartCubit()),
+          BlocProvider(create: (_) => getIt<CartCubit>()),
         ],
         child: const AppView(),
       ),

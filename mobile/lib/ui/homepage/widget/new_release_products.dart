@@ -1,8 +1,14 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_state.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
+
+import '../../../cubit/blindbox_list_cubit/blindbox_list_cubit.dart';
+import '../../../di/injection.dart';
 
 
 class NewReleaseProducts extends StatelessWidget {
@@ -10,78 +16,84 @@ class NewReleaseProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> newReleases = [
-      {
-        "image": "assets/jpg/blind_box.jpg",
-        "title": "Labubu Special Edition",
-        "subtitle": "8 Variants + 1 Hidden",
-      },
-      {
-        "image": "assets/jpg/blind_box.jpg",
-        "title": "Dimoo Fairy Tale",
-        "subtitle": "6 Variants + 1 Hidden",
-      },
-      {
-        "image": "assets/jpg/blind_box.jpg",
-        "title": "Molly Beach Set",
-        "subtitle": "Limited Edition",
-      },
-      {
-        "image": "assets/jpg/blind_box.jpg",
-        "title": "Bobo & Coco",
-        "subtitle": "New Release",
-      },
-    ];
+    final blindBoxesCubit = getIt<BlindBoxesCubit>();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Text(
-            "New Release Products",
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: getColorSkin().black,
-            ),
-          ),
-        ),
-        SizedBox(height: 12.h),
-        SizedBox(
-          height: 200.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            itemCount: newReleases.length,
-            itemBuilder: (context, index) {
-              final product = newReleases[index];
-              return NewReleaseProductCard(
-                imageUrl: product["image"]!,
-                title: product["title"]!,
-                subtitle: product["subtitle"]!,
-                onTap: () {
-                  // Handle product tap
-                },
-              );
-            },
-          ),
-        ),
-      ],
+    return BlocProvider(
+      create: (context) => blindBoxesCubit..getNewReleaseBlindBoxes(),
+      child: BlocBuilder<BlindBoxesCubit, BlindBoxesState>(
+        builder: (context, state) {
+          if (state.isLoading == true && (state.blindBoxes?.content.isEmpty ?? true)) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if ((state.error?.isNotEmpty ?? false) && (state.blindBoxes?.content.isEmpty ?? true)) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${state.error}'),
+                  ElevatedButton(
+                    onPressed: () => context.read<BlindBoxesCubit>().refresh(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final blindBoxes = state.blindBoxes?.content ?? [];
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Text(
+                  "New Release Products",
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: getColorSkin().black,
+                  ),
+                ),
+              ),
+              SizedBox(height: 12.h),
+              SizedBox(
+                height: 200.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  itemCount: blindBoxes.length,
+                  itemBuilder: (context, index) {
+                    return NewReleaseProductCard(
+                      imageUrl: blindBoxes[index].images[0].imageUrl ?? "",
+                      title: blindBoxes[index].name ?? "Blind Box",
+                      price: blindBoxes[index].skus.firstWhere((sku) => sku.blindBoxId == blindBoxes[index].blindBoxId).price ?? 0.0,
+                      onTap: () {
+                        context.push('/blind-box-detail/${blindBoxes[index].blindBoxId}');
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+    ),
     );
   }
 }
 class NewReleaseProductCard extends StatelessWidget {
   final String imageUrl;
   final String title;
-  final String subtitle;
+  final double price;
   final VoidCallback onTap;
 
   const NewReleaseProductCard({
     super.key,
     required this.imageUrl,
     required this.title,
-    required this.subtitle,
+    required this.price,
     required this.onTap,
   });
 
@@ -109,7 +121,7 @@ class NewReleaseProductCard extends StatelessWidget {
             // Product Image
             ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-              child: Image.asset(
+              child: Image.network(
                 imageUrl,
                 height: 120.h,
                 width: double.infinity,
@@ -133,7 +145,7 @@ class NewReleaseProductCard extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    subtitle,
+                    "\$${price.toStringAsFixed(2)}",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

@@ -3,17 +3,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/cubit/cart_cubit/cart_state.dart';
+import 'package:mobile/ui/cart/widget/cart_item.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../../di/injection.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CartCubit()..loadCart(),
+    return BlocProvider.value(
+      value: getIt<CartCubit>(),
       child: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
         appBar: AppBar(
@@ -52,113 +55,15 @@ class CartScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    padding: EdgeInsets.all(16.w),
                     itemCount: state.items.length,
                     itemBuilder: (context, index) {
                       final item = state.items[index];
-                      return Dismissible(
-                        key: Key(item.id.toString()),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        onDismissed: (direction) {
-                          context.read<CartCubit>().removeFromCart(item.productName);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                          child: Row(
-                            children: [
-                              Image.network(
-                                item.image,
-                                width: 80.w,
-                                height: 80.h,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'assets/jpg/blind_box.jpg',
-                                    width: 80.w,
-                                    height: 80.h,
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              ),
-                              SizedBox(width: 12.w),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.productName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8.h),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                              color: getColorSkin().primaryRed200,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.remove,
-                                                  size: 16,
-                                                  color: getColorSkin().primaryRed800,
-                                                ),
-                                                onPressed: () {
-                                                  context.read<CartCubit>().updateQuantity(
-                                                    item.productName,
-                                                    item.quantity - 1,
-                                                  );
-                                                },
-                                              ),
-                                              Text(
-                                                item.quantity.toString(),
-                                                style: const TextStyle(fontSize: 14),
-                                              ),
-                                              IconButton(
-                                                icon: Icon(Icons.add, size: 16, color: getColorSkin().primaryRed800,),
-                                                onPressed: () {
-                                                  context.read<CartCubit>().updateQuantity(
-                                                    item.productName,
-                                                    item.quantity + 1,
-                                                  );
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Text(
-                                          "\$${(item.price * item.quantity).toStringAsFixed(2)}",
-                                          style: TextStyle(
-                                            color: getColorSkin().primaryRed800,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      return CartItemWidget(cartItem: item);
                     },
                   ),
                 ),
+
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
                   decoration: BoxDecoration(

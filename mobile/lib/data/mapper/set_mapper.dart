@@ -8,7 +8,7 @@ class SetMapper{
   static SetModel toModel(SetDto dto){
     return SetModel(
       setId: dto.setId,
-      currentPrice: dto.currentPrice,
+      currentPrice: dto.currentPrice ?? 0.0,
       imageIds: dto.imageIds,
       isVisible: dto.isVisible,
       slots: dto.slots,

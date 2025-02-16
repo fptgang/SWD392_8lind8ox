@@ -1,18 +1,21 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../locale_cubit/locale_cubit.dart';
 
 class DropdownCubit extends Cubit<Map<String, dynamic>> {
+  final LocaleCubit localeCubit;
 
   @factoryMethod
-  DropdownCubit(LocaleCubit localeCubit) : super({
+  DropdownCubit(this.localeCubit) : super({
     'isOpen': false,
     'selectedLanguage': _getInitialLanguage(localeCubit),
   });
 
   static Map<String, String> _getInitialLanguage(LocaleCubit localeCubit) {
     String languageCode = localeCubit.state.languageCode;
+    debugPrint('languageCode: $languageCode');
     return languageList.firstWhere(
           (lang) => lang['code'] == languageCode,
       orElse: () => {'code': 'en', 'name': 'English', 'flag': '🇺🇸'},

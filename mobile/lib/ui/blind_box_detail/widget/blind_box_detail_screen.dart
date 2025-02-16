@@ -19,6 +19,7 @@ class ProductDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PageController pageController = PageController();
+    final cartCubit = getIt<CartCubit>();
     debugPrint('blindBoxId: $blindBoxId');
     int quantity = 1;
 
@@ -28,7 +29,7 @@ class ProductDetailScreen extends StatelessWidget {
           create: (context) => getIt<BlindBoxDetailBloc>()..add(FetchBlindBoxDetail(blindBoxId)),
         ),
         BlocProvider(
-          create: (context) => getIt<CartCubit>(),
+          create: (context) => cartCubit,
         ),
       ],
       child: BlocBuilder<BlindBoxDetailBloc, BlindBoxDetailState>(
@@ -246,7 +247,7 @@ class ProductDetailScreen extends StatelessWidget {
                             image: blindBox?.images.first.imageUrl ?? '',
                             quantity: state.quantity,
                           );
-                          context.read<CartCubit>().addToCart(product);
+                          cartCubit.addToCart(product);
                           // context.push('/cart');
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
