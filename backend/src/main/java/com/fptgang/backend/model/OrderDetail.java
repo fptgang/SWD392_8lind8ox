@@ -62,6 +62,8 @@ public class OrderDetail {
     @JoinColumn(name = "slot_id")
     private Slot slot;
 
+
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

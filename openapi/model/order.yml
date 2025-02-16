@@ -7,9 +7,6 @@ OrderDto:
     accountId:
       type: integer
       format: int64
-    status:
-      type: string
-      enum: [PENDING, COMPLETED, CANCELED]
     orderDetails:
       type: array
       items:

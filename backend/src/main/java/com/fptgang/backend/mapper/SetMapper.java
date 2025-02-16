@@ -35,7 +35,7 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
 
         if (existingSetOptional.isPresent() && dto.getSetId() != null) {
             Set existingSet = existingSetOptional.get();
-            existingSet.setCurrentPrice(dto.getCurrentPrice() != null ? dto.getCurrentPrice() : existingSet.getCurrentPrice());
+//            existingSet.setCurrentPrice(dto.getCurrentPrice() != null ? dto.getCurrentPrice() : existingSet.getCurrentPrice());
             existingSet.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingSet.isVisible());
             if (dto.getImageIds() != null) {
                 existingSet.setImages(dto.getImageIds().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
@@ -51,7 +51,7 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
         } else {
             Set entity = new Set();
 //            entity.setSetId(dto.getSetId());
-            entity.setCurrentPrice(dto.getCurrentPrice());
+//            entity.setCurrentPrice(dto.getCurrentPrice());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             entity.setBlindBox(dto.getBlindBox() != null ?
                     blindBoxRepos.findById(dto.getBlindBox().getBlindBoxId()).get()
@@ -80,7 +80,7 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
 
         SetDto dto = new SetDto();
         dto.setSetId(entity.getSetId());
-        dto.setCurrentPrice(entity.getCurrentPrice());
+//        dto.setCurrentPrice(entity.getCurrentPrice());
         dto.setIsVisible(entity.isVisible());
         if (entity.getBlindBox() != null) {
             dto.setBlindBox(blindBoxMapper.toDTO(entity.getBlindBox()));

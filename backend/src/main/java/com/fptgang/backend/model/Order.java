@@ -36,7 +36,12 @@ public class Order {
     @OneToOne(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Transaction transaction;
 
-    //TODO: add shipping info
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Voucher voucher;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_info_id")
+    private ShippingInfo shippingInfo;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -45,7 +50,10 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalPrice;
+    private BigDecimal originalPrice;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal checkoutPrice;
 
 }
 
