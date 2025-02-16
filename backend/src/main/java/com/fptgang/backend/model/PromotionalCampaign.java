@@ -24,9 +24,6 @@ public class PromotionalCampaign {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long campaignId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account creator;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     @Searchable
@@ -45,12 +42,11 @@ public class PromotionalCampaign {
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal discountRate;
 
-    @Column(nullable = false)
-    @Searchable
-    private String promoCode;
-
     @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
     private List<BlindBox> blindBoxes;
+
+    @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
+    private List<OrderDetail> orderDetails;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;

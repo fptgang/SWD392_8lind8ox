@@ -27,3 +27,5 @@ SlotDto:
     updatedAt:
       type: string
       format: date-time
+    video:
+      $ref: "video.yml#/VideoDto"
