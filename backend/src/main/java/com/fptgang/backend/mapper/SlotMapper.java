@@ -33,9 +33,9 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
             Slot existingSlot = existingSlotOptional.get();
             existingSlot.setPosition(dto.getPosition() != null ? dto.getPosition() : existingSlot.getPosition());
             existingSlot.setOpened(dto.getIsOpened() != null ? dto.getIsOpened() : existingSlot.isOpened());
-            if (dto.getOpenedAt() != null) {
-                existingSlot.setOpenedAt(dto.getOpenedAt().toLocalDateTime());
-            }
+//            if (dto.getOpenedAt() != null) {
+//                existingSlot.setOpenedAt(dto.getOpenedAt().toLocalDateTime());
+//            }
             existingSlot.setToy(dto.getToyId() != null
                     && dto.getToyId() != existingSlot.getToy().getToyId() ?
                     toyRepos.findById(dto.getToyId()).get()
@@ -56,9 +56,9 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
             entity.setSet(dto.getSetId() != null ?
                     setRepos.findById(dto.getSetId()).get()
                     : null);
-            if (dto.getOpenedAt() != null) {
-                entity.setOpenedAt(dto.getOpenedAt().toLocalDateTime());
-            }
+//            if (dto.getOpenedAt() != null) {
+//                entity.setOpenedAt(dto.getOpenedAt().toLocalDateTime());
+//            }
             if (dto.getCreatedAt() != null) {
                 entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
             }
@@ -81,9 +81,9 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
         dto.setIsOpened(entity.isOpened());
         dto.setToyId(entity.getToy() != null ? entity.getToy().getToyId() : null);
         dto.setSetId(entity.getSet() != null ? entity.getSet().getSetId() : null);
-        if (entity.getOpenedAt() != null) {
-            dto.setOpenedAt(DateTimeUtil.fromLocalToOffset(entity.getOpenedAt()));
-        }
+//        if (entity.getOpenedAt() != null) {
+//            dto.setOpenedAt(DateTimeUtil.fromLocalToOffset(entity.getOpenedAt()));
+//        }
         if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         }
