@@ -39,7 +39,7 @@ public class BlindBox {
     private List<Image> images;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotional_campaign_id", nullable = false)
+    @JoinColumn(name = "promotional_campaign_id")
     private PromotionalCampaign promotionalCampaign;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")

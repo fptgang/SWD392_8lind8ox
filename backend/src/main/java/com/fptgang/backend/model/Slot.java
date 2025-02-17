@@ -30,9 +30,6 @@ public class Slot {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
 
-    @Column
-    private LocalDateTime openedAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "toy_id")
     private Toy toy;
@@ -44,6 +41,10 @@ public class Slot {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_detail_id")
     private OrderDetail orderDetail;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_id")
+    private Video video;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

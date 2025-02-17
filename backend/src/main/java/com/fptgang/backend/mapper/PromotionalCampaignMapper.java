@@ -41,7 +41,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             existingPromotionalCampaign.setStartDate(dto.getStartDate() != null ? DateTimeUtil.fromOffsetToLocal(dto.getStartDate()) : existingPromotionalCampaign.getStartDate());
             existingPromotionalCampaign.setEndDate(dto.getEndDate() != null ? DateTimeUtil.fromOffsetToLocal(dto.getEndDate()) : existingPromotionalCampaign.getEndDate());
             existingPromotionalCampaign.setDiscountRate(dto.getDiscountRate() != null ? dto.getDiscountRate() : existingPromotionalCampaign.getDiscountRate());
-            existingPromotionalCampaign.setPromoCode(dto.getPromoCode() != null ? dto.getPromoCode() : existingPromotionalCampaign.getPromoCode());
             existingPromotionalCampaign.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingPromotionalCampaign.isVisible());
             if (dto.getBlindBoxes() != null) {
                 existingPromotionalCampaign.setBlindBoxes(
@@ -59,7 +58,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             entity.setStartDate(DateTimeUtil.fromOffsetToLocal(dto.getStartDate()));
             entity.setEndDate(DateTimeUtil.fromOffsetToLocal(dto.getEndDate()));
             entity.setDiscountRate(dto.getDiscountRate());
-            entity.setPromoCode(dto.getPromoCode());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             if (dto.getBlindBoxes() != null) {
                 entity.setBlindBoxes(
@@ -67,9 +65,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
                                 blindBoxMapper::toEntity
                         ).toList()
                 );
-            }
-            if (dto.getCreatorId() != null) {
-                entity.setCreator(accountRepos.findById(dto.getCreatorId()).get());
             }
             if (dto.getCreatedAt() != null) {
                 entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
@@ -94,9 +89,7 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
         dto.setStartDate(DateTimeUtil.fromLocalToOffset(entity.getStartDate()));
         dto.setEndDate(DateTimeUtil.fromLocalToOffset(entity.getEndDate()));
         dto.setDiscountRate(entity.getDiscountRate());
-        dto.setPromoCode(entity.getPromoCode());
         dto.setIsVisible(entity.isVisible());
-        dto.setCreatorId(entity.getCreator() != null ? entity.getCreator().getAccountId() : null);
         if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         }

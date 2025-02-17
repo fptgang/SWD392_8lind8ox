@@ -29,7 +29,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @Column(nullable = false)
+    @Column()
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
@@ -54,9 +54,7 @@ public class Transaction {
 
     public enum Type {
         DEPOSIT,
-        WITHDRAW,
-        ORDER,
-        PAYOUT
+        ORDER
     }
 
     public enum PaymentMethod {

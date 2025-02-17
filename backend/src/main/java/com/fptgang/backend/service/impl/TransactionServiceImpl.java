@@ -171,10 +171,10 @@ public class TransactionServiceImpl implements TransactionService {
                     transaction.setOldBalance(transaction.getAccount().getBalance());
                     transaction.setNewBalance(transaction.getAccount().getBalance().add(transaction.getAmount()));
                 }
-                case WITHDRAW, PAYOUT -> {
-                    transaction.setOldBalance(transaction.getAccount().getBalance());
-                    transaction.setNewBalance(transaction.getAccount().getBalance().subtract(transaction.getAmount()));
-                }
+//                case WITHDRAW, PAYOUT -> {
+//                    transaction.setOldBalance(transaction.getAccount().getBalance());
+//                    transaction.setNewBalance(transaction.getAccount().getBalance().subtract(transaction.getAmount()));
+//                }
                 case ORDER -> {
                     transaction.getOrder().setTransaction(transaction);
                     orderService.update(transaction.getOrder());

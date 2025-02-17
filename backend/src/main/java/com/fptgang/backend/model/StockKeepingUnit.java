@@ -12,6 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "sku")
@@ -42,9 +43,11 @@ public class StockKeepingUnit {
     @JoinColumn(name = "blind_box_id", nullable = false)
     private BlindBox blindBox;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_detail_id")
-    private OrderDetail orderDetail;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockKeepingUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetail;
+
+    @OneToMany(mappedBy = "sku", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Set> sets;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

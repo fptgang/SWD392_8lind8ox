@@ -22,3 +22,6 @@ VideoDto:
       format: date-time
     isVisible:
       type: boolean
+    slotId:
+      type: integer
+      format: int64

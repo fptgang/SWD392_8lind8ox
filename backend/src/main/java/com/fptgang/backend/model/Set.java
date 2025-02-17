@@ -24,8 +24,9 @@ public class Set {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long setId;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal currentPrice;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sku_id", nullable = false)
+    private StockKeepingUnit sku;
 
     @OneToMany(mappedBy = "set", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
