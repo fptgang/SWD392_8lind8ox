@@ -31,6 +31,8 @@ public class OrderDetail {
     @JoinColumn(nullable = false, name = "sku_id")
     private StockKeepingUnit stockKeepingUnit;
 
+    @Column(nullable = false)
+    private int quantity;
 
     @ManyToOne
     @JoinColumn(name = "campaign_id")

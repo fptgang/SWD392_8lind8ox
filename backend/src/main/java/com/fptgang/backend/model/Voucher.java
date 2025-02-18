@@ -37,7 +37,7 @@ public class Voucher {
     private BigDecimal discountRate;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal limit;
+    private BigDecimal limitAmount;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isUsed = false;

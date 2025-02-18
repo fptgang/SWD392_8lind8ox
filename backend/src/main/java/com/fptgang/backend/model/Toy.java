@@ -56,6 +56,9 @@ public class Toy {
     @OneToMany(mappedBy = "toy", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Slot> slots;
 
+    @OneToMany(mappedBy = "toy", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blind_box_id")
     private BlindBox blindBox;

@@ -40,6 +40,10 @@ public class ShippingInfo {
     @Column(columnDefinition = "NVARCHAR(255)", nullable = false)
     private String phoneNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account account;
+
     @OneToMany(mappedBy = "shippingInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 

@@ -55,7 +55,7 @@ public class EmailServiceImpl implements EmailService {
                 .replace("{Customer Name}", order.getAccount().getFirstName() + " " + order.getAccount().getLastName())
                 .replace("{OrderID}", String.valueOf(order.getOrderId()))
                 .replace("{Order Date}", order.getCreatedAt().toString())
-                .replace("{Total Amount}", String.format("%.2f", order.getTotalPrice()));
+                .replace("{Total Amount}", String.format("%.2f", order.getCheckoutPrice()));
         String subject = "Order Confirmation - " + order.getOrderId();
         String from = "Admin <admin@mail.blindbox>";
         String to = order.getAccount().getEmail();
