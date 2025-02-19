@@ -4,10 +4,11 @@ import {
   Badge,
   Button,
   InputNumber,
-  theme,
   Typography,
   Divider,
   Empty,
+  Tag,
+  notification,
 } from "antd";
 import {
   ShoppingCartOutlined,
@@ -20,19 +21,54 @@ import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatCurrency } from "../../../utils/currency-formatter";
 import { useCart } from "../../../hooks/useCart";
+import type { CartItem as CartItemType } from "../../../store/features/cart/cartSlice";
 
 const { Text, Title } = Typography;
+interface CartItemProps {
+  item: CartItemType;
+  onUpdateQuantity: (skuId: number, quantity: number) => void;
+  onRemove: (skuId: number) => void;
+}
 
-const CartItem: React.FC<{
-  item: any;
-  onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemove: (id: string) => void;
-}> = ({ item, onUpdateQuantity, onRemove }) => {
+const CartItem: React.FC<CartItemProps> = ({
+  item,
+  onUpdateQuantity,
+  onRemove,
+}) => {
   const handleQuantityChange = (value: number | null) => {
-    if (value) {
-      onUpdateQuantity(item.id, value);
+    if (!value) return;
+
+    try {
+      onUpdateQuantity(item.skuId, value);
+    } catch (error) {
+      notification.error({
+        message: "Error updating quantity",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
     }
   };
+
+  const handleRemove = () => {
+    try {
+      onRemove(item.skuId);
+    } catch (error) {
+      notification.error({
+        message: "Error removing item",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  };
+
+  const discount = (item.originalPrice || 0) > (item.price || 0);
+  const discountPercentage = discount
+    ? Math.round(
+        (((item.originalPrice || 0) - (item.price || 0)) /
+          (item.originalPrice || 1)) *
+          100
+      )
+    : 0;
 
   return (
     <motion.div
@@ -44,18 +80,37 @@ const CartItem: React.FC<{
       <div className="flex items-center gap-3">
         <div className="w-16 h-16 rounded-lg overflow-hidden">
           <img
-            src={item.image}
-            alt={item.name}
+            src={`${item.imageUrl}`}
+            alt={item.name || "Cart Item"}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              const imgElement = e.target as HTMLImageElement;
+              imgElement.src = "/path/to/default/image.png"; // Provide a default image
+            }}
           />
         </div>
         <div className="flex-1 min-w-0">
           <Text strong className="block truncate">
             {item.name}
           </Text>
-          <Text type="secondary" className="text-sm">
-            {formatCurrency(item.price)}
-          </Text>
+          <div className="flex items-center gap-2">
+            <Text type={discount ? "secondary" : undefined} delete={discount}>
+              {formatCurrency(item.originalPrice || 0)}
+            </Text>
+            {discount && (
+              <>
+                <Text type="success" strong>
+                  {formatCurrency(item.price || 0)}
+                </Text>
+                <Tag color="success">-{discountPercentage}%</Tag>
+              </>
+            )}
+          </div>
+          {(item.stock || 0) < 10 && (
+            <Tag color="warning" className="mt-1">
+              Only {item.stock} left
+            </Tag>
+          )}
         </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-1">
@@ -66,11 +121,12 @@ const CartItem: React.FC<{
                 handleQuantityChange(Math.max(1, (item.quantity || 1) - 1))
               }
               className="flex items-center justify-center"
+              disabled={(item.quantity || 1) <= 1}
             />
             <InputNumber
               min={1}
-              max={99}
-              value={item.quantity || 1}
+              max={item.stock}
+              value={item.quantity}
               onChange={handleQuantityChange}
               className="w-14"
               controls={false}
@@ -78,8 +134,13 @@ const CartItem: React.FC<{
             <Button
               size="small"
               icon={<PlusOutlined />}
-              onClick={() => handleQuantityChange((item.quantity || 1) + 1)}
+              onClick={() =>
+                handleQuantityChange(
+                  Math.min(item.stock || 0, (item.quantity || 1) + 1)
+                )
+              }
               className="flex items-center justify-center"
+              disabled={(item.quantity || 1) >= (item.stock || 0)}
             />
           </div>
           <Button
@@ -87,7 +148,7 @@ const CartItem: React.FC<{
             danger
             size="small"
             icon={<DeleteOutlined />}
-            onClick={() => onRemove(item.id)}
+            onClick={handleRemove}
             className="flex items-center justify-center"
           >
             Remove
@@ -97,23 +158,61 @@ const CartItem: React.FC<{
     </motion.div>
   );
 };
+interface CartSummaryProps {
+  total: number;
+  originalTotal: number;
+  itemCount: number;
+  voucherDiscount?: number;
+}
 
-const CartSummary: React.FC<{
-  items: any[];
-}> = ({ items }) => {
-  const total = items.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1),
-    0
-  );
+const CartSummary: React.FC<CartSummaryProps> = ({
+  total,
+  originalTotal,
+  itemCount,
+  voucherDiscount = 0,
+}) => {
+  const hasDiscount = originalTotal > total;
+  const finalTotal = total - voucherDiscount;
 
   return (
-    <div className="p-4  rounded-lg">
+    <div className="p-4 rounded-lg">
       <div className="flex justify-between mb-2">
-        <Text>Subtotal</Text>
-        <Text strong>{formatCurrency(total)}</Text>
+        <Text type="secondary">Subtotal ({itemCount} items)</Text>
+        <Text type="secondary" delete={hasDiscount}>
+          {formatCurrency(originalTotal)}
+        </Text>
       </div>
+
+      {hasDiscount && (
+        <div className="flex justify-between mb-2">
+          <Text type="success">Item Discount</Text>
+          <Text type="success">-{formatCurrency(originalTotal - total)}</Text>
+        </div>
+      )}
+
+      {voucherDiscount > 0 && (
+        <div className="flex justify-between mb-2">
+          <Text type="success">Voucher Discount</Text>
+          <Text type="success">-{formatCurrency(voucherDiscount)}</Text>
+        </div>
+      )}
+
+      <Divider className="my-2" />
+
+      <div className="flex justify-between mb-4">
+        <Text strong>Total</Text>
+        <Text type="success" strong>
+          {formatCurrency(finalTotal)}
+        </Text>
+      </div>
+
       <Link to="/cart">
-        <Button type="primary" block icon={<ArrowRightOutlined />}>
+        <Button
+          type="primary"
+          block
+          icon={<ArrowRightOutlined />}
+          className="h-10"
+        >
           View Cart
         </Button>
       </Link>
@@ -122,15 +221,25 @@ const CartSummary: React.FC<{
 };
 
 export const CartPopover: React.FC = () => {
-  const { cartItems, updateQuantity, removeItem } = useCart();
+  const {
+    cartItems,
+    total,
+    originalTotal,
+    updateItemQuantity,
+    removeFromCart,
+    voucher,
+    getCartSummary,
+  } = useCart();
+
+  const { itemCount, voucherDiscount } = getCartSummary();
 
   const cartContent = (
     <div className="w-[380px] max-h-[550px]">
-      <div className="px-4 py-3 border-b ">
+      <div className="px-4 py-3 border-b">
         <Title level={5} className="m-0">
           Shopping Cart
         </Title>
-        <Text type="secondary">{cartItems.length} items</Text>
+        <Text type="secondary">{itemCount} items</Text>
       </div>
 
       <div className="max-h-[320px] overflow-y-auto px-4">
@@ -144,10 +253,10 @@ export const CartPopover: React.FC = () => {
           ) : (
             cartItems.map((item) => (
               <CartItem
-                key={item.id}
+                key={item.skuId}
                 item={item}
-                onUpdateQuantity={updateQuantity}
-                onRemove={removeItem}
+                onUpdateQuantity={updateItemQuantity}
+                onRemove={removeFromCart}
               />
             ))
           )}
@@ -158,7 +267,12 @@ export const CartPopover: React.FC = () => {
         <>
           <Divider className="my-2" />
           <div className="px-4">
-            <CartSummary items={cartItems} />
+            <CartSummary
+              total={total}
+              originalTotal={originalTotal}
+              itemCount={itemCount}
+              voucherDiscount={voucherDiscount}
+            />
           </div>
         </>
       )}
@@ -171,8 +285,9 @@ export const CartPopover: React.FC = () => {
       trigger="click"
       content={cartContent}
       overlayClassName="cart-popover"
+      arrow={false}
     >
-      <Badge count={cartItems.length} size="small">
+      <Badge count={itemCount} size="small">
         <Button
           type="text"
           icon={<ShoppingCartOutlined className="text-xl" />}

@@ -4,7 +4,7 @@ import {
   useList,
   CrudOperators,
   CrudSorting,
-  BaseRecord,
+  useOne,
 } from "@refinedev/core";
 import { List, useTable } from "@refinedev/antd";
 import { Row, Col, Button, Spin, Empty, Drawer, notification } from "antd";
@@ -12,13 +12,16 @@ import { FilterOutlined } from "@ant-design/icons";
 import {
   BlindBoxDto,
   BrandDto,
+  PromotionalCampaignDto,
   StockKeepingUnitDto,
 } from "../../../../generated";
 import { FilterSidebar } from "./components/FilterSidebar";
 import { ProductCard } from "./components/ProductCard";
+import { useCart } from "../../../hooks/useCart";
 
 const CustomerProducts: React.FC = () => {
   const go = useGo();
+  const { addItem } = useCart();
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [selectedSort, setSelectedSort] = useState("createdAt:desc");
@@ -49,7 +52,7 @@ const CustomerProducts: React.FC = () => {
 
         if (priceRange[0] > 0 || priceRange[1] < 1000) {
           filters.push({
-            field: "price",
+            field: "skus.price",
             operator: "between" as CrudOperators,
             value: priceRange,
           });
@@ -57,7 +60,7 @@ const CustomerProducts: React.FC = () => {
 
         if (inStock) {
           filters.push({
-            field: "stock",
+            field: "skus.stock",
             operator: "gt" as CrudOperators,
             value: 0,
           });
@@ -81,6 +84,9 @@ const CustomerProducts: React.FC = () => {
           },
         ],
       },
+      meta: {
+        include: ["skus", "images", "promotionalCampaign"],
+      },
     });
 
   const { data: brandsData, isLoading: isBrandsLoading } = useList<BrandDto>({
@@ -101,6 +107,22 @@ const CustomerProducts: React.FC = () => {
   };
 
   const handleAddToCart = (blindBox: BlindBoxDto, sku: StockKeepingUnitDto) => {
+    const price = blindBox.promotionalCampaignId
+      ? sku.price * (1 - (blindBox.promotionalCampaign?.discountRate || 0))
+      : sku.price;
+
+    addItem({
+      skuId: sku.skuId,
+      name: `${blindBox.name} - ${sku.name}`,
+      price: price,
+      originalPrice: sku.price,
+      checkoutPrice: price,
+      stock: sku.stock,
+      imageId: blindBox.images?.[0]?.imageId,
+      blindBoxId: blindBox.blindBoxId,
+      promotionalCampaignId: blindBox.promotionalCampaignId,
+    });
+
     notification.success({
       message: "Added to Cart",
       description: `${blindBox.name} - ${sku.name} has been added to your cart.`,
@@ -110,7 +132,6 @@ const CustomerProducts: React.FC = () => {
   return (
     <List>
       <Row gutter={[24, 24]}>
-        {/* Desktop Filters */}
         <Col xs={0} md={6}>
           <FilterSidebar
             searchFormProps={searchFormProps}
@@ -124,7 +145,6 @@ const CustomerProducts: React.FC = () => {
           />
         </Col>
 
-        {/* Mobile Filters Button & Drawer */}
         <Col xs={24} md={0}>
           <Button
             type="primary"
@@ -155,7 +175,6 @@ const CustomerProducts: React.FC = () => {
           </Drawer>
         </Col>
 
-        {/* Products Grid */}
         <Col xs={24} md={18}>
           {tableProps.loading ? (
             <div className="flex justify-center items-center min-h-[400px]">
@@ -168,15 +187,18 @@ const CustomerProducts: React.FC = () => {
             />
           ) : (
             <Row gutter={[16, 16]}>
-              {tableProps.dataSource?.map((blindBox: BaseRecord) => (
-                <Col xs={24} sm={12} lg={8} key={blindBox.blindBoxId}>
-                  <ProductCard
-                    blindBox={blindBox}
-                    onCardClick={handleCardClick}
-                    onAddToCart={handleAddToCart}
-                  />
-                </Col>
-              ))}
+              {tableProps.dataSource?.map((blindBox) => {
+                const typedBlindBox = blindBox as BlindBoxDto;
+                return (
+                  <Col xs={24} sm={12} lg={8} key={typedBlindBox.blindBoxId}>
+                    <ProductCard
+                      blindBox={typedBlindBox}
+                      onCardClick={handleCardClick}
+                      onAddToCart={handleAddToCart}
+                    />
+                  </Col>
+                );
+              })}
             </Row>
           )}
         </Col>
