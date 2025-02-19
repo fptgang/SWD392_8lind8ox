@@ -16,9 +16,13 @@ import 'package:mobile/data/repositories/implement/set_repository_impl.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
 import 'package:mobile/di/injection.config.dart';
 import 'package:openapi/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/login/login_bloc.dart';
 import '../cubit/blindbox_list_cubit/blindbox_list_cubit.dart';
 import '../cubit/dropdown_cubit/dropdown_cubit.dart';
+import '../data/datasources/local/impl/search_local_datasource_impl.dart';
+import '../data/datasources/local/search_local_datasource.dart';
+import '../data/datasources/shared_preferences/shared_pref_manager.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/blindbox_repository.dart';
 import '../data/repositories/implement/auth_repository_impl.dart';
@@ -34,6 +38,7 @@ final GetIt getIt = GetIt.instance;
 @InjectableInit()
 Future<void> configureDependencies() async {
   var box = Hive.box('authentication');
+  final sharedPreferences = await SharedPreferences.getInstance();
   getIt.init();
 
   //lazy singleton
@@ -48,6 +53,10 @@ Future<void> configureDependencies() async {
         "Authorization": "Bearer ${box.get('loginToken')}",
       })));
   getIt.registerLazySingleton<SetCubit>(() => SetCubit(getIt<SetRepository>()));
+
+  //singleton
+  getIt.registerSingleton<SharedPrefManager>(SharedPrefManager(sharedPreferences));
+  getIt.registerSingleton<SearchLocalDatasource>(SearchLocalDatasourceImpl(getIt<SharedPrefManager>()));
 
   //factory
   getIt.registerFactory<AuthenticationBloc>(() => AuthenticationBloc(

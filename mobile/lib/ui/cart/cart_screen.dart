@@ -8,10 +8,14 @@ import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../../di/injection.dart';
+import '../../di/injection.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
+
+  static Route<void> route() {
+    return MaterialPageRoute<void>(builder: (_) => CartScreen());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +36,7 @@ class CartScreen extends StatelessWidget {
           centerTitle: true,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: getColorSkin().backgroundColor),
-            onPressed: () => context.push('/main'),
+            onPressed: () => context.push('/main/home'),
           ),
         ),
         body: BlocBuilder<CartCubit, CartState>(

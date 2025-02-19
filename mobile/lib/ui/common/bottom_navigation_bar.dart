@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/ui/cart/widget/cart_screen.dart';
+import 'package:mobile/ui/cart/cart_screen.dart';
 import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
-import 'package:mobile/ui/information/widget/search_test_bottom.dart';
+import 'package:mobile/ui/search/search_screen.dart';
 import '../../blocs/bottom_navigation_bar/bottom_navigation_cubit.dart';
 import '../account/account_screen.dart';
 import '../new_release/new_release_screen.dart';

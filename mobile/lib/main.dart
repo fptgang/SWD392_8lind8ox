@@ -13,12 +13,12 @@ import 'package:mobile/cubit/set_cubit/set_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
-import 'package:mobile/ui/cart/widget/cart_screen.dart';
+import 'package:mobile/ui/cart/cart_screen.dart';
 import 'package:mobile/ui/checkout/checkout_screen.dart';
 import 'package:mobile/ui/homepage/homepage_screen.dart';
 import 'package:mobile/ui/common/bottom_navigation_bar.dart';
 import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
-import 'package:mobile/ui/information/widget/search_test_bottom.dart';
+import 'package:mobile/ui/search/search_screen.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/register/register_screen.dart';
 import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
@@ -77,7 +77,6 @@ final router = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: '/main',
   routes: [
-    // GoRoute(path: '/homepage', builder: (context, state) => const HomePageScreen()),
     GoRoute(path: '/forgot-password',builder: (context, state) =>  ForgotPasswordScreen()),
     GoRoute(path: '/reset-password', builder: (context, state) {
         final token = state.uri.queryParameters['token'] ?? '';

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -6,23 +8,25 @@ import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_state.dart';
 import 'package:mobile/data/repositories/blindbox_repository.dart';
 import 'package:openapi/api.dart';
 
+import '../../data/datasources/local/search_local_datasource.dart';
 import '../../data/models/blindbox_model.dart';
-import '../../data/models/blindboxes_response_model.dart';
 
 
 @injectable
 class BlindBoxesCubit extends Cubit<BlindBoxesState> {
   final BlindBoxRepository _blindBoxRepository;
+  final SearchLocalDatasource? _searchLocalDatasource;
+  Timer? _debounceTimer;
   final PagingController<int, BlindBoxModel> pagingController = PagingController(firstPageKey: 1);
 
-  BlindBoxesCubit(this._blindBoxRepository) : super(BlindBoxesState(pageable: Pageable(page: 1, size: 20))) {
+  BlindBoxesCubit(this._blindBoxRepository,[ this._searchLocalDatasource]) : super(PaginationState(pageable: Pageable(page: 1, size: 20))) {
     pagingController.addPageRequestListener((pageKey) {
       getBlindBoxes(pageKey);
     });
   }
 
   Future<void> getBlindBoxes(int pageKey) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(LoadingState(isLoading: true, error: null));
     debugPrint('page from get blind boxes before try: ${state.pageable.page}');
 
     try {
@@ -95,11 +99,20 @@ class BlindBoxesCubit extends Cubit<BlindBoxesState> {
         pageable: Pageable(
           page: 1,
           size: 20,
-        )),
+        ),
+      blindBoxes: null,
+      hasReachedEnd: false,
+    ),
     );
     pagingController.refresh();
   }
 
+  void onSearchChanged(String search) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      updateSearch(search);
+    });
+  }
 
   void refresh() {
     pagingController.refresh();
