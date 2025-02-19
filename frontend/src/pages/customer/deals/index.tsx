@@ -1,31 +1,40 @@
-import React from 'react';
-import { useList } from '@refinedev/core';
-import { Card, Col, Row, Typography, Space, Input, Tag, Pagination } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import React from "react";
+import { useList } from "@refinedev/core";
+import {
+  Card,
+  Col,
+  Row,
+  Typography,
+  Space,
+  Input,
+  Tag,
+  Pagination,
+} from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
 
 const CustomerDeals: React.FC = () => {
-  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
 
   const { data, isLoading } = useList({
-    resource: 'promotional-campaigns',
+    resource: "promotional-campaigns",
     pagination: {
       current: currentPage,
       pageSize: 12,
     },
     filters: [
       {
-        field: 'name',
-        operator: 'contains',
+        field: "name",
+        operator: "contains",
         value: searchTerm,
       },
       {
-        field: 'status',
-        operator: 'eq',
-        value: 'ACTIVE',
+        field: "status",
+        operator: "eq",
+        value: "ACTIVE",
       },
     ],
   });
@@ -39,7 +48,10 @@ const CustomerDeals: React.FC = () => {
     setCurrentPage(page);
   };
 
-  const calculateDiscount = (originalPrice: number, discountPercentage: number) => {
+  const calculateDiscount = (
+    originalPrice: number,
+    discountPercentage: number
+  ) => {
     return originalPrice - (originalPrice * discountPercentage) / 100;
   };
 
@@ -72,7 +84,7 @@ const CustomerDeals: React.FC = () => {
                 <div className="relative">
                   <img
                     alt={deal.name}
-                    src={deal.imageUrl || 'https://placeholder.com/300x300'}
+                    src={deal.imageUrl || "https://placeholder.com/300x300"}
                     className="object-cover h-48 w-full"
                   />
                   <Tag color="red" className="absolute top-2 right-2">
@@ -87,7 +99,11 @@ const CustomerDeals: React.FC = () => {
                   <Space direction="vertical">
                     <div className="flex items-center gap-2">
                       <Text className="text-lg font-semibold text-red-500">
-                        ${calculateDiscount(deal.originalPrice, deal.discountPercentage)}
+                        $
+                        {calculateDiscount(
+                          deal.originalPrice,
+                          deal.discountPercentage
+                        )}
                       </Text>
                       <Text className="text-sm line-through text-gray-400">
                         ${deal.originalPrice}

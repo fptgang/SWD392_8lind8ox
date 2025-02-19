@@ -121,7 +121,7 @@
     "importProgress": "Importing: {{processed}}/{{total}}"
   },
   "loading": "Loading",
- 
+
   "posts": {
     "__description": "These keys are used in translations for the 'posts' resource.",
     "posts": "Posts",
@@ -238,7 +238,6 @@
     "user-management": {
       "label": "User Management"
     }
-    
   },
 
   "dashboard": {
@@ -281,6 +280,4 @@
       "title": "Trending Products"
     }
   }
-
-
 }

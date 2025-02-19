@@ -16,7 +16,10 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "src/pages/customer/setting/components/OrderStatusBadge.tsx"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

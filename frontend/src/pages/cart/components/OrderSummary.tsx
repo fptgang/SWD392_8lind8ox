@@ -10,15 +10,15 @@ const OrderSummary: React.FC = () => {
   const go = useGo();
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+    <div className=" rounded-lg shadow-md p-6 sticky top-4">
       <Title level={4}>Order Summary</Title>
       <div className="space-y-4">
         <div className="flex justify-between py-2 border-b">
-          <span className="text-gray-600">Subtotal</span>
+          <span className="">Subtotal</span>
           <span className="font-semibold">${total.toFixed(2)}</span>
         </div>
         <div className="flex justify-between py-2 border-b">
-          <span className="text-gray-600">Shipping</span>
+          <span className="">Shipping</span>
           <span className="text-green-600">Free</span>
         </div>
         <div className="flex justify-between py-2 text-lg font-semibold">
