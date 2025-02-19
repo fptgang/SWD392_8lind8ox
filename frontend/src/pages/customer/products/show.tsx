@@ -1,21 +1,18 @@
-// src/pages/customer/products/show/index.tsx
-import React from "react";
-import { useOne } from "@refinedev/core";
 import { useParams } from "react-router";
-import { Row, Col, Empty, notification } from "antd";
+import { useCart } from "../../../hooks/useCart";
 import {
   BlindBoxDto,
   BrandDto,
   StockKeepingUnitDto,
 } from "../../../../generated";
-import { useCart } from "../../../hooks/useCart";
+import { useOne } from "@refinedev/core";
+import { Col, Empty, notification, Row } from "antd";
 import { LoadingState } from "../../../components/customer/products/show/loading-state";
 import { ProductImages } from "../../../components/customer/products/show/product-images";
 import { ProductInfo } from "../../../components/customer/products/show/product-info";
-
 const CustomerProductShow: React.FC = () => {
   const { id } = useParams();
-  const { addItem } = useCart();
+  const { addToCart } = useCart();
 
   const { data: productData, isLoading: isProductLoading } =
     useOne<BlindBoxDto>({
@@ -34,11 +31,14 @@ const CustomerProductShow: React.FC = () => {
   const handleAddToCart = (sku: StockKeepingUnitDto) => {
     const product = productData?.data;
     if (product && sku) {
-      addItem({
-        id: String(sku.skuId),
-        name: `${product.name} - ${sku.name}`,
-        price: sku.price || 0,
-        image: product.images?.[0]?.imageUrl || "/placeholder.jpg",
+      addToCart({
+        skuId: sku.skuId || 0,
+        name: `${product.name} - ${sku.name}` || "",
+        price: sku.price,
+        stock: sku.stock,
+        imageUrl: product.images?.[0]?.imageUrl ?? "",
+        blindBoxId: product.blindBoxId,
+        promotionalCampaignId: product.promotionalCampaignId,
       });
 
       notification.success({
@@ -49,22 +49,11 @@ const CustomerProductShow: React.FC = () => {
   };
 
   if (isProductLoading || isBrandLoading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <LoadingState />
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (!productData?.data) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Empty
-          description="Product not found"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      </div>
-    );
+    return <Empty description="Product not found" />;
   }
 
   return (
