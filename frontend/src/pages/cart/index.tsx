@@ -27,7 +27,7 @@ const CartPage: React.FC = () => {
       <Title level={2}>Shopping Cart</Title>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className=" rounded-lg shadow-md p-6">
             <CartItemsTable />
           </div>
         </div>

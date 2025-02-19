@@ -21,10 +21,10 @@ import {
   TransactionDtoPaymentMethodEnum,
 } from "../../../generated";
 import { formatCurrency } from "../../utils/currency-formatter";
-import { CheckoutOrderSummary } from "./components/CheckoutOrderSummary";
 import { CheckoutPaymentMethod } from "./components/CheckoutPaymentMethod";
 import { CheckoutPromoCode } from "./components/CheckoutPromoCode";
 import { useCheckoutSubmit } from "./hooks/useCheckoutSubmit";
+import { CheckoutOrderSummary } from "./components/CheckoutOrderSummary";
 
 const { Title } = Typography;
 
@@ -40,12 +40,13 @@ const CheckoutPage: React.FC = () => {
   const [promotionalCampaignId, setPromotionalCampaignId] =
     React.useState<number>();
   const [discount, setDiscount] = React.useState<number>(0);
-
+  const me = useGetIdentity<AccountDto>();
   const { mutate: validatePromoCode } = useCreate();
   const { handleSubmit, isLoading } = useCheckoutSubmit({
     paymentMethod,
     promotionalCampaignId,
     total,
+    accountId: me.data?.accountId || 0,
     discount,
     cartItems,
     onSuccess: () => {

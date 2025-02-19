@@ -17,9 +17,9 @@ import {
   ArrowRightOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router";
-import { useCart } from "../../hooks/useCart";
-import { formatCurrency } from "../../utils/currency-formatter";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatCurrency } from "../../../utils/currency-formatter";
+import { useCart } from "../../../hooks/useCart";
 
 const { Text, Title } = Typography;
 

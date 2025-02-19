@@ -17,22 +17,22 @@ export const AccountLayout: React.FC = () => {
   const menuItems = [
     {
       key: "profile",
-      icon: <UserOutlined />,
+      icon: <UserOutlined className="text-lg" />,
       label: "Profile",
     },
     {
       key: "security",
-      icon: <LockOutlined />,
+      icon: <LockOutlined className="text-lg" />,
       label: "Security",
     },
     {
       key: "wallet",
-      icon: <WalletOutlined />,
+      icon: <WalletOutlined className="text-lg" />,
       label: "Wallet",
     },
     {
       key: "orders",
-      icon: <ShoppingOutlined />,
+      icon: <ShoppingOutlined className="text-lg" />,
       label: "Orders",
     },
   ];
@@ -42,26 +42,29 @@ export const AccountLayout: React.FC = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh", backgroundColor: "transparent" }} className="mx-90">
-      <Sider
-        width={250}
-        style={{
-          backgroundColor: "white",
-          padding: "24px 0",
-          borderRight: "1px solid #f0f0f0",
-        }}
-      >
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname.split("/")[2] || "profile"]}
-          items={menuItems}
-          onClick={({ key }) => handleMenuClick(key)}
-          style={{ border: "none" }}
-        />
-      </Sider>
-      <Content style={{ padding: "24px 40px", minHeight: 280 }}>
-        <Outlet />
-      </Content>
+    <Layout className="min-h-screen bg-transparent">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="flex gap-8">
+          <Sider
+            width={200}
+            className="rounded-lg shadow-sm overflow-hidden h-[calc(100vh-2rem)] mt-4"
+          >
+            <div className="p-4 border-b border-gray-100">
+              <h2 className="text-lg font-medium text-gray-900">Account</h2>
+            </div>
+            <Menu
+              mode="inline"
+              selectedKeys={[location.pathname.split("/")[2] || "profile"]}
+              items={menuItems}
+              onClick={({ key }) => handleMenuClick(key)}
+              className="border-none h-full pt-2"
+            />
+          </Sider>
+          <Content className="flex-1 min-h-[280px] rounded-lg shadow-sm p-6 mt-4">
+            <Outlet />
+          </Content>
+        </div>
+      </div>
     </Layout>
   );
 };
