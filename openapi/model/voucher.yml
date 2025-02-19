@@ -1,0 +1,29 @@
+VoucherDto:
+  type: object
+  properties:
+    voucherId:
+      type: integer
+      format: int64
+    orderId:
+      type: integer
+      format: int64
+    accountId:
+      type: integer
+      format: int64
+    code:
+      type: string
+    discountRate:
+      type: number
+      format: double
+    limitAmount:
+      type: number
+      format: double
+    isUsed:
+      type: boolean
+      default: false
+    createdAt:
+      type: string
+      format: date-time
+    expiredAt:
+      type: string
+      format: date-time

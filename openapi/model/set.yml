@@ -4,10 +4,9 @@ SetDto:
     setId:
       type: integer
       format: int64
-    currentPrice:
-      type: number
-      format: double
-    imageIds:
+    sku:
+      $ref: "stock-keeping-unit.yml#/StockKeepingUnitDto"
+    images:
       type: array
       items:
         $ref: "image.yml#/ImageDto"

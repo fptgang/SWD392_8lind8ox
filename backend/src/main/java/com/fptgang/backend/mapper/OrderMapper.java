@@ -22,6 +22,10 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
     private OrderDetailMapper orderDetailMapper;
     @Autowired
     private OrderStatusHistoryMapper orderStatusHistoryMapper;
+    @Autowired
+    private ShippingInfoMapper shippingInfoMapper;
+    @Autowired
+    private VoucherMapper voucherMapper;
 
     @Override
     public Order toEntity(OrderDto dto) {
@@ -34,7 +38,11 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
 
         if (existingOrderOptional.isPresent() && dto.getOrderId() != null) {
             Order existingOrder = existingOrderOptional.get();
-//            existingOrder.setTotalPrice(dto.getTotalPrice() != null ? dto.getTotalPrice() : existingOrder.getTotalPrice());
+            existingOrder.setCheckoutPrice(dto.getCheckoutPrice() != null ? dto.getCheckoutPrice() : existingOrder.getCheckoutPrice());
+            existingOrder.setOriginalPrice(dto.getOriginalPrice() != null ? dto.getOriginalPrice() : existingOrder.getOriginalPrice());
+            if(dto.getShippingInfo() != null) {
+                existingOrder.setShippingInfo(shippingInfoMapper.toEntity(dto.getShippingInfo()));
+            }
             if (dto.getOrderDetails() != null) {
                 existingOrder.setOrderDetails(dto.getOrderDetails().stream().map(orderDetailMapper::toEntity).collect(Collectors.toList()));
             }
@@ -45,7 +53,14 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
         } else {
             Order entity = new Order();
 //            entity.setOrderId(dto.getOrderId());
-//            entity.setTotalPrice(dto.getTotalPrice());
+            entity.setCheckoutPrice(dto.getCheckoutPrice());
+            entity.setOriginalPrice(dto.getOriginalPrice());
+            if(dto.getShippingInfo() != null) {
+                entity.setShippingInfo(shippingInfoMapper.toEntity(dto.getShippingInfo()));
+            }
+            if(dto.getVoucher() != null) {
+                entity.setVoucher(voucherMapper.toEntity(dto.getVoucher()));
+            }
             if (dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
             }

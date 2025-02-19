@@ -9,7 +9,7 @@ TransactionDto:
       format: int64
     type:
       type: string
-      enum: [DEPOSIT, WITHDRAW, ORDER, PAYOUT]
+      enum: [DEPOSIT, ORDER]
     paymentMethod:
       type: string
       enum: [PAYPAL, VNPAY]

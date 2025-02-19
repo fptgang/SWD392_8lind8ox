@@ -7,6 +7,10 @@ OrderDto:
     accountId:
       type: integer
       format: int64
+    shippingInfo:
+      $ref: "shipping-info.yml#/ShippingInfoDto"
+    voucher:
+      $ref: "voucher.yml#/VoucherDto"
     orderDetails:
       type: array
       items:
@@ -21,6 +25,9 @@ OrderDto:
     updatedAt:
       type: string
       format: date-time
-    totalPrice:
+    originalPrice:
+      type: number
+      format: double
+    checkoutPrice:
       type: number
       format: double

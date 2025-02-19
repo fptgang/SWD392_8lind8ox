@@ -36,6 +36,9 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             if (dto.getAccountId() != null) {
                 existingVideo.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
             }
+            if (dto.getIsVerified() != null) {
+                existingVideo.setVerified(dto.getIsVerified());
+            }
             return existingVideo;
         } else {
             Video entity = new Video();
@@ -47,6 +50,9 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             entity.setUpdatedAt(dto.getUpdatedAt() != null ? DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()) : null);
             if (dto.getAccountId() != null) {
                 entity.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
+            }
+            if (dto.getIsVerified() != null) {
+                entity.setVerified(dto.getIsVerified());
             }
             return entity;
         }
@@ -66,6 +72,7 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
         dto.setCreatedAt(entity.getCreatedAt() != null ? DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()) : null);
         dto.setUpdatedAt(entity.getUpdatedAt() != null ? DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()) : null);
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
+        dto.setIsVerified(entity.isVerified());
         return dto;
     }
 }

@@ -24,6 +24,8 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
     private ImageMapper imageMapper;
     @Autowired
     private BlindBoxMapper blindBoxMapper;
+    @Autowired
+    private StockKeepingUnitMapper stockKeepingUnitMapper;
 
     @Override
     public Set toEntity(SetDto dto) {
@@ -35,10 +37,12 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
 
         if (existingSetOptional.isPresent() && dto.getSetId() != null) {
             Set existingSet = existingSetOptional.get();
-//            existingSet.setCurrentPrice(dto.getCurrentPrice() != null ? dto.getCurrentPrice() : existingSet.getCurrentPrice());
+            if(dto.getSku() != null) {
+                existingSet.setSku(stockKeepingUnitMapper.toEntity(dto.getSku()));
+            }
             existingSet.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingSet.isVisible());
-            if (dto.getImageIds() != null) {
-                existingSet.setImages(dto.getImageIds().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
+            if (dto.getImages() != null) {
+                existingSet.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
             }
             if (dto.getSlots() != null) {
                 existingSet.setSlots(dto.getSlots().stream().map(slotMapper::toEntity).collect(Collectors.toList()));
@@ -51,7 +55,7 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
         } else {
             Set entity = new Set();
 //            entity.setSetId(dto.getSetId());
-//            entity.setCurrentPrice(dto.getCurrentPrice());
+            entity.setSku(dto.getSku() != null ? stockKeepingUnitMapper.toEntity(dto.getSku()) : null);
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             entity.setBlindBox(dto.getBlindBox() != null ?
                     blindBoxRepos.findById(dto.getBlindBox().getBlindBoxId()).get()
@@ -62,8 +66,8 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
             if (dto.getUpdatedAt() != null) {
                 entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
             }
-            if (dto.getImageIds() != null) {
-                entity.setImages(dto.getImageIds().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
+            if (dto.getImages() != null) {
+                entity.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
             }
             if (dto.getSlots() != null) {
                 entity.setSlots(dto.getSlots().stream().map(slotMapper::toEntity).collect(Collectors.toList()));
@@ -92,7 +96,7 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
             dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         }
         if (entity.getImages() != null) {
-            dto.setImageIds(entity.getImages().stream().map(imageMapper::toDTO).collect(Collectors.toList()));
+            dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).collect(Collectors.toList()));
         }
         if (entity.getSlots() != null) {
             dto.setSlots(entity.getSlots().stream().map(slotMapper::toDTO).collect(Collectors.toList()));
