@@ -1,0 +1,27 @@
+ShippingInfoDto:
+  type: object
+  properties:
+    shippingInfoId:
+        type: integer
+        format: int64
+    address:
+        type: string
+    ward:
+        type: string
+    district:
+        type: string
+    city:
+        type: string
+    name:
+        type: string
+    phoneNumber:
+        type: string
+    isVisible:
+        type: boolean
+        default: true
+    createdAt:
+        type: string
+        format: date-time
+    updatedAt:
+        type: string
+        format: date-time

@@ -4,9 +4,6 @@ PromotionalCampaignDto:
     campaignId:
       type: integer
       format: int64
-    creatorId:
-      type: integer
-      format: int64
     title:
       type: string
     description:
@@ -19,9 +16,7 @@ PromotionalCampaignDto:
       format: date-time
     discountRate:
       type: number
-      format: double
-    promoCode:
-      type: string
+    format: double
     isVisible:
       type: boolean
     blindBoxes:

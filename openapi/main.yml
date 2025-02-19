@@ -49,6 +49,10 @@ components:
       $ref: "model/slot.yml#/SlotDto"
     StockKeepingUnitDto:
       $ref: "model/stock-keeping-unit.yml#/StockKeepingUnitDto"
+    ShippingInfoDto:
+      $ref: "model/shipping-info.yml#/ShippingInfoDto"
+    VoucherDto:
+      $ref: "model/voucher.yml#/VoucherDto"
 paths:
   /auth/me:
     $ref: "path/auth/me.yml"
@@ -122,3 +126,11 @@ paths:
     $ref: "path/slot.yml"
   /slots/{slotId}:
     $ref: "path/slot-slotId.yml"
+  /shipping-info:
+    $ref: "path/shipping-info.yml"
+  /shipping-info/{shippingInfoId}:
+    $ref: "path/shipping-info-shippingInfoId.yml"
+  /vouchers:
+    $ref: "path/voucher.yml"
+  /vouchers/{voucherId}:
+    $ref: "path/voucher-voucherId.yml"
