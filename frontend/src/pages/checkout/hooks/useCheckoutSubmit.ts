@@ -1,81 +1,77 @@
 // hooks/useCheckoutSubmit.ts
-import { useCreate, HttpError } from "@refinedev/core";
-
+import { useCreate } from "@refinedev/core";
+import { OrderDetailDto, OrderDto, TransactionDto, TransactionDtoPaymentMethodEnum, TransactionDtoTypeEnum } from "../../../../generated";
 import { CartItem } from "../../../store/features/cart/cartSlice";
-import {
-  OrderDetailDto,
-  OrderDto,
-  OrderDtoStatusEnum,
-  TransactionDto,
-  TransactionDtoPaymentMethodEnum,
-  TransactionDtoTypeEnum,
-} from "../../../../generated";
+
 
 interface UseCheckoutSubmitParams {
   paymentMethod: TransactionDtoPaymentMethodEnum;
   promotionalCampaignId?: number;
   total: number;
-  discount: number;
   cartItems: CartItem[];
+  accountId: number;
+  shippingInfoId: number;
   onSuccess: () => void;
-  onError: (error: HttpError) => void;
+  onError: (error: any) => void;
 }
 
 export const useCheckoutSubmit = ({
   paymentMethod,
   promotionalCampaignId,
+  accountId,
   total,
-  discount,
   cartItems,
+  shippingInfoId,
   onSuccess,
   onError,
 }: UseCheckoutSubmitParams) => {
-  const { mutate, isLoading } = useCreate();
+  const { mutate: createOrder } = useCreate<OrderDto>();
+  const { mutate: createTransaction } = useCreate<TransactionDto>();
 
   const handleSubmit = async () => {
     try {
-      // 1. Create order
+      // Create order details from cart items
       const orderDetails: Partial<OrderDetailDto>[] = cartItems.map((item) => ({
         skuId: parseInt(item.id),
         originalPrice: item.price,
-        checkoutPrice: item.price * (item.quantity || 1),
-        promotionalCampaignId: promotionalCampaignId,
+        checkoutPrice: item.price,
+        promotionalCampaignId,
       }));
 
-      const orderData: Partial<OrderDto> = {
-        status: OrderDtoStatusEnum.Pending,
-        totalPrice: total - discount,
-        orderDetails: orderDetails,
-      };
-
-      const orderResponse = await mutate({
+      // Create order
+      const orderResponse = await createOrder({
         resource: "orders",
-        values: orderData,
+        values: {
+          accountId,
+          shippingInfoId,
+          orderDetails,
+          originalPrice: total,
+          checkoutPrice: total,
+        },
       });
 
       if (orderResponse.data) {
-        // 2. Create transaction
-        const transactionData: Partial<TransactionDto> = {
-          type: TransactionDtoTypeEnum.Order,
-          paymentMethod: paymentMethod,
-          amount: total - discount,
-          orderId: orderResponse.data.orderId,
-        };
-
-        await mutate({
+        // Create transaction record
+        await createTransaction({
           resource: "transactions",
-          values: transactionData,
+          values: {
+            accountId,
+            type: TransactionDtoTypeEnum.Order,
+            paymentMethod,
+            amount: total,
+            orderId: orderResponse.data.orderId,
+            success: true,
+          },
         });
 
         onSuccess();
       }
     } catch (error) {
-      onError(error as HttpError);
+      onError(error);
     }
   };
 
   return {
     handleSubmit,
-    isLoading,
-  };
+  };  
 };

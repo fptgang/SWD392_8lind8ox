@@ -26,7 +26,7 @@ type IUser = {
   avatar: string;
 };
 
-export const Header: React.FC<RefineThemedLayoutV2HeaderProps> = ({
+export const AdminHeader: React.FC<RefineThemedLayoutV2HeaderProps> = ({
   sticky = true,
 }) => {
   const { token } = useToken();
@@ -35,10 +35,10 @@ export const Header: React.FC<RefineThemedLayoutV2HeaderProps> = ({
   const { translate, getLocale, changeLocale } = useTranslation();
 
   const currentLocale = getLocale();
-  
+
   const menu = (
-    <Menu >
-     <LanguageSelector  />
+    <Menu>
+      <LanguageSelector />
     </Menu>
   );
   const headerStyles: React.CSSProperties = {
@@ -65,7 +65,7 @@ export const Header: React.FC<RefineThemedLayoutV2HeaderProps> = ({
           onChange={() => setMode(mode === "light" ? "dark" : "light")}
           defaultChecked={mode === "dark"}
         />
-        <LanguageSelector  />
+        <LanguageSelector />
         <Space style={{ marginLeft: "8px" }} size="middle">
           {user?.name && <Text strong>{user.name}</Text>}
           {user?.avatar && <Avatar src={user?.avatar} alt={user?.name} />}

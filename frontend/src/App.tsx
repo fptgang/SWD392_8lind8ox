@@ -67,7 +67,6 @@ import CustomerDeals from "./pages/customer/deals";
 import ProfilePage from "./pages/accounts/profile";
 import CustomerOrders from "./pages/customer/orders";
 import CartPage from "./pages/cart";
-import { AccountLayout } from "./pages/accounts/components/AccountLayout";
 import { SecuritySettings } from "./pages/accounts/components/SecuritySettings";
 import { WalletSettings } from "./pages/accounts/components/WalletSettings";
 import { Provider } from "react-redux";
@@ -75,11 +74,15 @@ import { store } from "./store";
 import { OrderSuccess } from "./pages/checkout/order-success";
 import { OrderFailed } from "./pages/checkout/order-failed";
 import CheckoutPage from "./pages/checkout";
-import CustomerProductShow from "./pages/customer/products/show";
 import { DashboardPage } from "./pages/dashboard";
 import { getResources } from "./config/resources";
 import { useTranslation } from "react-i18next";
-import CustomerHeader from "./components/header/customer-header";
+import CustomerHeader from "./components/customer/header/customer-header";
+import CustomerOrderList from "./pages/customer/setting/CustomerOrderList";
+import AccountLayout from "./pages/accounts/components/layout";
+import { AccountDtoRoleEnum } from "../generated";
+import { AdminHeader } from "./components/header";
+import CustomerProductShow from "./pages/customer/products/show";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -159,7 +162,7 @@ function App() {
                         <Route path="profile" element={<ProfilePage />} />
                         <Route path="security" element={<SecuritySettings />} />
                         <Route path="wallet" element={<WalletSettings />} />
-                        <Route path="orders" element={<OrdersList />} />
+                        <Route path="orders" element={<CustomerOrderList />} />
                         <Route path="orders/:id" element={<OrdersShow />} />
                       </Route>
 
@@ -194,19 +197,21 @@ function App() {
                     <Route
                       path="admin"
                       element={
-                        localStorage.getItem("role") === "ADMIN" ? (
+                        localStorage.getItem("role") ===
+                        AccountDtoRoleEnum.Admin ? (
                           <Authenticated
-                            key="authenticated-admin"
+                            key="authenticated"
                             fallback={<Navigate to="/login" replace />}
                           >
                             <ThemedLayoutV2
-                              Header={CustomerHeader}
+                              Header={AdminHeader}
                               Sider={(props) => (
                                 <ThemedSiderV2 {...props} fixed />
                               )}
                             >
                               <Outlet />
                             </ThemedLayoutV2>
+                            //{" "}
                           </Authenticated>
                         ) : (
                           <Navigate to="/" />

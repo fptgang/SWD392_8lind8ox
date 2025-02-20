@@ -9,7 +9,6 @@ const { useToken } = theme;
 export const ProductCard: React.FC<ProductCardProps> = ({
   blindBox,
   onCardClick,
-  onAddToCart,
 }) => {
   const { token } = useToken();
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Breadcrumb, Layout, Menu } from "antd";
 import { ThemedHeaderV2 } from "@refinedev/antd";
-import CustomerHeader from "../header/customer-header";
+import CustomerHeader from "../customer/header/customer-header";
 
 const { Header, Content, Footer } = Layout;
 
@@ -18,7 +18,7 @@ export const ClientLayout: React.FC<AppProps> = ({
 }) => {
   return (
     <Layout>
-      <CustomerHeader/>
+      <CustomerHeader />
 
       <Content>
         <InnerContent />

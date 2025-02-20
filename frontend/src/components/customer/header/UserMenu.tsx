@@ -8,9 +8,9 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router";
 import { useLogout, useGetIdentity } from "@refinedev/core";
-import { ColorModeContext } from "../../contexts/color-mode";
-import { AccountDto } from "../../../generated";
-import { formatCurrency } from "../../utils/currency-formatter";
+import { ColorModeContext } from "../../../contexts/color-mode";
+import { AccountDto } from "../../../../generated";
+import { formatCurrency } from "../../../utils/currency-formatter";
 
 interface UserMenuProps {
   isAuthenticated?: boolean;
@@ -34,7 +34,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
           <ShoppingCartOutlined className="mr-2" /> My Orders
         </Link>
       </Menu.Item>
-      <Menu.Item key="theme">
+      <Menu.Item key="theme" onClick={(e: any) => e.stopPropagation()}>
         <Space>
           Dark Mode
           <Switch
