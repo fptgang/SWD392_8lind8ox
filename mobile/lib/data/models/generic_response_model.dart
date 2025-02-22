@@ -27,21 +27,24 @@ class PaginationResponseGeneric<T> {
     empty,
   ];
 
-  static PaginationResponseGeneric<T> fromDTO<T>({
+  static PaginationResponseGeneric<T> fromDTO<T, D>({
     required D dto,
     required T Function(dynamic) fromDTO,
   }) {
-    final dtoMap = dto as Map<String, dynamic>;
-    final contentList = dtoMap['content'] as List<dynamic>;
+    if (dto is! Map<String, dynamic>) {
+      throw ArgumentError('DTO must be a Map<String, dynamic>');
+    }
+
+    final contentList = dto['content'] as List<dynamic>;
 
     return PaginationResponseGeneric<T>(
       content: contentList.map((e) => fromDTO(e)).toList(),
-      totalElements: dtoMap['totalElements'] as int,
-      totalPages: dtoMap['totalPages'] as int,
-      last: dtoMap['last'] as bool,
-      first: dtoMap['first'] as bool,
-      numberOfElements: dtoMap['numberOfElements'] as int,
-      empty: dtoMap['empty'] as bool,
+      totalElements: dto['totalElements'] as int,
+      totalPages: dto['totalPages'] as int,
+      last: dto['last'] as bool,
+      first: dto['first'] as bool,
+      numberOfElements: dto['numberOfElements'] as int,
+      empty: dto['empty'] as bool,
     );
   }
 }

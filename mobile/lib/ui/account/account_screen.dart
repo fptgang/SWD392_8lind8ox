@@ -6,7 +6,7 @@ import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/authentication/authentication_state.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
 import 'package:mobile/enum/enum.dart';
-import 'package:mobile/ui/account/widget/account_detail.dart';
+import 'package:mobile/ui/account/widget/setting.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../blocs/register/register_bloc.dart';
@@ -42,7 +42,7 @@ class AccountScreen extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: AccountDetail(),
+                    child: SettingScreen(),
                   ),
                 ),
               ),

@@ -12,6 +12,7 @@ import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/cubit/set_cubit/set_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
+import 'package:mobile/ui/account/profile_detail_screen.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/cart_screen.dart';
 import 'package:mobile/ui/checkout/checkout_screen.dart';
@@ -107,7 +108,7 @@ final router = GoRouter(
       ],
     ),
     GoRoute(path: '/checkout', builder: (context, state) => CheckoutScreen()),
-
+    GoRoute(path: '/profile-detail', builder: (context, state) => ProfileDetailScreen()),
   ],
 );
 
