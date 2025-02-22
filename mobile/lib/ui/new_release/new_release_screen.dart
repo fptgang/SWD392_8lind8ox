@@ -5,7 +5,7 @@ import 'package:mobile/data/repositories/set_repository.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/new_release/widget/drawer.dart';
 
-import '../../cubit/set_cubit/set_cubit.dart';
+import '../../cubit/set_cubit/set_bloc.dart';
 import '../../di/injection.dart';
 
 

@@ -16,4 +16,19 @@ class OrderDetailMapper {
       updatedAt: dto.updatedAt,
     );
   }
+
+  static OrderDetailDto toDto(OrderDetailModel model) {
+    return OrderDetailDto(
+      orderDetailId: model.orderDetailId,
+      orderId: model.orderId,
+      skuId: model.skuId,
+      originalPrice: model.originalPrice,
+      checkoutPrice: model.checkoutPrice,
+      slotId: model.slotId,
+      promotionalCampaignId: model.promotionalCampaignId,
+      originalProductPrice: model.originalProductPrice,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+    );
+  }
 }

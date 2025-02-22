@@ -30,15 +30,16 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<PaginationResponseGeneric<GetTransactions200Response>> getTransactions(Pageable pageable, String filter, String search) async {
-    GetTransactions200Response? response = await _apiService.getTransactions(pageable: pageable, filter: filter, search: search);
-    if (response == null) {
-      throw Exception('Failed to load transactions');
-    }
-
-    return PaginationResponse.fromDTO<TransactionModel, GetTransactions200Response>(
-      dto: response,
-      fromDTO: (data) => TransactionMapper.toModel(data),
-    );
+    // GetTransactions200Response? response = await _apiService.getTransactions(pageable: pageable, filter: filter, search: search);
+    // if (response == null) {
+    //   throw Exception('Failed to load transactions');
+    // }
+    //
+    // return PaginationResponse.fromDTO<TransactionModel, GetTransactions200Response>(
+    //   dto: response,
+    //   fromDTO: (data) => TransactionMapper.toModel(data),
+    // );
+    throw UnimplementedError();
   }
 
 }

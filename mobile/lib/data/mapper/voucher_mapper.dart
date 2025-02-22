@@ -17,4 +17,18 @@ class VoucherMapper{
       expiredAt: dto.expiredAt,
     );
   }
+
+  static VoucherDto toDto(VoucherModel model) {
+    return VoucherDto(
+      voucherId: model.voucherId,
+      orderId: model.orderId,
+      accountId: model.accountId,
+      code: model.code,
+      discountRate: model.discountRate,
+      limitAmount: model.limitAmount,
+      isUsed: model.isUsed,
+      createdAt: model.createdAt,
+      expiredAt: model.expiredAt,
+    );
+  }
 }

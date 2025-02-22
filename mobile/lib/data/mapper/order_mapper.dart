@@ -43,4 +43,41 @@ class OrderMapper {
         throw Exception('Unknown order status: $dto');
     }
   }
+  static OrderDto toDto(OrderModel model) {
+    return OrderDto(
+      orderId: model.orderId,
+      accountId: model.accountId,
+      shippingInfo: model.shippingInfo != null
+          ? ShippingInfoMapper.toDto(model.shippingInfo!)
+          : null,
+      voucher: model.voucher != null
+          ? VoucherMapper.toDto(model.voucher!)
+          : null,
+      orderDetails: model.orderDetails.map((e) => OrderDetailMapper.toDto(e)).toList(),
+      orderStatusHistories: model.orderStatusHistories!.map((e) => OrderStatusHistoryMapper.toDto(e)).toList(),
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+      originalPrice: model.originalPrice,
+      checkoutPrice: model.checkoutPrice,
+    );
+  }
+
+  static OrderStatusHistoryDtoStateEnum toOrderStatusHistoryEnumDto(OrderStatusHistoryEnum model) {
+    switch (model) {
+      case OrderStatusHistoryEnum.CREATED:
+        return OrderStatusHistoryDtoStateEnum.CREATED;
+      case OrderStatusHistoryEnum.COURIER_ACCEPTED:
+        return OrderStatusHistoryDtoStateEnum.COURIER_ACCEPTED;
+      case OrderStatusHistoryEnum.SHIPPING:
+        return OrderStatusHistoryDtoStateEnum.SHIPPING;
+      case OrderStatusHistoryEnum.DELIVERED:
+        return OrderStatusHistoryDtoStateEnum.DELIVERED;
+      case OrderStatusHistoryEnum.RECEIVED:
+        return OrderStatusHistoryDtoStateEnum.RECEIVED;
+      case OrderStatusHistoryEnum.COMPLETED:
+        return OrderStatusHistoryDtoStateEnum.COMPLETED;
+      default:
+        throw Exception('Unknown order status: $model');
+    }
+  }
 }

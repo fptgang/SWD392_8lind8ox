@@ -1,4 +1,5 @@
 import 'package:hive_flutter/adapters.dart';
+import 'package:mobile/data/mapper/order_mapper.dart';
 import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/data/models/order_response_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
@@ -30,8 +31,21 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<OrderModel> createOrder(OrderDto orderDto) {
-    // TODO: implement createOrder
-    throw UnimplementedError();
+  Future<OrderModel> createOrder(OrderModel orderModel) async {
+    try {
+      final orderDto = OrderMapper.toDto(orderModel);
+
+      final response = await _apiService.createOrder(orderDto);
+
+      if (response == null) {
+        throw Exception('Failed to create order');
+      }
+
+      final orderModelResponse = OrderMapper.toModel(response);
+
+      return orderModelResponse;
+    } catch (e) {
+      throw Exception('Failed to create order: $e');
+    }
   }
 }

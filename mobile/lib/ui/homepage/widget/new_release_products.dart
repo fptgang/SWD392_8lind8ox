@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_state.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 
-import '../../../cubit/blindbox_list_cubit/blindbox_list_cubit.dart';
+import '../../../cubit/blindbox_list_cubit/blindbox_list_bloc.dart';
 import '../../../di/injection.dart';
 
 

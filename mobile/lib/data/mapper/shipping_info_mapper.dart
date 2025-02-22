@@ -16,4 +16,19 @@ class ShippingInfoMapper {
       updatedAt: dto.updatedAt,
     );
   }
+
+  static ShippingInfoDto toDto(ShippingInfoModel model) {
+    return ShippingInfoDto(
+      shippingInfoId: model.shippingInfoId,
+      address: model.address,
+      ward: model.ward,
+      district: model.district,
+      city: model.city,
+      name: model.name,
+      phoneNumber: model.phoneNumber,
+      isVisible: model.isVisible,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+    );
+  }
 }

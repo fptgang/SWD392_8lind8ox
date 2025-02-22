@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/data/datasources/local/search_local_datasource.dart';
 import 'package:mobile/data/repositories/blindbox_repository.dart';
-import '../../cubit/blindbox_list_cubit/blindbox_list_cubit.dart';
+import '../../cubit/blindbox_list_cubit/blindbox_list_bloc.dart';
 import '../../di/injection.dart';
 import '../core/theme/theme.dart';
 import 'widget/search_tab_bar.dart';

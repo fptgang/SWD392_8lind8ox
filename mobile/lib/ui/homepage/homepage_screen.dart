@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/cubit/set_cubit/set_cubit.dart';
+import 'package:mobile/cubit/set_cubit/set_bloc.dart';
 import 'package:mobile/ui/common/bottomsheet.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/homepage/widget/filter_button.dart';

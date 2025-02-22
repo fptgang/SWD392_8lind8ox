@@ -1,6 +1,6 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_cubit.dart';
+// import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_bloc.dart';
 // import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_state.dart';
 //
 // class RecentSearches extends StatelessWidget {

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/ui/homepage/widget/set_item.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../../cubit/set_cubit/set_cubit.dart';
+import '../../../cubit/set_cubit/set_bloc.dart';
 import '../../../cubit/set_cubit/set_state.dart';
 import '../../../di/injection.dart';
 import '../../core/theme/theme.dart';

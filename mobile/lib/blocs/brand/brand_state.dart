@@ -1,6 +1,5 @@
 import 'package:mobile/data/models/brand_model.dart';
 import 'package:mobile/data/models/brands_response_model.dart';
-import 'package:mobile/data/models/set_model.dart';
 import 'package:openapi/api.dart';
 
 class BrandState {

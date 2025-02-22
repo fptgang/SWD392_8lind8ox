@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/cubit/set_cubit/set_cubit.dart';
+import 'package:mobile/cubit/set_cubit/set_bloc.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 class CategoryDrawer extends StatelessWidget {
   final List<String> categories = [

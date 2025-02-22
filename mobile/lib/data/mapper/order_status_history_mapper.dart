@@ -14,4 +14,14 @@ class OrderStatusHistoryMapper {
       createdAt: dto.createdAt!,
     );
   }
+
+  static OrderStatusHistoryDto toDto(OrderStatusHistoryModel model) {
+    return OrderStatusHistoryDto(
+      id: model.orderStatusHistoryId,
+      orderId: model.orderId,
+      accountId: model.accountId,
+      state: OrderMapper.toOrderStatusHistoryEnumDto(model.orderStatusHistoryEnum),
+      createdAt: model.createdAt,
+    );
+  }
 }

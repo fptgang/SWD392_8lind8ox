@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../../cubit/blindbox_list_cubit/blindbox_list_cubit.dart';
+import '../../../cubit/blindbox_list_cubit/blindbox_list_bloc.dart';
 import '../../../cubit/blindbox_list_cubit/blindbox_list_state.dart';
 import '../../../data/models/blindbox_model.dart';
 import '../../../di/injection.dart';

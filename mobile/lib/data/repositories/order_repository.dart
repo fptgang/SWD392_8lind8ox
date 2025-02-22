@@ -6,5 +6,5 @@ abstract class OrderRepository {
 
   Future<OrderModel> getOrderById(int orderId);
   Future<OrderResponseModel> getOrders(Pageable pageable, String filter, String search);
-  Future<OrderModel> createOrder(OrderDto orderDto);
+  Future<OrderModel> createOrder(OrderModel orderModel);
 }
