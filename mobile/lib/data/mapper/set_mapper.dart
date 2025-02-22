@@ -1,19 +1,24 @@
 
+import 'package:mobile/data/mapper/blindbox_mapper.dart';
+import 'package:mobile/data/mapper/image_mapper.dart';
+import 'package:mobile/data/mapper/sku_mapper.dart';
+import 'package:mobile/data/mapper/slot_mapper.dart';
+import 'package:mobile/data/models/image_model.dart';
 import 'package:mobile/data/models/sets_response_model.dart';
 import 'package:openapi/api.dart';
 
 import '../models/set_model.dart';
 
 class SetMapper{
-  static SetModel toModel(SetDto dto){
+  static SetModel toModel(SetDto dto) {
     return SetModel(
-      setId: dto.setId,
-      currentPrice: dto.currentPrice ?? 0.0,
-      imageIds: dto.imageIds,
+      setId: dto.setId!,
+      sku: SkuMapper.toModel(dto.sku!),
+      images: dto.images.map((e) => ImageMapper.toModel(e)).toList(),
       isVisible: dto.isVisible,
-      slots: dto.slots,
-      blindBox: dto.blindBox,
-      createdAt: dto.createdAt,
+      slots: dto.slots.map((e) => SlotMapper.toModel(e)).toList(),
+      blindBox: BlindBoxMapper.toModel(dto.blindBox!),
+      createdAt: dto.createdAt!,
       updatedAt: dto.updatedAt,
     );
   }

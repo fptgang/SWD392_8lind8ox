@@ -1,25 +1,25 @@
 class OrderDetailModel {
-  final int? orderDetailId;
-  final int? orderId;
-  final int? skuId;
-  final double? originalPrice;
+  final int orderDetailId;
+  final int orderId;
+  final int skuId;
+  final double originalPrice;
   final double? checkoutPrice;
   final int? slotId;
   final int? promotionalCampaignId;
   final double? originalProductPrice;
-  final DateTime? createdAt;
+  final DateTime createdAt;
   final DateTime? updatedAt;
 
   OrderDetailModel({
-    this.orderDetailId,
-    this.orderId,
-    this.skuId,
-    this.originalPrice,
+    required this.orderDetailId,
+    required this.orderId,
+    required this.skuId,
+    required this.originalPrice,
     this.checkoutPrice,
     this.slotId,
     this.promotionalCampaignId,
     this.originalProductPrice,
-    this.createdAt,
+    required this.createdAt,
     this.updatedAt,
   });
 

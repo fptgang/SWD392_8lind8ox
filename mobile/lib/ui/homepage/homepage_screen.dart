@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/cubit/set_cubit/set_cubit.dart';
+import 'package:mobile/ui/common/bottomsheet.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
+import 'package:mobile/ui/homepage/widget/filter_button.dart';
 import 'package:mobile/ui/homepage/widget/set_item.dart';
 import 'package:mobile/ui/homepage/widget/new_release_products.dart';
 import 'package:mobile/ui/homepage/widget/recommended_item.dart';
@@ -123,6 +125,41 @@ class HomePageScreen extends StatelessWidget {
 
                 const SetSection(),
                 SizedBox(height: 10.h),
+
+                Row(
+                  children: [
+                    FilterSortButtons(
+                      onSortTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          ),
+                          builder: (context) => SortByBottomSheet(
+                            onSortSelected: (sortType) {
+                              // Handle sort selection
+                              Navigator.pop(context);
+                            },
+                          ),
+                        );
+                      },
+                      onFilterTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          ),
+                          builder: (context) => FilterBottomSheet(
+                            onApplyFilter: (filterOptions) {
+                              // Handle filter application
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
 
                 const RecommendedItems(),
               ],

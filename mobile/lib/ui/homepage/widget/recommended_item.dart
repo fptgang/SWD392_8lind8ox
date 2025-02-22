@@ -117,8 +117,7 @@ class RecommendedItems extends StatelessWidget {
                                     ),
                                   ),
                                   SizedBox(height: 4),
-                                  if (blindBox.skus != null)
-                                    ...blindBox.skus!.map((sku) => Text(
+                                    ...blindBox.skus.map((sku) => Text(
                                       "\$${sku.price?.toStringAsFixed(2) ?? '0.00'}",
                                       style: TextStyle(
                                           color: getColorSkin().primaryRed800
@@ -135,7 +134,7 @@ class RecommendedItems extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Error: ${blindBoxesCubit.state.error}'),
+                          Text('Error: ${LoadingState().error}'),
                           ElevatedButton(
                             onPressed: () => blindBoxesCubit.refresh(),
                             child: const Text('Retry'),

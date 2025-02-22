@@ -21,7 +21,6 @@ class ProductDetailScreen extends StatelessWidget {
     final PageController pageController = PageController();
     final cartCubit = getIt<CartCubit>();
     debugPrint('blindBoxId: $blindBoxId');
-    int quantity = 1;
 
     return MultiBlocProvider(
       providers: [
@@ -42,11 +41,10 @@ class ProductDetailScreen extends StatelessWidget {
             return Center(child: Text(state.error!));
           }
 
-          if( state.blindBox == null) {
+          final blindBox = state.blindBox;
+          if (blindBox == null) {
             return const Center(child: Text('No data'));
           }
-
-          final blindBox = state.blindBox;
 
           debugPrint('Blind box: ${blindBox.toString()}');
           return Scaffold(
@@ -79,8 +77,8 @@ class ProductDetailScreen extends StatelessWidget {
                         context.read<BlindBoxDetailBloc>()
                             .add(UpdateSelectedImage(index));
                       },
-                      children: (blindBox?.images.isNotEmpty ?? false)
-                          ? blindBox!.images.map((image) =>
+                      children: (blindBox.images?.isNotEmpty ?? false)
+                          ? blindBox.images!.map((image) =>
                           Image.network(
                             image.imageUrl ?? '',
                             fit: BoxFit.contain,
@@ -105,15 +103,15 @@ class ProductDetailScreen extends StatelessWidget {
                     height: 80.h,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      itemCount: blindBox?.images.length ?? 0,
+                      itemCount: blindBox.images?.length ?? 0,
                       separatorBuilder: (context, index) => SizedBox(width: 16.w),
                       itemBuilder: (context, index) {
                         return CircleAvatar(
                           radius: 30,
                           backgroundColor: getColorSkin().lightGrey200,
-                          child: blindBox?.images.isNotEmpty ?? false
+                          child: blindBox.images?.isNotEmpty ?? false
                               ? Image.network(
-                                  blindBox?.images[index].imageUrl ?? '',
+                                  blindBox.images![index].imageUrl ?? '',
                                   fit: BoxFit.cover,
                                 )
                               : Image.asset('assets/jpg/blind_box.jpg'),
@@ -127,8 +125,7 @@ class ProductDetailScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          blindBox?.name ?? '',
+                        Text(blindBox.name,
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -138,7 +135,7 @@ class ProductDetailScreen extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              "\$${blindBox?.skus.map((sku) => sku.price)}",
+                              "\$${blindBox.skus.map((sku) => sku.price)}",
                               style: TextStyle(
                                   fontSize: 16, color: getColorSkin().black),
                             ),
@@ -214,8 +211,7 @@ class ProductDetailScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          blindBox?.description ??
-                              'Không có mô tả cho sản phẩm này',
+                          blindBox.description,
                           style: TextStyle(color: getColorSkin().grey),
                         ),
                         TextButton(
@@ -242,9 +238,9 @@ class ProductDetailScreen extends StatelessWidget {
                         onPressed: () {
                           final product = CartItem(
                             id: blindBoxId,
-                            productName: blindBox?.name ?? 'Unnamed Box',
-                            price: blindBox?.skus.map((sku) => sku.price).first ?? 0,
-                            image: blindBox?.images.first.imageUrl ?? '',
+                            productName: blindBox.name,
+                            price: blindBox.skus.map((sku) => sku.price).first ?? 0,
+                            image: blindBox.images!.first.imageUrl ?? '',
                             quantity: state.quantity,
                           );
                           cartCubit.addToCart(product);

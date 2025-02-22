@@ -7,17 +7,17 @@ import '../models/blindboxes_response_model.dart';
 class BlindBoxMapper {
   static BlindBoxModel toModel(BlindBoxDto dto){
     return BlindBoxModel(
-      blindBoxId: dto.blindBoxId,
-      brandId: dto.brandId,
-      name: dto.name,
-      description: dto.description,
-      isVisible: dto.isVisible,
+      blindBoxId: dto.blindBoxId ?? 0,
+      brandId: dto.brandId ?? 0,
+      name: dto.name ?? '',
+      description: dto.description ?? '',
+      isVisible: dto.isVisible ?? false,
       promotionalCampaignId: dto.promotionalCampaignId,
       images: dto.images,
       toys: dto.toys,
       skus: dto.skus,
       setIds: dto.setIds,
-      createdAt: dto.createdAt,
+      createdAt: dto.createdAt ?? DateTime.now(),
       updatedAt: dto.updatedAt,
     );
   }

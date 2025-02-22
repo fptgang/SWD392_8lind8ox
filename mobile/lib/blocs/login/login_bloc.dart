@@ -61,8 +61,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final result = await _authRepository.login(loginRequestDto);
       debugPrint("result: $result");
         final box = Hive.box("authentication");
-        await box.put("loginToken", result.getToken);
-        debugPrint("loginToken: ${result.getToken}");
+        await box.put("loginToken", result.token);
+        debugPrint("loginToken: ${result.token}");
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } catch (error, stackTrace) {
       debugPrint("Error in onLoginSubmitted: $error");
@@ -82,7 +82,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       debugPrint("token: $token");
       final result = await _authRepository.loginWithGoogle(token);
       final box = Hive.box("authentication");
-      await box.put("loginToken", result.getToken);
+      await box.put("loginToken", result.token);
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } catch (error) {
       print(error);

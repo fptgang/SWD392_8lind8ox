@@ -6,8 +6,6 @@ import 'package:mobile/data/repositories/blindbox_repository.dart';
 import '../../cubit/blindbox_list_cubit/blindbox_list_cubit.dart';
 import '../../di/injection.dart';
 import '../core/theme/theme.dart';
-import 'widget/custom_search_bar.dart';
-import 'widget/recent_searches.dart';
 import 'widget/search_tab_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -54,11 +52,11 @@ class SearchScreen extends StatelessWidget {
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Expanded(
-                      child: CustomSearchBar(
-                        defaultText: "Labubu",
-                      ),
-                    ),
+                    // const Expanded(
+                    //   child: CustomSearchBar(
+                    //     defaultText: "Labubu",
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -68,7 +66,7 @@ class SearchScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RecentSearches(),
+                      // RecentSearches(),
                     ],
                   ),
                 ),

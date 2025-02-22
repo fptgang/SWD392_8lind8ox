@@ -10,3 +10,18 @@ enum OrderStatusHistoryEnum {
   RECEIVED,
   COMPLETED
 }
+
+enum TransactionType {
+  DEPOSIT,
+  ORDER
+}
+
+enum PaymentMethod {
+  PAYPAL,
+  VNPAY
+}
+
+enum ToyRarityEnum {
+  REGULAR,
+  SECRET
+}

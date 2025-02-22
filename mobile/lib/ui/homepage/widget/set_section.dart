@@ -60,8 +60,9 @@ class SetSection extends StatelessWidget {
                     final set = sets[index];
                     return buildSetItem(
                       set.setId.toString(),
-                      set.imageIds[0].imageUrl ?? '',
-                      set.currentPrice,
+                      set.images.isNotEmpty ? set.images.first.imageUrl ?? '' : '',
+                      // set.currentPrice,
+                      34232
                     );
                   },
                   separatorBuilder: (context, index) => SizedBox(width: 16.w),

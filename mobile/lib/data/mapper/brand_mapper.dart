@@ -7,12 +7,13 @@ import '../models/brands_response_model.dart';
 class BrandMapper{
   static BrandModel toModel(BrandDto dto){
     return BrandModel(
-      brandId: dto.brandId,
-      name: dto.name,
-      description: dto.description,
-      isVisible: dto.isVisible,
-      createdAt: dto.createdAt,
+      brandId: dto.brandId ?? 0,
+      name: dto.name ?? '',
+      description: dto.description ?? '',
+      isVisible: dto.isVisible ?? false,
+      createdAt: dto.createdAt ?? DateTime.now(),
       updatedAt: dto.updatedAt,
+      blindBoxes: dto.blindBoxes,
     );
   }
 

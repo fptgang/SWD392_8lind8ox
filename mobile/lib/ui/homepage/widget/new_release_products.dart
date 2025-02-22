@@ -22,16 +22,16 @@ class NewReleaseProducts extends StatelessWidget {
       create: (context) => blindBoxesCubit..getNewReleaseBlindBoxes(),
       child: BlocBuilder<BlindBoxesCubit, BlindBoxesState>(
         builder: (context, state) {
-          if (state.isLoading == true && (state.blindBoxes?.content.isEmpty ?? true)) {
+          if (LoadingState().isLoading && DataState().blindBoxes == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if ((state.error?.isNotEmpty ?? false) && (state.blindBoxes?.content.isEmpty ?? true)) {
+          if (LoadingState().error != null && DataState().blindBoxes == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Error: ${state.error}'),
+                  Text('Error: ${LoadingState().error}'),
                   ElevatedButton(
                     onPressed: () => context.read<BlindBoxesCubit>().refresh(),
                     child: const Text('Retry'),
@@ -41,7 +41,7 @@ class NewReleaseProducts extends StatelessWidget {
             );
           }
 
-          final blindBoxes = state.blindBoxes?.content ?? [];
+          final blindBoxes = DataState().blindBoxes?.content;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,11 +63,11 @@ class NewReleaseProducts extends StatelessWidget {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  itemCount: blindBoxes.length,
+                  itemCount: blindBoxes?.length,
                   itemBuilder: (context, index) {
                     return NewReleaseProductCard(
-                      imageUrl: blindBoxes[index].images[0].imageUrl ?? "",
-                      title: blindBoxes[index].name ?? "Blind Box",
+                      imageUrl: blindBoxes![index].images![0].imageUrl ?? "",
+                      title: blindBoxes[index].name,
                       price: blindBoxes[index].skus.firstWhere((sku) => sku.blindBoxId == blindBoxes[index].blindBoxId).price ?? 0.0,
                       onTap: () {
                         context.push('/blind-box-detail/${blindBoxes[index].blindBoxId}');
