@@ -13,4 +13,15 @@ class ImageMapper {
       createdAt: dto.createdAt!,
     );
   }
+  static ImageDto toDto(ImageModel model) {
+    return ImageDto(
+      imageId: model.imageId,
+      uploaderId: model.uploaderId,
+      blindBoxId: model.blindBoxId,
+      packId: model.packId,
+      imageUrl: model.imageUrl,
+      isVisible: model.isVisible,
+      createdAt: model.createdAt,
+    );
+  }
 }

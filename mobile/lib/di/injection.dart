@@ -4,9 +4,10 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/blindbox_detail/blindbox_detail_bloc.dart';
+import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/blocs/set/set_bloc.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/cubit/locale_cubit/locale_cubit.dart';
-import 'package:mobile/cubit/set_cubit/set_bloc.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
 import 'package:mobile/data/repositories/brand_repository.dart';
 import 'package:mobile/data/repositories/implement/account_repository_impl.dart';
@@ -18,7 +19,6 @@ import 'package:mobile/di/injection.config.dart';
 import 'package:openapi/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/login/login_bloc.dart';
-import '../cubit/blindbox_list_cubit/blindbox_list_bloc.dart';
 import '../cubit/dropdown_cubit/dropdown_cubit.dart';
 import '../data/datasources/local/impl/search_local_datasource_impl.dart';
 import '../data/datasources/local/search_local_datasource.dart';
@@ -52,7 +52,7 @@ Future<void> configureDependencies() async {
           () => DefaultApi(ApiClient(basePath: dotenv.env['BASE_URL'] ?? '')..authentication?.applyToParams([], {
         "Authorization": "Bearer ${box.get('loginToken')}",
       })));
-  getIt.registerLazySingleton<SetCubit>(() => SetCubit(getIt<SetRepository>()));
+  getIt.registerLazySingleton<SetBloc>(() => SetBloc(getIt<SetRepository>()));
 
   //singleton
   getIt.registerSingleton<SharedPrefManager>(SharedPrefManager(sharedPreferences));
@@ -72,5 +72,5 @@ Future<void> configureDependencies() async {
   //cubit factory
   getIt.registerFactory<DropdownCubit>(() => DropdownCubit(getIt<LocaleCubit>()));
   getIt.registerLazySingleton<CartCubit>(() => CartCubit());
-  getIt.registerFactory<BlindBoxesCubit>(() => BlindBoxesCubit(getIt<BlindBoxRepository>()));
+  getIt.registerFactory<BlindBoxesBloc>(() => BlindBoxesBloc(getIt<BlindBoxRepository>()));
 }

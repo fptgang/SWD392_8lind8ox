@@ -16,6 +16,7 @@ class SetBloc extends Bloc<SetEvent, SetState> {
     on<SelectSetCategory>(_onSelectCategory);
     on<GetSets>(_onGetSets);
     on<GetSetById>(_onGetSetById);
+    on<GetNewArrivalSets>(_onGetNewArrivalSets);
   }
 
   void _onSelectCategory(
@@ -63,6 +64,35 @@ class SetBloc extends Bloc<SetEvent, SetState> {
       emit(state.copyWith(
           set: set,
           isLoading: false
+      ));
+    } catch (e) {
+      emit(state.copyWith(error: e.toString(), isLoading: false));
+    }
+  }
+
+  Future<void> _onGetNewArrivalSets(
+      GetNewArrivalSets event,
+      Emitter<SetState> emit,
+      ) async {
+    emit(state.copyWith(isLoading: true, error: null));
+
+    try {
+      final pageable = Pageable(
+        page: 0,
+        size: event.limit,
+        sort: ['createdAt,desc'],
+      );
+
+      final sets = await _setRepository.getSets(
+        pageable,
+        state.filter ?? '',
+        state.search ?? '',
+      );
+
+      emit(state.copyWith(
+        sets: sets,
+        isLoading: false,
+        pageable: pageable,
       ));
     } catch (e) {
       emit(state.copyWith(error: e.toString(), isLoading: false));

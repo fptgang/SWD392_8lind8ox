@@ -10,7 +10,7 @@ import 'package:mobile/data/repositories/blindbox_repository.dart';
 import 'package:openapi/api.dart';
 
 @injectable
-class BlindBoxBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
+class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
   final BlindBoxRepository _blindBoxRepository;
   final SearchLocalDatasource? _searchLocalDatasource;
   Timer? _debounceTimer;
@@ -20,7 +20,7 @@ class BlindBoxBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
   PaginationState _paginationState;
   SearchState _searchState;
 
-  BlindBoxBloc(
+  BlindBoxesBloc(
       this._blindBoxRepository,
       [this._searchLocalDatasource]
       ) : _paginationState = PaginationState(pageable: Pageable(page: 1, size: 20)),
@@ -37,6 +37,13 @@ class BlindBoxBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
     on<UpdateSearch>(_onUpdateSearch);
     on<SearchChanged>(_onSearchChanged);
     on<RefreshBlindBoxes>(_onRefresh);
+    on<InitializeSearch>(_onInitializeSearch);
+    on<SubmitSearch>(_onSubmitSearch);
+    on<ClearSearch>(_onClearSearch);
+    on<LoadRecentSearches>(_onLoadRecentSearches);
+    on<AddRecentSearch>(_onAddRecentSearch);
+    on<RemoveRecentSearch>(_onRemoveRecentSearch);
+    on<ClearRecentSearches>(_onClearRecentSearches);
   }
 
   Future<void> _onGetBlindBoxes(
@@ -151,6 +158,80 @@ class BlindBoxBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
     );
     _searchState = const SearchState();
   }
+
+  Future<void> _onInitializeSearch(
+      InitializeSearch event,
+      Emitter<BlindBoxesState> emit,
+      ) async {
+    final recentSearches = _searchLocalDatasource?.getRecentSearches();
+    _searchState = _searchState.copyWith(recentSearches: recentSearches);
+    emit(LoadingState(isLoading: true));
+  }
+
+  Future<void> _onSubmitSearch(
+      SubmitSearch event,
+      Emitter<BlindBoxesState> emit,
+      ) async {
+    if (event.query.trim().isEmpty) return;
+
+    // Add to recent searches
+    add(AddRecentSearch(event.query));
+
+    // Reset pagination and perform search
+    _paginationState = PaginationState(pageable: Pageable(page: 1, size: 20));
+    add(UpdateSearch(event.query));
+  }
+
+  Future<void> _onAddRecentSearch(
+      AddRecentSearch event,
+      Emitter<BlindBoxesState> emit,
+      ) async {
+    var searches = _searchState.recentSearches.toList();
+    searches.remove(event.search); // Remove if exists
+    searches.insert(0, event.search); // Add to front
+    if (searches.length > 10) searches = searches.take(10).toList(); // Keep last 10
+
+    await _searchLocalDatasource?.saveRecentSearches(searches);
+    _searchState = _searchState.copyWith(recentSearches: searches);
+    emit(LoadingState(isLoading: true));
+  }
+
+  Future<void> _onRemoveRecentSearch(
+      RemoveRecentSearch event,
+      Emitter<BlindBoxesState> emit,
+      ) async {
+    await _searchLocalDatasource?.removeRecentSearch(event.search);
+    final searches = _searchState.recentSearches.where((s) => s != event.search).toList();
+    _searchState = _searchState.copyWith(recentSearches: searches);
+    emit(LoadingState(isLoading: true));
+  }
+
+  Future<void> _onClearRecentSearches(
+      ClearRecentSearches event,
+      Emitter<BlindBoxesState> emit,
+      ) async {
+    await _searchLocalDatasource?.clearRecentSearches();
+    _searchState = _searchState.copyWith(recentSearches: []);
+    emit(LoadingState(isLoading: true));
+  }
+
+  Future<void> _onLoadRecentSearches(
+      LoadRecentSearches event,
+      Emitter<BlindBoxesState> emit,
+      ) async {
+    final searches = _searchLocalDatasource?.getRecentSearches();
+    _searchState = _searchState.copyWith(recentSearches: searches);
+    emit(LoadingState(isLoading: true));
+  }
+
+  Future<void> _onClearSearch(
+      ClearSearch event,
+      Emitter<BlindBoxesState> emit,
+      ) async {
+    _searchState = _searchState.copyWith(query: '');
+    add(RefreshBlindBoxes());
+  }
+
 
   @override
   Future<void> close() {

@@ -17,7 +17,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<TransactionModel> createTransaction(TransactionDto transaction) {
+  Future<TransactionModel> createTransaction(TransactionModel transaction) {
     // TODO: implement createTransaction
     throw UnimplementedError();
   }

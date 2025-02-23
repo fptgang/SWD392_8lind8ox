@@ -1,69 +1,105 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_bloc.dart';
-// import 'package:mobile/cubit/blindbox_list_cubit/blindbox_list_state.dart';
-//
-// class RecentSearches extends StatelessWidget {
-//   const RecentSearches({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<BlindBoxesCubit, BlindBoxesState>(
-//       builder: (context, state) {
-//         if (state.recentSearches.isEmpty) {
-//           return const SizedBox.shrink();
-//         }
-//
-//         return Padding(
-//           padding: const EdgeInsets.all(16),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   const Text(
-//                     'Tìm kiếm gần đây',
-//                     style: TextStyle(
-//                       fontSize: 16,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   TextButton(
-//                     onPressed: () {
-//                       context.read<BlindBoxesCubit>().clearRecentSearches();
-//                     },
-//                     child: const Text('Xóa tất cả'),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 8),
-//               ...state.recentSearches.map((search) => _buildRecentItem(context, search)),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-//
-//   Widget _buildRecentItem(BuildContext context, String text) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 8),
-//       child: Row(
-//         children: [
-//           const Icon(Icons.history, color: Colors.grey),
-//           const SizedBox(width: 16),
-//           Expanded(
-//             child: Text(text),
-//           ),
-//           IconButton(
-//             icon: const Icon(Icons.close, color: Colors.grey),
-//             onPressed: () {
-//               context.read<BlindBoxesCubit>().removeRecentSearch(text);
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
+import 'package:mobile/ui/core/theme/theme.dart';
+
+import '../../../blocs/blindbox_list/blindboxes_event.dart';
+
+class RecentSearches extends StatelessWidget {
+  const RecentSearches({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
+      builder: (context, state) {
+        if (SearchState().recentSearches.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context, state),
+              SizedBox(height: 8.h),
+              ...SearchState().recentSearches.map((search) => _buildRecentItem(context, search)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, BlindBoxesState state) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          // AppLocalizations.of(context)?.recentSearches ?? 'Recent Searches',
+          'Recent Searches',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: getColorSkin().black,
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            context.read<BlindBoxesBloc>().add(ClearRecentSearches());
+          },
+          child: Text(
+            // AppLocalizations.of(context)?.clearAll ?? 'Clear All',
+            'Clear All',
+            style: TextStyle(
+              color: getColorSkin().primaryRed650,
+              fontSize: 14.sp,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentItem(BuildContext context, String text) {
+    return InkWell(
+      onTap: () {
+        context.read<BlindBoxesBloc>().add(SubmitSearch(text));
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Row(
+          children: [
+            Icon(
+              Icons.history,
+              color: getColorSkin().grey,
+              size: 20.r,
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: getColorSkin().black,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.close,
+                color: getColorSkin().grey,
+                size: 20.r,
+              ),
+              onPressed: () {
+                context.read<BlindBoxesBloc>().add(RemoveRecentSearch(text));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

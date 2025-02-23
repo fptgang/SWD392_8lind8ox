@@ -27,3 +27,26 @@ class SearchChanged extends BlindBoxEvent {
 }
 
 class RefreshBlindBoxes extends BlindBoxEvent {}
+
+class InitializeSearch extends BlindBoxEvent {}
+
+class SubmitSearch extends BlindBoxEvent {
+  final String query;
+  SubmitSearch(this.query);
+}
+
+class ClearSearch extends BlindBoxEvent {}
+
+class LoadRecentSearches extends BlindBoxEvent {}
+
+class AddRecentSearch extends BlindBoxEvent {
+  final String search;
+  AddRecentSearch(this.search);
+}
+
+class RemoveRecentSearch extends BlindBoxEvent {
+  final String search;
+  RemoveRecentSearch(this.search);
+}
+
+class ClearRecentSearches extends BlindBoxEvent {}

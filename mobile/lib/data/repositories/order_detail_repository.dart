@@ -12,5 +12,5 @@ import '../models/order_detail_response_model.dart';
 abstract class OrderDetailRepository {
   Future<OrderDetailModel> getOrderDetailById(int orderId);
   Future<OrderDetailResponseModel> getOrderDetails(Pageable pageable, String filter, String search);
-  Future<OrderDetailModel> createOrderDetail(OrderDetailDto orderDetailDto);
+  Future<OrderDetailModel> createOrderDetail(OrderDetailModel orderDetailModel);
 }

@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mobile/cubit/set_cubit/set_bloc.dart';
 import 'package:mobile/ui/common/bottomsheet.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/homepage/widget/filter_button.dart';
-import 'package:mobile/ui/homepage/widget/set_item.dart';
 import 'package:mobile/ui/homepage/widget/new_release_products.dart';
 import 'package:mobile/ui/homepage/widget/recommended_item.dart';
 import 'package:mobile/ui/homepage/widget/set_section.dart';
-import '../../cubit/set_cubit/set_state.dart';
+
 import '../common/language_dropdown.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePageScreen extends StatelessWidget {
   // final AuthRepository authRepository;

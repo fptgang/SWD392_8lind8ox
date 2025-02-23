@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:mobile/data/models/order_detail_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 
 import '../../data/models/order_model.dart';
@@ -30,3 +31,23 @@ class SelectPaymentMethod extends CheckoutEvent {
   @override
   List<Object?> get props => [paymentMethod];
 }
+
+class OrderDetailAdded extends CheckoutEvent {
+  final OrderDetailModel orderDetail;
+
+  const OrderDetailAdded(this.orderDetail);
+
+  @override
+  List<Object?> get props => [orderDetail];
+}
+
+class OrderFetched extends CheckoutEvent {
+  final int orderId;
+
+  const OrderFetched(this.orderId);
+
+  @override
+  List<Object?> get props => [orderId];
+}
+
+class CalculateTotalPrice extends CheckoutEvent {}

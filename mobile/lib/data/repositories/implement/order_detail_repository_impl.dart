@@ -30,7 +30,7 @@ class OrderDetailRepositoryImpl implements OrderDetailRepository {
   }
 
   @override
-  Future<OrderDetailModel> createOrderDetail(OrderDetailDto orderDetailDto) {
+  Future<OrderDetailModel> createOrderDetail(OrderDetailModel orderDetailModel) {
     // TODO: implement createOrderDetail
     throw UnimplementedError();
   }

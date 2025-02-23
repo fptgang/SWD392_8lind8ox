@@ -13,3 +13,8 @@ class GetSetById extends SetEvent {
 
   GetSetById(this.id);
 }
+
+class GetNewArrivalSets extends SetEvent {
+  final int limit;
+  GetNewArrivalSets({this.limit = 10});
+}

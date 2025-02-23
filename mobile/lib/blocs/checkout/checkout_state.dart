@@ -11,7 +11,7 @@ class CheckoutState extends Equatable {
 
   const CheckoutState({this.orders, this.shippingInfo, this.selectedPaymentMethod,this.loading, this.error});
 
-  CheckoutState copyWith({OrderModel? orders, bool? isLoading, String? error, String? selectedPaymentMethod}) {
+  CheckoutState copyWith({OrderModel? orders, ShippingInfoModel? shippingInfo, bool? isLoading, String? error, String? selectedPaymentMethod}) {
     return CheckoutState(
       orders: orders ?? this.orders,
       shippingInfo: shippingInfo ?? shippingInfo,

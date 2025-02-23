@@ -9,6 +9,6 @@ import 'package:openapi/api.dart';
 @Singleton()
 abstract class TransactionRepository {
   Future<TransactionModel> getTransactionById(int id);
-  Future<TransactionModel> createTransaction(TransactionDto transaction);
+  Future<TransactionModel> createTransaction(TransactionModel transaction);
   Future<PaginationResponseGeneric<GetTransactions200Response>> getTransactions(Pageable pageable, String filter, String search);
 }

@@ -13,4 +13,13 @@ class AuthMapper {
       accountModel: dto.accountResponseDTO != null ? AccountMapper.toModel(dto.accountResponseDTO!) : AccountMapper.toModel(AccountDto()),
     );
   }
+
+  static AuthResponseDto toDto(AuthResponseModel model) {
+    return AuthResponseDto(
+      token: model.token,
+      refreshToken: model.refreshToken,
+      email: model.email,
+      accountResponseDTO: AccountMapper.toDto(model.accountModel),
+    );
+  }
 }
