@@ -13,6 +13,10 @@ import '../../di/injection.dart';
 class NewReleasesScreen extends StatelessWidget {
   const NewReleasesScreen({super.key});
 
+  static Route<void> route() {
+    return MaterialPageRoute<void>(builder: (_) => NewReleasesScreen());
+  }
+  
   @override
   Widget build(BuildContext context) {
     return BlocProvider(

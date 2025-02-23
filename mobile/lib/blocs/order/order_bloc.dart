@@ -7,6 +7,7 @@ import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
 import 'package:openapi/api.dart';
 
+
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final OrderRepository orderRepository;
 

@@ -8,6 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/blocs/set/set_bloc.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
@@ -18,6 +20,7 @@ import 'package:mobile/ui/checkout/checkout_screen.dart';
 import 'package:mobile/ui/homepage/homepage_screen.dart';
 import 'package:mobile/ui/common/bottom_navigation_bar.dart';
 import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
+import 'package:mobile/ui/new_release/new_release_screen.dart';
 import 'package:mobile/ui/search/search_screen.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/register/register_screen.dart';
@@ -102,12 +105,13 @@ final router = GoRouter(
         GoRoute(path: 'home', builder: (context, state) => const HomePageScreen()),
         GoRoute(path: 'search', builder: (context, state) => const SearchScreen()),
         GoRoute(path: 'cart', builder: (context, state) => const CartScreen()),
-        GoRoute(path: 'new-releases', builder: (context, state) => const FeatureScreen()),
+        GoRoute(path: 'new-releases', builder: (context, state) => const NewReleasesScreen()),
         GoRoute(path: 'account', builder: (context, state) => AccountScreen()),
       ],
     ),
     GoRoute(path: '/checkout', builder: (context, state) => CheckoutScreen()),
     GoRoute(path: '/profile-detail', builder: (context, state) => ProfileDetailScreen()),
+
   ],
 );
 
@@ -132,6 +136,8 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (_) => getIt<LocaleCubit>()),
           BlocProvider(create: (_) => getIt<DropdownCubit>()),
           BlocProvider(create: (_) => getIt<CartCubit>()),
+          BlocProvider(create: (_) => getIt<BlindBoxesBloc>()),
+          BlocProvider(create: (_) => getIt<SetBloc>()),
         ],
         child: const AppView(),
       ),

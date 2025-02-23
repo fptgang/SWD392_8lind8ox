@@ -1,27 +1,27 @@
 import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
 import 'package:mobile/blocs/blindbox_list/blindboxes_event.dart';
-import 'package:mobile/data/datasources/local/search_local_datasource.dart';
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/data/repositories/blindbox_repository.dart';
 import 'package:openapi/api.dart';
 
 @injectable
+@Singleton()
 class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
   final BlindBoxRepository _blindBoxRepository;
-  final SearchLocalDatasource? _searchLocalDatasource;
   Timer? _debounceTimer;
   final PagingController<int, BlindBoxModel> pagingController;
+
 
   PaginationState _paginationState;
   DataState _dataState;
 
   BlindBoxesBloc(
       this._blindBoxRepository,
-      [this._searchLocalDatasource]
       ) : _paginationState = PaginationState(pageable: Pageable(page: 1, size: 20)),
         _dataState = const DataState(),
         pagingController = PagingController(firstPageKey: 1),
@@ -35,6 +35,8 @@ class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
     on<UpdateFilter>(_onUpdateFilter);
     on<RefreshBlindBoxes>(_onRefresh);
   }
+
+
 
   Future<void> _onGetBlindBoxes(
       GetBlindBoxes event,
@@ -127,10 +129,4 @@ class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
     );
   }
 
-  @override
-  Future<void> close() {
-    _debounceTimer?.cancel();
-    pagingController.dispose();
-    return super.close();
-  }
 }

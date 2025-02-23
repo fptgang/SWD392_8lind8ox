@@ -14,20 +14,16 @@ class FilterSortButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: FilterButton(
-            icon: Icons.sort,
-            label: 'Sort by',
-            onTap: onSortTap,
-          ),
+        FilterButton(
+          icon: Icons.sort,
+          label: 'Sort by',
+          onTap: onSortTap,
         ),
         const SizedBox(width: 12),
-        Expanded(
-          child: FilterButton(
-            icon: Icons.tune,
-            label: 'Filter',
-            onTap: onFilterTap,
-          ),
+        FilterButton(
+          icon: Icons.tune,
+          label: 'Filter',
+          onTap: onFilterTap,
         ),
       ],
     );

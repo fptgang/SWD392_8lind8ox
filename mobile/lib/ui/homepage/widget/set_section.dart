@@ -56,7 +56,7 @@ class SetSection extends StatelessWidget {
   Widget _buildContent() {
     return BlocBuilder<SetBloc, SetState>(
       builder: (context, state) {
-        if (state.isLoading != null) {
+        if (state.isLoading == true) {
           return const Center(child: CircularProgressIndicator());
         }
 

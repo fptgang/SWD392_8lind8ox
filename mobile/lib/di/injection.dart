@@ -5,6 +5,8 @@ import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/blindbox_detail/blindbox_detail_bloc.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/blocs/brand/brand_bloc.dart';
+import 'package:mobile/blocs/search/search_bloc.dart';
 import 'package:mobile/blocs/set/set_bloc.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/cubit/locale_cubit/locale_cubit.dart';
@@ -53,6 +55,9 @@ Future<void> configureDependencies() async {
         "Authorization": "Bearer ${box.get('loginToken')}",
       })));
   getIt.registerLazySingleton<SetBloc>(() => SetBloc(getIt<SetRepository>()));
+  getIt.registerLazySingleton<BrandBloc>(() => BrandBloc(getIt<BrandRepository>()));
+  getIt.registerSingleton<BlindBoxesBloc>(BlindBoxesBloc(getIt<BlindBoxRepository>()));
+  // getIt.registerLazySingleton<SearchBloc>(() => SearchBloc(getIt<BlindBoxRepository>(),
 
   //singleton
   getIt.registerSingleton<SharedPrefManager>(SharedPrefManager(sharedPreferences));
@@ -72,5 +77,4 @@ Future<void> configureDependencies() async {
   //cubit factory
   getIt.registerFactory<DropdownCubit>(() => DropdownCubit(getIt<LocaleCubit>()));
   getIt.registerLazySingleton<CartCubit>(() => CartCubit());
-  getIt.registerFactory<BlindBoxesBloc>(() => BlindBoxesBloc(getIt<BlindBoxRepository>()));
 }

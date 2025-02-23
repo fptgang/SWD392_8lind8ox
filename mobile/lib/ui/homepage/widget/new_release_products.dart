@@ -48,8 +48,7 @@ class NewReleaseProducts extends StatelessWidget {
           Text('Error: $error'),
           ElevatedButton(
             onPressed: () => context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
-            // child: Text(AppLocalizations.of(context)?.retry ?? 'Retry'),
-            child:  Text('Retry'),
+            child: Text(AppLocalizations.of(context)?.retry ?? 'Retry'),
           ),
         ],
       ),
@@ -60,8 +59,7 @@ class NewReleaseProducts extends StatelessWidget {
     final blindBoxes = state.blindBoxes?.content;
     if (blindBoxes == null || blindBoxes.isEmpty) {
       return Center(
-        // child: Text(AppLocalizations.of(context)?.noItemsFound ?? 'No items found'),
-        child: Text('No items found'),
+        child: Text(AppLocalizations.of(context)?.empty ?? 'No items found'),
       );
     }
 

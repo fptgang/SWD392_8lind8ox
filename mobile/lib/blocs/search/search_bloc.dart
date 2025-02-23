@@ -9,6 +9,7 @@ import 'package:mobile/data/datasources/local/search_local_datasource.dart';
 import 'package:openapi/api.dart';
 
 @injectable
+@lazySingleton
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final BlindBoxRepository _blindBoxRepository;
   final SearchLocalDatasource _searchLocalDatasource;

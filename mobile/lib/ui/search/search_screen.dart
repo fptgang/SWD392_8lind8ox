@@ -19,6 +19,10 @@ import 'widget/search_tab_bar.dart';
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
+  static Route<void> route() {
+    return MaterialPageRoute<void>(builder: (_) => SearchScreen());
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
