@@ -66,5 +66,6 @@
   "blindBoxesError": "Không tìm thấy thông tin hộp mù",
   "empty": "Không có dữ liệu",
   "retry": "Thử lại",
-  "noSetAvailable": "Không có sản phẩm nào"
+  "noSetAvailable": "Không có sản phẩm nào",
+  "error": "Lỗi"
 }

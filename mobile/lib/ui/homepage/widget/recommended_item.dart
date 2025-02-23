@@ -1,59 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
+import 'package:mobile/ui/common/error.dart';
+import 'package:mobile/ui/common/header.dart';
+import 'package:mobile/ui/common/no_data.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../blocs/blindbox_list/blindboxes_event.dart';
 import '../../../data/models/blindbox_model.dart';
-import '../../../di/injection.dart';
 
 class RecommendedItems extends StatelessWidget {
   const RecommendedItems({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<BlindBoxesBloc>()..add(GetBlindBoxes(1)),
-      child: BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
-        builder: (context, state) {
-          return Column(
-            children: [
-              _buildHeader(context),
-              _buildGridView(context),
-            ],
-          );
-        },
-      ),
-    );
-  }
+    final blindBoxBloc = context.read<BlindBoxesBloc>();
+    return BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
+      bloc: blindBoxBloc,
+      builder: (context, state) {
+        if (state is LoadingState) {
+          if (state.isLoading && state is! DataState) {
+            blindBoxBloc.add(GetBlindBoxes(1));
+            return const Center(child: CircularProgressIndicator());
+          }
 
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            AppLocalizations.of(context)!.recommended,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              // Implement see all functionality
-            },
-            child: Text(
-              AppLocalizations.of(context)!.seeAll,
-              style: TextStyle(color: getColorSkin().black),
-            ),
-          ),
-        ],
-      ),
+          if (state.error != null && state is! DataState) {
+            return CommonErrorWidget(
+              error: state.error!,
+              onRetry: () => context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
+            );
+          }
+        }
+        return Column(
+          children: [
+            SectionHeader(
+                title: AppLocalizations.of(context)?.recommended ?? "Recommended",
+                onSeeAllPressed: () {
+                  context.push('/blind-boxes');
+                }),
+            _buildGridView(context),
+          ],
+        );
+      },
     );
   }
 
@@ -71,8 +62,12 @@ class RecommendedItems extends StatelessWidget {
         ),
         builderDelegate: PagedChildBuilderDelegate<BlindBoxModel>(
           itemBuilder: (context, blindBox, index) => _buildGridItem(context, blindBox),
-          firstPageErrorIndicatorBuilder: (context) => _buildErrorIndicator(context),
-          noItemsFoundIndicatorBuilder: (context) => _buildEmptyIndicator(context),
+          firstPageErrorIndicatorBuilder: (context) => CommonErrorWidget(
+            // error: AppLocalizations.of(context)?.error ?? 'Error',
+            error: 'Error',
+            onRetry: () => context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
+          ),
+          noItemsFoundIndicatorBuilder: (context) => buildEmptyIndicator(context),
         ),
       ),
     );
@@ -146,7 +141,7 @@ class RecommendedItems extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            blindBox.name ?? "Unnamed Box",
+            blindBox.name,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: getColorSkin().primaryRed950,
@@ -162,25 +157,4 @@ class RecommendedItems extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorIndicator(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Error: ${LoadingState().isLoading}'),
-          ElevatedButton(
-            onPressed: () => context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyIndicator(BuildContext context) {
-    return Center(
-      // child: Text(AppLocalizations.of(context)?.noItemsFound ?? 'No items found'),
-      child: const Text('No items found'),
-    );
-  }
 }

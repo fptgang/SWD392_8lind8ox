@@ -10,12 +10,11 @@ import 'package:mobile/data/repositories/blindbox_repository.dart';
 import 'package:openapi/api.dart';
 
 @injectable
-@Singleton()
+@lazySingleton
 class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
   final BlindBoxRepository _blindBoxRepository;
   Timer? _debounceTimer;
   final PagingController<int, BlindBoxModel> pagingController;
-
 
   PaginationState _paginationState;
   DataState _dataState;

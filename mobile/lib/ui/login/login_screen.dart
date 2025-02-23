@@ -6,7 +6,7 @@ import '../../di/injection.dart';
 import '../core/theme/theme.dart';
 
 class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
 
   static Route<void> route() {
     return MaterialPageRoute<void>(builder: (_) => LoginScreen());

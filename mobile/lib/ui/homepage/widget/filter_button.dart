@@ -13,6 +13,7 @@ class FilterSortButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         FilterButton(
           icon: Icons.sort,
@@ -36,11 +37,11 @@ class FilterButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const FilterButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class FilterButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 20),
             const SizedBox(width: 8),

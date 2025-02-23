@@ -56,7 +56,7 @@ Future<void> configureDependencies() async {
       })));
   getIt.registerLazySingleton<SetBloc>(() => SetBloc(getIt<SetRepository>()));
   getIt.registerLazySingleton<BrandBloc>(() => BrandBloc(getIt<BrandRepository>()));
-  getIt.registerSingleton<BlindBoxesBloc>(BlindBoxesBloc(getIt<BlindBoxRepository>()));
+  getIt.registerLazySingleton<BlindBoxesBloc>(() => BlindBoxesBloc(getIt<BlindBoxRepository>()));
   // getIt.registerLazySingleton<SearchBloc>(() => SearchBloc(getIt<BlindBoxRepository>(),
 
   //singleton

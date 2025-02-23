@@ -67,5 +67,6 @@
   "blindBoxesError": "Cannot get blind boxes",
   "empty": "No data",
   "retry": "Retry",
-  "noSetAvailable": "No sets available"
+  "noSetAvailable": "No sets available",
+    "error": "Error"
 }
