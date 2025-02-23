@@ -24,31 +24,6 @@
     }
   }
 
-  class SearchState implements BlindBoxesState{
-    final String? query;
-    final String? filter;
-    final List<String> recentSearches;
-
-    const SearchState({
-      this.filter,
-      this.query,
-      this.recentSearches = const [],
-    });
-
-    SearchState copyWith({
-      String? filter,
-      String? query,
-      List<String>? recentSearches,
-    }) {
-      return SearchState(
-        filter: filter ?? this.filter,
-        query: query ?? this.query,
-        recentSearches: recentSearches ?? this.recentSearches,
-      );
-    }
-  }
-
-
   class LoadingState implements BlindBoxesState{
     final bool isLoading;
     final String? error;
@@ -75,16 +50,20 @@
 
   class DataState implements BlindBoxesState{
     final BlindBoxesResponseModel? blindBoxes;
+    final String? filter;
 
     const DataState({
       this.blindBoxes,
+      this.filter,
     });
 
     DataState copyWith({
       BlindBoxesResponseModel? blindBoxes,
+      String? filter
     }) {
       return DataState(
         blindBoxes: blindBoxes ?? this.blindBoxes,
+        filter: filter ?? this.filter,
       );
     }
   }

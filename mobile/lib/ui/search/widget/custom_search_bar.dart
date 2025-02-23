@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
+import 'package:mobile/blocs/search/search_bloc.dart';
+import 'package:mobile/blocs/search/search_state.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 
-import '../../../blocs/blindbox_list/blindboxes_event.dart';
+import '../../../blocs/search/search_event.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final String defaultText;
@@ -17,9 +18,9 @@ class CustomSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
+    return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        final searchQuery = LoadingState().isLoading ? SearchState().query ?? '' : '';
+        final searchQuery = LoadingState().isLoading ? SearchQueryState().query ?? '' : '';
 
         return TextField(
           style: TextStyle(
@@ -45,7 +46,7 @@ class CustomSearchBar extends StatelessWidget {
                 size: 20.r,
               ),
               onPressed: () {
-                context.read<BlindBoxesBloc>().add(ClearSearch());
+                context.read<SearchBloc>().add(ClearSearch());
               },
             )
                 : null,
@@ -68,11 +69,11 @@ class CustomSearchBar extends StatelessWidget {
             ),
           ),
           onChanged: (value) {
-            context.read<BlindBoxesBloc>().add(SearchChanged(value));
+            context.read<SearchBloc>().add(SearchTextChanged(value));
           },
           onSubmitted: (value) {
             if (value.trim().isNotEmpty) {
-              context.read<BlindBoxesBloc>().add(SubmitSearch(value));
+              context.read<SearchBloc>().add(SubmitSearch(value));
             }
           },
         );

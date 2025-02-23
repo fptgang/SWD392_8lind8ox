@@ -3,18 +3,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
+import 'package:mobile/blocs/search/search_bloc.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 
 import '../../../blocs/blindbox_list/blindboxes_event.dart';
+import '../../../blocs/search/search_event.dart';
+import '../../../blocs/search/search_state.dart';
 
 class RecentSearches extends StatelessWidget {
   const RecentSearches({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
+    return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        if (SearchState().recentSearches.isEmpty) {
+        if (SearchQueryState().recentSearches.isEmpty) {
           return const SizedBox.shrink();
         }
 
@@ -25,7 +28,7 @@ class RecentSearches extends StatelessWidget {
             children: [
               _buildHeader(context, state),
               SizedBox(height: 8.h),
-              ...SearchState().recentSearches.map((search) => _buildRecentItem(context, search)),
+              ...SearchQueryState().recentSearches.map((search) => _buildRecentItem(context, search)),
             ],
           ),
         );
@@ -33,7 +36,7 @@ class RecentSearches extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, BlindBoxesState state) {
+  Widget _buildHeader(BuildContext context, SearchState state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -48,7 +51,7 @@ class RecentSearches extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            context.read<BlindBoxesBloc>().add(ClearRecentSearches());
+            context.read<SearchBloc>().add(ClearRecentSearches());
           },
           child: Text(
             // AppLocalizations.of(context)?.clearAll ?? 'Clear All',
@@ -66,7 +69,7 @@ class RecentSearches extends StatelessWidget {
   Widget _buildRecentItem(BuildContext context, String text) {
     return InkWell(
       onTap: () {
-        context.read<BlindBoxesBloc>().add(SubmitSearch(text));
+        context.read<SearchBloc>().add(SubmitSearch(text));
       },
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -94,7 +97,7 @@ class RecentSearches extends StatelessWidget {
                 size: 20.r,
               ),
               onPressed: () {
-                context.read<BlindBoxesBloc>().add(RemoveRecentSearch(text));
+                context.read<SearchBloc>().add(RemoveRecentSearch(text));
               },
             ),
           ],
