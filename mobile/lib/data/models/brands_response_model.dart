@@ -1,7 +1,6 @@
 
 
 import 'package:mobile/data/models/brand_model.dart';
-import 'package:openapi/api.dart';
 
 class BrandsResponseModel {
   final List<BrandModel> content;

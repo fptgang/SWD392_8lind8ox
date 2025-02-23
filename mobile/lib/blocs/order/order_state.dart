@@ -1,8 +1,5 @@
-import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/data/models/order_response_model.dart';
-import 'package:mobile/data/models/set_model.dart';
-import 'package:mobile/data/models/sets_response_model.dart';
 import 'package:openapi/api.dart';
 
 class OrderState {

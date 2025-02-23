@@ -5,10 +5,10 @@ class FilterSortButtons extends StatelessWidget {
   final VoidCallback onFilterTap;
 
   const FilterSortButtons({
-    Key? key,
+    super.key,
     required this.onSortTap,
     required this.onFilterTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,4 @@
 import 'package:mobile/data/models/video_model.dart';
-import 'package:openapi/api.dart';
 
 class SlotModel {
   int slotId;

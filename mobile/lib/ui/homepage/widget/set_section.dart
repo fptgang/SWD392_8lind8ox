@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/blocs/set/set_bloc.dart';
@@ -10,10 +11,6 @@ import 'package:mobile/ui/common/error.dart';
 import 'package:mobile/ui/common/header.dart';
 import 'package:mobile/ui/common/no_data.dart';
 import 'package:mobile/ui/homepage/widget/set_item.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../../blocs/blindbox_list/blindbox_list_state.dart';
-import '../../../di/injection.dart';
-import '../../core/theme/theme.dart';
 
 class SetSection extends StatelessWidget {
   const SetSection({super.key});

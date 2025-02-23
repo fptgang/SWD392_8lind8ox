@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
 import 'package:mobile/blocs/search/search_event.dart';
 import 'package:mobile/blocs/search/search_state.dart';
-import 'package:mobile/data/repositories/blindbox_repository.dart';
 import 'package:mobile/data/datasources/local/search_local_datasource.dart';
+import 'package:mobile/data/repositories/blindbox_repository.dart';
 import 'package:openapi/api.dart';
 
 @injectable

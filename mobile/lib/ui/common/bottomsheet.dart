@@ -114,9 +114,9 @@ class FilterBottomSheet extends StatelessWidget {
   final Function(Map<String, dynamic>) onApplyFilter;
 
   const FilterBottomSheet({
-    Key? key,
+    super.key,
     required this.onApplyFilter,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

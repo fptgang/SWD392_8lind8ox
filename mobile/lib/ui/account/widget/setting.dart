@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/authentication/authentication_state.dart';
 import 'package:mobile/ui/account/widget/menu_list_item.dart';
+
 import '../../../enum/enum.dart';
 import '../../core/theme/theme.dart';
-import '../../homepage/homepage_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});

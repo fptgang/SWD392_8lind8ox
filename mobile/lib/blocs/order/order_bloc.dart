@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/blocs/order/order_event.dart';
 import 'package:mobile/blocs/order/order_state.dart';
-import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/order_detail_model.dart';
 import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';

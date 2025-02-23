@@ -3,7 +3,6 @@ import 'package:mobile/data/mapper/blindbox_mapper.dart';
 import 'package:mobile/data/mapper/image_mapper.dart';
 import 'package:mobile/data/mapper/sku_mapper.dart';
 import 'package:mobile/data/mapper/slot_mapper.dart';
-import 'package:mobile/data/models/image_model.dart';
 import 'package:mobile/data/models/sets_response_model.dart';
 import 'package:openapi/api.dart';
 

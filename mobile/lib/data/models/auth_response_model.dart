@@ -1,5 +1,4 @@
 import 'package:mobile/data/models/account_model.dart';
-import 'package:openapi/api.dart';
 
 
 class AuthResponseModel {

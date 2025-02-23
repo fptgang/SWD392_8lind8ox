@@ -4,7 +4,6 @@ import 'package:mobile/blocs/checkout/checkout_state.dart';
 import 'package:mobile/blocs/order_detail/order_detail_bloc.dart';
 import 'package:mobile/data/models/order_detail_model.dart';
 import 'package:mobile/data/models/order_model.dart';
-import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
 
 import '../order_detail/order_detail_event.dart';
@@ -101,12 +100,12 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     final originalPrice = details.fold<double>(
       0,
-          (sum, detail) => sum + (detail.originalPrice ?? 0),
+          (sum, detail) => sum + detail.originalPrice,
     );
 
     final checkoutPrice = details.fold<double>(
-      0,
-          (sum, detail) => sum + (detail.checkoutPrice ?? detail.originalPrice ?? 0),
+            0,
+          (sum, detail) => sum + (detail.checkoutPrice ?? detail.originalPrice),
     );
 
     final updatedOrder = OrderModel(

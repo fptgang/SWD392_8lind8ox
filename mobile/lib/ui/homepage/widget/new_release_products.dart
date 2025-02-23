@@ -81,7 +81,7 @@ class NewReleaseProducts extends StatelessWidget {
 
           return NewReleaseProductCard(
             imageUrl: blindBox.images?.firstOrNull?.imageUrl ?? "",
-            title: blindBox.name ?? "",
+            title: blindBox.name,
             price: sku.price ?? 0.0,
             onTap: () =>
                 context.push('/blind-box-detail/${blindBox.blindBoxId}'),

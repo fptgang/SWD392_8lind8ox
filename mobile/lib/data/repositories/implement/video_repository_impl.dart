@@ -3,9 +3,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/src/multipart_file.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
-import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/models/video_model.dart';
-import 'package:mobile/data/repositories/shipping_info_repository.dart';
 import 'package:mobile/data/repositories/video_repository.dart';
 import 'package:mobile/main.dart';
 import 'package:openapi/api.dart';

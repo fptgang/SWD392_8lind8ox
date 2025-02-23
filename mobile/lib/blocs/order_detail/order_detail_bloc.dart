@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/order_detail/order_detail_event.dart';
 import 'package:mobile/blocs/order_detail/order_detail_state.dart';
-import 'package:mobile/data/models/order_detail_model.dart';
 import 'package:mobile/data/repositories/order_detail_repository.dart';
 
 @injectable

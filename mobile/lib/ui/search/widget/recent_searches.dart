@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
-import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
 import 'package:mobile/blocs/search/search_bloc.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 
-import '../../../blocs/blindbox_list/blindboxes_event.dart';
 import '../../../blocs/search/search_event.dart';
 import '../../../blocs/search/search_state.dart';
 

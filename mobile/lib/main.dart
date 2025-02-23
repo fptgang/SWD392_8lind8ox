@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -17,16 +20,16 @@ import 'package:mobile/ui/account/profile_detail_screen.dart';
 import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/cart_screen.dart';
 import 'package:mobile/ui/checkout/checkout_screen.dart';
-import 'package:mobile/ui/homepage/homepage_screen.dart';
 import 'package:mobile/ui/common/bottom_navigation_bar.dart';
-import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
-import 'package:mobile/ui/new_release/new_release_screen.dart';
-import 'package:mobile/ui/search/search_screen.dart';
+import 'package:mobile/ui/homepage/homepage_screen.dart';
 import 'package:mobile/ui/login/login_screen.dart';
+import 'package:mobile/ui/new_release/new_release_screen.dart';
 import 'package:mobile/ui/register/register_screen.dart';
 import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
 import 'package:mobile/ui/reset_password/new_password_screen.dart';
+import 'package:mobile/ui/search/search_screen.dart';
 import 'package:provider/provider.dart';
+
 import 'blocs/authentication/authentication_bloc.dart';
 import 'blocs/authentication/authentication_state.dart';
 import 'cubit/dropdown_cubit/dropdown_cubit.dart';
@@ -34,8 +37,6 @@ import 'cubit/locale_cubit/locale_cubit.dart';
 import 'data/repositories/auth_repository.dart';
 import 'di/injection.dart';
 import 'enum/enum.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 final getIt = GetIt.instance;
 

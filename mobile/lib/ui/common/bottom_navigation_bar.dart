@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/cubit/bottom_navigation_bar/bottom_navigation_cubit.dart';
 import 'package:mobile/ui/cart/cart_screen.dart';
-import 'package:mobile/ui/information/widget/feature_test_bottom.dart';
 import 'package:mobile/ui/search/search_screen.dart';
 import '../account/account_screen.dart';
+import '../homepage/homepage_screen.dart';
 import '../new_release/new_release_screen.dart';
 import 'custom_bottom_app_bar.dart';
-import '../homepage/homepage_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});

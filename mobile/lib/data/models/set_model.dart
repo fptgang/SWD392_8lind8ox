@@ -1,7 +1,6 @@
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/data/models/sku_model.dart';
 import 'package:mobile/data/models/slot_model.dart';
-import 'package:openapi/api.dart';
 
 import 'image_model.dart';
 

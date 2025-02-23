@@ -85,7 +85,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       await box.put("loginToken", result.token);
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } catch (error) {
-      print(error);
+      debugPrint("Error in _onLoginWithGoogle: $error");
       emit(state.copyWith(status: FormzSubmissionStatus.failure));
     }
   }

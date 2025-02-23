@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobile/data/mapper/transaction_mapper.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/transaction_model.dart';
 import 'package:mobile/data/repositories/transaction_repository.dart';

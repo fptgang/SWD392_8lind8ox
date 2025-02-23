@@ -1,8 +1,6 @@
 
 
-import 'package:mobile/data/models/brand_model.dart';
 import 'package:mobile/data/models/order_detail_model.dart';
-import 'package:openapi/api.dart';
 
 class OrderDetailResponseModel {
   final List<OrderDetailModel> content;
