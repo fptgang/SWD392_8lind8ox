@@ -1,32 +1,32 @@
 import 'package:openapi/api.dart';
 
 class BlindBoxModel {
-  int? blindBoxId;
-  int? brandId;
-  String? name;
-  String? description;
-  bool? isVisible;
-  int? promotionalCampaignId;
-  List<ImageDto> images;
-  List<ToyDto> toys;
-  List<StockKeepingUnitDto> skus;
-  List<int> setIds;
-  DateTime? createdAt;
-  DateTime? updatedAt;
+  final int blindBoxId;
+  final int brandId;
+  final String name;
+  final String description;
+  final bool isVisible;
+  final int? promotionalCampaignId;
+  final List<ImageDto>? images;
+  final List<ToyDto>? toys;
+  final List<StockKeepingUnitDto> skus;
+  final List<int>? setIds;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
 
   BlindBoxModel({
-    this.blindBoxId,
-    this.brandId,
-    this.name,
-    this.description,
-    this.isVisible,
+    required this.blindBoxId,
+    required this.brandId,
+    required this.name,
+    required this.description,
+    required this.isVisible,
     this.promotionalCampaignId,
     this.images = const [],
     this.toys = const [],
     this.skus = const [],
     this.setIds = const [],
-    this.createdAt,
-    this.updatedAt,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   List<Object?> get props => [
@@ -43,5 +43,4 @@ class BlindBoxModel {
     createdAt,
     updatedAt,
   ];
-
 }

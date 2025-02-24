@@ -1,7 +1,7 @@
-import 'package:openapi/api.dart';
+import 'package:mobile/data/models/video_model.dart';
 
 class SlotModel {
-  int? slotId;
+  int slotId;
   int? position;
   bool? isOpened;
   DateTime? openedAt;
@@ -10,9 +10,10 @@ class SlotModel {
   int? orderDetailId;
   DateTime? createdAt;
   DateTime? updatedAt;
+  VideoModel? video;
 
   SlotModel({
-    this.slotId,
+    required this.slotId,
     this.position,
     this.isOpened,
     this.openedAt,
@@ -21,17 +22,19 @@ class SlotModel {
     this.orderDetailId,
     this.createdAt,
     this.updatedAt,
+    this.video,
   });
 
-  List<Object> get props => [
-    slotId!,
-    position!,
-    isOpened!,
-    openedAt!,
-    toyId!,
-    setId!,
-    orderDetailId!,
-    createdAt!,
-    updatedAt!,
+  List<Object?> get props => [
+    slotId,
+    position,
+    isOpened,
+    openedAt,
+    toyId,
+    setId,
+    orderDetailId,
+    createdAt,
+    updatedAt,
+    video,
   ];
 }

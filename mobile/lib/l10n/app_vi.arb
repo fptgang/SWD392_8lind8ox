@@ -63,5 +63,9 @@
   "youAreNotLoggedIn": "Bạn chưa đăng nhập",
   "emptyCart": "Giỏ hàng của bạn đang trống",
   "blindBoxDetailError": "Không tìm thấy thông tin chi tiết",
-  "blindBoxesError": "Không tìm thấy thông tin hộp mù"
+  "blindBoxesError": "Không tìm thấy thông tin hộp mù",
+  "empty": "Không có dữ liệu",
+  "retry": "Thử lại",
+  "noSetAvailable": "Không có sản phẩm nào",
+  "error": "Lỗi"
 }
