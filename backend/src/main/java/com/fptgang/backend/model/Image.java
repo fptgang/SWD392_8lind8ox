@@ -29,10 +29,6 @@ public class Image {
     private BlindBox blindBox;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "set_id")
-    private Set set;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "toy_id")
     private Toy toy;
 

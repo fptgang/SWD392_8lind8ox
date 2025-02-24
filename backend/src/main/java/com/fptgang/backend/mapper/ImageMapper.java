@@ -2,10 +2,7 @@ package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.ImageDto;
 import com.fptgang.backend.model.Image;
-import com.fptgang.backend.repository.AccountRepos;
-import com.fptgang.backend.repository.BlindBoxRepos;
-import com.fptgang.backend.repository.ImageRepos;
-import com.fptgang.backend.repository.SetRepos;
+import com.fptgang.backend.repository.*;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +19,7 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
     @Autowired
     private AccountRepos accountRepos;
     @Autowired
-    private SetRepos setRepos;
+    private ToyRepos toyRepos;
 
     @Override
     public Image toEntity(ImageDto dto) {
@@ -38,8 +35,9 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
             existingImage.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingImage.isVisible());
             if (dto.getBlindBoxId() != null) {
                 existingImage.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).orElse(null));
-            } else if (dto.getPackId() != null) {
-                existingImage.setSet(setRepos.findById(dto.getPackId()).orElse(null));
+            }
+            if (dto.getToyId() != null) {
+                existingImage.setToy(toyRepos.findById(dto.getToyId()).orElse(null));
             }
             if (dto.getUploaderId() != null) {
                 existingImage.setUploader(accountRepos.findByAccountId(dto.getUploaderId()).orElse(null));
@@ -52,8 +50,9 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
             if (dto.getBlindBoxId() != null) {
                 entity.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).orElse(null));
-            } else if (dto.getPackId() != null) {
-                entity.setSet(setRepos.findById(dto.getPackId()).orElse(null));
+            }
+            if (dto.getToyId() != null) {
+                entity.setToy(toyRepos.findById(dto.getToyId()).orElse(null));
             }
             if (dto.getUploaderId() != null) {
                 entity.setUploader(accountRepos.findByAccountId(dto.getUploaderId()).orElse(null));
@@ -75,7 +74,7 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
         dto.setImageId(entity.getImageId());
         dto.setImageUrl(entity.getImageUrl());
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
-        dto.setPackId(entity.getSet() != null ? entity.getSet().getSetId() : null);
+        dto.setToyId(entity.getToy() != null ? entity.getToy().getToyId() : null);
         dto.setUploaderId(entity.getUploader() != null ? entity.getUploader().getAccountId() : null);
         dto.setIsVisible(entity.isVisible());
         if (entity.getCreatedAt() != null) {

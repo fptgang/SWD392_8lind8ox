@@ -41,9 +41,6 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
                 existingSet.setSku(stockKeepingUnitMapper.toEntity(dto.getSku()));
             }
             existingSet.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingSet.isVisible());
-            if (dto.getImages() != null) {
-                existingSet.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
-            }
             if (dto.getSlots() != null) {
                 existingSet.setSlots(dto.getSlots().stream().map(slotMapper::toEntity).collect(Collectors.toList()));
             }
@@ -65,9 +62,6 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
             }
             if (dto.getUpdatedAt() != null) {
                 entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            if (dto.getImages() != null) {
-                entity.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
             }
             if (dto.getSlots() != null) {
                 entity.setSlots(dto.getSlots().stream().map(slotMapper::toEntity).collect(Collectors.toList()));
@@ -94,9 +88,6 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
         }
         if (entity.getUpdatedAt() != null) {
             dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
-        }
-        if (entity.getImages() != null) {
-            dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).collect(Collectors.toList()));
         }
         if (entity.getSlots() != null) {
             dto.setSlots(entity.getSlots().stream().map(slotMapper::toDTO).collect(Collectors.toList()));

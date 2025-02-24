@@ -2,6 +2,8 @@ package com.fptgang.backend.model;
 
 import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,10 +42,12 @@ public class PromotionalCampaign {
     private LocalDateTime endDate;
 
     @Column(nullable = false, precision = 5, scale = 2)
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
     private BigDecimal discountRate;
 
-    @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
-    private List<BlindBox> blindBoxes;
+    @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BlindBoxCampaign> blindBoxCampaigns;
 
     @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails;

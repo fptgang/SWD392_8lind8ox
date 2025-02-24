@@ -16,13 +16,9 @@ PromotionalCampaignDto:
       format: date-time
     discountRate:
       type: number
-    format: double
+      format: double
     isVisible:
       type: boolean
-    blindBoxes:
-      type: array
-      items:
-        $ref: "blindbox.yml#/BlindBoxDto"
     createdAt:
       type: string
       format: date-time

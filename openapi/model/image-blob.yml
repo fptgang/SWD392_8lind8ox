@@ -7,7 +7,7 @@ ImageBlobDto:
     blindBoxId:
       type: integer
       format: int64
-    packId:
+    toyId:
       type: integer
       format: int64
     imageBlob:
