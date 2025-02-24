@@ -40,14 +40,14 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
+    public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long toyId, MultipartFile imageBlob, Boolean isVisible) {
         if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can upload images.");
         }
         ImageDto dto = new ImageDto()
                 .uploaderId(uploaderId)
                 .blindBoxId(blindBoxId)
-                .packId(packId)
+                .toyId(toyId)
                 .isVisible(isVisible);
         return new ResponseEntity<>(imageMapper
                 .toDTO(imageService.create(imageMapper.toEntity(dto), imageBlob)), HttpStatus.CREATED);
@@ -88,7 +88,7 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<ImageDto> updateImage(Long imageId, Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
+    public ResponseEntity<ImageDto> updateImage(Long imageId, Long uploaderId, Long blindBoxId, Long toyId, MultipartFile imageBlob, Boolean isVisible) {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can update images.");
         }
@@ -96,7 +96,7 @@ public class ImageController implements ImagesApi {
                 .imageId(imageId)
                 .uploaderId(uploaderId)
                 .blindBoxId(blindBoxId)
-                .packId(packId)
+                .toyId(toyId)
                 .isVisible(isVisible);
         return ResponseEntity.ok(imageMapper
                 .toDTO(imageService.update(imageMapper.toEntity(dto), imageBlob)));

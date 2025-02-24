@@ -28,9 +28,6 @@ public class Set {
     @JoinColumn(name = "sku_id", nullable = false)
     private StockKeepingUnit sku;
 
-    @OneToMany(mappedBy = "set", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> images;
-
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
 

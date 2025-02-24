@@ -38,9 +38,8 @@ public class BlindBox {
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotional_campaign_id")
-    private PromotionalCampaign promotionalCampaign;
+    @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BlindBoxCampaign> blindBoxCampaigns;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;

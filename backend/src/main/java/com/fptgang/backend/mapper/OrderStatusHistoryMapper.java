@@ -33,9 +33,6 @@ public class OrderStatusHistoryMapper extends BaseMapper<OrderStatusHistoryDto, 
             if (dto.getOrderId() != null) {
                 existingOrderStatusHistory.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
             }
-            if (dto.getAccountId() != null) {
-                existingOrderStatusHistory.setCreator(accountRepos.findById(dto.getAccountId()).orElse(null));
-            }
             if (dto.getCreatedAt() != null) {
                 existingOrderStatusHistory.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
             }
@@ -45,9 +42,6 @@ public class OrderStatusHistoryMapper extends BaseMapper<OrderStatusHistoryDto, 
             entity.setState(OrderStatusHistory.State.valueOf(dto.getState().name()));
             if (dto.getOrderId() != null) {
                 entity.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
-            }
-            if (dto.getAccountId() != null) {
-                entity.setCreator(accountRepos.findById(dto.getAccountId()).orElse(null));
             }
             if (dto.getCreatedAt() != null) {
                 entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
@@ -66,7 +60,6 @@ public class OrderStatusHistoryMapper extends BaseMapper<OrderStatusHistoryDto, 
         dto.setId(entity.getId());
         dto.setState(OrderStatusHistoryDto.StateEnum.valueOf(entity.getState().name()));
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
-        dto.setAccountId(entity.getCreator() != null ? entity.getCreator().getAccountId() : null);
         if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         }

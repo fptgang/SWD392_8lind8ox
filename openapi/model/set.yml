@@ -6,10 +6,6 @@ SetDto:
       format: int64
     sku:
       $ref: "stock-keeping-unit.yml#/StockKeepingUnitDto"
-    images:
-      type: array
-      items:
-        $ref: "image.yml#/ImageDto"
     isVisible:
       type: boolean
     slots:
