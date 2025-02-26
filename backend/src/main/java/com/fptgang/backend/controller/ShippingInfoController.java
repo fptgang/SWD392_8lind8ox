@@ -6,6 +6,7 @@ import com.fptgang.backend.mapper.ShippingInfoMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.ShippingInfo;
 import com.fptgang.backend.service.ShippingInfoService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import org.springframework.http.HttpStatus;
@@ -49,11 +50,19 @@ public class ShippingInfoController implements ShippingInfoApi {
 
     @Override
     public ResponseEntity<GetShippingInfos200Response> getShippingInfos(Pageable pageable, String filter, String search) {
-        var page = OpenApiHelper.toPageable(pageable);
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = shippingInfoService
-                .getAll(page, filter, search, includeInvisible)
-                .map(shippingInfoMapper::toDTO);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
+
+        // Customers can only view their own shipping infos
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
+        }
+
+        var res = shippingInfoService.getAll(params.build()).map(shippingInfoMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetShippingInfos200Response.class);
     }
 

@@ -6,6 +6,7 @@ import com.fptgang.backend.model.Transaction;
 import com.fptgang.backend.repository.TransactionRepos;
 import com.fptgang.backend.service.OrderService;
 import com.fptgang.backend.service.TransactionService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -193,12 +194,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<Transaction> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Transaction>filterToSpec(filter);
-//        spec = spec.and(OpenApiHelper.searchToSpec(filter));
-//        if (!includeInvisible) {
-//            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-//        }
-        return transactionRepos.findAll(spec, pageable);
+    public Page<Transaction> getAll(ListParams params) {
+        var spec = params.<Transaction>toSpec();
+        return transactionRepos.findAll(spec, params.getPageable());
     }
 }

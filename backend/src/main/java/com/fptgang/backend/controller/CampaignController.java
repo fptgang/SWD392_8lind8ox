@@ -7,6 +7,7 @@ import com.fptgang.backend.api.model.PromotionalCampaignDto;
 import com.fptgang.backend.mapper.PromotionalCampaignMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.PromotionalCampaignService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class CampaignController implements PromotionalCampaignsApi {
     @Override
     public ResponseEntity<PromotionalCampaignDto> createPromotionalCampaign(PromotionalCampaignDto promotionalCampaignDto) {
         log.info("Creating promotional campaign");
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create promotional campaigns.");
         }
         ResponseEntity<PromotionalCampaignDto> response = new ResponseEntity<>(promotionCampaignMapper
@@ -64,7 +65,7 @@ public class CampaignController implements PromotionalCampaignsApi {
     public ResponseEntity<PromotionalCampaignDto> getPromotionalCampaignById(Long campaignId) {
         log.info("Fetching promotional campaign with ID {}", campaignId);
 
-        boolean isAdminOrStaff = SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF);
+        boolean isAdminOrStaff = SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF);
         if (!isAdminOrStaff) {
             throw new AccessDeniedException("Only staff and admins can view specific campaign details.");
         }
@@ -74,14 +75,14 @@ public class CampaignController implements PromotionalCampaignsApi {
     @Override
     public ResponseEntity<GetPromotionalCampaigns200Response> getPromotionalCampaigns(Pageable pageable, String filter, String search) {
         log.info("Fetching promotional campaigns");
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
 
-        boolean isAdminOrStaff = SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF);
-        if (!isAdminOrStaff) {
-            throw new AccessDeniedException("Only staff and admins can view promotional campaigns.");
-        }
-
-        var page = OpenApiHelper.toPageable(pageable);
-        var resultPage = promotionCampaignService.getAll(page, filter, search, isAdminOrStaff)
+        var resultPage = promotionCampaignService.getAll(params.build())
                 .map(promotionCampaignMapper::toDTO);
 
         return OpenApiHelper.respondPage(resultPage, GetPromotionalCampaigns200Response.class);
@@ -89,7 +90,7 @@ public class CampaignController implements PromotionalCampaignsApi {
 
     @Override
     public ResponseEntity<PromotionalCampaignDto> updatePromotionalCampaign(Long campaignId, PromotionalCampaignDto promotionalCampaignDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can update promotional campaigns.");
         }
         promotionalCampaignDto.setCampaignId(campaignId); // Override campaignId

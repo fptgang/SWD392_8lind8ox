@@ -1,6 +1,5 @@
 package com.fptgang.backend.service.impl;
 
-import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Order;
 import com.fptgang.backend.service.EmailService;
 import com.resend.Resend;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 
 @Service
 public class EmailServiceImpl implements EmailService {

@@ -3,6 +3,7 @@ package com.fptgang.backend.service.impl;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.service.AccountService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -50,12 +51,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Page<Account> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Account>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
-        return accountRepos.findAll(spec, pageable);
+    public Page<Account> getAll(ListParams params) {
+        var spec = params.<Account>toSpec();
+        return accountRepos.findAll(spec, params.getPageable());
     }
 }
