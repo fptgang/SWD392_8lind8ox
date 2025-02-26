@@ -6,6 +6,7 @@ import com.fptgang.backend.mapper.VideoMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Video;
 import com.fptgang.backend.service.VideoService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,7 @@ public class VideoController implements VideosApi {
                 throw new AccessDeniedException("You are not allowed to delete this video!");
             }
         }
-        videoService.deleteById(Long.valueOf(videoId));
+        videoService.deleteById(videoId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -80,20 +81,25 @@ public class VideoController implements VideosApi {
                 throw new AccessDeniedException("You are not allowed to view this video!");
             }
         }
-        return new ResponseEntity<>(videoMapper.toDTO(videoService.findById(Long.valueOf(videoId))), HttpStatus.OK);
+        return new ResponseEntity<>(videoMapper.toDTO(videoService.findById(videoId)), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<GetVideos200Response> getVideos(Pageable pageable, String filter, String search) {
         log.info("Getting videos");
-        var page = OpenApiHelper.toPageable(pageable);
-        boolean hasFullAccess = SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF);
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
 
-        if (!hasFullAccess) {
-            long currentUserId = SecurityUtil.requireCurrentUserId();
-            filter = (filter == null || filter.isEmpty()) ? "accountId==" + currentUserId : filter + ";accountId==" + currentUserId;
+        // Customers can only view their own videos
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
-        var res = videoService.getAll(page, filter, search, hasFullAccess).map(videoMapper::toDTO);
+
+        var res = videoService.getAll(params.build()).map(videoMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetVideos200Response.class);
     }
 

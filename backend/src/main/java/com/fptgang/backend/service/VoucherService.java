@@ -1,8 +1,8 @@
 package com.fptgang.backend.service;
 
 import com.fptgang.backend.model.Voucher;
+import com.fptgang.backend.service.params.ListParams;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface VoucherService {
     Voucher create(Voucher voucher);
@@ -13,13 +13,5 @@ public interface VoucherService {
 
     Voucher deleteById(long id);
 
-    Page<Voucher> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
-
-    default Page<Voucher> getAll(Pageable pageable, String filter, String search) {
-        return getAll(pageable, filter, search, false);
-    }
-
-    default Page<Voucher> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, null, false);
-    }
+    Page<Voucher> getAll(ListParams params);
 }

@@ -7,6 +7,7 @@ import com.fptgang.backend.api.model.SetDto;
 import com.fptgang.backend.mapper.SetMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.SetService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -71,9 +72,14 @@ public class SetController implements SetsApi {
     @Override
     public ResponseEntity<GetSets200Response> getSets(Pageable pageable, String filter, String search) {
         log.info("Getting sets");
-        var page = OpenApiHelper.toPageable(pageable);
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = setService.getAll(page, filter, search, includeInvisible).map(setMapper::toDTO);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
+
+        var res = setService.getAll(params.build()).map(setMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetSets200Response.class);
     }
 

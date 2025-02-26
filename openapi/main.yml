@@ -106,10 +106,6 @@ paths:
     $ref: "path/notification.yml"
   /notifications/{notificationId}:
     $ref: "path/notification-notificationId.yml"
-  /order-details:
-    $ref: "path/order-detail.yml"
-  /order-details/{orderDetailId}:
-    $ref: "path/order-detail-orderDetailId.yml"
   /promotional-campaigns:
     $ref: "path/promotional-campaign.yml"
   /promotional-campaigns/{campaignId}:

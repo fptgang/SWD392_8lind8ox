@@ -6,6 +6,7 @@ import com.fptgang.backend.mapper.OrderMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Order;
 import com.fptgang.backend.service.OrderService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -74,17 +75,19 @@ public class OrderController implements OrdersApi {
     @Override
     public ResponseEntity<GetOrders200Response> getOrders(Pageable pageable, String filter, String search) {
         log.info("Getting orders");
-        boolean includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
 
-        // If the user is not an admin, only allow fetching their own orders
-        if (!includeInvisible) {
-            String userEmail = SecurityUtil.requireCurrentUserEmail();
-            filter = (filter == null ? "" : filter + ",") + "account.email,eq," + userEmail;
+        // Customers can only view their own orders
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 
-        var page = OpenApiHelper.toPageable(pageable);
-        var resultPage = orderService.getAll(page, filter, search, includeInvisible)
-                .map(orderMapper::toDTO);
+        var resultPage = orderService.getAll(params.build()).map(orderMapper::toDTO);
 
         return OpenApiHelper.respondPage(resultPage, GetOrders200Response.class);
     }

@@ -3,6 +3,7 @@ package com.fptgang.backend.service;
 import com.fptgang.backend.TestcontainersConfiguration;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.repository.AccountRepos;
+import com.fptgang.backend.service.params.ListParams;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -163,7 +165,7 @@ class AccountServiceTest {
         Account account2 = createTestAccount(2);
 
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Account> accountsPage = accountService.getAll(pageable,null);
+        Page<Account> accountsPage = accountService.getAll(ListParams.builder().pageable(pageable).build());
 
         assertTrue(accountsPage.getTotalElements() >= 2);
     }
@@ -190,7 +192,8 @@ class AccountServiceTest {
         accountService.create(account4);
 
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Account> accountsPage = accountService.getAll(pageable, "email,contains,filtered");
+        Page<Account> accountsPage = accountService.getAll(ListParams.builder()
+                .pageable(pageable).filter("email,contains,filtered").build());
         for(Account account : accountsPage.getContent()){
             log.info(account.getEmail());
         }

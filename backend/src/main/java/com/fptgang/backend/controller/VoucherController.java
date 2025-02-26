@@ -7,6 +7,7 @@ import com.fptgang.backend.api.model.VoucherDto;
 import com.fptgang.backend.mapper.VoucherMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.VoucherService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -71,9 +72,19 @@ public class VoucherController implements VouchersApi {
     @Override
     public ResponseEntity<GetVouchers200Response> getVouchers(Pageable pageable, String filter, String search) {
         log.info("Getting vouchers");
-        var page = OpenApiHelper.toPageable(pageable);
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = voucherService.getAll(page, filter, search, includeInvisible).map(voucherMapper::toDTO);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
+
+        // Customers can only view their own vouchers
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
+        }
+
+        var res = voucherService.getAll(params.build()).map(voucherMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetVouchers200Response.class);
     }
 

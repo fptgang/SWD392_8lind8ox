@@ -5,6 +5,7 @@ import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.BrandMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.BrandService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class BrandController implements BrandsApi{
 
     @Override
     public ResponseEntity<BrandDto> createBrand(BrandDto brandDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create brands.");
         }
         log.info("Creating brand");
@@ -65,21 +66,20 @@ public class BrandController implements BrandsApi{
     @Override
     public ResponseEntity<GetBrands200Response> getBrands(Pageable pageable, String filter, String search) {
         log.info("Getting brands");
-        var page = OpenApiHelper.toPageable(pageable);
-        var includeInvisible = false;
-        try{
-             includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        }catch (Exception e){
-            log.error("Error getting permission {}", e.getMessage());
-        }
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
 
-        var res = brandService.getAll(page, filter, search, includeInvisible).map(brandMapper::toDTO);
+        var res = brandService.getAll(params.build()).map(brandMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetBrands200Response.class);
     }
 
     @Override
     public ResponseEntity<BrandDto> updateBrand(Long brandId, BrandDto brandDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can update brands.");
         }
         brandDto.setBrandId(brandId); // Override brandId
