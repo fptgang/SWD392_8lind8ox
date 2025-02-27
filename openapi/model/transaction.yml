@@ -13,7 +13,7 @@ TransactionDto:
     paymentMethod:
       type: string
       enum: [PAYPAL, VNPAY]
-    dateTime:
+    createAt:
       type: string
       format: date-time
     amount:

@@ -32,7 +32,6 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         if (existingTransactionOptional.isPresent() && dto.getTransactionId() != null) {
             Transaction existingTransaction = existingTransactionOptional.get();
             existingTransaction.setType(dto.getType() != null ? Transaction.Type.valueOf(dto.getType().getValue()) : existingTransaction.getType());
-            existingTransaction.setCreatedAt(dto.getDateTime() != null ? DateTimeUtil.fromOffsetToLocal(dto.getDateTime()) : existingTransaction.getCreatedAt());
             existingTransaction.setPaymentMethod(dto.getPaymentMethod() != null ? Transaction.PaymentMethod.valueOf(dto.getPaymentMethod().getValue()) : existingTransaction.getPaymentMethod());
             existingTransaction.setAmount(dto.getAmount() != null ? dto.getAmount() : existingTransaction.getAmount());
             existingTransaction.setOldBalance(dto.getOldBalance() != null ? dto.getOldBalance() : existingTransaction.getOldBalance());
@@ -45,7 +44,6 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
             Transaction entity = new Transaction();
 //            entity.setTransactionId(dto.getTransactionId());
             entity.setType(Transaction.Type.valueOf(dto.getType().getValue()) );
-            entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getDateTime()));
             entity.setPaymentMethod(Transaction.PaymentMethod.valueOf(dto.getPaymentMethod().getValue()) );
             entity.setAmount(dto.getAmount());
             entity.setSuccess(dto.getSuccess());
@@ -74,7 +72,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         TransactionDto dto = new TransactionDto();
         dto.setTransactionId(entity.getTransactionId());
         dto.setType(TransactionDto.TypeEnum.valueOf(entity.getType().toString()) );
-        dto.setDateTime(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setCreateAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setPaymentMethod(TransactionDto.PaymentMethodEnum.valueOf(entity.getPaymentMethod().toString()));
         dto.setAmount(entity.getAmount());
         dto.setOldBalance(entity.getOldBalance());

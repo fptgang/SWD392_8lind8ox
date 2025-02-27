@@ -55,7 +55,8 @@ public class BlindboxController implements BlindBoxesApi {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can delete blind boxes.");
         }
-        return BlindBoxesApi.super.deleteBlindBox(blindBoxId);
+        blindBoxService.deleteById(blindBoxId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
