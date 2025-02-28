@@ -5,6 +5,7 @@ import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.StockKeepingUnitMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.StockKeepingUnitService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class StockKeepingUnitController implements SkusApi {
 
     @Override
     public ResponseEntity<StockKeepingUnitDto> createStockKeepingUnit(StockKeepingUnitDto stockKeepingUnitDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create blind boxes.");
         }
         ResponseEntity<StockKeepingUnitDto> response = new ResponseEntity<>(stockKeepingUnitMapper
@@ -59,16 +60,15 @@ public class StockKeepingUnitController implements SkusApi {
     public ResponseEntity<GetStockKeepingUnits200Response> getStockKeepingUnits(Pageable pageable, String filter, String search) {
         org.springframework.data.domain.Page<StockKeepingUnitDto> res = null;
         log.info("Getting stockKeepingUnits" + pageable + filter + search);
-        var includeInvisible = false;
-        var page = OpenApiHelper.toPageable(pageable);
-        try {
-            includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        } catch (Exception e) {
-            log.error("Error getting stockKeepingUnits", e.getMessage());
-        }
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
 
         res = stockKeepingUnitService
-                .getAll(page, filter, search, includeInvisible)
+                .getAll(params.build())
                 .map(stockKeepingUnitMapper::toDTO);
 
         log.info(res.toString());

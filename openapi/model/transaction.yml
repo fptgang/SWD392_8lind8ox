@@ -28,5 +28,6 @@ TransactionDto:
     orderId:
       type: integer
       format: int64
-    success:
-      type: boolean
+    status:
+      type: string
+      enum: [ PENDING, SUCCESS, FAILED ]

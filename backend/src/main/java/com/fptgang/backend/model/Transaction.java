@@ -46,11 +46,18 @@ public class Transaction {
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal newBalance;
 
-    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
-    private boolean success=false;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    public enum Status {
+        PENDING,
+        SUCCESS,
+        FAILED
+    }
 
     public enum Type {
         DEPOSIT,

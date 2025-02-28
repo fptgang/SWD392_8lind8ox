@@ -5,6 +5,7 @@ import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.ToyMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.ToyService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class ToyController implements ToysApi {
 
     @Override
     public ResponseEntity<ToyDto> createToy(ToyDto toyDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create blind boxes.");
         }
         ResponseEntity<ToyDto> response = new ResponseEntity<>(toyMapper
@@ -59,16 +60,16 @@ public class ToyController implements ToysApi {
     public ResponseEntity<GetToys200Response> getToys(Pageable pageable, String filter, String search) {
         org.springframework.data.domain.Page<ToyDto> res = null;
         log.info("Getting toys" + pageable + filter + search);
-        var includeInvisible = false;
-        var page = OpenApiHelper.toPageable(pageable);
-        try {
-            includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        } catch (Exception e) {
-            log.error("Error getting toys", e.getMessage());
-        }
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
+
 
         res = toyService
-                .getAll(page, filter, search, includeInvisible)
+                .getAll(params.build())
                 .map(toyMapper::toDTO);
 
         log.info(res.toString());

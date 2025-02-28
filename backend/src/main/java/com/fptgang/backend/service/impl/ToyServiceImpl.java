@@ -1,8 +1,10 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.model.StockKeepingUnit;
 import com.fptgang.backend.model.Toy;
 import com.fptgang.backend.repository.ToyRepos;
 import com.fptgang.backend.service.ToyService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,12 +48,8 @@ public class ToyServiceImpl implements ToyService {
     }
 
     @Override
-    public Page<Toy> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Toy>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
-        return toyRepos.findAll(spec, pageable);
+    public Page<Toy> getAll(ListParams params) {
+        var spec = params.<Toy>toSpec();
+        return toyRepos.findAll(spec, params.getPageable());
     }
 }
