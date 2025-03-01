@@ -1,7 +1,7 @@
 # path/sku.yml
 get:
-  summary: Get a list of SKUs
-  operationId: getSKUs
+  summary: Get a list of StockKeepingUnits
+  operationId: getStockKeepingUnits
   security:
     - bearerAuth: []
   parameters:
@@ -30,12 +30,12 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 post:
-  summary: Create a SKU
-  operationId: createSKU
+  summary: Create a StockKeepingUnit
+  operationId: createStockKeepingUnit
   security:
     - bearerAuth: []
   requestBody:
-    description: SKU to create
+    description: StockKeepingUnit to create
     required: true
     content:
       application/json:

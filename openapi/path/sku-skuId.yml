@@ -1,7 +1,7 @@
 # path/sku-skuId.yml
 get:
-  summary: Get a SKU by skuId
-  operationId: getSKUById
+  summary: Get a StockKeepingUnit by skuId
+  operationId: getStockKeepingUnitById
   security:
     - bearerAuth: []
   parameters:
@@ -26,8 +26,8 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 put:
-  summary: Update an existing SKU
-  operationId: updateSKU
+  summary: Update an existing StockKeepingUnit
+  operationId: updateStockKeepingUnit
   security:
     - bearerAuth: []
   parameters:
@@ -38,7 +38,7 @@ put:
         type: integer
         format: int64
   requestBody:
-    description: SKU to update
+    description: StockKeepingUnit to update
     required: true
     content:
       application/json:
@@ -59,8 +59,8 @@ put:
             $ref: '../component/error.yml#/ErrorResponse'
 
 delete:
-  summary: Delete an existing SKU
-  operationId: deleteSKU
+  summary: Delete an existing StockKeepingUnit
+  operationId: deleteStockKeepingUnit
   security:
     - bearerAuth: []
   parameters:

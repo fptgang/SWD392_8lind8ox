@@ -104,6 +104,7 @@ public class TransactionController implements TransactionsApi {
         if (fields.containsKey("vnp_SecureHash")) {
             fields.remove("vnp_SecureHash");
         }
+        log.info("vnp_TxnRef: " + paymentId, "vnp_SecureHash: " + vnp_SecureHash);
         Transaction transaction = transactionService.findById(Long.parseLong(paymentId));
         if (transaction == null) {
             log.info("Transaction not found");
@@ -112,19 +113,12 @@ public class TransactionController implements TransactionsApi {
         if (VnPayConfig.hashAllFields(fields).equals(vnp_SecureHash)) {
             if ("00".equals(fields.get("vnp_ResponseCode"))) {
                 log.info("Payment success");
-//                if(transaction.getType() == Transaction.Type.DEPOSIT) {
-//                    transaction.getAccount().setBalance(transaction.getAccount().getBalance().add(transaction.getAmount()));
-//                } else if(transaction.getType() == Transaction.Type.ORDER) {
-//
-//                }
-                transaction.setSuccess(true);
+                transaction.setStatus(Transaction.Status.SUCCESS);
                 transactionService.update(transaction);
                 return 1;
             } else {
                 log.info("Payment failed");
-//                transaction.setOldBalance(transaction.getAccount().getBalance());
-//                transaction.setNewBalance(transaction.getAccount().getBalance());
-                transaction.setSuccess(false);
+                transaction.setStatus(Transaction.Status.FAILED);
                 transactionService.update(transaction);
                 return 0;
             }

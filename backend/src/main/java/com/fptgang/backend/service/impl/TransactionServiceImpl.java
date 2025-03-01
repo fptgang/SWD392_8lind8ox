@@ -40,7 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
     public String create(Transaction transaction, String vnp_IpAddr) {
         if (transaction.getOrder() != null) {
             if (transaction.getOrder().getTransaction() != null) {
-                if (transaction.getOrder().getTransaction().isSuccess() != true) {
+                if (transaction.getOrder().getTransaction().getStatus() != Transaction.Status.SUCCESS) {
                     transaction.getOrder().setTransaction(null);
                     orderService.update(
                             transaction.getOrder()
@@ -53,7 +53,7 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             transaction.setOldBalance(transaction.getAccount().getBalance());
             transaction.setNewBalance(transaction.getAccount().getBalance());
-            transaction.setSuccess(false);
+            transaction.setStatus(Transaction.Status.PENDING);
             transaction = transactionRepos.save(transaction);
             if (transaction.getPaymentMethod() == Transaction.PaymentMethod.VNPAY) {
                 return createVNPay(transaction, vnp_IpAddr);
@@ -166,7 +166,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (transaction.getTransactionId() == null) {
             throw new IllegalArgumentException("Transaction does not exist");
         }
-        if (transaction.isSuccess())
+        if (transaction.getStatus() == Transaction.Status.SUCCESS)
             switch (transaction.getType()) {
                 case DEPOSIT -> {
                     transaction.setOldBalance(transaction.getAccount().getBalance());
