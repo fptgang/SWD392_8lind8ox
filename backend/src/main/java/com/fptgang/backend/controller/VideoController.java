@@ -47,10 +47,10 @@ public class VideoController implements VideosApi {
                 throw new AccessDeniedException("You are not allowed to create a video for another user!");
             }
         }
-        VideoDto dto = new VideoDto()
-                .accountId(accountID)
-                .orderDetailId(orderDetailId)
-                .isVisible(isVisible);
+        VideoDto dto = new VideoDto();
+        dto.setAccountId(accountID);
+        dto.setOrderDetailId(orderDetailId);
+        dto.setIsVisible(isVisible);
         return new ResponseEntity<>(videoMapper
                 .toDTO(videoService.create(videoMapper.toEntity(dto), videoBlob)), HttpStatus.CREATED);
     }
@@ -113,11 +113,12 @@ public class VideoController implements VideosApi {
                 throw new AccessDeniedException("You are not allowed to update this video!");
             }
         }
-        VideoDto dto = new VideoDto()
-                .videoId(videoId)
-                .accountId(accountID)
-                .orderDetailId(orderDetailId)
-                .isVisible(isVisible);
+        VideoDto dto = new VideoDto();
+        dto.setVideoId(videoId);
+        dto.setAccountId(accountID);
+        dto.setOrderDetailId(orderDetailId);
+        dto.setIsVisible(isVisible);
+
         return ResponseEntity.ok(videoMapper
                 .toDTO(videoService.update(videoMapper.toEntity(dto), videoBlob)));
     }
