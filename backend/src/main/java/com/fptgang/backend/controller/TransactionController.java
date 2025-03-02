@@ -9,6 +9,7 @@ import com.fptgang.backend.mapper.TransactionMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Transaction;
 import com.fptgang.backend.service.TransactionService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -70,16 +71,20 @@ public class TransactionController implements TransactionsApi {
     @Override
     public ResponseEntity<GetTransactions200Response> getTransactions(Pageable pageable, String filter, String search) {
         log.info("Fetching transactions");
-        boolean includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
 
-        // If the user is not an admin, only allow fetching their own transactions
-        if (!includeInvisible) {
-            String userEmail = SecurityUtil.requireCurrentUserEmail();
-            filter = (filter == null ? "" : filter + ",") + "account.email,eq," + userEmail;
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
+
+        // Staffs and Customers can only view their own transactions
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 
-        var page = OpenApiHelper.toPageable(pageable);
-        var resultPage = transactionService.getAll(page, filter, includeInvisible)
+        var resultPage = transactionService.getAll(params.build())
                 .map(transactionMapper::toDTO);
 
         return OpenApiHelper.respondPage(resultPage, GetTransactions200Response.class);
@@ -99,6 +104,7 @@ public class TransactionController implements TransactionsApi {
         if (fields.containsKey("vnp_SecureHash")) {
             fields.remove("vnp_SecureHash");
         }
+        log.info("vnp_TxnRef: " + paymentId, "vnp_SecureHash: " + vnp_SecureHash);
         Transaction transaction = transactionService.findById(Long.parseLong(paymentId));
         if (transaction == null) {
             log.info("Transaction not found");
@@ -107,19 +113,12 @@ public class TransactionController implements TransactionsApi {
         if (VnPayConfig.hashAllFields(fields).equals(vnp_SecureHash)) {
             if ("00".equals(fields.get("vnp_ResponseCode"))) {
                 log.info("Payment success");
-//                if(transaction.getType() == Transaction.Type.DEPOSIT) {
-//                    transaction.getAccount().setBalance(transaction.getAccount().getBalance().add(transaction.getAmount()));
-//                } else if(transaction.getType() == Transaction.Type.ORDER) {
-//
-//                }
-                transaction.setSuccess(true);
+                transaction.setStatus(Transaction.Status.SUCCESS);
                 transactionService.update(transaction);
                 return 1;
             } else {
                 log.info("Payment failed");
-//                transaction.setOldBalance(transaction.getAccount().getBalance());
-//                transaction.setNewBalance(transaction.getAccount().getBalance());
-                transaction.setSuccess(false);
+                transaction.setStatus(Transaction.Status.FAILED);
                 transactionService.update(transaction);
                 return 0;
             }

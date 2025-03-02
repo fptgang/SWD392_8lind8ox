@@ -8,9 +8,10 @@ import com.fptgang.backend.repository.VideoRepos;
 import com.fptgang.backend.service.AzureBlobService;
 import com.fptgang.backend.service.EmailService;
 import com.fptgang.backend.service.VideoService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -101,12 +102,8 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Page<Video> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Video>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
-        return videoRepos.findAll(spec, pageable);
+    public Page<Video> getAll(ListParams params) {
+        var spec = params.<Video>toSpec();
+        return videoRepos.findAll(spec, params.getPageable());
     }
 }

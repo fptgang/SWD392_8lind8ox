@@ -7,6 +7,7 @@ import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.mapper.AccountMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.AccountService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -57,13 +58,23 @@ public class AccountController implements AccountsApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<GetAccounts200Response> getAccounts(Pageable pageable, String filter, String search) {
         log.info("Getting accounts");
-        var page = OpenApiHelper.toPageable(pageable);
+
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = accountService
-                .getAll(page, filter, search, includeInvisible)
-                .map(accountMapper::toDTO);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
+
+        // Staff cannot view Admin
+        if (SecurityUtil.hasRole(Account.Role.STAFF)) {
+            params.setFilter("role", "in", "STAFF,CUSTOMER");
+        }
+
+        var res = accountService.getAll(params.build()).map(accountMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetAccounts200Response.class);
     }
 
@@ -86,7 +97,7 @@ public class AccountController implements AccountsApi {
             accountDto.setVerifiedAt(null);
         }
 
-        if (SecurityUtil.isRole(Account.Role.CUSTOMER)) {
+        if (SecurityUtil.hasRole(Account.Role.CUSTOMER)) {
             if (SecurityUtil.requireCurrentUserId() != accountId) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }

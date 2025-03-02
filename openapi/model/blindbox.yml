@@ -13,9 +13,6 @@ BlindBoxDto:
       type: string
     isVisible:
       type: boolean
-    promotionalCampaignId:
-      type: integer
-      format: int64
     images:
       type: array
       items:

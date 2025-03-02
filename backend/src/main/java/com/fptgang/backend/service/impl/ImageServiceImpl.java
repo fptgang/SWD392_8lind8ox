@@ -4,6 +4,7 @@ import com.fptgang.backend.model.Image;
 import com.fptgang.backend.repository.ImageRepos;
 import com.fptgang.backend.service.AzureBlobService;
 import com.fptgang.backend.service.ImageService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,12 +67,8 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public Page<Image> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Image>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
-        return imageRepos.findAll(spec, pageable);
+    public Page<Image> getAll(ListParams params) {
+        var spec = params.<Image>toSpec();
+        return imageRepos.findAll(spec, params.getPageable());
     }
 }

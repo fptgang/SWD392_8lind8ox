@@ -23,8 +23,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
     private BlindBoxRepos blindBoxRepos;
     @Autowired
     private SetRepos setRepos;
-    @Autowired
-    private BlindBoxMapper blindBoxMapper;
 
     @Override
     public PromotionalCampaign toEntity(PromotionalCampaignDto dto) {
@@ -42,13 +40,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             existingPromotionalCampaign.setEndDate(dto.getEndDate() != null ? DateTimeUtil.fromOffsetToLocal(dto.getEndDate()) : existingPromotionalCampaign.getEndDate());
             existingPromotionalCampaign.setDiscountRate(dto.getDiscountRate() != null ? dto.getDiscountRate() : existingPromotionalCampaign.getDiscountRate());
             existingPromotionalCampaign.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingPromotionalCampaign.isVisible());
-            if (dto.getBlindBoxes() != null) {
-                existingPromotionalCampaign.setBlindBoxes(
-                        dto.getBlindBoxes().stream().map(
-                                blindBoxMapper::toEntity
-                        ).toList()
-                );
-            }
             return existingPromotionalCampaign;
         } else {
             PromotionalCampaign entity = new PromotionalCampaign();
@@ -59,13 +50,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
             entity.setEndDate(DateTimeUtil.fromOffsetToLocal(dto.getEndDate()));
             entity.setDiscountRate(dto.getDiscountRate());
             entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
-            if (dto.getBlindBoxes() != null) {
-                entity.setBlindBoxes(
-                        dto.getBlindBoxes().stream().map(
-                                blindBoxMapper::toEntity
-                        ).toList()
-                );
-            }
             if (dto.getCreatedAt() != null) {
                 entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
             }
@@ -96,11 +80,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
         if (entity.getUpdatedAt() != null) {
             dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         }
-        dto.setBlindBoxes(
-                entity.getBlindBoxes().stream().map(
-                        blindBoxMapper::toDTO
-                ).toList()
-        );
         return dto;
     }
 }

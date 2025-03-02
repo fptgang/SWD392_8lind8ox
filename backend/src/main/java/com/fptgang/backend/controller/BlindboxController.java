@@ -6,6 +6,7 @@ import com.fptgang.backend.mapper.BlindBoxMapper;
 import com.fptgang.backend.model.Account;
 
 import com.fptgang.backend.service.BlindBoxService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<BlindBoxDto> createBlindBox(BlindBoxDto blindBoxDto) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create blind boxes.");
         }
         ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
@@ -54,7 +55,8 @@ public class BlindboxController implements BlindBoxesApi {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can delete blind boxes.");
         }
-        return BlindBoxesApi.super.deleteBlindBox(blindBoxId);
+        blindBoxService.deleteById(blindBoxId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
@@ -66,21 +68,15 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<GetBlindBoxes200Response> getBlindBoxes(Pageable pageable, String filter, String search) {
-        org.springframework.data.domain.Page<BlindBoxDto> res = null;
-        log.info("Getting blindboxes" + pageable + filter + search);
-        var includeInvisible = false;
-        var page = OpenApiHelper.toPageable(pageable);
-        try {
-             includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        } catch (Exception e) {
-            log.error("Error getting blindboxes", e.getMessage());
-        }
+        log.info("Getting blindboxes");
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
 
-        res = blindBoxService
-                .getAll(page, filter, search, includeInvisible)
-                .map(blindBoxMapper::toDTO);
-
-        log.info(res.toString());
+        var res = blindBoxService.getAll(params.build()).map(blindBoxMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetBlindBoxes200Response.class);
     }
 

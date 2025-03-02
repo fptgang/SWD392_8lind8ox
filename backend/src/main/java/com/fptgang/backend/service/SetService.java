@@ -1,8 +1,8 @@
 package com.fptgang.backend.service;
 
 import com.fptgang.backend.model.Set;
+import com.fptgang.backend.service.params.ListParams;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface SetService {
     Set create(Set set);
@@ -13,13 +13,5 @@ public interface SetService {
 
     Set deleteById(long id);
 
-    Page<Set> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
-
-    default Page<Set> getAll(Pageable pageable, String filter, String search) {
-        return getAll(pageable, filter, search, false);
-    }
-
-    default Page<Set> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, null, false);
-    }
+    Page<Set> getAll(ListParams params);
 }

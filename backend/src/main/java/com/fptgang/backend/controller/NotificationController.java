@@ -6,6 +6,7 @@ import com.fptgang.backend.mapper.NotificationMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Notification;
 import com.fptgang.backend.service.NotificationService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -54,9 +55,19 @@ public class NotificationController implements NotificationsApi {
     @Override
     public ResponseEntity<GetNotifications200Response> getNotifications(Pageable pageable, String filter, String search) {
         log.info("Getting notifications");
-        var page = OpenApiHelper.toPageable(pageable);
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = notificationService.getAll(page, filter, search, includeInvisible).map(notificationMapper::toDTO);
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(filter)
+                .includeInvisible(includeInvisible);
+
+        // Staff and Customers can only view their own notifications
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
+        }
+
+        var res = notificationService.getAll(params.build()).map(notificationMapper::toDTO);
         return OpenApiHelper.respondPage(res, GetNotifications200Response.class);
     }
 

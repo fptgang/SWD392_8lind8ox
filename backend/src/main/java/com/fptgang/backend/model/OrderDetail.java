@@ -34,7 +34,7 @@ public class OrderDetail {
     @Column(nullable = false)
     private int quantity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id")
     @Nullable
     private PromotionalCampaign promotionalCampaign;
@@ -60,7 +60,7 @@ public class OrderDetail {
 //    @Nullable
 //    private Video video;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slot_id")
     private Slot slot;
 

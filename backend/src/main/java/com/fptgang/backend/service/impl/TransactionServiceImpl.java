@@ -6,6 +6,7 @@ import com.fptgang.backend.model.Transaction;
 import com.fptgang.backend.repository.TransactionRepos;
 import com.fptgang.backend.service.OrderService;
 import com.fptgang.backend.service.TransactionService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
     public String create(Transaction transaction, String vnp_IpAddr) {
         if (transaction.getOrder() != null) {
             if (transaction.getOrder().getTransaction() != null) {
-                if (transaction.getOrder().getTransaction().isSuccess() != true) {
+                if (transaction.getOrder().getTransaction().getStatus() != Transaction.Status.SUCCESS) {
                     transaction.getOrder().setTransaction(null);
                     orderService.update(
                             transaction.getOrder()
@@ -52,7 +53,7 @@ public class TransactionServiceImpl implements TransactionService {
         try {
             transaction.setOldBalance(transaction.getAccount().getBalance());
             transaction.setNewBalance(transaction.getAccount().getBalance());
-            transaction.setSuccess(false);
+            transaction.setStatus(Transaction.Status.PENDING);
             transaction = transactionRepos.save(transaction);
             if (transaction.getPaymentMethod() == Transaction.PaymentMethod.VNPAY) {
                 return createVNPay(transaction, vnp_IpAddr);
@@ -165,7 +166,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (transaction.getTransactionId() == null) {
             throw new IllegalArgumentException("Transaction does not exist");
         }
-        if (transaction.isSuccess())
+        if (transaction.getStatus() == Transaction.Status.SUCCESS)
             switch (transaction.getType()) {
                 case DEPOSIT -> {
                     transaction.setOldBalance(transaction.getAccount().getBalance());
@@ -193,12 +194,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<Transaction> getAll(Pageable pageable, String filter, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Transaction>filterToSpec(filter);
-//        spec = spec.and(OpenApiHelper.searchToSpec(filter));
-//        if (!includeInvisible) {
-//            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-//        }
-        return transactionRepos.findAll(spec, pageable);
+    public Page<Transaction> getAll(ListParams params) {
+        var spec = params.<Transaction>toSpec();
+        return transactionRepos.findAll(spec, params.getPageable());
     }
 }

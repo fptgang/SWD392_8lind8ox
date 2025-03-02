@@ -1,18 +1,18 @@
 class BrandModel {
-  int? brandId;
-  String? name;
-  String? description;
-  bool? isVisible;
-  DateTime? createdAt;
-  DateTime? updatedAt;
-  List<int> blindBoxes;
+  final int brandId;
+  final String name;
+  final String description;
+  final bool isVisible;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final List<int> blindBoxes;
 
   BrandModel({
-    this.brandId,
-    this.name,
-    this.description,
-    this.isVisible,
-    this.createdAt,
+    required this.brandId,
+    required this.name,
+    required this.description,
+    required this.isVisible,
+    required this.createdAt,
     this.updatedAt,
     this.blindBoxes = const [],
   });

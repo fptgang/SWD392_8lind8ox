@@ -1,8 +1,8 @@
 package com.fptgang.backend.service;
 
 import com.fptgang.backend.model.StockKeepingUnit;
+import com.fptgang.backend.service.params.ListParams;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface StockKeepingUnitService {
     StockKeepingUnit create(StockKeepingUnit sku);
@@ -13,13 +13,5 @@ public interface StockKeepingUnitService {
 
     StockKeepingUnit deleteById(long id);
 
-    Page<StockKeepingUnit> getAll(Pageable pageable, String filter, String search, boolean includeInvisible);
-
-    default Page<StockKeepingUnit> getAll(Pageable pageable, String filter, String search) {
-        return getAll(pageable, filter, search, false);
-    }
-
-    default Page<StockKeepingUnit> getAll(Pageable pageable, String filter) {
-        return getAll(pageable, filter, null, false);
-    }
+    Page<StockKeepingUnit> getAll(ListParams params);
 }

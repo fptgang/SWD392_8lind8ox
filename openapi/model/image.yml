@@ -10,7 +10,7 @@ ImageDto:
     blindBoxId:
       type: integer
       format: int64
-    packId:
+    toyId:
       type: integer
       format: int64
     imageUrl:

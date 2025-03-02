@@ -79,9 +79,10 @@ public class SecurityUtil {
     }
 
     @NotNull
-    public static boolean isRole(Account.Role... roles) {
+    public static boolean hasRole(Account.Role... roles) {
+        Account.Role currentUserRole = getCurrentUserRole();
         for (Account.Role role : roles) {
-            if (hasPermission(role)) {
+            if (role == currentUserRole) {
                 return true;
             }
         }

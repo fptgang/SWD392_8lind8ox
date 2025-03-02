@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @Import(TestcontainersConfiguration.class)
+@ActiveProfiles(profiles = "dev")
 class AccountIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -85,7 +88,7 @@ class AccountIntegrationTest {
         assertThat(account1.getEmail()).isEqualTo("a@test.com");
         assertThat(account1.getFirstName()).isEqualTo("a");
         assertThat(account1.getLastName()).isEqualTo("x");
-        assertThat(account1.getPassword()).isEqualTo("pwd");
+        assertThat(account1.getPassword()).isNull();
         assertThat(account1.getAvatarUrl()).isEqualTo("string");
         assertThat(account1.getRole()).isEqualTo(AccountDto.RoleEnum.ADMIN);
         assertThat(account1.getIsVerified()).isFalse();
@@ -94,7 +97,7 @@ class AccountIntegrationTest {
         assertThat(account2.getEmail()).isEqualTo("b@test.com");
         assertThat(account2.getFirstName()).isEqualTo("b");
         assertThat(account2.getLastName()).isEqualTo("y");
-        assertThat(account2.getPassword()).isEqualTo("pwd");
+        assertThat(account2.getPassword()).isNull();
         assertThat(account2.getAvatarUrl()).isEqualTo("string");
         assertThat(account2.getRole()).isEqualTo(AccountDto.RoleEnum.ADMIN);
         assertThat(account2.getIsVerified()).isTrue();

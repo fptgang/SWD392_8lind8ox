@@ -13,7 +13,7 @@ TransactionDto:
     paymentMethod:
       type: string
       enum: [PAYPAL, VNPAY]
-    dateTime:
+    createAt:
       type: string
       format: date-time
     amount:
@@ -28,5 +28,6 @@ TransactionDto:
     orderId:
       type: integer
       format: int64
-    success:
-      type: boolean
+    status:
+      type: string
+      enum: [ PENDING, SUCCESS, FAILED ]

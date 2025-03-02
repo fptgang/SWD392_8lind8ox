@@ -1,8 +1,10 @@
 package com.fptgang.backend.aspect;
 
 import com.fptgang.backend.api.model.AccountDto;
+import com.fptgang.backend.api.model.GetAccounts200Response;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.util.SecurityUtil;
+import jakarta.validation.Valid;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -33,13 +35,19 @@ public class ResponseInterceptor {
 
     private Object modifyResponseBody(Object body) {
         if (body instanceof AccountDto dto) {
-            intercept(dto);
+            interceptAccountDto(dto);
+        }
+
+        if (body instanceof GetAccounts200Response res) {
+            for (AccountDto dto : res.getContent()) {
+                interceptAccountDto(dto);
+            }
         }
 
         return body;
     }
 
-    private void intercept(AccountDto dto) {
+    private void interceptAccountDto(AccountDto dto) {
         dto.setPassword(null);
 
         Account.Role role = SecurityUtil.getCurrentUserRole();

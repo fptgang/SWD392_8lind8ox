@@ -3,6 +3,7 @@ package com.fptgang.backend.service.impl;
 import com.fptgang.backend.model.Order;
 import com.fptgang.backend.repository.OrderRepos;
 import com.fptgang.backend.service.OrderService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -47,12 +48,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Order> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Order>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-//        if (!includeInvisible) {
-//            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-//        }
-        return orderRepos.findAll(spec, pageable);
+    public Page<Order> getAll(ListParams params) {
+        var spec = params.<Order>toSpec();
+        return orderRepos.findAll(spec, params.getPageable());
     }
 }

@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "slots")
@@ -38,12 +39,10 @@ public class Slot {
     @JoinColumn(name = "set_id")
     private Set set;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_detail_id")
-    private OrderDetail orderDetail;
+    @OneToMany(mappedBy = "slot")
+    private List<OrderDetail> orderDetails;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "video_id")
+    @OneToOne(mappedBy = "slot", cascade = CascadeType.ALL, orphanRemoval = true)
     private Video video;
 
     @CreationTimestamp

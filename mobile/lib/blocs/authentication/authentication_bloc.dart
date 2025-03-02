@@ -1,16 +1,12 @@
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
-
 import '../../data/repositories/account_repository.dart';
 import '../../enum/enum.dart';
 import 'authentication_state.dart';
-
 part 'authentication_event.dart';
 
 @injectable

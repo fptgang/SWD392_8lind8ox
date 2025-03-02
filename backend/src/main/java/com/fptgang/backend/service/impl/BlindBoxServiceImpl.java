@@ -3,6 +3,7 @@ package com.fptgang.backend.service.impl;
 import com.fptgang.backend.model.BlindBox;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.service.BlindBoxService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,17 +42,13 @@ public class BlindBoxServiceImpl implements BlindBoxService {
     public BlindBox deleteById(long id) {
         BlindBox blindBox = blindBoxRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("BlindBox does not exist"));
-//        blindBox.setVisible(false);
+        blindBox.setVisible(false);
         return blindBoxRepos.save(blindBox);
     }
 
     @Override
-    public Page<BlindBox> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<BlindBox>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
-        return blindBoxRepos.findAll(spec, pageable);
+    public Page<BlindBox> getAll(ListParams params) {
+        var spec = params.<BlindBox>toSpec();
+        return blindBoxRepos.findAll(spec, params.getPageable());
     }
 }

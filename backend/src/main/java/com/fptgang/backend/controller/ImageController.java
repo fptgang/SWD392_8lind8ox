@@ -6,7 +6,6 @@ import com.fptgang.backend.mapper.ImageMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Image;
 import com.fptgang.backend.service.ImageService;
-import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -40,14 +37,14 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
-        if (!SecurityUtil.isRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+    public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long toyId, MultipartFile imageBlob, Boolean isVisible) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can upload images.");
         }
         ImageDto dto = new ImageDto()
                 .uploaderId(uploaderId)
                 .blindBoxId(blindBoxId)
-                .packId(packId)
+                .toyId(toyId)
                 .isVisible(isVisible);
         return new ResponseEntity<>(imageMapper
                 .toDTO(imageService.create(imageMapper.toEntity(dto), imageBlob)), HttpStatus.CREATED);
@@ -79,16 +76,7 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<GetImages200Response> getImages(Pageable pageable, String filter, String search) {
-        log.info("Getting images");
-        var page = OpenApiHelper.toPageable(pageable);
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
-        var res = imageService.getAll(page, filter, search, includeInvisible).map(imageMapper::toDTO);
-        return OpenApiHelper.respondPage(res, GetImages200Response.class);
-    }
-
-    @Override
-    public ResponseEntity<ImageDto> updateImage(Long imageId, Long uploaderId, Long blindBoxId, Long packId, MultipartFile imageBlob, Boolean isVisible) {
+    public ResponseEntity<ImageDto> updateImage(Long imageId, Long uploaderId, Long blindBoxId, Long toyId, MultipartFile imageBlob, Boolean isVisible) {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can update images.");
         }
@@ -96,7 +84,7 @@ public class ImageController implements ImagesApi {
                 .imageId(imageId)
                 .uploaderId(uploaderId)
                 .blindBoxId(blindBoxId)
-                .packId(packId)
+                .toyId(toyId)
                 .isVisible(isVisible);
         return ResponseEntity.ok(imageMapper
                 .toDTO(imageService.update(imageMapper.toEntity(dto), imageBlob)));

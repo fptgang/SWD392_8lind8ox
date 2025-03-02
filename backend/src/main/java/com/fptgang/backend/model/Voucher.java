@@ -2,11 +2,14 @@ package com.fptgang.backend.model;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,6 +37,8 @@ public class Voucher {
     private String code;
 
     @Column(nullable = false, precision = 5, scale = 2)
+    @DecimalMin("0.0")
+    @DecimalMax("1.0")
     private BigDecimal discountRate;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -44,6 +49,9 @@ public class Voucher {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @Column(nullable = false)
     private LocalDateTime expiredAt;

@@ -66,9 +66,6 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
             entity.setBrand(dto.getBrandId() != null ?
                     brandRepos.findById(dto.getBrandId()).get()
                     : null);
-            if (dto.getPromotionalCampaignId() != null) {
-                entity.setPromotionalCampaign(promotionalCampaignRepos.findById(dto.getPromotionalCampaignId()).get());
-            }
             if (dto.getCreatedAt() != null) {
                 entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
             }
@@ -98,7 +95,6 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setBrandId(entity.getBrand() != null ? entity.getBrand().getBrandId() : null);
-        dto.setPromotionalCampaignId(entity.getPromotionalCampaign() != null ? entity.getPromotionalCampaign().getCampaignId() : null);
         if (entity.getCreatedAt() != null) {
             dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         }

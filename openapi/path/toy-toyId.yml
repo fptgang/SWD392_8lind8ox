@@ -1,10 +1,10 @@
 get:
-  summary: Get a video by videoId
-  operationId: getVideoById
+  summary: Get a toy by toyId
+  operationId: getToyById
   security:
     - bearerAuth: []
   parameters:
-    - name: videoId
+    - name: toyId
       in: path
       required: true
       schema:
@@ -16,7 +16,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../model/video.yml#/VideoDto'
+            $ref: '../model/toy.yml#/ToyDto'
     '400':
       description: The operation failed
       content:
@@ -25,31 +25,31 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 put:
-  summary: Update an existing video
-  operationId: updateVideo
+  summary: Update an existing toy
+  operationId: updateToy
   security:
     - bearerAuth: []
   parameters:
-    - name: videoId
+    - name: toyId
       in: path
       required: true
       schema:
         type: integer
         format: int64  # Updated to int64 for consistency with the model
   requestBody:
-    description: Video to update
+    description: Toy to update
     required: true
     content:
       application/json:
         schema:
-          $ref: '../model/video.yml#/VideoDto'
+          $ref: '../model/toy.yml#/ToyDto'
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/video.yml#/VideoDto'
+            $ref: '../model/toy.yml#/ToyDto'
     '400':
       description: The operation failed
       content:
@@ -58,12 +58,12 @@ put:
             $ref: '../component/error.yml#/ErrorResponse'
 
 delete:
-  summary: Delete an existing video
-  operationId: deleteVideo
+  summary: Delete an existing toy
+  operationId: deleteToy
   security:
     - bearerAuth: []
   parameters:
-    - name: videoId
+    - name: toyId
       in: path
       required: true
       schema:

@@ -50,4 +50,9 @@ class CartItem {
       quantity: json['quantity'],
     );
   }
+
+  @override
+  String toString() {
+    return 'CartItem{id: $id, productName: $productName, price: $price, image: $image, quantity: $quantity}';
+  }
 }

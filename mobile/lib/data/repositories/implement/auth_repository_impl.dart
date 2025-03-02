@@ -1,12 +1,7 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:injectable/injectable.dart';
 import 'package:mobile/data/mapper/auth_response_mapper.dart';
 import 'package:mobile/data/mapper/jwt_response_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
@@ -14,6 +9,7 @@ import 'package:mobile/data/models/auth_response_model.dart';
 import 'package:mobile/data/models/jwt_response_model.dart';
 import 'package:mobile/di/injection.dart';
 import 'package:openapi/api.dart';
+
 import '../../../enum/enum.dart';
 import '../auth_repository.dart';
 
@@ -147,51 +143,51 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   Future<String?> signInWithGoogle() async {
-    const GOOGLE_CLIENT_ID = "3547727424-dd830mm0li4cmi4q2kcr7ndorfpgi5rs.apps.googleusercontent.com";
-    try {
-      GoogleSignIn googleSignIn;
-      if (kIsWeb || defaultTargetPlatform == TargetPlatform.android) {
-        googleSignIn = GoogleSignIn(
-          scopes: [
-            'profile',
-            'email',
-            'openid',
-          ],
-        );
-      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-        googleSignIn = GoogleSignIn(
-          clientId: GOOGLE_CLIENT_ID,
-          scopes: [
-            'email',
-            'profile',
-            'openid',
-          ],
-        );
-      } else {
-        googleSignIn = GoogleSignIn();
-      }
-      final GoogleSignInAccount? account = await googleSignIn.signIn();
-      debugPrint("account: $account");
-      if (account == null) {
-        return null;
-      }
-
-      final GoogleSignInAuthentication googleAuth = await account.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      debugPrint("ID Token: ${googleAuth.idToken}");
-      debugPrint("User already signed in. ID Token: ${credential.idToken}");
-
-      return credential.idToken;
-    } catch (e) {
-      throw Exception('Google sign in failed, please try again, ${e.toString()}');
-    }
+    // const GOOGLE_CLIENT_ID = "3547727424-dd830mm0li4cmi4q2kcr7ndorfpgi5rs.apps.googleusercontent.com";
+    // try {
+    //   GoogleSignIn googleSignIn;
+    //   if (kIsWeb || defaultTargetPlatform == TargetPlatform.android) {
+    //     googleSignIn = GoogleSignIn(
+    //       scopes: [
+    //         'profile',
+    //         'email',
+    //         'openid',
+    //       ],
+    //     );
+    //   } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+    //     googleSignIn = GoogleSignIn(
+    //       clientId: GOOGLE_CLIENT_ID,
+    //       scopes: [
+    //         'email',
+    //         'profile',
+    //         'openid',
+    //       ],
+    //     );
+    //   } else {
+    //     googleSignIn = GoogleSignIn();
+    //   }
+    //   final GoogleSignInAccount? account = await googleSignIn.signIn();
+    //   debugPrint("account: $account");
+    //   if (account == null) {
+    //     return null;
+    //   }
+    //
+    //   final GoogleSignInAuthentication googleAuth = await account.authentication;
+    //
+    //   final credential = GoogleAuthProvider.credential(
+    //     accessToken: googleAuth.accessToken,
+    //     idToken: googleAuth.idToken,
+    //   );
+    //
+    //   await FirebaseAuth.instance.signInWithCredential(credential);
+    //
+    //   debugPrint("ID Token: ${googleAuth.idToken}");
+    //   debugPrint("User already signed in. ID Token: ${credential.idToken}");
+    //
+    //   return credential.idToken;
+    // } catch (e) {
+    //   throw Exception('Google sign in failed, please try again, ${e.toString()}');
+    // }
+    return null;
   }
-
 }

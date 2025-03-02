@@ -3,6 +3,7 @@ package com.fptgang.backend.service.impl;
 import com.fptgang.backend.model.OrderStatusHistory;
 import com.fptgang.backend.repository.OrderStatusHistoryRepos;
 import com.fptgang.backend.service.OrderStatusHistoryService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -47,12 +48,8 @@ public class OrderStatusHistoryServiceImpl implements OrderStatusHistoryService 
     }
 
     @Override
-    public Page<OrderStatusHistory> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<OrderStatusHistory>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-//        if (!includeInvisible) {
-//            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-//        }
-        return orderRepos.findAll(spec, pageable);
+    public Page<OrderStatusHistory> getAll(ListParams params) {
+        var spec = params.<OrderStatusHistory>toSpec();
+        return orderRepos.findAll(spec, params.getPageable());
     }
 }

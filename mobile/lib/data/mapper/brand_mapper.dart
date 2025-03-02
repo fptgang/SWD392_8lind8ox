@@ -7,12 +7,13 @@ import '../models/brands_response_model.dart';
 class BrandMapper{
   static BrandModel toModel(BrandDto dto){
     return BrandModel(
-      brandId: dto.brandId,
-      name: dto.name,
-      description: dto.description,
-      isVisible: dto.isVisible,
-      createdAt: dto.createdAt,
+      brandId: dto.brandId ?? 0,
+      name: dto.name ?? '',
+      description: dto.description ?? '',
+      isVisible: dto.isVisible ?? false,
+      createdAt: dto.createdAt ?? DateTime.now(),
       updatedAt: dto.updatedAt,
+      blindBoxes: dto.blindBoxes,
     );
   }
 
@@ -25,6 +26,30 @@ class BrandMapper{
       first: dto.first!,
       numberOfElements: dto.numberOfElements!,
       empty: dto.empty!,
+    );
+  }
+
+  static BrandDto toDto(BrandModel model) {
+    return BrandDto(
+      brandId: model.brandId,
+      name: model.name,
+      description: model.description,
+      isVisible: model.isVisible,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+      blindBoxes: model.blindBoxes,
+    );
+  }
+
+  static GetBrands200Response toDtoBrands(BrandsResponseModel model) {
+    return GetBrands200Response(
+      content: model.content.map((e) => BrandMapper.toDto(e)).toList(),
+      totalElements: model.totalElements,
+      totalPages: model.totalPages,
+      last: model.last,
+      first: model.first,
+      numberOfElements: model.numberOfElements,
+      empty: model.empty,
     );
   }
 }

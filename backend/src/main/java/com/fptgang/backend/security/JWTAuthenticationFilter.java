@@ -65,7 +65,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(
                 jwt,
-                List.of(new SimpleGrantedAuthority(role.toString()))
+                List.of(new SimpleGrantedAuthority("ROLE_" + role))
         );
         authenticationToken.setDetails(
                 new WebAuthenticationDetailsSource().buildDetails(request)

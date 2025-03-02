@@ -1,18 +1,23 @@
-import 'package:openapi/api.dart';
+import 'package:mobile/data/models/account_model.dart';
 
 
 class AuthResponseModel {
-  final String? token;
+  final String token;
   final String? refreshToken;
-  String? email;
-  AccountDto? accountResponseDTO;
+  String email;
+  AccountModel accountModel;
 
   AuthResponseModel({
-    this.token,
+    required this.token,
     this.refreshToken,
-    this.email,
-    this.accountResponseDTO,
+    required this.email,
+    required this.accountModel,
   });
 
-  String? get getToken => token;
+  List<Object?> get props => [
+    token,
+    refreshToken,
+    email,
+    accountModel,
+  ];
 }

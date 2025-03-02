@@ -3,6 +3,7 @@ package com.fptgang.backend.service.impl;
 import com.fptgang.backend.model.Set;
 import com.fptgang.backend.repository.SetRepos;
 import com.fptgang.backend.service.SetService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,12 +47,8 @@ public class SetServiceImpl implements SetService {
     }
 
     @Override
-    public Page<Set> getAll(Pageable pageable, String filter, String search, boolean includeInvisible) {
-        var spec = OpenApiHelper.<Set>filterToSpec(filter);
-        spec = spec.and(OpenApiHelper.searchToSpec(search));
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
-        return setRepos.findAll(spec, pageable);
+    public Page<Set> getAll(ListParams params) {
+        var spec = params.<Set>toSpec();
+        return setRepos.findAll(spec, params.getPageable());
     }
 }
