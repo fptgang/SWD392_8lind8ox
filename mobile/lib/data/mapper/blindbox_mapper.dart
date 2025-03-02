@@ -1,18 +1,17 @@
-
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:openapi/api.dart';
 
 import '../models/blindboxes_response_model.dart';
 
 class BlindBoxMapper {
-  static BlindBoxModel toModel(BlindBoxDto dto){
+  static BlindBoxModel toModel(BlindBoxDto dto) {
     return BlindBoxModel(
       blindBoxId: dto.blindBoxId ?? 0,
       brandId: dto.brandId ?? 0,
       name: dto.name ?? '',
       description: dto.description ?? '',
       isVisible: dto.isVisible ?? false,
-      promotionalCampaignId: dto.promotionalCampaignId,
+      promotionalCampaignId: null,
       images: dto.images,
       toys: dto.toys,
       skus: dto.skus,
@@ -41,7 +40,6 @@ class BlindBoxMapper {
       name: model.name,
       description: model.description,
       isVisible: model.isVisible,
-      promotionalCampaignId: model.promotionalCampaignId,
       images: model.images ?? [],
       toys: model.toys ?? [],
       skus: model.skus,
@@ -51,7 +49,8 @@ class BlindBoxMapper {
     );
   }
 
-  static GetBlindBoxes200Response toBlindBoxesDto(BlindBoxesResponseModel model) {
+  static GetBlindBoxes200Response toBlindBoxesDto(
+      BlindBoxesResponseModel model) {
     return GetBlindBoxes200Response(
       content: model.content.map((e) => BlindBoxMapper.toDto(e)).toList(),
       totalElements: model.totalElements,

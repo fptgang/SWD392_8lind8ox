@@ -1,5 +1,3 @@
-
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/image_model.dart';
@@ -25,10 +23,9 @@ class ImageRepositoryImpl implements ImageRepository {
   }
 
   @override
-  Future<PaginationResponseGeneric<GetImages200Response>> getImages(Pageable pageable, String filter, String search) {
+  Future<PaginationResponseGeneric<Page>> getImages(
+      Pageable pageable, String filter, String search) {
     // TODO: implement getImages
     throw UnimplementedError();
   }
-  
-
 }
