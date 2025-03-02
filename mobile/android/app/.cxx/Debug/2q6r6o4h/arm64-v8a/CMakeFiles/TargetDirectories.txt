@@ -1,0 +1,2 @@
+/Users/vidz/Documents/GitHub/SWD392_8lind8ox/mobile/android/app/.cxx/Debug/2q6r6o4h/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/vidz/Documents/GitHub/SWD392_8lind8ox/mobile/android/app/.cxx/Debug/2q6r6o4h/arm64-v8a/CMakeFiles/rebuild_cache.dir
