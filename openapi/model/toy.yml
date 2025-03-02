@@ -35,3 +35,7 @@ ToyDto:
     blindBoxId:
       type: integer
       format: int64
+    images:
+      type: array
+      items:
+        $ref: "image.yml#/ImageDto"
