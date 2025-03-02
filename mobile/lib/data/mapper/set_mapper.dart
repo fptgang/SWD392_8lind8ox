@@ -1,6 +1,4 @@
-
 import 'package:mobile/data/mapper/blindbox_mapper.dart';
-import 'package:mobile/data/mapper/image_mapper.dart';
 import 'package:mobile/data/mapper/sku_mapper.dart';
 import 'package:mobile/data/mapper/slot_mapper.dart';
 import 'package:mobile/data/models/sets_response_model.dart';
@@ -8,12 +6,12 @@ import 'package:openapi/api.dart';
 
 import '../models/set_model.dart';
 
-class SetMapper{
+class SetMapper {
   static SetModel toModel(SetDto dto) {
     return SetModel(
       setId: dto.setId!,
       sku: SkuMapper.toModel(dto.sku!),
-      images: dto.images.map((e) => ImageMapper.toModel(e)).toList(),
+      images: [],
       isVisible: dto.isVisible,
       slots: dto.slots.map((e) => SlotMapper.toModel(e)).toList(),
       blindBox: BlindBoxMapper.toModel(dto.blindBox!),
