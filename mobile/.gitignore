@@ -47,3 +47,4 @@ app.*.map.json
 .fvm
 /generated_api/
 *.env
+/android/app/.cxx/
