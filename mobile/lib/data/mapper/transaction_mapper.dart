@@ -1,22 +1,20 @@
-
-
 import 'package:mobile/data/models/transaction_model.dart';
 import 'package:mobile/enum/enum.dart';
 import 'package:openapi/api.dart';
 
 class TransactionMapper {
-  static TransactionModel toModel(TransactionDto dto){
+  static TransactionModel toModel(TransactionDto dto) {
     return TransactionModel(
       transactionId: dto.transactionId!,
       accountId: dto.accountId!,
       type: _mapDtoType(dto.type!),
       paymentMethod: _mapDtoPaymentMethod(dto.paymentMethod!),
-      createdAt: dto.dateTime!,
+      createdAt: dto.createAt!,
       amount: dto.amount!,
       oldBalance: dto.oldBalance!,
       newBalance: dto.newBalance!,
       orderId: dto.orderId!,
-      success: dto.success!,
+      success: dto.status == TransactionDtoStatusEnum.SUCCESS,
     );
   }
 
@@ -31,7 +29,8 @@ class TransactionMapper {
     }
   }
 
-  static PaymentMethod _mapDtoPaymentMethod(TransactionDtoPaymentMethodEnum dtoMethod) {
+  static PaymentMethod _mapDtoPaymentMethod(
+      TransactionDtoPaymentMethodEnum dtoMethod) {
     switch (dtoMethod) {
       case TransactionDtoPaymentMethodEnum.PAYPAL:
         return PaymentMethod.PAYPAL;
