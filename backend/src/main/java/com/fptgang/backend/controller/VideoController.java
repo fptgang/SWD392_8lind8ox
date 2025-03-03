@@ -39,7 +39,7 @@ public class VideoController implements VideosApi {
     }
 
     @Override
-    public ResponseEntity<VideoDto> createVideo(Long accountID, Long orderDetailId, MultipartFile videoBlob,Boolean isVisible) {
+    public ResponseEntity<VideoDto> createVideo(Long accountID, Long slotId, MultipartFile videoBlob,Boolean isVisible) {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             // Not admin, so let's ensure the user matches accountID
             long currentUserId = SecurityUtil.requireCurrentUserId(); // throws AccessDeniedException if unauthenticated
@@ -47,10 +47,10 @@ public class VideoController implements VideosApi {
                 throw new AccessDeniedException("You are not allowed to create a video for another user!");
             }
         }
-        VideoDto dto = new VideoDto()
-                .accountId(accountID)
-                .orderDetailId(orderDetailId)
-                .isVisible(isVisible);
+        VideoDto dto = new VideoDto();
+        dto.setAccountId(accountID);
+        dto.setSlotId(slotId);
+        dto.setIsVisible(isVisible);
         return new ResponseEntity<>(videoMapper
                 .toDTO(videoService.create(videoMapper.toEntity(dto), videoBlob)), HttpStatus.CREATED);
     }
@@ -104,7 +104,7 @@ public class VideoController implements VideosApi {
     }
 
     @Override
-    public ResponseEntity<VideoDto> updateVideo(Long videoId,Long accountID, Long orderDetailId, MultipartFile videoBlob,Boolean isVisible) {
+    public ResponseEntity<VideoDto> updateVideo(Long videoId,Long accountID, Long slotId, MultipartFile videoBlob,Boolean isVisible) {
         // 1) If user is not ADMIN, ensure the current user is the video owner
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             long currentUserId = SecurityUtil.requireCurrentUserId();
@@ -113,11 +113,12 @@ public class VideoController implements VideosApi {
                 throw new AccessDeniedException("You are not allowed to update this video!");
             }
         }
-        VideoDto dto = new VideoDto()
-                .videoId(videoId)
-                .accountId(accountID)
-                .orderDetailId(orderDetailId)
-                .isVisible(isVisible);
+        VideoDto dto = new VideoDto();
+        dto.setVideoId(videoId);
+        dto.setAccountId(accountID);
+        dto.setSlotId(slotId);
+        dto.setIsVisible(isVisible);
+
         return ResponseEntity.ok(videoMapper
                 .toDTO(videoService.update(videoMapper.toEntity(dto), videoBlob)));
     }

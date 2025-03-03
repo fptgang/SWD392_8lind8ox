@@ -3,6 +3,7 @@ package com.fptgang.backend.mapper;
 import com.fptgang.backend.api.model.VideoDto;
 import com.fptgang.backend.model.Video;
 import com.fptgang.backend.repository.AccountRepos;
+import com.fptgang.backend.repository.SlotRepos;
 import com.fptgang.backend.repository.VideoRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
     private VideoRepos videoRepos;
     @Autowired
     private AccountRepos accountRepos;
+    @Autowired
+    private SlotRepos slotRepos;
 
     @Override
     public Video toEntity(VideoDto dto) {
@@ -31,14 +34,13 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             existingVideo.setUrl(dto.getUrl() != null ? dto.getUrl() : existingVideo.getUrl());
             existingVideo.setDescription(dto.getDescription() != null ? dto.getDescription() : existingVideo.getDescription());
             existingVideo.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingVideo.isVisible());
-            existingVideo.setCreatedAt(dto.getCreatedAt() != null ? DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()) : existingVideo.getCreatedAt());
-            existingVideo.setUpdatedAt(dto.getUpdatedAt() != null ? DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()) : existingVideo.getUpdatedAt());
             if (dto.getAccountId() != null) {
                 existingVideo.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
             }
             if (dto.getIsVerified() != null) {
                 existingVideo.setVerified(dto.getIsVerified());
             }
+
             return existingVideo;
         } else {
             Video entity = new Video();
@@ -54,6 +56,8 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             if (dto.getIsVerified() != null) {
                 entity.setVerified(dto.getIsVerified());
             }
+            if(dto.getSlotId()!=null) entity.setSlot(slotRepos.findById(dto.getSlotId()).get());
+
             return entity;
         }
     }
@@ -73,6 +77,7 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
         dto.setUpdatedAt(entity.getUpdatedAt() != null ? DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()) : null);
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         dto.setIsVerified(entity.isVerified());
+        dto.setSlotId(entity.getSlot() != null ? entity.getSlot().getSlotId() : null);
         return dto;
     }
 }

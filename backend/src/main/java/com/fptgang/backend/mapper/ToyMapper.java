@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -19,6 +20,8 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
     private ToyRepos toyRepos;
     @Autowired
     private BlindBoxRepos blindBoxRepos;
+    @Autowired
+    private ImageMapper imageMapper;
 
     @Override
     public Toy toEntity(ToyDto dto) {
@@ -38,6 +41,9 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
             if(dto.getBlindBoxId()!=null){
                 existingToy.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
             }
+            if(dto.getImages()!=null){
+                existingToy.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
+            }
             return existingToy;
         } else {
             Toy entity = new Toy();
@@ -55,6 +61,9 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
             }
             if(dto.getBlindBoxId()!=null){
                 entity.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
+            }
+            if(dto.getImages()!=null){
+                entity.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
             }
             return entity;
         }
@@ -76,6 +85,7 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         dto.setBlindBoxId(entity.getBlindBox().getBlindBoxId());
+        dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).collect(Collectors.toList()));
         return dto;
     }
 }
