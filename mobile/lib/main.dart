@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -51,12 +51,15 @@ StreamSubscription<Uri>? _linkSubscription;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
   await initDeepLinks();
   await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   await Hive.openBox("authentication");
   configureDependencies();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
   runApp(const MyApp());
 }
 
@@ -76,21 +79,24 @@ void openAppLink(Uri uri) {
   }
 }
 
-
 final router = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: '/main',
   routes: [
-    GoRoute(path: '/forgot-password',builder: (context, state) =>  ForgotPasswordScreen()),
-    GoRoute(path: '/reset-password', builder: (context, state) {
+    GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => ForgotPasswordScreen()),
+    GoRoute(
+      path: '/reset-password',
+      builder: (context, state) {
         final token = state.uri.queryParameters['token'] ?? '';
         return NewPasswordScreen(token: token);
       },
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
-    GoRoute(path: '/sign-up', builder: (context, state) =>  RegisterScreen()),
-    GoRoute(path: '/account', builder: (context, state) =>  AccountScreen()),
-    GoRoute(path: '/splash', builder: (context, state) =>  SplashScreen()),
+    GoRoute(path: '/sign-up', builder: (context, state) => RegisterScreen()),
+    GoRoute(path: '/account', builder: (context, state) => AccountScreen()),
+    GoRoute(path: '/splash', builder: (context, state) => SplashScreen()),
     GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
     GoRoute(
       path: '/blind-box-detail/:id',
@@ -103,16 +109,21 @@ final router = GoRouter(
       path: '/main',
       builder: (context, state) => const MainScreen(),
       routes: [
-        GoRoute(path: 'home', builder: (context, state) => const HomePageScreen()),
-        GoRoute(path: 'search', builder: (context, state) => const SearchScreen()),
+        GoRoute(
+            path: 'home', builder: (context, state) => const HomePageScreen()),
+        GoRoute(
+            path: 'search', builder: (context, state) => const SearchScreen()),
         GoRoute(path: 'cart', builder: (context, state) => const CartScreen()),
-        GoRoute(path: 'new-releases', builder: (context, state) => const NewReleasesScreen()),
+        GoRoute(
+            path: 'new-releases',
+            builder: (context, state) => const NewReleasesScreen()),
         GoRoute(path: 'account', builder: (context, state) => AccountScreen()),
       ],
     ),
     GoRoute(path: '/checkout', builder: (context, state) => CheckoutScreen()),
-    GoRoute(path: '/profile-detail', builder: (context, state) => ProfileDetailScreen()),
-
+    GoRoute(
+        path: '/profile-detail',
+        builder: (context, state) => ProfileDetailScreen()),
   ],
 );
 
@@ -145,7 +156,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 class AppView extends StatelessWidget {
   const AppView({super.key});

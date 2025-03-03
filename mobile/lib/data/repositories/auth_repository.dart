@@ -1,5 +1,3 @@
-
-
 import 'package:injectable/injectable.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/auth_response_model.dart';

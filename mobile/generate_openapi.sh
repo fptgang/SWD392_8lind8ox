@@ -1,4 +1,9 @@
-openapi-generator-cli generate -i ../openapi/main.yml -g dart -o  ./generated_api
+if [ "$OSTYPE" = "msys" ] || [ "$OSTYPE" = "win32" ]; then
+    openapi-generator-cli generate -i ../openapi/main.yml -g dart -o ./generated_api
+
+else
+    openapi-generator generate -i ../openapi/main.yml -g dart -o ./generated_api
+fi
 
 echo "API client regenerated successfully!"
 
