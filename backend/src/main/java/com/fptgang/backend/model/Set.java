@@ -2,6 +2,7 @@ package com.fptgang.backend.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -29,7 +30,8 @@ public class Set {
     private StockKeepingUnit sku;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Builder.Default
+    private Boolean isVisible = true;
 
     @OneToMany(mappedBy = "set", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Slot> slots;

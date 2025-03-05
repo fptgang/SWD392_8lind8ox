@@ -4,22 +4,22 @@ import com.fptgang.backend.api.model.VideoDto;
 import com.fptgang.backend.model.Video;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.SlotRepos;
-import com.fptgang.backend.repository.VideoRepos;
 import com.fptgang.backend.util.DateTimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class VideoMapper extends BaseMapper<VideoDto, Video> {
+    private final AccountMapper accountMapper;
+    private final AccountRepos accountRepos;
+    private final SlotRepos slotRepos;
 
-    @Autowired
-    private VideoRepos videoRepos;
-    @Autowired
-    private AccountRepos accountRepos;
-    @Autowired
-    private SlotRepos slotRepos;
+    public VideoMapper(AccountMapper accountMapper,
+                       AccountRepos accountRepos,
+                       SlotRepos slotRepos) {
+        this.accountMapper = accountMapper;
+        this.accountRepos = accountRepos;
+        this.slotRepos = slotRepos;
+    }
 
     @Override
     public Video toEntity(VideoDto dto) {
@@ -27,57 +27,35 @@ public class VideoMapper extends BaseMapper<VideoDto, Video> {
             return null;
         }
 
-        Optional<Video> existingVideoOptional = videoRepos.findById(dto.getVideoId() == null ? 0 : dto.getVideoId());
-
-        if (existingVideoOptional.isPresent() && dto.getVideoId() != null) {
-            Video existingVideo = existingVideoOptional.get();
-            existingVideo.setUrl(dto.getUrl() != null ? dto.getUrl() : existingVideo.getUrl());
-            existingVideo.setDescription(dto.getDescription() != null ? dto.getDescription() : existingVideo.getDescription());
-            existingVideo.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingVideo.isVisible());
-            if (dto.getAccountId() != null) {
-                existingVideo.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
-            }
-            if (dto.getIsVerified() != null) {
-                existingVideo.setVerified(dto.getIsVerified());
-            }
-
-            return existingVideo;
-        } else {
-            Video entity = new Video();
-//            entity.setVideoId(dto.getVideoId());
-            entity.setUrl(dto.getUrl());
-            entity.setDescription(dto.getDescription());
-            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
-            entity.setCreatedAt(dto.getCreatedAt() != null ? DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()) : null);
-            entity.setUpdatedAt(dto.getUpdatedAt() != null ? DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()) : null);
-            if (dto.getAccountId() != null) {
-                entity.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
-            }
-            if (dto.getIsVerified() != null) {
-                entity.setVerified(dto.getIsVerified());
-            }
-            if(dto.getSlotId()!=null) entity.setSlot(slotRepos.findById(dto.getSlotId()).get());
-
-            return entity;
-        }
+        Video entity = new Video();
+        entity.setVideoId(dto.getVideoId());
+        entity.setAccount(accountRepos.getReferenceById(dto.getAccount().getAccountId()));
+        entity.setSlot(slotRepos.getReferenceById(dto.getSlotId()));
+        entity.setUrl(dto.getUrl());
+        entity.setDescription(dto.getDescription());
+        entity.setIsVisible(dto.getIsVisible());
+        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+        entity.setIsVerified(dto.getIsVerified());
+        return entity;
     }
 
     @Override
-    public VideoDto toDTO(Video entity) {
+    public VideoDto toDTO(Video entity, DetailLevel level) {
         if (entity == null) {
             return null;
         }
 
         VideoDto dto = new VideoDto();
         dto.setVideoId(entity.getVideoId());
+        dto.setAccount(accountMapper.toDTO(entity.getAccount(), DetailLevel.REFERENCE));
+        dto.setSlotId(entity.getSlot() != null ? entity.getSlot().getSlotId() : null);
         dto.setUrl(entity.getUrl());
         dto.setDescription(entity.getDescription());
-        dto.setIsVisible(entity.isVisible());
-        dto.setCreatedAt(entity.getCreatedAt() != null ? DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()) : null);
-        dto.setUpdatedAt(entity.getUpdatedAt() != null ? DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()) : null);
-        dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
-        dto.setIsVerified(entity.isVerified());
-        dto.setSlotId(entity.getSlot() != null ? entity.getSlot().getSlotId() : null);
+        dto.setIsVisible(entity.getIsVisible());
+        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+        dto.setIsVerified(entity.getIsVerified());
         return dto;
     }
 }

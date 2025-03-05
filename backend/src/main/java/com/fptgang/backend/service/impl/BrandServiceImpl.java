@@ -4,6 +4,7 @@ import com.fptgang.backend.model.Brand;
 import com.fptgang.backend.repository.BrandRepos;
 import com.fptgang.backend.service.BrandService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,17 +33,17 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public Brand update(Brand brand) {
-        if (brand.getBrandId() == null) {
-            throw new IllegalArgumentException("Brand does not exist");
-        }
-        return brandRepos.save(brand);
+        Brand existing = brandRepos.findById(brand.getBrandId())
+                .orElseThrow(() -> new IllegalArgumentException("Brand does not exist"));
+        EntityUtil.merge(existing, brand);
+        return brandRepos.save(existing);
     }
 
     @Override
     public Brand deleteById(long id) {
         Brand brand = brandRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Brand does not exist"));
-        brand.setVisible(false);
+        brand.setIsVisible(false);
         return brandRepos.save(brand);
     }
 

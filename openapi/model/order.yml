@@ -4,21 +4,22 @@ OrderDto:
     orderId:
       type: integer
       format: int64
-    accountId:
-      type: integer
-      format: int64
-    shippingInfo:
-      $ref: "shipping-info.yml#/ShippingInfoDto"
-    voucher:
-      $ref: "voucher.yml#/VoucherDto"
-    orderDetails:
-      type: array
-      items:
-        $ref: "order-detail.yml#/OrderDetailDto"
+    account:
+      $ref: "account.yml#/AccountDto"
     orderStatusHistories:
       type: array
       items:
         $ref: "order-status-history.yml#/OrderStatusHistoryDto"
+    orderDetails:
+      type: array
+      items:
+        $ref: "order-detail.yml#/OrderDetailDto"
+    transaction:
+      $ref: "transaction.yml#/TransactionDto"
+    voucher:
+      $ref: "voucher.yml#/VoucherDto"
+    shippingInfo:
+      $ref: "shipping-info.yml#/ShippingInfoDto"
     createdAt:
       type: string
       format: date-time

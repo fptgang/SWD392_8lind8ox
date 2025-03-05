@@ -4,6 +4,7 @@ import com.fptgang.backend.api.controller.SetsApi;
 import com.fptgang.backend.api.model.GetSets200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.api.model.SetDto;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.SetMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.SetService;
@@ -35,19 +36,15 @@ public class SetController implements SetsApi {
     }
 
     @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return SetsApi.super.getRequest();
-    }
-
-    @Override
     public ResponseEntity<SetDto> createSet(SetDto setDto) {
         log.info("Creating set");
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admin can create sets");
         }
-        ResponseEntity<SetDto> response = new ResponseEntity<>(setMapper
-                .toDTO(setService.create(setMapper.toEntity(setDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                setMapper.toDTO(setService.create(setMapper.toEntity(setDto)), DetailLevel.FULL),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -66,7 +63,7 @@ public class SetController implements SetsApi {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can view detailed set info.");
         }
-        return new ResponseEntity<>(setMapper.toDTO(setService.findById(setId)), HttpStatus.OK);
+        return new ResponseEntity<>(setMapper.toDTO(setService.findById(setId), DetailLevel.FULL), HttpStatus.OK);
     }
 
     @Override
@@ -79,7 +76,7 @@ public class SetController implements SetsApi {
                 .filter(filter)
                 .includeInvisible(includeInvisible);
 
-        var res = setService.getAll(params.build()).map(setMapper::toDTO);
+        var res = setService.getAll(params.build()).map(s -> setMapper.toDTO(s, DetailLevel.SUMMARY));
         return OpenApiHelper.respondPage(res, GetSets200Response.class);
     }
 
@@ -89,6 +86,11 @@ public class SetController implements SetsApi {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can update sets.");
         }
-        return ResponseEntity.ok(setMapper.toDTO(setService.update(setMapper.toEntity(setDto))));
+        return ResponseEntity.ok(
+                setMapper.toDTO(
+                        setService.update(setMapper.toEntity(setDto)),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

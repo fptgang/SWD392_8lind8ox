@@ -59,7 +59,7 @@ public class RefreshTokenServiceTest {
         testAccount.setEmail("Sender@example.com");
         testAccount.setPassword("password");
         testAccount.setRole(Account.Role.ADMIN);
-        testAccount.setVisible(true);
+        testAccount.setIsVisible(true);
         testAccount.setBalance(BigDecimal.valueOf(0));
         testAccount.setVerified(false);
         testAccount.setFirstName("John");

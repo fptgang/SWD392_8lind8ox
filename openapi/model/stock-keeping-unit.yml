@@ -6,9 +6,8 @@ StockKeepingUnitDto:
       format: int64
     name:
       type: string
-    imageId:
-      type: integer
-      format: int64
+    image:
+      $ref: "image.yml#/ImageDto"
     price:
       type: number
       format: double
@@ -27,3 +26,5 @@ StockKeepingUnitDto:
     updatedAt:
       type: string
       format: date-time
+    isVisible:
+      type: boolean

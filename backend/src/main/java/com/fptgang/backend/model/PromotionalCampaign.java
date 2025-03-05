@@ -53,7 +53,8 @@ public class PromotionalCampaign {
     private List<OrderDetail> orderDetails;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Builder.Default
+    private Boolean isVisible = true;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

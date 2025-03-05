@@ -2,6 +2,7 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.VideosApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.VideoMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Video;
@@ -30,12 +31,6 @@ public class VideoController implements VideosApi {
     public VideoController(VideoService videoService, VideoMapper videoMapper) {
         this.videoService = videoService;
         this.videoMapper = videoMapper;
-
-    }
-
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return VideosApi.super.getRequest();
     }
 
     @Override
@@ -48,11 +43,16 @@ public class VideoController implements VideosApi {
             }
         }
         VideoDto dto = new VideoDto();
-        dto.setAccountId(accountID);
+        dto.setAccount(new AccountDto().accountId(accountID));
         dto.setSlotId(slotId);
         dto.setIsVisible(isVisible);
-        return new ResponseEntity<>(videoMapper
-                .toDTO(videoService.create(videoMapper.toEntity(dto), videoBlob)), HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                videoMapper.toDTO(
+                        videoService.create(videoMapper.toEntity(dto), videoBlob),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -81,7 +81,10 @@ public class VideoController implements VideosApi {
                 throw new AccessDeniedException("You are not allowed to view this video!");
             }
         }
-        return new ResponseEntity<>(videoMapper.toDTO(videoService.findById(videoId)), HttpStatus.OK);
+        return new ResponseEntity<>(
+                videoMapper.toDTO(videoService.findById(videoId), DetailLevel.FULL),
+                HttpStatus.OK
+        );
     }
 
     @Override
@@ -99,7 +102,8 @@ public class VideoController implements VideosApi {
             params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 
-        var res = videoService.getAll(params.build()).map(videoMapper::toDTO);
+        var res = videoService.getAll(params.build())
+                .map(v -> videoMapper.toDTO(v, DetailLevel.SUMMARY));
         return OpenApiHelper.respondPage(res, GetVideos200Response.class);
     }
 
@@ -115,11 +119,15 @@ public class VideoController implements VideosApi {
         }
         VideoDto dto = new VideoDto();
         dto.setVideoId(videoId);
-        dto.setAccountId(accountID);
+        dto.setAccount(new AccountDto().accountId(accountID));
         dto.setSlotId(slotId);
         dto.setIsVisible(isVisible);
 
-        return ResponseEntity.ok(videoMapper
-                .toDTO(videoService.update(videoMapper.toEntity(dto), videoBlob)));
+        return ResponseEntity.ok(
+                videoMapper.toDTO(
+                        videoService.update(videoMapper.toEntity(dto), videoBlob),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

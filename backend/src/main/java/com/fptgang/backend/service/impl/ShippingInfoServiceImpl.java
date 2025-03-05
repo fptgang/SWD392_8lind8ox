@@ -4,6 +4,7 @@ import com.fptgang.backend.model.ShippingInfo;
 import com.fptgang.backend.repository.ShippingInfoRepos;
 import com.fptgang.backend.service.ShippingInfoService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,16 +33,16 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
 
     @Override
     public ShippingInfo update(ShippingInfo shippingInfo) {
-        if (shippingInfo.getShippingInfoId() == null) {
-            throw new IllegalArgumentException("ShippingInfoage does not exist");
-        }
-        return shippingInfoRepos.save(shippingInfo);
+        ShippingInfo existing = shippingInfoRepos.findById(shippingInfo.getShippingInfoId())
+                .orElseThrow(() -> new IllegalArgumentException("ShippingInfo does not exist"));
+        EntityUtil.merge(existing, shippingInfo);
+        return shippingInfoRepos.save(existing);
     }
 
     @Override
     public ShippingInfo deleteById(long id) {
         ShippingInfo shippingInfo = shippingInfoRepos.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ShippingInfoage does not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("ShippingInfo does not exist"));
 //        shippingInfo.shippingInfoVisible(false);
         return shippingInfoRepos.save(shippingInfo);
     }

@@ -3,6 +3,7 @@ package com.fptgang.backend.controller;
 import com.fptgang.backend.api.controller.BrandsApi;
 import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.BrandMapper;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.BrandService;
 import com.fptgang.backend.service.params.ListParams;
@@ -32,19 +33,18 @@ public class BrandController implements BrandsApi{
     }
 
     @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return BrandsApi.super.getRequest();
-    }
-
-    @Override
     public ResponseEntity<BrandDto> createBrand(BrandDto brandDto) {
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create brands.");
         }
         log.info("Creating brand");
-        ResponseEntity<BrandDto> response = new ResponseEntity<>(brandMapper
-                .toDTO(brandService.create(brandMapper.toEntity(brandDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                brandMapper.toDTO(
+                        brandService.create(brandMapper.toEntity(brandDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -60,7 +60,7 @@ public class BrandController implements BrandsApi{
     @Override
     public ResponseEntity<BrandDto> getBrandById(Long brandId) {
         log.info("Getting brand by id " + brandId);
-        return new ResponseEntity<>(brandMapper.toDTO(brandService.findById(brandId)), HttpStatus.OK);
+        return new ResponseEntity<>(brandMapper.toDTO(brandService.findById(brandId), DetailLevel.FULL), HttpStatus.OK);
     }
 
     @Override
@@ -73,7 +73,8 @@ public class BrandController implements BrandsApi{
                 .filter(filter)
                 .includeInvisible(includeInvisible);
 
-        var res = brandService.getAll(params.build()).map(brandMapper::toDTO);
+        var res = brandService.getAll(params.build())
+                .map(b -> brandMapper.toDTO(b, DetailLevel.SUMMARY));
         return OpenApiHelper.respondPage(res, GetBrands200Response.class);
     }
 
@@ -85,6 +86,11 @@ public class BrandController implements BrandsApi{
         brandDto.setBrandId(brandId); // Override brandId
 
         log.info("Updating brand " + brandId);
-        return ResponseEntity.ok(brandMapper.toDTO(brandService.update(brandMapper.toEntity(brandDto))));
+        return ResponseEntity.ok(
+                brandMapper.toDTO(
+                        brandService.update(brandMapper.toEntity(brandDto)),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

@@ -3,29 +3,37 @@ package com.fptgang.backend.mapper;
 import com.fptgang.backend.api.model.OrderDto;
 import com.fptgang.backend.model.Order;
 import com.fptgang.backend.repository.AccountRepos;
-import com.fptgang.backend.repository.OrderRepos;
 import com.fptgang.backend.util.DateTimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 public class OrderMapper extends BaseMapper<OrderDto, Order> {
 
-    @Autowired
-    private OrderRepos orderRepos;
-    @Autowired
-    private AccountRepos accountRepos;
-    @Autowired
-    private OrderDetailMapper orderDetailMapper;
-    @Autowired
-    private OrderStatusHistoryMapper orderStatusHistoryMapper;
-    @Autowired
-    private ShippingInfoMapper shippingInfoMapper;
-    @Autowired
-    private VoucherMapper voucherMapper;
+    private final AccountRepos accountRepos;
+    private final AccountMapper accountMapper;
+    private final OrderStatusHistoryMapper orderStatusHistoryMapper;
+    private final OrderDetailMapper orderDetailMapper;
+    private final TransactionMapper transactionMapper;
+    private final VoucherMapper voucherMapper;
+    private final ShippingInfoMapper shippingInfoMapper;
+
+    public OrderMapper(AccountRepos accountRepos,
+                       AccountMapper accountMapper,
+                       OrderStatusHistoryMapper orderStatusHistoryMapper,
+                       OrderDetailMapper orderDetailMapper,
+                       TransactionMapper transactionMapper,
+                       VoucherMapper voucherMapper,
+                       ShippingInfoMapper shippingInfoMapper) {
+        this.accountRepos = accountRepos;
+        this.accountMapper = accountMapper;
+        this.orderStatusHistoryMapper = orderStatusHistoryMapper;
+        this.orderDetailMapper = orderDetailMapper;
+        this.transactionMapper = transactionMapper;
+        this.voucherMapper = voucherMapper;
+        this.shippingInfoMapper = shippingInfoMapper;
+    }
 
     @Override
     public Order toEntity(OrderDto dto) {
@@ -33,71 +41,66 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
             return null;
         }
 
-
-        Optional<Order> existingOrderOptional = orderRepos.findById(dto.getOrderId() == null ? 0 : dto.getOrderId());
-
-        if (existingOrderOptional.isPresent() && dto.getOrderId() != null) {
-            Order existingOrder = existingOrderOptional.get();
-            existingOrder.setCheckoutPrice(dto.getCheckoutPrice() != null ? dto.getCheckoutPrice() : existingOrder.getCheckoutPrice());
-            existingOrder.setOriginalPrice(dto.getOriginalPrice() != null ? dto.getOriginalPrice() : existingOrder.getOriginalPrice());
-            if(dto.getShippingInfo() != null) {
-                existingOrder.setShippingInfo(shippingInfoMapper.toEntity(dto.getShippingInfo()));
-            }
-            if (dto.getOrderDetails() != null) {
-                existingOrder.setOrderDetails(dto.getOrderDetails().stream().map(orderDetailMapper::toEntity).collect(Collectors.toList()));
-            }
-            if (dto.getOrderStatusHistories() != null) {
-                existingOrder.setOrderStatusHistories(dto.getOrderStatusHistories().stream().map(orderStatusHistoryMapper::toEntity).collect(Collectors.toList()));
-            }
-            return existingOrder;
-        } else {
-            Order entity = new Order();
-//            entity.setOrderId(dto.getOrderId());
-            entity.setCheckoutPrice(dto.getCheckoutPrice());
-            entity.setOriginalPrice(dto.getOriginalPrice());
-            if(dto.getShippingInfo() != null) {
-                entity.setShippingInfo(shippingInfoMapper.toEntity(dto.getShippingInfo()));
-            }
-            if(dto.getVoucher() != null) {
-                entity.setVoucher(voucherMapper.toEntity(dto.getVoucher()));
-            }
-            if (dto.getAccountId() != null) {
-                entity.setAccount(accountRepos.findById(dto.getAccountId()).orElse(null));
-            }
-            if (dto.getOrderDetails() != null) {
-                entity.setOrderDetails(dto.getOrderDetails().stream().map(orderDetailMapper::toEntity).collect(Collectors.toList()));
-            }
-            if (dto.getOrderStatusHistories() != null) {
-                entity.setOrderStatusHistories(dto.getOrderStatusHistories().stream().map(orderStatusHistoryMapper::toEntity).collect(Collectors.toList()));
-            }
-            if (dto.getCreatedAt() != null) {
-                entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
-            }
-            if (dto.getUpdatedAt() != null) {
-                entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            return entity;
+        Order entity = new Order();
+        entity.setOrderId(dto.getOrderId());
+        entity.setAccount(accountRepos.getReferenceById(dto.getAccount().getAccountId()));
+        if (dto.getOrderStatusHistories() != null) {
+            entity.setOrderStatusHistories(dto.getOrderStatusHistories().stream()
+                    .map(orderStatusHistoryMapper::toEntity)
+                    .collect(Collectors.toList()));
         }
+        if (dto.getOrderDetails() != null) {
+            entity.setOrderDetails(dto.getOrderDetails().stream()
+                    .map(orderDetailMapper::toEntity)
+                    .collect(Collectors.toList()));
+        }
+        if (dto.getTransaction() != null) {
+            entity.setTransaction(transactionMapper.toEntity(dto.getTransaction()));
+        }
+        if(dto.getVoucher() != null) {
+            entity.setVoucher(voucherMapper.toEntity(dto.getVoucher()));
+        }
+        if(dto.getShippingInfo() != null) {
+            entity.setShippingInfo(shippingInfoMapper.toEntity(dto.getShippingInfo()));
+        }
+        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+        entity.setOriginalPrice(dto.getOriginalPrice());
+        entity.setCheckoutPrice(dto.getCheckoutPrice());
+        return entity;
     }
 
     @Override
-    public OrderDto toDTO(Order entity) {
+    public OrderDto toDTO(Order entity, DetailLevel level) {
         if (entity == null) {
             return null;
         }
 
         OrderDto dto = new OrderDto();
         dto.setOrderId(entity.getOrderId());
-//        dto.setTotalPrice(entity.getTotalPrice());
-        dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
-        dto.setOrderDetails(entity.getOrderDetails().stream().map(orderDetailMapper::toDTO).collect(Collectors.toList()));
-        dto.setOrderStatusHistories(entity.getOrderStatusHistories().stream().map(orderStatusHistoryMapper::toDTO).collect(Collectors.toList()));
-        if (entity.getCreatedAt() != null) {
-            dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        if (level == DetailLevel.REFERENCE) {
+            return dto; // those fields are enough
         }
-        if (entity.getUpdatedAt() != null) {
-            dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+
+        dto.setAccount(accountMapper.toDTO(entity.getAccount(), DetailLevel.REFERENCE));
+        dto.setOrderStatusHistories(entity.getOrderStatusHistories().stream()
+                .map(e -> orderStatusHistoryMapper.toDTO(e, DetailLevel.REFERENCE))
+                .collect(Collectors.toList()));
+        dto.setOriginalPrice(entity.getOriginalPrice());
+        dto.setCheckoutPrice(entity.getCheckoutPrice());
+        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+
+        if (level == DetailLevel.SUMMARY) {
+            return dto; // those fields are enough
         }
+
+        dto.setOrderDetails(entity.getOrderDetails().stream()
+                .map(e -> orderDetailMapper.toDTO(e, DetailLevel.REFERENCE))
+                .collect(Collectors.toList()));
+        dto.setTransaction(transactionMapper.toDTO(entity.getTransaction(), DetailLevel.REFERENCE));
+        dto.setVoucher(voucherMapper.toDTO(entity.getVoucher(), DetailLevel.REFERENCE));
+        dto.setShippingInfo(shippingInfoMapper.toDTO(entity.getShippingInfo(), DetailLevel.REFERENCE));
         return dto;
     }
 }

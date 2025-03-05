@@ -4,6 +4,7 @@ package com.fptgang.backend.model;
 import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -24,12 +25,15 @@ public class StockKeepingUnit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long skuId;
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     @Searchable
     private String name;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id")
     private Image image;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
@@ -56,6 +60,7 @@ public class StockKeepingUnit {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Builder.Default
+    private Boolean isVisible = true;
 
 }

@@ -3,23 +3,30 @@ package com.fptgang.backend.mapper;
 import com.fptgang.backend.api.model.SlotDto;
 import com.fptgang.backend.model.Slot;
 import com.fptgang.backend.repository.SetRepos;
-import com.fptgang.backend.repository.SlotRepos;
 import com.fptgang.backend.repository.ToyRepos;
+import com.fptgang.backend.repository.VideoRepos;
 import com.fptgang.backend.util.DateTimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class SlotMapper extends BaseMapper<SlotDto, Slot> {
+    private final ToyRepos toyRepos;
+    private final SetRepos setRepos;
+    private final VideoRepos videoRepos;
+    private final ToyMapper toyMapper;
+    private final VideoMapper videoMapper;
 
-    @Autowired
-    private SlotRepos slotRepos;
-    @Autowired
-    private SetRepos setRepos;
-    @Autowired
-    private ToyRepos toyRepos;
+    public SlotMapper(ToyRepos toyRepos,
+                      SetRepos setRepos,
+                      VideoRepos videoRepos,
+                      ToyMapper toyMapper,
+                      VideoMapper videoMapper) {
+        this.toyRepos = toyRepos;
+        this.setRepos = setRepos;
+        this.videoRepos = videoRepos;
+        this.toyMapper = toyMapper;
+        this.videoMapper = videoMapper;
+    }
 
     @Override
     public Slot toEntity(SlotDto dto) {
@@ -27,50 +34,28 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
             return null;
         }
 
-        Optional<Slot> existingSlotOptional = slotRepos.findById(dto.getSlotId() == null ? 0 : dto.getSlotId());
-
-        if (existingSlotOptional.isPresent() && dto.getSlotId() != null) {
-            Slot existingSlot = existingSlotOptional.get();
-            existingSlot.setPosition(dto.getPosition() != null ? dto.getPosition() : existingSlot.getPosition());
-            existingSlot.setOpened(dto.getIsOpened() != null ? dto.getIsOpened() : existingSlot.isOpened());
-//            if (dto.getOpenedAt() != null) {
-//                existingSlot.setOpenedAt(dto.getOpenedAt().toLocalDateTime());
-//            }
-            existingSlot.setToy(dto.getToyId() != null
-                    && dto.getToyId() != existingSlot.getToy().getToyId() ?
-                    toyRepos.findById(dto.getToyId()).get()
-                    : existingSlot.getToy());
-            existingSlot.setSet(dto.getSetId() != null
-                    && dto.getSetId() != existingSlot.getSet().getSetId() ?
-                    setRepos.findById(dto.getSetId()).get()
-                    : existingSlot.getSet());
-            return existingSlot;
-        } else {
-            Slot entity = new Slot();
-            entity.setSlotId(dto.getSlotId());
-            entity.setPosition(dto.getPosition());
-            entity.setOpened(dto.getIsOpened() != null ? dto.getIsOpened() : entity.isOpened());
-            entity.setToy(dto.getToyId() != null ?
-                    toyRepos.findById(dto.getToyId()).get()
-                    : null);
-            entity.setSet(dto.getSetId() != null ?
-                    setRepos.findById(dto.getSetId()).get()
-                    : null);
-//            if (dto.getOpenedAt() != null) {
-//                entity.setOpenedAt(dto.getOpenedAt().toLocalDateTime());
-//            }
-            if (dto.getCreatedAt() != null) {
-                entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
-            }
-            if (dto.getUpdatedAt() != null) {
-                entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            return entity;
+        Slot entity = new Slot();
+        entity.setSlotId(dto.getSlotId());
+        entity.setPosition(dto.getPosition());
+        entity.setOpened(dto.getIsOpened());
+        entity.setIsVisible(dto.getIsVisible());
+        entity.setOpenedAt(DateTimeUtil.fromOffsetToLocal(dto.getOpenedAt()));
+        if (dto.getToy() != null) {
+            entity.setToy(toyRepos.getReferenceById(dto.getToy().getToyId()));
         }
+        if (dto.getSetId() != null) {
+            entity.setSet(setRepos.getReferenceById(dto.getSetId()));
+        }
+        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+        if (dto.getVideo() != null) {
+            entity.setVideo(videoRepos.getReferenceById(dto.getVideo().getVideoId()));
+        }
+        return entity;
     }
 
     @Override
-    public SlotDto toDTO(Slot entity) {
+    public SlotDto toDTO(Slot entity, DetailLevel level) {
         if (entity == null) {
             return null;
         }
@@ -79,17 +64,15 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
         dto.setSlotId(entity.getSlotId());
         dto.setPosition(entity.getPosition());
         dto.setIsOpened(entity.isOpened());
-        dto.setToyId(entity.getToy() != null ? entity.getToy().getToyId() : null);
-        dto.setSetId(entity.getSet() != null ? entity.getSet().getSetId() : null);
-//        if (entity.getOpenedAt() != null) {
-//            dto.setOpenedAt(DateTimeUtil.fromLocalToOffset(entity.getOpenedAt()));
-//        }
-        if (entity.getCreatedAt() != null) {
-            dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setIsVisible(entity.getIsVisible());
+        dto.setOpenedAt(DateTimeUtil.fromLocalToOffset(entity.getOpenedAt()));
+        dto.setToy(toyMapper.toDTO(entity.getToy(), DetailLevel.REFERENCE));
+        if (entity.getSet() != null) {
+            dto.setSetId(entity.getSet().getSetId());
         }
-        if (entity.getUpdatedAt() != null) {
-            dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
-        }
+        dto.setVideo(videoMapper.toDTO(entity.getVideo(), DetailLevel.REFERENCE));
+        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         return dto;
     }
 }

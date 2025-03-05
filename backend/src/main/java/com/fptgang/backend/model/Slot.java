@@ -2,6 +2,7 @@ package com.fptgang.backend.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -26,10 +27,14 @@ public class Slot {
     private int position;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Builder.Default
     private boolean isOpened = true;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Builder.Default
+    private Boolean isVisible = true;
+
+    private LocalDateTime openedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "toy_id")

@@ -42,7 +42,7 @@ class AccountServiceTest {
         Account account = new Account();
         account.setEmail("testAccount"+accountId+"@example.com");
         account.setPassword("password");
-        account.setVisible(true);
+        account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
         account.setVerified(false);
         account.setRole(Account.Role.CUSTOMER);
@@ -55,7 +55,7 @@ class AccountServiceTest {
         Account account = new Account();
         account.setEmail("test@example.com");
         account.setPassword("password");
-        account.setVisible(true);
+        account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
         account.setVerified(false);
         account.setRole(Account.Role.CUSTOMER);
@@ -131,7 +131,7 @@ class AccountServiceTest {
         account.setAccountId(999L);
         account.setEmail("test@example.com");
         account.setPassword("password");
-        account.setVisible(true);
+        account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
         account.setVerified(false);
         account.setRole(Account.Role.CUSTOMER);
@@ -148,7 +148,7 @@ class AccountServiceTest {
 
         accountService.deleteById(account.getAccountId());
 
-        assertFalse(accountService.findById(account.getAccountId()).isVisible());
+        assertFalse(accountService.findById(account.getAccountId()).getIsVisible());
     }
 
     @Test
@@ -183,7 +183,7 @@ class AccountServiceTest {
         Account account4 = new Account();
         account4.setEmail("filtered@example.com");
         account4.setPassword("password");
-        account4.setVisible(true);
+        account4.setIsVisible(true);
         account4.setBalance(BigDecimal.valueOf(0));
         account4.setVerified(false);
         account4.setRole(Account.Role.CUSTOMER);

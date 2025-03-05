@@ -4,6 +4,7 @@ import com.fptgang.backend.model.Slot;
 import com.fptgang.backend.repository.SlotRepos;
 import com.fptgang.backend.service.SlotService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,16 +33,16 @@ public class SlotServiceImpl implements SlotService {
 
     @Override
     public Slot update(Slot slot) {
-        if (slot.getSlotId() == null) {
-            throw new IllegalArgumentException("Slotage does not exist");
-        }
-        return slotRepos.save(slot);
+        Slot existing = slotRepos.findById(slot.getSlotId())
+                .orElseThrow(() -> new IllegalArgumentException("Slot does not exist"));
+        EntityUtil.merge(existing, slot);
+        return slotRepos.save(existing);
     }
 
     @Override
     public Slot deleteById(long id) {
         Slot slot = slotRepos.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Slotage does not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("Slot does not exist"));
 //        slot.slotVisible(false);
         return slotRepos.save(slot);
     }

@@ -75,7 +75,8 @@ public class SecurityUtil {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     @NotNull
     public static boolean hasPermission(Account.Role role) {
-        return requireCurrentUserRole().hasPermission(role);
+        var currentUserRole = getCurrentUserRole();
+        return currentUserRole != null && currentUserRole.hasPermission(role);
     }
 
     @NotNull

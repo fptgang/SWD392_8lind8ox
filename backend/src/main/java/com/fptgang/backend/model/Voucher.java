@@ -45,7 +45,8 @@ public class Voucher {
     private BigDecimal limitAmount;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean isUsed = false;
+    @Builder.Default
+    private Boolean isUsed = false;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

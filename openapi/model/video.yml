@@ -4,23 +4,22 @@ VideoDto:
     videoId:
       type: integer
       format: int64
-    accountId:
+    account:
+      $ref: "account.yml#/AccountDto"
+    slotId:
       type: integer
       format: int64
     url:
       type: string
     description:
       type: string
+    isVisible:
+      type: boolean
     createdAt:
       type: string
       format: date-time
     updatedAt:
       type: string
       format: date-time
-    isVisible:
-      type: boolean
     isVerified:
       type: boolean
-    slotId:
-      type: integer
-      format: int64

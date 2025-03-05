@@ -4,6 +4,7 @@ import com.fptgang.backend.model.Set;
 import com.fptgang.backend.repository.SetRepos;
 import com.fptgang.backend.service.SetService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,17 +33,17 @@ public class SetServiceImpl implements SetService {
 
     @Override
     public Set update(Set set) {
-        if (set.getSetId() == null) {
-            throw new IllegalArgumentException("Setage does not exist");
-        }
-        return setRepos.save(set);
+        Set existing = setRepos.findById(set.getSetId())
+                .orElseThrow(() -> new IllegalArgumentException("Set does not exist"));
+        EntityUtil.merge(existing, set);
+        return setRepos.save(existing);
     }
 
     @Override
     public Set deleteById(long id) {
         Set set = setRepos.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Setage does not exist"));
-//        set.setVisible(false);
+                .orElseThrow(() -> new IllegalArgumentException("Set does not exist"));
+//        set.setIsVisible(false);
         return setRepos.save(set);
     }
 

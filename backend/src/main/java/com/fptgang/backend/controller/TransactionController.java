@@ -5,6 +5,7 @@ import com.fptgang.backend.api.model.GetTransactions200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.api.model.TransactionDto;
 import com.fptgang.backend.config.VnPayConfig;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.TransactionMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Transaction;
@@ -65,7 +66,13 @@ public class TransactionController implements TransactionsApi {
                 throw new AccessDeniedException("You are not allowed to view this transaction");
             }
         }
-        return new ResponseEntity<>(transactionMapper.toDTO(transactionService.findById(transactionId)), HttpStatus.OK);
+        return new ResponseEntity<>(
+                transactionMapper.toDTO(
+                        transactionService.findById(transactionId),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.OK
+        );
     }
 
     @Override
@@ -85,7 +92,7 @@ public class TransactionController implements TransactionsApi {
         }
 
         var resultPage = transactionService.getAll(params.build())
-                .map(transactionMapper::toDTO);
+                .map(t -> transactionMapper.toDTO(t, DetailLevel.SUMMARY));
 
         return OpenApiHelper.respondPage(resultPage, GetTransactions200Response.class);
     }

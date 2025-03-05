@@ -3,6 +3,7 @@ package com.fptgang.backend.controller;
 import com.fptgang.backend.api.controller.BlindBoxesApi;
 import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.BlindBoxMapper;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Account;
 
 import com.fptgang.backend.service.BlindBoxService;
@@ -34,20 +35,18 @@ public class BlindboxController implements BlindBoxesApi {
         this.blindBoxMapper = blindBoxMapper;
     }
 
-
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return BlindBoxesApi.super.getRequest();
-    }
-
     @Override
     public ResponseEntity<BlindBoxDto> createBlindBox(BlindBoxDto blindBoxDto) {
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create blind boxes.");
         }
-        ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
-                .toDTO(blindBoxService.create(blindBoxMapper.toEntity(blindBoxDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                blindBoxMapper.toDTO(
+                        blindBoxService.create(blindBoxMapper.toEntity(blindBoxDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -61,9 +60,8 @@ public class BlindboxController implements BlindBoxesApi {
 
     @Override
     public ResponseEntity<BlindBoxDto> getBlindBoxById(Long blindBoxId) {
-        ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
-                .toDTO(blindBoxService.findById(blindBoxId)), HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(blindBoxMapper
+                .toDTO(blindBoxService.findById(blindBoxId), DetailLevel.FULL), HttpStatus.OK);
     }
 
     @Override
@@ -76,7 +74,8 @@ public class BlindboxController implements BlindBoxesApi {
                 .filter(filter)
                 .includeInvisible(includeInvisible);
 
-        var res = blindBoxService.getAll(params.build()).map(blindBoxMapper::toDTO);
+        var res = blindBoxService.getAll(params.build())
+                .map(e -> blindBoxMapper.toDTO(e, DetailLevel.SUMMARY));
         return OpenApiHelper.respondPage(res, GetBlindBoxes200Response.class);
     }
 
@@ -87,8 +86,10 @@ public class BlindboxController implements BlindBoxesApi {
         }
         blindBoxDto.setBlindBoxId(blindBoxId); // Override blindBoxId
 
-        ResponseEntity<BlindBoxDto> response = new ResponseEntity<>(blindBoxMapper
-                .toDTO(blindBoxService.update(blindBoxMapper.toEntity(blindBoxDto))), HttpStatus.OK);
-        return response;
+        return ResponseEntity.ok(
+                blindBoxMapper.toDTO(
+                        blindBoxService.update(blindBoxMapper.toEntity(blindBoxDto)),
+                        DetailLevel.FULL
+                ));
     }
 }

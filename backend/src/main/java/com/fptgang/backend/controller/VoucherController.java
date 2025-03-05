@@ -4,6 +4,7 @@ import com.fptgang.backend.api.controller.VouchersApi;
 import com.fptgang.backend.api.model.GetVouchers200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.api.model.VoucherDto;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.VoucherMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.VoucherService;
@@ -35,19 +36,18 @@ public class VoucherController implements VouchersApi {
     }
 
     @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return VouchersApi.super.getRequest();
-    }
-
-    @Override
     public ResponseEntity<VoucherDto> createVoucher(VoucherDto voucherDto) {
         log.info("Creating voucher");
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admin can create vouchers");
         }
-        ResponseEntity<VoucherDto> response = new ResponseEntity<>(voucherMapper
-                .toDTO(voucherService.create(voucherMapper.toEntity(voucherDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                voucherMapper.toDTO(
+                        voucherService.create(voucherMapper.toEntity(voucherDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -66,7 +66,7 @@ public class VoucherController implements VouchersApi {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can view detailed voucher info.");
         }
-        return new ResponseEntity<>(voucherMapper.toDTO(voucherService.findById(voucherId)), HttpStatus.OK);
+        return new ResponseEntity<>(voucherMapper.toDTO(voucherService.findById(voucherId), DetailLevel.FULL), HttpStatus.OK);
     }
 
     @Override
@@ -78,13 +78,15 @@ public class VoucherController implements VouchersApi {
                 .search(search)
                 .filter(filter)
                 .includeInvisible(includeInvisible);
+        params.setFilter("status", "eq", "ACTIVE");
 
         // Customers can only view their own vouchers
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
             params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 
-        var res = voucherService.getAll(params.build()).map(voucherMapper::toDTO);
+        var res = voucherService.getAll(params.build())
+                .map(v -> voucherMapper.toDTO(v, DetailLevel.SUMMARY));
         return OpenApiHelper.respondPage(res, GetVouchers200Response.class);
     }
 
@@ -94,6 +96,11 @@ public class VoucherController implements VouchersApi {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can update vouchers.");
         }
-        return ResponseEntity.ok(voucherMapper.toDTO(voucherService.update(voucherMapper.toEntity(voucherDto))));
+        return ResponseEntity.ok(
+                voucherMapper.toDTO(
+                        voucherService.update(voucherMapper.toEntity(voucherDto)),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

@@ -4,6 +4,7 @@ import com.fptgang.backend.model.BlindBox;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.service.BlindBoxService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,17 +33,17 @@ public class BlindBoxServiceImpl implements BlindBoxService {
 
     @Override
     public BlindBox update(BlindBox blindBox) {
-        if (blindBox.getBlindBoxId() == null) {
-            throw new IllegalArgumentException("BlindBox does not exist");
-        }
-        return blindBoxRepos.save(blindBox);
+        BlindBox existing = blindBoxRepos.findById(blindBox.getBlindBoxId())
+                .orElseThrow(() -> new IllegalArgumentException("BlindBox does not exist"));
+        EntityUtil.merge(existing, blindBox);
+        return blindBoxRepos.save(existing);
     }
 
     @Override
     public BlindBox deleteById(long id) {
         BlindBox blindBox = blindBoxRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("BlindBox does not exist"));
-        blindBox.setVisible(false);
+        blindBox.setIsVisible(false);
         return blindBoxRepos.save(blindBox);
     }
 

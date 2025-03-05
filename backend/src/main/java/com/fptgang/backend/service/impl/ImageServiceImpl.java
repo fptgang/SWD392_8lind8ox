@@ -62,7 +62,7 @@ public class ImageServiceImpl implements ImageService {
     public Image deleteById(long id) {
         Image image = imageRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Image does not exist"));
-        image.setVisible(false);
+        image.setIsVisible(false);
         return imageRepos.save(image);
     }
 

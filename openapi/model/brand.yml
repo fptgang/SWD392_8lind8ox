@@ -16,8 +16,3 @@ BrandDto:
     updatedAt:
       type: string
       format: date-time
-    blindBoxes:
-      type: array
-      items:
-        type: integer
-        format: int64

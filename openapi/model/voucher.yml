@@ -7,9 +7,8 @@ VoucherDto:
     orderId:
       type: integer
       format: int64
-    accountId:
-      type: integer
-      format: int64
+    account:
+      $ref: "account.yml#/AccountDto"
     code:
       type: string
     discountRate:
@@ -22,6 +21,9 @@ VoucherDto:
       type: boolean
       default: false
     createdAt:
+      type: string
+      format: date-time
+    updatedAt:
       type: string
       format: date-time
     expiredAt:

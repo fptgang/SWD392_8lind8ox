@@ -4,6 +4,7 @@ import com.fptgang.backend.model.Notification;
 import com.fptgang.backend.repository.NotificationRepos;
 import com.fptgang.backend.service.NotificationService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,17 +33,17 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Notification update(Notification notification) {
-        if (notification.getNotificationId() == null) {
-            throw new IllegalArgumentException("Notification does not exist");
-        }
-        return notificationRepos.save(notification);
+        Notification existing = notificationRepos.findById(notification.getNotificationId())
+                .orElseThrow(() -> new IllegalArgumentException("Notification does not exist"));
+        EntityUtil.merge(existing, notification);
+        return notificationRepos.save(existing);
     }
 
     @Override
     public Notification deleteById(long id) {
         Notification notification = notificationRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Notification does not exist"));
-//        notification.setVisible(false);
+//        notification.setIsVisible(false);
         return notificationRepos.save(notification);
     }
 

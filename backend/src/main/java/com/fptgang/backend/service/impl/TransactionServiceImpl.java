@@ -189,7 +189,7 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction deleteById(long id) {
         Transaction transaction = transactionRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction does not exist"));
-//        transaction.setVisible(false);
+//        transaction.setIsVisible(false);
         return transactionRepos.save(transaction);
     }
 
