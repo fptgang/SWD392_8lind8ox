@@ -10,6 +10,12 @@ export enum TransactionType {
     ORDER = "ORDER"
 }
 
+export enum TransactionStatus {
+    PENDING = "PENDING",
+    SUCCESS = "SUCCESS",
+    FAILED = "FAILED"
+}
+
 export class Transaction {
     transaction_id: number;
     amount: number;
@@ -17,7 +23,7 @@ export class Transaction {
     new_balance: number;
     old_balance: number;
     payment_method: PaymentMethod | null;
-    success: boolean;
+    status: TransactionStatus;
     type: TransactionType;
     account_id: number | null;
     order_id: number | null;
@@ -29,7 +35,7 @@ export class Transaction {
         this.new_balance = init.new_balance ?? 0;
         this.old_balance = init.old_balance ?? 0;
         this.payment_method = init.payment_method ?? null;
-        this.success = init.success ?? false;
+        this.status = init.status ?? TransactionStatus.PENDING;
         this.type = init.type ?? TransactionType.DEPOSIT;
         this.account_id = init.account_id ?? null;
         this.order_id = init.order_id ?? null;
@@ -45,7 +51,7 @@ export class Transaction {
             'new_balance',
             'old_balance',
             'payment_method',
-            'success',
+            'status',
             'type',
             'account_id',
             'order_id'
@@ -59,7 +65,7 @@ export class Transaction {
                 record.new_balance.toFixed(2),
                 record.old_balance.toFixed(2),
                 record.payment_method ? `'${escapeSingleQuotes(record.payment_method)}'` : 'NULL',
-                record.success ? '1' : '0',
+                record.status ? `'${escapeSingleQuotes(record.status)}'` : 'NULL',
                 `'${escapeSingleQuotes(record.type)}'`,
                 record.account_id ?? 'NULL',
                 record.order_id ?? 'NULL'

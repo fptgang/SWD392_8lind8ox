@@ -7,6 +7,7 @@ export class Slot {
     isVisible: boolean;
     position: number;
     updatedAt: Date | null;
+    openedAt: Date | null;
     setId: number | null;
     toyId: number | null;
 
@@ -20,6 +21,7 @@ export class Slot {
         this.isVisible = data.isVisible ?? true;
         this.position = data.position ?? 0;
         this.updatedAt = data.updatedAt ?? null;
+        this.openedAt = data.openedAt ?? null;
         this.setId = data.setId ?? null;
         this.toyId = data.toyId ?? null;
         this.set = data.set ?? null;
@@ -35,6 +37,7 @@ export class Slot {
             'is_visible',
             'position',
             'updated_at',
+            'opened_at',
             'set_id',
             'toy_id',
         ];
@@ -47,6 +50,7 @@ export class Slot {
                 slot.isVisible ? 1 : 0,
                 slot.position,
                 slot.updatedAt ? `'${slot.updatedAt.toISOString().slice(0, 19)}.000000'` : 'NULL',
+                slot.openedAt ? `'${slot.openedAt.toISOString().slice(0, 19)}.000000'` : 'NULL',
                 slot.setId ?? 'NULL',
                 slot.toyId ?? 'NULL'
             ];

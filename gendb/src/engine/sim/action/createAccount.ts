@@ -6,15 +6,15 @@ import {AccountPool} from "../../pool/account";
 export const createAccount = (date: Date) => {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
-  const email = faker.internet.email({firstName, lastName}).toLowerCase();
   const verified = faker.datatype.boolean();
+  const accId = AccountPool.getNextId();
 
   const account = new Account({
-    account_id: AccountPool.getNextId(),
+    account_id: accId,
     avatar_url: faker.image.avatar(),
     balance: 0,
     created_at: date,
-    email: email,
+    email: `acc${accId}@blindbox.com`,
     first_name: firstName,
     is_verified: verified,
     is_visible: true,

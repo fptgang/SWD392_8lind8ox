@@ -16,6 +16,7 @@ OrderStatusHistoryDto:
         - DELIVERED
         - RECEIVED
         - COMPLETED
+        - CANCELED
     createdAt:
       type: string
       format: date-time
