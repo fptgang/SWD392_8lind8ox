@@ -47,7 +47,6 @@ import {
   BlindBoxesList,
   BlindBoxesShow,
 } from "./pages/blind-boxes";
-import { PacksCreate, PacksEdit, PacksList, PacksShow } from "./pages/packs";
 import {
   OrdersCreate,
   OrdersEdit,
@@ -142,8 +141,6 @@ function App() {
                         path="blind-boxes/:id"
                         element={<BlindBoxesShow />}
                       />
-                      <Route path="packs" element={<PacksList />} />
-                      <Route path="packs/:id" element={<PacksShow />} />
                       <Route path="orders" element={<OrdersList />} />
                       <Route path="orders/:id" element={<CustomerOrders />} />
 
@@ -197,7 +194,7 @@ function App() {
                     <Route
                       path="admin"
                       element={
-                        localStorage.getItem("role") ===
+                        store.getState().auth.account?.role ===
                         AccountDtoRoleEnum.Admin ? (
                           <Authenticated
                             key="authenticated"
@@ -244,13 +241,6 @@ function App() {
                         <Route path="create" element={<BlindBoxesCreate />} />
                         <Route path="edit/:id" element={<BlindBoxesEdit />} />
                         <Route path="show/:id" element={<BlindBoxesShow />} />
-                      </Route>
-
-                      <Route path="packs">
-                        <Route index element={<PacksList />} />
-                        <Route path="create" element={<PacksCreate />} />
-                        <Route path="edit/:id" element={<PacksEdit />} />
-                        <Route path="show/:id" element={<PacksShow />} />
                       </Route>
 
                       <Route path="orders">

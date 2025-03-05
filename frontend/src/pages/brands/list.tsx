@@ -99,16 +99,6 @@ export const BrandsList: React.FC = () => {
         />
 
         <Table.Column
-          dataIndex="description"
-          title="Description"
-          render={(value: string) => (
-            <Tooltip title={value}>
-              <MarkdownField value={value.slice(0, 80) + "..."} />
-            </Tooltip>
-          )}
-        />
-
-        <Table.Column
           dataIndex="isVisible"
           title={
             <Tooltip title="Visibility status">

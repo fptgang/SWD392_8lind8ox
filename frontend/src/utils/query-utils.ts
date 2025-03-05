@@ -9,6 +9,7 @@ interface Sort {
   field: string;
   order: string;
 }
+
 export const generateSortQuery = (sort: CrudSort[]) => {
   if (!sort || sort.length === 0) {
     return "";
@@ -16,6 +17,7 @@ export const generateSortQuery = (sort: CrudSort[]) => {
   const sortQuery = sort.map((s) => generateSortField(s)).join(",");
   return `sort=${encodeURIComponent(sortQuery)}`;
 };
+
 function generateSortField({ field, order }: Sort) {
   return `${field},${order}`;
 }

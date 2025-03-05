@@ -1,46 +1,49 @@
 import { DataProvider, LogicalFilter } from "@refinedev/core";
 import { Axios } from "axios";
 import { generateSortQuery, generateFilterQuery } from "../utils/query-utils";
-import {TOKEN_KEY} from "../authProvider";
+import {store} from "../store";
 
 function buildHeaders(headers: any) {
   headers = headers || {};
 
-  const token: string | null = localStorage.getItem(TOKEN_KEY);
+  const token = store.getState().auth.accessToken;
   if (token) {
     headers["Authorization"] = `Bearer ${token}`
-    
   }
 
   return headers
 }
 
-/**
- * Check out the Data Provider documentation for detailed information
- * https://refine.dev/docs/api-reference/core/providers/data-provider/
- **/
 export const dataProvider = (
     apiUrl: string,
     _httpClient: Axios // TODO: replace `any` with your http client type
 ): DataProvider => ({
   getList: async ({ resource, pagination, filters, sorters, meta }) => {
     let sortQuery = "";
-    console.log(filters);
     if (sorters) {
       sortQuery = generateSortQuery(sorters);
+      if (sortQuery) {
+        sortQuery = "&" + sortQuery;
+      }
     }
+
     let filterQuery = "";
     if (filters) {
       filterQuery = generateFilterQuery(filters as LogicalFilter[]);
+      if (filterQuery) {
+        filterQuery = "&" + filterQuery;
+      }
     }
 
     let currentPage = pagination?.current ?? 0;
     if (currentPage > 0) {
       currentPage--;
     }
+
     const url = `${apiUrl}/${resource}?page=${currentPage}&pageSize=${
         pagination?.pageSize ?? 20
-    }&size=${pagination?.pageSize ?? 20}&${sortQuery}&${filterQuery}`;
+    }&size=${pagination?.pageSize ?? 20}${sortQuery}${filterQuery}`;
+
     console.log("getList", {
       resource,
       pagination,
@@ -49,13 +52,8 @@ export const dataProvider = (
       meta,
       url,
     });
-    console.log("url", url);
-    console.log("sorters", sorters);
-    console.log("filters", filters);
-    console.log("pagination", pagination);
+
     const result = await _httpClient.get(url, { headers: buildHeaders(meta?.headers) });
-    // TODO: send request to the API
-    // const response = await httpClient.get(url, {});
 
     return {
       data: result.data.content,
