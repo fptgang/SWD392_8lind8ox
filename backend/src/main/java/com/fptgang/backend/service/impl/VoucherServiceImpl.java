@@ -4,6 +4,7 @@ import com.fptgang.backend.model.Voucher;
 import com.fptgang.backend.repository.VoucherRepos;
 import com.fptgang.backend.service.VoucherService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -30,16 +31,16 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public Voucher update(Voucher voucher) {
-        if (voucher.getVoucherId() == null) {
-            throw new IllegalArgumentException("Voucherage does not exist");
-        }
-        return voucherRepos.save(voucher);
+        Voucher existing = voucherRepos.findById(voucher.getVoucherId())
+                .orElseThrow(() -> new IllegalArgumentException("Voucher does not exist"));
+        EntityUtil.merge(existing, voucher);
+        return voucherRepos.save(existing);
     }
 
     @Override
     public Voucher deleteById(long id) {
         Voucher voucher = voucherRepos.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Voucherage does not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("Voucher does not exist"));
 //        voucher.voucherVisible(false);
         return voucherRepos.save(voucher);
     }

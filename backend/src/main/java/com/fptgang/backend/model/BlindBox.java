@@ -3,6 +3,7 @@ package com.fptgang.backend.model;
 import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -42,7 +43,8 @@ public class BlindBox {
     private List<BlindBoxCampaign> blindBoxCampaigns;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Builder.Default
+    private Boolean isVisible = true;
 
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Toy> toys;
@@ -52,7 +54,6 @@ public class BlindBox {
 
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Set> sets;
-
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -32,7 +32,7 @@ public class OrderDetail {
     private StockKeepingUnit stockKeepingUnit;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id")

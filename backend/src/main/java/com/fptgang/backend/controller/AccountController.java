@@ -5,6 +5,7 @@ import com.fptgang.backend.api.model.AccountDto;
 import com.fptgang.backend.api.model.GetAccounts200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.mapper.AccountMapper;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.AccountService;
 import com.fptgang.backend.service.params.ListParams;
@@ -34,11 +35,13 @@ public class AccountController implements AccountsApi {
     public ResponseEntity<AccountDto> createAccount(AccountDto accountDto) {
         log.info("Creating account");
 
-        ResponseEntity<AccountDto> response = new ResponseEntity<>(accountMapper
-                .toDTO(accountService.create(accountMapper.toEntity(accountDto))), HttpStatus.CREATED);
-        ;
-        return response;
-
+        return new ResponseEntity<>(
+                accountMapper.toDTO(
+                        accountService.create(accountMapper.toEntity(accountDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -54,7 +57,7 @@ public class AccountController implements AccountsApi {
     @Override
     public ResponseEntity<AccountDto> getAccountById(Long accountId) {
         log.info("Getting account by id ");
-        return new ResponseEntity<>(accountMapper.toDTO(accountService.findById(accountId)), HttpStatus.OK);
+        return new ResponseEntity<>(accountMapper.toDTO(accountService.findById(accountId), DetailLevel.FULL), HttpStatus.OK);
     }
 
     @Override
@@ -74,7 +77,8 @@ public class AccountController implements AccountsApi {
             params.setFilter("role", "in", "STAFF,CUSTOMER");
         }
 
-        var res = accountService.getAll(params.build()).map(accountMapper::toDTO);
+        var res = accountService.getAll(params.build())
+                .map(e -> accountMapper.toDTO(e, DetailLevel.SUMMARY));
         return OpenApiHelper.respondPage(res, GetAccounts200Response.class);
     }
 
@@ -103,6 +107,11 @@ public class AccountController implements AccountsApi {
             }
         }
 
-        return ResponseEntity.ok(accountMapper.toDTO(accountService.update(accountMapper.toEntity(accountDto))));
+        return ResponseEntity.ok(
+                accountMapper.toDTO(
+                        accountService.update(accountMapper.toEntity(accountDto)),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

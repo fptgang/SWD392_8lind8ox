@@ -2,19 +2,11 @@ package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.BrandDto;
 import com.fptgang.backend.model.Brand;
-import com.fptgang.backend.repository.BrandRepos;
 import com.fptgang.backend.util.DateTimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class BrandMapper extends BaseMapper<BrandDto, Brand> {
-
-    @Autowired
-    private BrandRepos brandRepos;
 
     @Override
     public Brand toEntity(BrandDto dto) {
@@ -22,32 +14,18 @@ public class BrandMapper extends BaseMapper<BrandDto, Brand> {
             return null;
         }
 
-        Optional<Brand> existingBrandOptional = brandRepos.findById(dto.getBrandId() == null ? 0 : dto.getBrandId());
-
-        if (existingBrandOptional.isPresent() && dto.getBrandId() != null) {
-            Brand existingBrand = existingBrandOptional.get();
-            existingBrand.setName(dto.getName() != null ? dto.getName() : existingBrand.getName());
-            existingBrand.setDescription(dto.getDescription() != null ? dto.getDescription() : existingBrand.getDescription());
-            existingBrand.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingBrand.isVisible());
-            return existingBrand;
-        } else {
-            Brand entity = new Brand();
-//            entity.setBrandId(dto.getBrandId());
-            entity.setName(dto.getName());
-            entity.setDescription(dto.getDescription());
-            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
-            if (dto.getCreatedAt() != null) {
-                entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
-            }
-            if (dto.getUpdatedAt() != null) {
-                entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            return entity;
-        }
+        Brand entity = new Brand();
+        entity.setBrandId(dto.getBrandId());
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setIsVisible(dto.getIsVisible());
+        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+        return entity;
     }
 
     @Override
-    public BrandDto toDTO(Brand entity) {
+    public BrandDto toDTO(Brand entity, DetailLevel level) {
         if (entity == null) {
             return null;
         }
@@ -55,17 +33,20 @@ public class BrandMapper extends BaseMapper<BrandDto, Brand> {
         BrandDto dto = new BrandDto();
         dto.setBrandId(entity.getBrandId());
         dto.setName(entity.getName());
+        dto.setIsVisible(entity.getIsVisible());
+
+        if (level == DetailLevel.REFERENCE) {
+            return dto; // those fields are enough
+        }
+
+        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+
+        if (level == DetailLevel.SUMMARY) {
+            return dto; // those fields are enough
+        }
+
         dto.setDescription(entity.getDescription());
-        dto.setIsVisible(entity.isVisible());
-        if (entity.getCreatedAt() != null) {
-            dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
-        }
-        if (entity.getUpdatedAt() != null) {
-            dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
-        }
-        if (entity.getBlindBoxes() != null) {
-            dto.setBlindBoxes(entity.getBlindBoxes().stream().map(blindBox -> blindBox.getBlindBoxId()).collect(Collectors.toList()));
-        }
         return dto;
     }
 }

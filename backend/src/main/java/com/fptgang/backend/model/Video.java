@@ -38,7 +38,8 @@ public class Video {
     private String description;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Builder.Default
+    private Boolean isVisible = true;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -47,5 +48,6 @@ public class Video {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean isVerified = false;
+    @Builder.Default
+    private Boolean isVerified = false;
 }

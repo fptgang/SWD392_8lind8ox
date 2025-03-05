@@ -4,6 +4,7 @@ import com.fptgang.backend.api.controller.PromotionalCampaignsApi;
 import com.fptgang.backend.api.model.GetPromotionalCampaigns200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.api.model.PromotionalCampaignDto;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.PromotionalCampaignMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.PromotionalCampaignService;
@@ -36,19 +37,18 @@ public class CampaignController implements PromotionalCampaignsApi {
     }
 
     @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return PromotionalCampaignsApi.super.getRequest();
-    }
-
-    @Override
     public ResponseEntity<PromotionalCampaignDto> createPromotionalCampaign(PromotionalCampaignDto promotionalCampaignDto) {
         log.info("Creating promotional campaign");
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create promotional campaigns.");
         }
-        ResponseEntity<PromotionalCampaignDto> response = new ResponseEntity<>(promotionCampaignMapper
-                .toDTO(promotionCampaignService.create(promotionCampaignMapper.toEntity(promotionalCampaignDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                promotionCampaignMapper.toDTO(
+                        promotionCampaignService.create(promotionCampaignMapper.toEntity(promotionalCampaignDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -69,7 +69,12 @@ public class CampaignController implements PromotionalCampaignsApi {
         if (!isAdminOrStaff) {
             throw new AccessDeniedException("Only staff and admins can view specific campaign details.");
         }
-        return new ResponseEntity<>(promotionCampaignMapper.toDTO(promotionCampaignService.findById(campaignId)), HttpStatus.OK);
+        return new ResponseEntity<>(
+                promotionCampaignMapper.toDTO(
+                        promotionCampaignService.findById(campaignId), DetailLevel.FULL
+                ),
+                HttpStatus.OK
+        );
     }
 
     @Override
@@ -83,7 +88,7 @@ public class CampaignController implements PromotionalCampaignsApi {
                 .includeInvisible(includeInvisible);
 
         var resultPage = promotionCampaignService.getAll(params.build())
-                .map(promotionCampaignMapper::toDTO);
+                .map(p -> promotionCampaignMapper.toDTO(p, DetailLevel.SUMMARY));
 
         return OpenApiHelper.respondPage(resultPage, GetPromotionalCampaigns200Response.class);
     }
@@ -96,6 +101,11 @@ public class CampaignController implements PromotionalCampaignsApi {
         promotionalCampaignDto.setCampaignId(campaignId); // Override campaignId
 
         log.info("Updating promotional campaign " + campaignId);
-        return ResponseEntity.ok(promotionCampaignMapper.toDTO(promotionCampaignService.update(promotionCampaignMapper.toEntity(promotionalCampaignDto))));
+        return ResponseEntity.ok(
+                promotionCampaignMapper.toDTO(
+                        promotionCampaignService.update(promotionCampaignMapper.toEntity(promotionalCampaignDto)),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

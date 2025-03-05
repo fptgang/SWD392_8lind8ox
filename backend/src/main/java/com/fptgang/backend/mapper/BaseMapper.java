@@ -9,13 +9,11 @@ import java.util.stream.Collectors;
  * @param <D>
  * @param <E>
  */
-abstract class BaseMapper<D, E> {
+public abstract class BaseMapper<D, E> {
 
-    abstract D toDTO(E entity);
+    public abstract E toEntity(D dto);
 
-    abstract E toEntity(D dto);
-
-    List<E> toEntities(List<D> dtos) {
+    public List<E> toEntities(List<D> dtos) {
         if (dtos == null) {
             return Collections.emptyList();
         }
@@ -25,15 +23,15 @@ abstract class BaseMapper<D, E> {
                 .collect(Collectors.toList());
     }
 
-    List<D> toDTOs(List<E> entities) {
+    public abstract D toDTO(E entity, DetailLevel level);
+
+    public List<D> toDTOs(List<E> entities, DetailLevel level) {
         if (entities == null) {
             return Collections.emptyList();
         }
         return entities.stream()
                 .filter(Objects::nonNull)
-                .map(this::toDTO)
+                .map(e -> toDTO(e, level))
                 .collect(Collectors.toList());
     }
-
-
 }

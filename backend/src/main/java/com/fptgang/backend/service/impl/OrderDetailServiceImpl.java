@@ -4,6 +4,7 @@ import com.fptgang.backend.model.OrderDetail;
 import com.fptgang.backend.repository.OrderDetailRepos;
 import com.fptgang.backend.service.OrderDetailService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,17 +33,17 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     public OrderDetail update(OrderDetail orderDetail) {
-        if (orderDetail.getOrderDetailId() == null) {
-            throw new IllegalArgumentException("OrderDetail does not exist");
-        }
-        return orderDetailRepos.save(orderDetail);
+        OrderDetail existing = orderDetailRepos.findById(orderDetail.getOrderDetailId())
+                .orElseThrow(() -> new IllegalArgumentException("OrderDetail does not exist"));
+        EntityUtil.merge(existing, orderDetail);
+        return orderDetailRepos.save(existing);
     }
 
     @Override
     public OrderDetail deleteById(long id) {
         OrderDetail orderDetail = orderDetailRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("OrderDetail does not exist"));
-//        orderDetail.setVisible(false);
+//        orderDetail.setIsVisible(false);
         return orderDetailRepos.save(orderDetail);
     }
 

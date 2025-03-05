@@ -4,6 +4,7 @@ import com.fptgang.backend.model.Order;
 import com.fptgang.backend.repository.OrderRepos;
 import com.fptgang.backend.service.OrderService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,17 +34,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order update(Order order) {
-        if (order.getOrderId() == null) {
-            throw new IllegalArgumentException("Order does not exist");
-        }
-        return orderRepos.save(order);
+        Order existing = orderRepos.findById(order.getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
+        EntityUtil.merge(existing, order);
+        return orderRepos.save(existing);
     }
 
     @Override
     public Order deleteById(long id) {
         Order order = orderRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
-//        order.setVisible(false);
+//        order.setIsVisible(false);
         return orderRepos.save(order);
     }
 

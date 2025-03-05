@@ -2,6 +2,7 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.NotificationsApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.NotificationMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Notification;
@@ -38,18 +39,17 @@ public class NotificationController implements NotificationsApi {
     }
 
     @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return NotificationsApi.super.getRequest();
-    }
-
-    @Override
     public ResponseEntity<NotificationDto> createNotification(NotificationDto notificationDto) {
         log.info("Creating notification");
         Notification notification = notificationService.create(notificationMapper.toEntity(notificationDto));
-        messagingTemplate.convertAndSend("noti/"+notification.getAccount().getEmail(), notificationMapper.toDTO(notification));
-        ResponseEntity<NotificationDto> response = new ResponseEntity<>(notificationMapper
-                .toDTO(notification), HttpStatus.CREATED);
-        return response;
+        messagingTemplate.convertAndSend(
+                "noti/"+notification.getAccount().getEmail(),
+                notificationMapper.toDTO(notification, DetailLevel.FULL)
+        );
+        return new ResponseEntity<>(
+                notificationMapper.toDTO(notification, DetailLevel.FULL),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -67,7 +67,8 @@ public class NotificationController implements NotificationsApi {
             params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 
-        var res = notificationService.getAll(params.build()).map(notificationMapper::toDTO);
+        var res = notificationService.getAll(params.build())
+                .map(n -> notificationMapper.toDTO(n, DetailLevel.SUMMARY));
         return OpenApiHelper.respondPage(res, GetNotifications200Response.class);
     }
 
@@ -76,6 +77,11 @@ public class NotificationController implements NotificationsApi {
         notificationDto.setNotificationId(notificationId); // Override notificationId
 
         log.info("Updating notification " + notificationId);
-        return ResponseEntity.ok(notificationMapper.toDTO(notificationService.update(notificationMapper.toEntity(notificationDto))));
+        return ResponseEntity.ok(
+                notificationMapper.toDTO(
+                        notificationService.update(notificationMapper.toEntity(notificationDto)),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

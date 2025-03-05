@@ -4,19 +4,22 @@ BlindBoxDto:
     blindBoxId:
       type: integer
       format: int64
-    brandId:
-      type: integer
-      format: int64
+    brand:
+      $ref: "brand.yml#/BrandDto"
     name:
       type: string
     description:
       type: string
-    isVisible:
-      type: boolean
     images:
       type: array
       items:
         $ref: "image.yml#/ImageDto"
+    blindBoxCampaigns:
+      type: array
+      items:
+        $ref: "blindbox-campaign.yml#/BlindBoxCampaignDto"
+    isVisible:
+      type: boolean
     toys:
       type: array
       items:
@@ -25,11 +28,6 @@ BlindBoxDto:
       type: array
       items:
         $ref: "stock-keeping-unit.yml#/StockKeepingUnitDto"
-    setIds:
-      type: array
-      items:
-        type: integer
-        format: int64
     createdAt:
       type: string
       format: date-time

@@ -4,26 +4,16 @@ import com.fptgang.backend.api.model.RefreshTokenDto;
 import com.fptgang.backend.model.RefreshToken;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.util.DateTimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RefreshTokenMapper extends BaseMapper<RefreshTokenDto,RefreshToken> {
 
-    @Autowired
-    private AccountRepos accountRepos;
+    private final AccountRepos accountRepos;
 
-    @Override
-    public RefreshTokenDto toDTO(RefreshToken entity) {
-        RefreshTokenDto dto = new RefreshTokenDto();
-        dto.setRefreshTokenId(entity.getRefreshTokenId());
-        dto.setAccountId(entity.getAccount().getAccountId());
-        dto.setToken(entity.getToken());
-        dto.setExpiryDate(DateTimeUtil.fromInstantToOffset(entity.getExpiryDate()));
-
-        return dto;
+    public RefreshTokenMapper(AccountRepos accountRepos) {
+        this.accountRepos = accountRepos;
     }
-
 
     @Override
     public RefreshToken toEntity(RefreshTokenDto dto) {
@@ -33,17 +23,28 @@ public class RefreshTokenMapper extends BaseMapper<RefreshTokenDto,RefreshToken>
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setRefreshTokenId(dto.getRefreshTokenId());
-        if (dto.getAccountId() != null) {
-            refreshToken.setAccount(accountRepos.findByAccountId(dto.getAccountId())
-                    .orElseThrow(() -> new IllegalArgumentException("Account does not exist")));
-        }
-        if (dto.getToken() != null) {
-            refreshToken.setToken(dto.getToken());
-        }
+        refreshToken.setAccount(accountRepos.getReferenceById(dto.getAccountId()));
+        refreshToken.setToken(dto.getToken());
+        refreshToken.setIpAddress(dto.getIpAddress());
+        refreshToken.setSessionId(dto.getSessionId());
+        refreshToken.setClientInfo(dto.getClientInfo());
         if (dto.getExpiryDate() != null) {
             refreshToken.setExpiryDate(dto.getExpiryDate().toInstant());
         }
 
         return refreshToken;
+    }
+
+    @Override
+    public RefreshTokenDto toDTO(RefreshToken entity, DetailLevel level) {
+        RefreshTokenDto dto = new RefreshTokenDto();
+        dto.setRefreshTokenId(entity.getRefreshTokenId());
+        dto.setAccountId(entity.getAccount().getAccountId());
+        dto.setToken(entity.getToken());
+        dto.setIpAddress(entity.getIpAddress());
+        dto.setSessionId(entity.getSessionId());
+        dto.setClientInfo(entity.getClientInfo());
+        dto.setExpiryDate(DateTimeUtil.fromInstantToOffset(entity.getExpiryDate()));
+        return dto;
     }
 }

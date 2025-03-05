@@ -2,26 +2,39 @@ package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.OrderDetailDto;
 import com.fptgang.backend.model.OrderDetail;
-import com.fptgang.backend.repository.*;
+import com.fptgang.backend.repository.OrderRepos;
+import com.fptgang.backend.repository.PromotionalCampaignRepos;
+import com.fptgang.backend.repository.SlotRepos;
+import com.fptgang.backend.repository.StockKeepingUnitRepos;
 import com.fptgang.backend.util.DateTimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
 
-    @Autowired
-    private OrderDetailRepos orderDetailRepos;
-    @Autowired
-    private OrderRepos orderRepos;
-    @Autowired
-    private StockKeepingUnitRepos skuRepos;
-    @Autowired
-    private PromotionalCampaignRepos promotionalCampaignRepos;
-    @Autowired
-    private SlotRepos slotRepos;
+    private final OrderRepos orderRepos;
+    private final StockKeepingUnitRepos skuRepos;
+    private final SlotRepos slotRepos;
+    private final PromotionalCampaignRepos promotionalCampaignRepos;
+    private final StockKeepingUnitMapper skuMapper;
+    private final PromotionalCampaignMapper promotionalCampaignMapper;
+    private final SlotMapper slotMapper;
+
+    public OrderDetailMapper(OrderRepos orderRepos,
+                             StockKeepingUnitRepos skuRepos,
+                             SlotRepos slotRepos,
+                             PromotionalCampaignRepos promotionalCampaignRepos,
+                             StockKeepingUnitMapper skuMapper,
+                             PromotionalCampaignMapper promotionalCampaignMapper,
+                             SlotMapper slotMapper) {
+        this.orderRepos = orderRepos;
+        this.skuRepos = skuRepos;
+        this.slotRepos = slotRepos;
+        this.promotionalCampaignRepos = promotionalCampaignRepos;
+        this.skuMapper = skuMapper;
+        this.promotionalCampaignMapper = promotionalCampaignMapper;
+        this.slotMapper = slotMapper;
+    }
 
     @Override
     public OrderDetail toEntity(OrderDetailDto dto) {
@@ -29,72 +42,45 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
             return null;
         }
 
-        Optional<OrderDetail> existingOrderDetailOptional = orderDetailRepos.findById(dto.getOrderDetailId() == null ? 0 : dto.getOrderDetailId());
-
-        if (existingOrderDetailOptional.isPresent() && dto.getOrderDetailId() != null) {
-            OrderDetail existingOrderDetail = existingOrderDetailOptional.get();
-            existingOrderDetail.setCheckoutPrice(dto.getCheckoutPrice() != null ? dto.getCheckoutPrice() : existingOrderDetail.getCheckoutPrice());
-            existingOrderDetail.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : existingOrderDetail.getOriginalPrice());
-            if (dto.getOrderId() != null) {
-                existingOrderDetail.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
-            }
-            if (dto.getSkuId() != null) {
-                existingOrderDetail.setStockKeepingUnit(skuRepos.findById(dto.getSkuId()).orElse(null));
-            }
-            if (dto.getPromotionalCampaignId() != null) {
-                existingOrderDetail.setPromotionalCampaign(promotionalCampaignRepos.findById(dto.getPromotionalCampaignId()).orElse(null));
-            }
-            if (dto.getSlotId() != null) {
-                existingOrderDetail.setSlot(slotRepos.findById(dto.getSlotId()).orElse(null));
-            }
-            return existingOrderDetail;
-        } else {
-            OrderDetail entity = new OrderDetail();
-//            entity.setOrderDetailId(dto.getOrderDetailId());
-            entity.setCheckoutPrice(dto.getCheckoutPrice() != null ? dto.getCheckoutPrice() : entity.getCheckoutPrice());
-            entity.setOriginalPrice(dto.getOriginalProductPrice() != null ? dto.getOriginalProductPrice() : entity.getOriginalPrice());
-            if (dto.getOrderId() != null) {
-                entity.setOrder(orderRepos.findById(dto.getOrderId()).orElse(null));
-            }
-            if (dto.getSkuId() != null) {
-                entity.setStockKeepingUnit(skuRepos.findById(dto.getSkuId()).orElse(null));
-            }
-            if (dto.getPromotionalCampaignId() != null) {
-                entity.setPromotionalCampaign(promotionalCampaignRepos.findById(dto.getPromotionalCampaignId()).orElse(null));
-            }
-            if (dto.getSlotId() != null) {
-                entity.setSlot(slotRepos.findById(dto.getSlotId()).orElse(null));
-            }
-            if (dto.getCreatedAt() != null) {
-                entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
-            }
-            if (dto.getUpdatedAt() != null) {
-                entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            return entity;
+        OrderDetail entity = new OrderDetail();
+        entity.setOrderDetailId(dto.getOrderDetailId());
+        if (dto.getOrderId() != null) {
+            entity.setOrder(orderRepos.getReferenceById(dto.getOrderId()));
         }
+        if (dto.getSku() != null) {
+            entity.setStockKeepingUnit(skuRepos.getReferenceById(dto.getSku().getSkuId()));
+        }
+        entity.setQuantity(dto.getQuantity());
+        if (dto.getPromotionalCampaign() != null) {
+            entity.setPromotionalCampaign(promotionalCampaignRepos.getReferenceById(dto.getPromotionalCampaign().getCampaignId()));
+        }
+        entity.setOriginalPrice(dto.getOriginalPrice());
+        entity.setCheckoutPrice(dto.getCheckoutPrice());
+        if (dto.getSlot() != null) {
+            entity.setSlot(slotRepos.getReferenceById(dto.getSlot().getSlotId()));
+        }
+        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+        return entity;
     }
 
     @Override
-    public OrderDetailDto toDTO(OrderDetail entity) {
+    public OrderDetailDto toDTO(OrderDetail entity, DetailLevel level) {
         if (entity == null) {
             return null;
         }
 
         OrderDetailDto dto = new OrderDetailDto();
         dto.setOrderDetailId(entity.getOrderDetailId());
-        dto.setCheckoutPrice(entity.getCheckoutPrice());
-        dto.setOriginalProductPrice(entity.getOriginalPrice());
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
-        dto.setSkuId(entity.getStockKeepingUnit() != null ? entity.getStockKeepingUnit().getSkuId() : null);
-        dto.setPromotionalCampaignId(entity.getPromotionalCampaign() != null ? entity.getPromotionalCampaign().getCampaignId() : null);
-        dto.setSlotId(entity.getSlot() != null ? entity.getSlot().getSlotId() : null);
-        if (entity.getCreatedAt() != null) {
-            dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
-        }
-        if (entity.getUpdatedAt() != null) {
-            dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
-        }
+        dto.setSku(skuMapper.toDTO(entity.getStockKeepingUnit(), DetailLevel.REFERENCE));
+        dto.setQuantity(entity.getQuantity());
+        dto.setPromotionalCampaign(promotionalCampaignMapper.toDTO(entity.getPromotionalCampaign(), DetailLevel.REFERENCE));
+        dto.setOriginalPrice(entity.getOriginalPrice());
+        dto.setCheckoutPrice(entity.getCheckoutPrice());
+        dto.setSlot(slotMapper.toDTO(entity.getSlot(), DetailLevel.REFERENCE));
+        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         return dto;
     }
 }

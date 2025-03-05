@@ -4,6 +4,7 @@ import com.fptgang.backend.model.PromotionalCampaign;
 import com.fptgang.backend.repository.PromotionalCampaignRepos;
 import com.fptgang.backend.service.PromotionalCampaignService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,17 +35,17 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
 
     @Override
     public PromotionalCampaign update(PromotionalCampaign promotionalCampaign) {
-        if (promotionalCampaign.getCampaignId() == null) {
-            throw new IllegalArgumentException("PromotionalCampaign does not exist");
-        }
-        return promotionalCampaignRepos.save(promotionalCampaign);
+        PromotionalCampaign existing = promotionalCampaignRepos.findById(promotionalCampaign.getCampaignId())
+                .orElseThrow(() -> new IllegalArgumentException("PromotionalCampaign does not exist"));
+        EntityUtil.merge(existing, promotionalCampaign);
+        return promotionalCampaignRepos.save(existing);
     }
 
     @Override
     public PromotionalCampaign deleteById(long id) {
         PromotionalCampaign promotionalCampaign = promotionalCampaignRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("PromotionalCampaign does not exist"));
-//        promotionalCampaign.setVisible(false);
+//        promotionalCampaign.setIsVisible(false);
         return promotionalCampaignRepos.save(promotionalCampaign);
     }
 

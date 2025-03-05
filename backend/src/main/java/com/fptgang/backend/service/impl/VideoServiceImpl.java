@@ -97,7 +97,7 @@ public class VideoServiceImpl implements VideoService {
     public Video deleteById(long id) {
         Video video = videoRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Video does not exist"));
-        video.setVisible(false);
+        video.setIsVisible(false);
         return videoRepos.save(video);
     }
 

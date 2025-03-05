@@ -2,6 +2,7 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.ImagesApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.ImageMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Image;
@@ -32,22 +33,19 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return ImagesApi.super.getRequest();
-    }
-
-    @Override
     public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long toyId, MultipartFile imageBlob, Boolean isVisible) {
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can upload images.");
         }
         ImageDto dto = new ImageDto()
-                .uploaderId(uploaderId)
+                .uploader(new AccountDto().accountId(uploaderId))
                 .blindBoxId(blindBoxId)
                 .toyId(toyId)
                 .isVisible(isVisible);
-        return new ResponseEntity<>(imageMapper
-                .toDTO(imageService.create(imageMapper.toEntity(dto), imageBlob)), HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                imageMapper.toDTO(imageService.create(imageMapper.toEntity(dto), imageBlob), DetailLevel.FULL),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -72,7 +70,7 @@ public class ImageController implements ImagesApi {
             }
         }
 
-        return new ResponseEntity<>(imageMapper.toDTO(image), HttpStatus.OK);
+        return new ResponseEntity<>(imageMapper.toDTO(image, DetailLevel.FULL), HttpStatus.OK);
     }
 
     @Override
@@ -82,11 +80,15 @@ public class ImageController implements ImagesApi {
         }
         ImageDto dto = new ImageDto()
                 .imageId(imageId)
-                .uploaderId(uploaderId)
+                .uploader(new AccountDto().accountId(uploaderId))
                 .blindBoxId(blindBoxId)
                 .toyId(toyId)
                 .isVisible(isVisible);
-        return ResponseEntity.ok(imageMapper
-                .toDTO(imageService.update(imageMapper.toEntity(dto), imageBlob)));
+        return ResponseEntity.ok(
+                imageMapper.toDTO(
+                        imageService.update(imageMapper.toEntity(dto), imageBlob),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

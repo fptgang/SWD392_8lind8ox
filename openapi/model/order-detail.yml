@@ -7,44 +7,20 @@ OrderDetailDto:
     orderId:
       type: integer
       format: int64
-    skuId:
+    sku:
+      $ref: "stock-keeping-unit.yml#/StockKeepingUnitDto"
+    quantity:
       type: integer
-      format: int64
+    promotionalCampaign:
+      $ref: "promotional-campaign.yml#/PromotionalCampaignDto"
     originalPrice:
       type: number
       format: double
     checkoutPrice:
       type: number
       format: double
-    slotId:
-      type: integer
-      format: int64
-#    blindBoxId:
-#      type: integer
-#      format: int64
-#    packId:
-#      type: integer
-#      format: int64
-    promotionalCampaignId:
-      type: integer
-      format: int64
-    originalProductPrice:
-      type: number
-      format: double
-#    discountPrice:
-#      type: number
-#      format: double
-#    requestUnbox:
-#      type: boolean
-#    unboxedToys:
-#      type: array
-#      items:
-#        $ref: "toy.yml#/ToyDto"
-#    toyCount:
-#      type: integer
-#    videoId:
-#      type: integer
-#      format: int64
+    slot:
+      $ref: "slot.yml#/SlotDto"
     createdAt:
       type: string
       format: date-time

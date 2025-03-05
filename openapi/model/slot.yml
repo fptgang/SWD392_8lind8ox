@@ -9,16 +9,14 @@ SlotDto:
       format: int32
     isOpened:
       type: boolean
+    isVisible:
+      type: boolean
     openedAt:
       type: string
       format: date-time
-    toyId:
-      type: integer
-      format: int64
+    toy:
+      $ref: "toy.yml#/ToyDto"
     setId:
-      type: integer
-      format: int64
-    orderDetailId:
       type: integer
       format: int64
     createdAt:

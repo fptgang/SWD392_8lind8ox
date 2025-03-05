@@ -45,6 +45,7 @@ public class Account {
     private String avatarUrl;
 
     @Column(precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) DEFAULT 0.00")
+    @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
     @Nullable
@@ -61,7 +62,8 @@ public class Account {
     private LocalDateTime verifiedAt;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private boolean isVisible = true;
+    @Builder.Default
+    private Boolean isVisible = true;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

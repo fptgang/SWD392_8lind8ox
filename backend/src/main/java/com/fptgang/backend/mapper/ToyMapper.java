@@ -2,26 +2,23 @@ package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.ToyDto;
 import com.fptgang.backend.model.Toy;
-import com.fptgang.backend.repository.BlindBoxRepos;
-import com.fptgang.backend.repository.ToyRepos;
+import com.fptgang.backend.repository.ImageRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class ToyMapper extends BaseMapper<ToyDto, Toy> {
+    private final ImageRepos imageRepos;
+    private final ImageMapper imageMapper;
 
-    @Autowired
-    private ToyRepos toyRepos;
-    @Autowired
-    private BlindBoxRepos blindBoxRepos;
-    @Autowired
-    private ImageMapper imageMapper;
+    public ToyMapper(ImageRepos imageRepos, ImageMapper imageMapper) {
+        this.imageRepos = imageRepos;
+        this.imageMapper = imageMapper;
+    }
 
     @Override
     public Toy toEntity(ToyDto dto) {
@@ -29,48 +26,25 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
             return null;
         }
 
-        Optional<Toy> existingToyOptional = toyRepos.findById(dto.getToyId() == null ? 0 : dto.getToyId());
-
-        if (existingToyOptional.isPresent() && dto.getToyId() != null) {
-            Toy existingToy = existingToyOptional.get();
-            existingToy.setName(dto.getName() != null ? dto.getName() : existingToy.getName());
-            existingToy.setDescription(dto.getDescription() != null ? dto.getDescription() : existingToy.getDescription());
-            existingToy.setRarity(dto.getRarity() != null ? Toy.Rarity.valueOf(dto.getRarity().name()) : existingToy.getRarity());
-            existingToy.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : existingToy.isVisible());
-            existingToy.setWeight(dto.getWeight() != null ? dto.getWeight() : existingToy.getWeight());
-            if(dto.getBlindBoxId()!=null){
-                existingToy.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
-            }
-            if(dto.getImages()!=null){
-                existingToy.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
-            }
-            return existingToy;
-        } else {
-            Toy entity = new Toy();
-//            entity.setToyId(dto.getToyId());
-            entity.setName(dto.getName());
-            entity.setDescription(dto.getDescription());
-            entity.setRarity(Toy.Rarity.valueOf(dto.getRarity().name()));
-            entity.setVisible(dto.getIsVisible() != null ? dto.getIsVisible() : entity.isVisible());
-            entity.setWeight(dto.getWeight());
-            if (dto.getCreatedAt() != null) {
-                entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
-            }
-            if (dto.getUpdatedAt() != null) {
-                entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            if(dto.getBlindBoxId()!=null){
-                entity.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
-            }
-            if(dto.getImages()!=null){
-                entity.setImages(dto.getImages().stream().map(imageMapper::toEntity).collect(Collectors.toList()));
-            }
-            return entity;
+        Toy entity = new Toy();
+        entity.setToyId(dto.getToyId());
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setWeight(dto.getWeight());
+        entity.setRarity(Toy.Rarity.valueOf(dto.getRarity().name()));
+        entity.setIsVisible(dto.getIsVisible());
+        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+        if (dto.getImages() != null) {
+            entity.setImages(dto.getImages().stream()
+                    .map(e -> imageRepos.getReferenceById(e.getImageId()))
+                    .collect(Collectors.toList()));
         }
+        return entity;
     }
 
     @Override
-    public ToyDto toDTO(Toy entity) {
+    public ToyDto toDTO(Toy entity, DetailLevel level) {
         if (entity == null) {
             return null;
         }
@@ -79,13 +53,16 @@ public class ToyMapper extends BaseMapper<ToyDto, Toy> {
         dto.setToyId(entity.getToyId());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
-        dto.setRarity(ToyDto.RarityEnum.valueOf(entity.getRarity().name()));
-        dto.setIsVisible(entity.isVisible());
         dto.setWeight(entity.getWeight());
+        dto.setRarity(ToyDto.RarityEnum.valueOf(entity.getRarity().name()));
+        dto.setIsVisible(entity.getIsVisible());
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
-        dto.setBlindBoxId(entity.getBlindBox().getBlindBoxId());
-        dto.setImages(entity.getImages().stream().map(imageMapper::toDTO).collect(Collectors.toList()));
+        if (entity.getImages() != null) {
+            dto.setImages(entity.getImages().stream()
+                    .map(e -> imageMapper.toDTO(e, DetailLevel.REFERENCE))
+                    .collect(Collectors.toList()));
+        }
         return dto;
     }
 }

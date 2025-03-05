@@ -2,6 +2,7 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.SkusApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.StockKeepingUnitMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.StockKeepingUnitService;
@@ -29,15 +30,18 @@ public class StockKeepingUnitController implements SkusApi {
         this.stockKeepingUnitMapper = stockKeepingUnitMapper;
     }
 
-
     @Override
     public ResponseEntity<StockKeepingUnitDto> createStockKeepingUnit(StockKeepingUnitDto stockKeepingUnitDto) {
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create blind boxes.");
         }
-        ResponseEntity<StockKeepingUnitDto> response = new ResponseEntity<>(stockKeepingUnitMapper
-                .toDTO(stockKeepingUnitService.create(stockKeepingUnitMapper.toEntity(stockKeepingUnitDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                stockKeepingUnitMapper.toDTO(
+                        stockKeepingUnitService.create(stockKeepingUnitMapper.toEntity(stockKeepingUnitDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -51,9 +55,13 @@ public class StockKeepingUnitController implements SkusApi {
 
     @Override
     public ResponseEntity<StockKeepingUnitDto> getStockKeepingUnitById(Long stockKeepingUnitId) {
-        ResponseEntity<StockKeepingUnitDto> response = new ResponseEntity<>(stockKeepingUnitMapper
-                .toDTO(stockKeepingUnitService.findById(stockKeepingUnitId)), HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(
+                stockKeepingUnitMapper.toDTO(
+                        stockKeepingUnitService.findById(stockKeepingUnitId),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.OK
+        );
     }
 
     @Override
@@ -69,7 +77,7 @@ public class StockKeepingUnitController implements SkusApi {
 
         res = stockKeepingUnitService
                 .getAll(params.build())
-                .map(stockKeepingUnitMapper::toDTO);
+                .map(s -> stockKeepingUnitMapper.toDTO(s, DetailLevel.SUMMARY));
 
         log.info(res.toString());
         return OpenApiHelper.respondPage(res, GetStockKeepingUnits200Response.class);
@@ -82,8 +90,14 @@ public class StockKeepingUnitController implements SkusApi {
         }
         stockKeepingUnitDto.setSkuId(stockKeepingUnitId); // Override stockKeepingUnitId
 
-        ResponseEntity<StockKeepingUnitDto> response = new ResponseEntity<>(stockKeepingUnitMapper
-                .toDTO(stockKeepingUnitService.update(stockKeepingUnitMapper.toEntity(stockKeepingUnitDto))), HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(
+                stockKeepingUnitMapper.toDTO(
+                        stockKeepingUnitService.update(
+                        stockKeepingUnitMapper.toEntity(stockKeepingUnitDto)
+                        ),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.OK
+        );
     }
 }

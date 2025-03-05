@@ -4,6 +4,7 @@ import com.fptgang.backend.model.OrderStatusHistory;
 import com.fptgang.backend.repository.OrderStatusHistoryRepos;
 import com.fptgang.backend.service.OrderStatusHistoryService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,17 +34,17 @@ public class OrderStatusHistoryServiceImpl implements OrderStatusHistoryService 
 
     @Override
     public OrderStatusHistory update(OrderStatusHistory order) {
-        if (order.getId() == null) {
-            throw new IllegalArgumentException("OrderStatusHistory does not exist");
-        }
-        return orderRepos.save(order);
+        OrderStatusHistory existing = orderRepos.findById(order.getId())
+                .orElseThrow(() -> new IllegalArgumentException("OrderStatusHistory does not exist"));
+        EntityUtil.merge(existing, order);
+        return orderRepos.save(existing);
     }
 
     @Override
     public OrderStatusHistory deleteById(long id) {
         OrderStatusHistory order = orderRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("OrderStatusHistory does not exist"));
-//        order.setVisible(false);
+//        order.setIsVisible(false);
         return orderRepos.save(order);
     }
 

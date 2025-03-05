@@ -4,22 +4,22 @@ import com.fptgang.backend.api.model.StockKeepingUnitDto;
 import com.fptgang.backend.model.StockKeepingUnit;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.ImageRepos;
-import com.fptgang.backend.repository.StockKeepingUnitRepos;
 import com.fptgang.backend.util.DateTimeUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class StockKeepingUnitMapper extends BaseMapper<StockKeepingUnitDto, StockKeepingUnit> {
+    private final ImageMapper imageMapper;
+    private final ImageRepos imageRepos;
+    private final BlindBoxRepos blindBoxRepos;
 
-    @Autowired
-    private BlindBoxRepos blindBoxRepos;
-    @Autowired
-    private ImageRepos imageRepos;
-    @Autowired
-    private StockKeepingUnitRepos stockKeepingUnitRepos;
+    public StockKeepingUnitMapper(ImageMapper imageMapper,
+                                  ImageRepos imageRepos,
+                                  BlindBoxRepos blindBoxRepos) {
+        this.imageMapper = imageMapper;
+        this.imageRepos = imageRepos;
+        this.blindBoxRepos = blindBoxRepos;
+    }
 
     @Override
     public StockKeepingUnit toEntity(StockKeepingUnitDto dto) {
@@ -27,52 +27,24 @@ public class StockKeepingUnitMapper extends BaseMapper<StockKeepingUnitDto, Stoc
             return null;
         }
 
-
-        Optional<StockKeepingUnit> existingStockKeepingUnitOptional = stockKeepingUnitRepos.findById(dto.getSkuId() == null ? 0 : dto.getSkuId());
-        if (existingStockKeepingUnitOptional.isPresent() && dto.getSkuId() != null) {
-            StockKeepingUnit existingStockKeepingUnit = existingStockKeepingUnitOptional.get();
-            existingStockKeepingUnit.setName(dto.getName() != null ? dto.getName() : existingStockKeepingUnit.getName());
-            existingStockKeepingUnit.setPrice(dto.getPrice() != null ? dto.getPrice() : existingStockKeepingUnit.getPrice());
-            existingStockKeepingUnit.setStock(dto.getStock() != null ? dto.getStock() : existingStockKeepingUnit.getStock());
-            existingStockKeepingUnit.setSpecCount(dto.getSpecCount() != null ? dto.getSpecCount() : existingStockKeepingUnit.getSpecCount());
-            if (dto.getBlindBoxId() != null) {
-                existingStockKeepingUnit.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).orElse(null));
-            }
-            if (dto.getImageId() != null) {
-                existingStockKeepingUnit.setImage(imageRepos.findById(dto.getImageId()).orElse(null));
-            }
-            if (dto.getCreatedAt() != null) {
-                existingStockKeepingUnit.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
-            }
-            if (dto.getUpdatedAt() != null) {
-                existingStockKeepingUnit.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            return existingStockKeepingUnit;
-        } else {
-            StockKeepingUnit entity = new StockKeepingUnit();
-//            entity.setSkuId(dto.getSkuId());
-            entity.setName(dto.getName());
-            entity.setPrice(dto.getPrice());
-            entity.setStock(dto.getStock());
-            entity.setSpecCount(dto.getSpecCount());
-            if (dto.getBlindBoxId() != null) {
-                entity.setBlindBox(blindBoxRepos.findById(dto.getBlindBoxId()).orElse(null));
-            }
-            if (dto.getImageId() != null) {
-                entity.setImage(imageRepos.findById(dto.getImageId()).orElse(null));
-            }
-            if (dto.getCreatedAt() != null) {
-                entity.setCreatedAt(dto.getCreatedAt().toLocalDateTime());
-            }
-            if (dto.getUpdatedAt() != null) {
-                entity.setUpdatedAt(dto.getUpdatedAt().toLocalDateTime());
-            }
-            return entity;
+        StockKeepingUnit entity = new StockKeepingUnit();
+        entity.setSkuId(dto.getSkuId());
+        entity.setName(dto.getName());
+        if (dto.getImage() != null) {
+            entity.setImage(imageRepos.getReferenceById(dto.getImage().getImageId()));
         }
+        entity.setPrice(dto.getPrice());
+        entity.setStock(dto.getStock());
+        entity.setSpecCount(dto.getSpecCount());
+        entity.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
+        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+        entity.setIsVisible(dto.getIsVisible());
+        return entity;
     }
 
     @Override
-    public StockKeepingUnitDto toDTO(StockKeepingUnit entity) {
+    public StockKeepingUnitDto toDTO(StockKeepingUnit entity, DetailLevel level) {
         if (entity == null) {
             return null;
         }
@@ -80,17 +52,14 @@ public class StockKeepingUnitMapper extends BaseMapper<StockKeepingUnitDto, Stoc
         StockKeepingUnitDto dto = new StockKeepingUnitDto();
         dto.setSkuId(entity.getSkuId());
         dto.setName(entity.getName());
+        dto.setImage(imageMapper.toDTO(entity.getImage(), DetailLevel.REFERENCE));
         dto.setPrice(entity.getPrice());
         dto.setStock(entity.getStock());
         dto.setSpecCount(entity.getSpecCount());
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
-        dto.setImageId(entity.getImage() != null ? entity.getImage().getImageId() : null);
-        if (entity.getCreatedAt() != null) {
-            dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
-        }
-        if (entity.getUpdatedAt() != null) {
-            dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
-        }
+        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+        dto.setIsVisible(entity.getIsVisible());
         return dto;
     }
 }

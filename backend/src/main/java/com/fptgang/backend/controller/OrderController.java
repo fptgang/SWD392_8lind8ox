@@ -2,6 +2,7 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.OrdersApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.OrderMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Order;
@@ -30,10 +31,6 @@ public class OrderController implements OrdersApi {
         this.orderService = orderService;
         this.orderMapper = orderMapper;
     }
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return OrdersApi.super.getRequest();
-    }
 
     @Override
     public ResponseEntity<OrderDto> createOrder(OrderDto orderDto) {
@@ -41,9 +38,13 @@ public class OrderController implements OrdersApi {
         if (!SecurityUtil.hasPermission(Account.Role.CUSTOMER)) {
             throw new AccessDeniedException("Only customers can create orders.");
         }
-        ResponseEntity<OrderDto> response = new ResponseEntity<>(orderMapper
-                .toDTO(orderService.create(orderMapper.toEntity(orderDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                orderMapper.toDTO(
+                        orderService.create(orderMapper.toEntity(orderDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -69,7 +70,7 @@ public class OrderController implements OrdersApi {
             }
         }
 
-        return new ResponseEntity<>(orderMapper.toDTO(order), HttpStatus.OK);
+        return new ResponseEntity<>(orderMapper.toDTO(order, DetailLevel.FULL), HttpStatus.OK);
     }
 
     @Override
@@ -87,7 +88,8 @@ public class OrderController implements OrdersApi {
             params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 
-        var resultPage = orderService.getAll(params.build()).map(orderMapper::toDTO);
+        var resultPage = orderService.getAll(params.build())
+                .map(o -> orderMapper.toDTO(o, DetailLevel.SUMMARY));
 
         return OpenApiHelper.respondPage(resultPage, GetOrders200Response.class);
     }
@@ -97,6 +99,11 @@ public class OrderController implements OrdersApi {
         orderDto.setOrderId(orderId); // Override orderId
 
         log.info("Updating order " + orderId);
-        return ResponseEntity.ok(orderMapper.toDTO(orderService.update(orderMapper.toEntity(orderDto))));
+        return ResponseEntity.ok(
+                orderMapper.toDTO(
+                        orderService.update(orderMapper.toEntity(orderDto)),
+                        DetailLevel.FULL
+                )
+        );
     }
 }

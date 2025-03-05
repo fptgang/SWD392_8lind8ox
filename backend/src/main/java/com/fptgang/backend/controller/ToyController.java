@@ -2,6 +2,7 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.ToysApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.ToyMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.ToyService;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ToyController implements ToysApi {
 
     private final ToyService toyService;
-
     private final ToyMapper toyMapper;
 
     public ToyController(ToyService toyService, ToyMapper toyMapper) {
@@ -29,15 +29,18 @@ public class ToyController implements ToysApi {
         this.toyMapper = toyMapper;
     }
 
-
     @Override
     public ResponseEntity<ToyDto> createToy(ToyDto toyDto) {
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create blind boxes.");
         }
-        ResponseEntity<ToyDto> response = new ResponseEntity<>(toyMapper
-                .toDTO(toyService.create(toyMapper.toEntity(toyDto))), HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(
+                toyMapper.toDTO(
+                        toyService.create(toyMapper.toEntity(toyDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.CREATED
+        );
     }
 
     @Override
@@ -51,9 +54,12 @@ public class ToyController implements ToysApi {
 
     @Override
     public ResponseEntity<ToyDto> getToyById(Long toyId) {
-        ResponseEntity<ToyDto> response = new ResponseEntity<>(toyMapper
-                .toDTO(toyService.findById(toyId)), HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(
+                toyMapper.toDTO(toyService.findById(toyId),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.OK
+        );
     }
 
     @Override
@@ -70,7 +76,7 @@ public class ToyController implements ToysApi {
 
         res = toyService
                 .getAll(params.build())
-                .map(toyMapper::toDTO);
+                .map(t -> toyMapper.toDTO(t, DetailLevel.SUMMARY));
 
         log.info(res.toString());
         return OpenApiHelper.respondPage(res, GetToys200Response.class);
@@ -83,8 +89,11 @@ public class ToyController implements ToysApi {
         }
         toyDto.setToyId(toyId); // Override toyId
 
-        ResponseEntity<ToyDto> response = new ResponseEntity<>(toyMapper
-                .toDTO(toyService.update(toyMapper.toEntity(toyDto))), HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(
+                toyMapper.toDTO(
+                        toyService.update(toyMapper.toEntity(toyDto)),
+                        DetailLevel.FULL
+                ),
+                HttpStatus.OK);
     }
 }

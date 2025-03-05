@@ -4,16 +4,15 @@ TransactionDto:
     transactionId:
       type: integer
       format: int64
-    accountId:
-      type: integer
-      format: int64
+    account:
+      $ref: "account.yml#/AccountDto"
     type:
       type: string
       enum: [DEPOSIT, ORDER]
     paymentMethod:
       type: string
       enum: [PAYPAL, VNPAY]
-    createAt:
+    createdAt:
       type: string
       format: date-time
     amount:

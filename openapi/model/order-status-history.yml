@@ -7,9 +7,6 @@ OrderStatusHistoryDto:
     orderId:
       type: integer
       format: int64
-    accountId:
-      type: integer
-      format: int64
     state:
       type: string
       enum:

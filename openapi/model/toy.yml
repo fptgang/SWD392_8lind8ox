@@ -32,9 +32,6 @@ ToyDto:
       type: string
       format: date-time
       description: The last update timestamp of the toy
-    blindBoxId:
-      type: integer
-      format: int64
     images:
       type: array
       items:
