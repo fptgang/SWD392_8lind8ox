@@ -66,7 +66,7 @@ public class BrandController implements BrandsApi{
     @Override
     public ResponseEntity<GetBrands200Response> getBrands(Pageable pageable, String filter, String search) {
         log.info("Getting brands");
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
+        var includeInvisible = (SecurityUtil.getCurrentUserRole() != null);
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)
