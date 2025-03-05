@@ -23,7 +23,11 @@ import {ShippingInfo} from "../../model/ShippingInfo";
 import {OrderStatusHistoryPool} from "../../pool/order_status_history";
 import {OrderState, OrderStatusHistory} from "../../model/OrderStatusHistory";
 import {TransactionPool} from "../../pool/transaction";
-import {Transaction, TransactionType} from "../../model/Transaction";
+import {
+  Transaction,
+  TransactionStatus,
+  TransactionType
+} from "../../model/Transaction";
 import {NotificationPool} from "../../pool/notification";
 import {Notification} from "../../model/Notification";
 
@@ -215,7 +219,7 @@ export function checkout(date: Date) {
     old_balance: account.balance,
     order_id: orderId,
     payment_method: undefined,
-    success: true,
+    status: TransactionStatus.SUCCESS,
     transaction_id: TransactionPool.getNextId(),
     type: TransactionType.ORDER
   }))
@@ -245,6 +249,7 @@ export function checkout(date: Date) {
   for (const detail of details) {
     if (!detail.slot) continue
     detail.slot.isOpened = true
+    detail.slot.openedAt = date
     detail.slot.updatedAt = date
   }
 }
