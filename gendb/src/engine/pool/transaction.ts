@@ -1,6 +1,7 @@
 import {
   PaymentMethod,
   Transaction,
+  TransactionStatus,
   TransactionType
 } from "../model/Transaction.js";
 import {Account} from "../model/Account.js";
@@ -29,7 +30,7 @@ export class transactionPool {
       new_balance: newBalance,
       old_balance: account.balance,
       payment_method: faker.helpers.enumValue(PaymentMethod),
-      success: status,
+      status: status ? TransactionStatus.SUCCESS : TransactionStatus.FAILED,
       type: TransactionType.DEPOSIT,
       account_id: account.account_id,
       order_id: null,
