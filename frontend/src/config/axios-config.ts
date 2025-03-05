@@ -1,18 +1,18 @@
 import axios from "axios";
-import { REFRESH_TOKEN_KEY, TOKEN_KEY } from "../authProvider";
-import api from "./openapi-config";
-import { Http2ServerResponse } from "http2";
+import { REFRESH_TOKEN_KEY } from "../authProvider";
+import {store} from "../store";
+import {API_URL} from "../utils/constants";
+import {JwtResponseDto} from "../../generated";
+import {clearAuth, setAccessToken} from "../store/auth";
 
 const axiosInstance = axios.create();
 
-// Add request interceptor to set Authorization header
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = store.getState().auth.accessToken;
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
-    console.log("Request:", config);
     return config;
   },
   (error) => {
@@ -21,10 +21,8 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Modify response interceptor to log successful responses
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log("Response Success:", response);
     return response;
   },
   async (error 
@@ -32,58 +30,40 @@ axiosInstance.interceptors.response.use(
     console.error("Response Error:", error);
     const originalRequest = error.config;
 
-    console.log("attempting to refresh token");
-    console.log("refresh token", localStorage.getItem(REFRESH_TOKEN_KEY));
-    console.log("error", error);
-    // Only attempt refresh if it's a 401 error, and we have a refresh token
     if (
       (error.response?.status === 401) || 
       (error.code === "ERR_NETWORK" && error.config?.headers?.Authorization)
     ) {
-      console.log("attempting to refresh token  2");
-      const refresh_token = localStorage.getItem(REFRESH_TOKEN_KEY);
+      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
 
-      if (refresh_token) {
+      if (refreshToken) {
         try {
-          // Mark the request as retried to prevent infinite loops
+          console.log("[Axios client] Refreshing access token...");
           originalRequest._retry = true;
 
-          // Attempt to refresh the token
-          const response = await api.refreshToken({ 
-            body : refresh_token
-          }); 
-          
-          console.log("refresh token response", response?.refreshToken);
+          const response = await fetch(`${API_URL}/auth/refresh-token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: refreshToken
+          });
 
-          if (response.accessToken && response.refreshToken) {
-            // Update tokens in localStorage
-            localStorage.setItem(TOKEN_KEY, response.accessToken);
-            localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+          if (response.ok) {
+            const { accessToken } = await response.json() as JwtResponseDto;
+            store.dispatch(setAccessToken(accessToken));
 
-            // Update the authorization header
-            originalRequest.headers[
-              "Authorization"
-            ] = `Bearer ${response.accessToken}`;
+            originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
 
-            // Retry the original request with new token
             return axiosInstance(originalRequest);
           }
         } catch (refreshError) {
-          // Handle refresh token failure
-          localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem(REFRESH_TOKEN_KEY);
-
-          // Redirect to login page
-          window.location.href = "/login";
+          store.dispatch(clearAuth());
+          window.location.href = '/login';
           return Promise.reject(refreshError);
         }
       }
-    }
-
-    // Handle other 401 errors (no refresh token)
-    if (error.response?.status === 401) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
     }
 
     return Promise.reject(error);

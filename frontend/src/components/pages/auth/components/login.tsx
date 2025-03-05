@@ -197,7 +197,11 @@ export const LoginPage: React.FC<LoginProps> = ({
         <Form<LoginFormTypes>
           layout="vertical"
           form={form}
-          onFinish={(values) => login({ ...values, ...mutationVariables })}
+          onFinish={(values) => {
+
+            login({ ...values, ...mutationVariables });
+
+          }}
           requiredMark={false}
           initialValues={{
             remember: false,

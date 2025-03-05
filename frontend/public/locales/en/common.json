@@ -190,15 +190,6 @@
         "show": "Show Brand"
       }
     },
-    "packs": {
-      "label": "Packs",
-      "titles": {
-        "create": "Create Pack",
-        "edit": "Edit Pack",
-        "list": "Packs",
-        "show": "Show Pack"
-      }
-    },
     "orders": {
       "label": "Orders",
       "titles": {

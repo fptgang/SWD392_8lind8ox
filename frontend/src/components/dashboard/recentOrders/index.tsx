@@ -22,7 +22,7 @@ export const RecentOrders: React.FC = () => {
     initialPageSize: 10,
     permanentFilter: [
       {
-        field: "status.text",
+        field: "status",
         operator: "eq",
         value: "Pending",
       },
