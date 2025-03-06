@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Popover,
   Badge,
@@ -10,6 +10,8 @@ import {
   List,
   Space,
   notification,
+  Modal,
+  Descriptions,
 } from "antd";
 import {
   NotificationOutlined,
@@ -18,24 +20,36 @@ import {
   CheckCircleOutlined,
   ArrowRightOutlined,
   BellOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { NotificationDto } from "../../../../generated";
-import { useList, useSubscription } from "@refinedev/core";
+import { useList, useSubscription, useUpdate } from "@refinedev/core";
 import { parseJwt } from "../../../utils/parse-jwt";
+import { store } from "../../../store";
 
 const { Text, Title } = Typography;
 
 interface NotificationItemProps {
   noti: NotificationDto;
 }
-
 const NotificationItem: React.FC<NotificationItemProps> = ({ noti }) => {
+  const { mutate } = useUpdate({
+    resource: "notifications",
+  });
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
   const handleMarkAsRead = () => {
     try {
       if (noti.notificationId) {
+        mutate({
+          id: noti.notificationId,
+          values: {
+            isRead: true,
+          },
+        });
       }
     } catch (error) {
       notification.error({
@@ -47,32 +61,101 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ noti }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="py-3 border-b border-gray-100"
-    >
-      <div className="flex items-start gap-3">
-        <div className="flex-1 min-w-0" onClick={handleMarkAsRead}>
-          <div className="flex items-center gap-2">
-            {!noti.isRead && <Badge dot status="processing" color="blue" />}
-            <Text strong={!noti.isRead} className="block truncate">
-              {noti.message}
-            </Text>
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className="py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={() => {
+          setShowDetailModal(true);
+          if (!noti.isRead) {
+            handleMarkAsRead();
+          }
+        }}
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              {!noti.isRead && <Badge dot status="processing" color="blue" />}
+              <Text strong={!noti.isRead} className="block truncate">
+                {noti.message}
+              </Text>
+            </div>
+            <Space className="mt-1" size="small">
+              <ClockCircleOutlined className="text-gray-400" />
+              <Text type="secondary" className="text-xs">
+                {noti.createdAt &&
+                  formatDistanceToNow(new Date(noti.createdAt), {
+                    addSuffix: true,
+                  })}
+              </Text>
+            </Space>
           </div>
-          <Space className="mt-1" size="small">
-            <ClockCircleOutlined className="text-gray-400" />
-            <Text type="secondary" className="text-xs">
-              {noti.createdAt &&
-                formatDistanceToNow(new Date(noti.createdAt), {
-                  addSuffix: true,
-                })}
-            </Text>
-          </Space>
+          {!noti.isRead && (
+            <CheckCircleOutlined className="text-gray-400 mt-1" />
+          )}
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      <Modal
+        title="Notification Details"
+        open={showDetailModal}
+        onCancel={() => setShowDetailModal(false)}
+        footer={[
+          <Button
+            key="close"
+            icon={<CloseCircleOutlined />}
+            onClick={() => setShowDetailModal(false)}
+          >
+            Close
+          </Button>,
+        ]}
+        width={600}
+        centered
+        destroyOnClose
+      >
+        <div className="p-4">
+          <Descriptions bordered column={1}>
+            <Descriptions.Item label="Message">
+              <Text strong className="text-base">
+                {noti.message}
+              </Text>
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Created At">
+              <Space>
+                <ClockCircleOutlined />
+                {noti.createdAt &&
+                  format(new Date(noti.createdAt), "MMM d, yyyy h:mm a")}
+              </Space>
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Last Updated">
+              <Space>
+                <ClockCircleOutlined />
+                {noti.updatedAt &&
+                  format(new Date(noti.updatedAt), "MMM d, yyyy h:mm a")}
+              </Space>
+            </Descriptions.Item>
+
+            {/* <Descriptions.Item label="Status">
+              <Tag color={noti.isRead ? "green" : "blue"} className="text-sm">
+                {noti.isRead ? "Read" : "Unread"}
+              </Tag>
+            </Descriptions.Item> */}
+          </Descriptions>
+
+          {noti.accountId && (
+            <div className="mt-4 text-right">
+              <Text type="secondary" className="text-xs">
+                Account ID: {noti.accountId}
+              </Text>
+            </div>
+          )}
+        </div>
+      </Modal>
+    </>
   );
 };
 
@@ -105,14 +188,21 @@ export const NotificationPopover: React.FC = () => {
   // These would typically come from a notifications context/hook
 
   const [pageSize, setPageSize] = React.useState(10);
-
-  const email = parseJwt(localStorage.getItem("refine-auth") ?? "")?.sub;
+  const token = store.getState().auth.accessToken;
+  const email = token ? parseJwt(token)?.sub : "";
+  console.log("Email", email);
 
   const { data, isLoading, isError, refetch } = useList<NotificationDto>({
     resource: "notifications",
     pagination: {
       pageSize,
     },
+    sorters: [
+      {
+        field: "createdAt",
+        order: "desc",
+      },
+    ],
   });
 
   useSubscription({
@@ -120,6 +210,10 @@ export const NotificationPopover: React.FC = () => {
     onLiveEvent: (event) => {
       console.log("New notification", event);
       refetch();
+    },
+    enabled: !!email,
+    params: {
+      token: token,
     },
   });
 
@@ -184,6 +278,8 @@ export const NotificationPopover: React.FC = () => {
     >
       <Badge
         size="default"
+        status="processing"
+        color="red"
         dot={notifications.filter((n) => !n.isRead).length > 0}
       >
         <Button

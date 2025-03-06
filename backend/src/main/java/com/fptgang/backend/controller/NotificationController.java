@@ -71,7 +71,7 @@ public class NotificationController implements NotificationsApi {
     @Override
     public ResponseEntity<NotificationDto> updateNotification(Long notificationId, NotificationDto notificationDto) {
         notificationDto.setNotificationId(notificationId); // Override notificationId
-
+        notificationDto.setAccountId(SecurityUtil.getCurrentUserId()); // Override accountId
         log.info("Updating notification " + notificationId);
         return ResponseEntity.ok(
                 notificationMapper.toDTO(

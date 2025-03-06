@@ -1,4 +1,9 @@
-import {Authenticated, CanAccess, I18nProvider, Refine} from "@refinedev/core";
+import {
+  Authenticated,
+  CanAccess,
+  I18nProvider,
+  Refine,
+} from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
@@ -82,6 +87,8 @@ import AccountLayout from "./pages/accounts/components/layout";
 import { AccountDtoRoleEnum } from "../generated";
 import { AdminHeader } from "./components/header";
 import CustomerProductShow from "./pages/customer/products/show";
+import { liveProvider } from "./providers/live-provider";
+import { stompClient } from "./utils/stompClient";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -109,12 +116,14 @@ function App() {
                   routerProvider={routerBindings}
                   i18nProvider={i18nProvider}
                   resources={getResources()}
+                  liveProvider={liveProvider(stompClient)}
                   options={{
                     syncWithLocation: true,
                     warnWhenUnsavedChanges: true,
                     useNewQueryKeys: true,
                     title: { text: "8lind8ox", icon: <AppIcon /> },
                     projectId: "HC85dn-RQLFdc-7emtiC",
+                    liveMode: "off",
                   }}
                 >
                   <Routes>
