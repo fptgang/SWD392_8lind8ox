@@ -67,19 +67,20 @@ public class SecurityConfig {
                     } else {
                         authorize
                                 .requestMatchers(
-                                        "/api/v1/auth/**",
-                                        "/swagger-ui/**",
-                                        "/v3/**",
-                                        "/swagger-ui.html",
-                                        "/api/v1/mail/**"
+//                                        "/api/v1/auth/**",
+//                                        "/swagger-ui/**",
+//                                        "/v3/**",
+//                                        "/swagger-ui.html",
+//                                        "/api/v1/mail/**"
+                                        "**"
                                 ).permitAll()
-                                .requestMatchers(HttpMethod.GET,
-                                        "/api/v1/brands/**",
-                                        "/api/v1/categories/**",
-                                        "/api/v1/blind-boxes/**",
-                                        "/api/v1/vnpay_ipn"
-
-                                ).permitAll()
+//                                .requestMatchers(HttpMethod.GET,
+//                                        "/api/v1/brands/**",
+//                                        "/api/v1/categories/**",
+//                                        "/api/v1/blind-boxes/**",
+//                                        "/api/v1/vnpay_ipn"
+//
+//                                ).permitAll()
                                 .anyRequest().authenticated();
                     }
                 })
