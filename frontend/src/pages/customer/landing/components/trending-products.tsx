@@ -2,13 +2,13 @@ import React from "react";
 import { Card, Typography, Row, Col, Button, Tag, Carousel, Spin } from "antd";
 import { ThunderboltOutlined, StarOutlined, ShoppingOutlined } from "@ant-design/icons";
 import { useList } from "@refinedev/core";
-import { BlindBoxDto } from "../../../../../generated";
+import { BlindBoxDto, StockKeepingUnitDto } from "../../../../../generated";
 import { useCart } from "../../../../hooks/useCart";
 
 const { Title, Text } = Typography;
 
 const TrendingProducts: React.FC = () => {
-  const { addItem } = useCart();
+  const { addToCart } = useCart();
   const { data, isLoading, isError } = useList<BlindBoxDto>({
     resource: "blind-boxes",   
     pagination: {
@@ -16,18 +16,52 @@ const TrendingProducts: React.FC = () => {
     },
     sorters: [
       {
-        field: "currentPrice",
-        order: "asc"
+        field: "createdAt",
+        order: "desc"
       }
-    ]
+    ],
+    meta: {
+      include: ["skus", "images", "blindBoxCampaigns"]
+    }
   });
 
+  // Helper function to calculate the current price
+  const calculateCurrentPrice = (product: BlindBoxDto): number => {
+    if (!product.skus || product.skus.length === 0) return 0;
+    
+    // Get the first SKU's price as base price
+    const basePrice = product.skus[0].price || 0;
+    
+    // Check if there's an active campaign
+    const hasActiveCampaign = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
+    if (!hasActiveCampaign) return basePrice;
+    
+    // Since we can't access discountRate directly, return base price
+    return basePrice;
+  };
+
   const handleAddToCart = (product: BlindBoxDto) => {
-    addItem({
-      id: (product.blindBoxId || '').toString(),
+    if (!product.skus || product.skus.length === 0) return;
+    
+    const sku = product.skus[0];
+    const currentPrice = calculateCurrentPrice(product);
+    
+    // Find active campaign if exists
+    const hasActiveCampaign = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
+    const activePromotionalCampaign = hasActiveCampaign && product.blindBoxCampaigns[0]
+      ? product.blindBoxCampaigns[0].promotionalCampaignId
+      : undefined;
+    
+    addToCart({
+      skuId: sku.skuId || 0,
       name: product.name || '',
-      price: product.currentPrice || 0,
-      image: 'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg',
+      price: currentPrice,
+      originalPrice: sku.price || 0,
+      checkoutPrice: currentPrice,
+      stock: sku.stock || 0,
+      imageUrl: product.images?.[0]?.imageUrl || 'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg',
+      blindBoxId: product.blindBoxId || 0,
+      promotionalCampaignId: activePromotionalCampaign,
     });
   };
 
@@ -60,42 +94,61 @@ const TrendingProducts: React.FC = () => {
       </div>
 
       <Row gutter={[16, 16]}>
-        {data?.data?.map((product: BlindBoxDto) => (
-          <Col xs={12} sm={12} md={6} key={product.blindBoxId}>
-            <Card
-              hoverable
-              className="relative overflow-hidden"
-              cover={
-                <div className="relative pt-[100%] overflow-hidden group">
-                  <img
-                    alt={product.name}
-                    src={'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg'}
-                    className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                </div>
-              }
-            >
-              <Card.Meta
-                title={product.name}
-                description={
-                  <div className="space-y-2">
-                    <Text className="text-lg font-semibold">
-                      ${product.currentPrice}
-                    </Text>
-                    <Button
-                      type="primary"
-                      icon={<ShoppingOutlined />}
-                      block
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      Add to Cart
-                    </Button>
+        {data?.data?.map((product: BlindBoxDto) => {
+          const currentPrice = calculateCurrentPrice(product);
+          const hasDiscount = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
+          const originalPrice = product.skus?.[0]?.price || 0;
+          
+          return (
+            <Col xs={12} sm={12} md={6} key={product.blindBoxId}>
+              <Card
+                hoverable
+                className="relative overflow-hidden"
+                cover={
+                  <div className="relative pt-[100%] overflow-hidden group">
+                    <img
+                      alt={product.name}
+                      src={product.images?.[0]?.imageUrl || 'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg'}
+                      className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    {hasDiscount && (
+                      <Tag color="red" className="absolute top-2 right-2">
+                        ON SALE
+                      </Tag>
+                    )}
                   </div>
                 }
-              />
-            </Card>
-          </Col>
-        ))}
+              >
+                <Card.Meta
+                  title={product.name}
+                  description={
+                    <div className="space-y-2">
+                      <div>
+                        <Text className="text-lg font-semibold">
+                          ${currentPrice.toFixed(2)}
+                        </Text>
+                        {hasDiscount && (
+                          <Text delete className="ml-2 text-gray-400">
+                            ${originalPrice.toFixed(2)}
+                          </Text>
+                        )}
+                      </div>
+                      <Button
+                        type="primary"
+                        icon={<ShoppingOutlined />}
+                        block
+                        onClick={() => handleAddToCart(product)}
+                        disabled={!product.skus || product.skus.length === 0 || !product.skus[0].stock}
+                      >
+                        Add to Cart
+                      </Button>
+                    </div>
+                  }
+                />
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );

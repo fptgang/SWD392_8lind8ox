@@ -75,9 +75,9 @@ public class ListParams {
         if (search != null && !search.isEmpty()) {
             spec = spec.and(OpenApiHelper.searchToSpec(search));
         }
-        if (!includeInvisible) {
-            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-        }
+//        if (!includeInvisible) {
+//            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
+//        }
         return spec;
     }
 }

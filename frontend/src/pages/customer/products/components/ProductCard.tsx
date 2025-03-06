@@ -1,16 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, Typography, Space, Badge, Divider, Button, theme } from "antd";
-import { ShoppingOutlined } from "@ant-design/icons";
-import { ProductCardProps } from "./types";
+import { ShoppingOutlined, InboxOutlined } from "@ant-design/icons";
+import { BlindBoxDto, StockKeepingUnitDto } from "../../../../../generated";
+import { SkuCardProps } from "./types";
 
 const { Title, Text } = Typography;
 const { useToken } = theme;
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard: React.FC<SkuCardProps> = ({
   blindBox,
+  sku,
   onCardClick,
+  onAddToCart,
 }) => {
   const { token } = useToken();
+  const [imgError, setImgError] = useState(false);
+  
+  const hasActiveCampaign = blindBox.blindBoxCampaigns && blindBox.blindBoxCampaigns.length > 0;
+  
+  // Safely get image URL if it exists
+  const imageUrl = blindBox.images?.[0]?.imageUrl || "";
 
   return (
     <Card
@@ -21,46 +30,71 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         borderRadius: token.borderRadiusLG,
       }}
       cover={
-        <div className="relative pt-[100%] overflow-hidden cursor-pointer">
-          <img
-            alt={blindBox.name}
-            src={blindBox.images?.[0]?.imageUrl || "/api/placeholder/400/400"}
-            className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-          />
-          {blindBox.promotionalCampaignId && (
+        <div 
+          className="relative pt-[100%] overflow-hidden cursor-pointer"
+          onClick={() => onCardClick(blindBox.blindBoxId!)}
+        >
+          {!imageUrl || imgError ? (
+            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-100">
+              <InboxOutlined style={{ fontSize: '3rem', color: token.colorTextSecondary }} />
+            </div>
+          ) : (
+            <img
+              alt={`${blindBox.name || "Product"} - ${sku.name || ""}`}
+              src={imageUrl}
+              className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+              onError={() => {
+                setImgError(true);
+              }}
+            />
+          )}
+          {hasActiveCampaign && (
             <Badge.Ribbon text="ON SALE" color={token.colorPrimary} />
           )}
         </div>
       }
-      onClick={() => onCardClick(blindBox.blindBoxId!)}
     >
       <Space direction="vertical" className="w-full">
-        <Title level={5} className="mb-0">
-          {blindBox.name}
-        </Title>
-        <Text type="secondary" className="line-clamp-2">
-          {blindBox.description}
-        </Text>
+        <div>
+          <Title 
+            level={5} 
+            className="mb-0 cursor-pointer" 
+            onClick={() => onCardClick(blindBox.blindBoxId!)}
+          >
+            {blindBox.name || "Unnamed Product"}
+          </Title>
+          <Text strong className="block mt-1 text-primary">
+            {sku.name || "Standard"}
+          </Text>
+        </div>
+
+        <div className="flex justify-between items-center mt-2">
+          <Text type="success" strong className="text-lg">
+            ${(sku.price || 0).toFixed(2)}
+          </Text>
+          <Badge
+            count={sku.stock || 0}
+            showZero
+            color={sku.stock ? "green" : "red"}
+          />
+        </div>
+
         <Divider className="my-2" />
-        {blindBox.skus?.map((sku) => (
-          <div key={sku.skuId} className="p-2 rounded border">
-            <Space direction="vertical" className="w-full">
-              <div className="flex justify-between items-center">
-                <Text strong>{sku.name}</Text>
-                <Badge
-                  count={sku.stock}
-                  showZero
-                  color={sku.stock ? "green" : "red"}
-                />
-              </div>
-              <div className="flex justify-between items-center">
-                <Text type="success" strong>
-                  ${sku.price?.toFixed(2)}
-                </Text>
-              </div>
-            </Space>
-          </div>
-        ))}
+        
+        <div className="mt-auto">
+          <Button
+            type="primary"
+            icon={<ShoppingOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart(blindBox, sku);
+            }}
+            disabled={!sku.stock || sku.stock <= 0}
+            block
+          >
+            {!sku.stock || sku.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+          </Button>
+        </div>
       </Space>
     </Card>
   );

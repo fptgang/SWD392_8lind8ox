@@ -1,72 +1,88 @@
 // components/steps/VoucherStep.tsx
 import React, { useState } from "react";
-import { Button, Form, Input, Typography, Space } from "antd";
-import { FormInstance } from "antd/lib";
-import { VoucherDto } from "../../../../../generated";
-import { StepBaseProps } from "../../../../types";
+import { Button, Form, Input, Space, Typography, message } from "antd";
+import { FormInstance } from "antd/lib/form";
+import { StepBaseProps } from "../../types";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
-interface VoucherStepProps extends StepBaseProps {
+export interface VoucherStepProps {
   form: FormInstance;
-  onVoucherUpdate: (voucher: VoucherDto) => Promise<void>;
+  onVoucherUpdate: (code: string) => Promise<void>;
+  onNext?: () => true | Promise<{}> | void | Promise<any>;
+  onPrevious?: () => true | Promise<{}> | void | Promise<any>;
 }
 
 export const VoucherStep: React.FC<VoucherStepProps> = ({
   form,
   onVoucherUpdate,
-  onPrevious,
   onNext,
+  onPrevious,
 }) => {
-  const [loading, setLoading] = useState(false);
+  const [voucherCode, setVoucherCode] = useState<string>("");
+  const [isValidating, setIsValidating] = useState<boolean>(false);
 
-  const handleVoucherValidation = async () => {
-    try {
-      setLoading(true);
-      const values = await form.validateFields(["voucherCode"]);
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVoucherCode(e.target.value);
+  };
 
-      // Mock voucher validation - replace with actual API call
-      if (values.voucherCode) {
-        await onVoucherUpdate({
-          code: values.voucherCode,
-          discountRate: 10,
-          limitAmount: 50,
-          isUsed: false,
-        });
-      }
-
-      onNext?.();
-    } catch (error) {
-      // Form validation error handled by Ant Design
-    } finally {
-      setLoading(false);
+  const handleApplyVoucher = async () => {
+    if (!voucherCode.trim()) {
+      message.warning("Please enter a voucher code");
+      return;
     }
+
+    setIsValidating(true);
+    try {
+      await onVoucherUpdate(voucherCode);
+      form.setFieldsValue({ voucherCode });
+      message.success("Voucher applied successfully!");
+    } catch (error) {
+      message.error("Invalid or expired voucher code");
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const handleContinue = () => {
+    // Continue to next step even if no voucher is applied
+    onNext?.();
   };
 
   return (
     <div className="space-y-6">
-      <Title level={4}>Apply Voucher</Title>
-      <Form.Item
-        name="voucherCode"
-        label="Voucher Code"
-        className="max-w-md"
-        rules={[
-          {
-            pattern: /^[A-Za-z0-9]{6,}$/,
-            message: "Please enter a valid voucher code",
-          },
-        ]}
-      >
-        <Input placeholder="Enter voucher code (optional)" />
-      </Form.Item>
-      <Space className="flex justify-between">
-        <Button onClick={onPrevious}>Back to Cart</Button>
+      <Title level={4}>Apply Voucher (Optional)</Title>
+      <Text className="text-gray-600 block mb-6">
+        If you have a promotional code, enter it below to receive a discount on your order.
+      </Text>
+
+      <div className="flex items-end space-x-2 mb-8">
+        <Form.Item
+          className="flex-grow mb-0"
+          name="voucherCode"
+          label="Voucher Code"
+        >
+          <Input
+            placeholder="Enter voucher code"
+            onChange={handleCodeChange}
+            value={voucherCode}
+            disabled={isValidating}
+          />
+        </Form.Item>
         <Button
           type="primary"
-          onClick={handleVoucherValidation}
-          loading={loading}
+          onClick={handleApplyVoucher}
+          loading={isValidating}
+          className="mb-0"
         >
-          Proceed to Shipping
+          Apply
+        </Button>
+      </div>
+
+      <Space className="flex justify-between mt-8">
+        <Button onClick={onPrevious}>Back to Cart</Button>
+        <Button type="primary" onClick={handleContinue}>
+          Continue to Shipping
         </Button>
       </Space>
     </div>

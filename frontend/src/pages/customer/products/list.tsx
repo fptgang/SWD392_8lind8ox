@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   useGo,
   useList,
   CrudOperators,
   CrudSorting,
+  CrudFilters,
   useOne,
 } from "@refinedev/core";
 import { List, useTable } from "@refinedev/antd";
@@ -17,11 +18,25 @@ import {
 } from "../../../../generated";
 import { FilterSidebar } from "./components/FilterSidebar";
 import { ProductCard } from "./components/ProductCard";
+import { SkuCardProps } from "./components/types";
 import { useCart } from "../../../hooks/useCart";
+
+interface SearchFormValues {
+  search?: string;
+  brandIds?: number[];
+  inStock?: boolean;
+  onSale?: boolean;
+}
+
+// Interface to represent a SKU with its parent blind box data
+interface SkuWithParent {
+  sku: StockKeepingUnitDto;
+  blindBox: BlindBoxDto;
+}
 
 const CustomerProducts: React.FC = () => {
   const go = useGo();
-  const { addItem } = useCart();
+  const { addToCart } = useCart();
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [selectedSort, setSelectedSort] = useState("createdAt:desc");
@@ -30,14 +45,15 @@ const CustomerProducts: React.FC = () => {
     useTable<BlindBoxDto>({
       syncWithLocation: true,
       resource: "blind-boxes",
-      onSearch: (values) => {
-        const filters = [];
+      onSearch: (data): CrudFilters => {
+        const values = data as SearchFormValues;
+        const filters: CrudFilters = [];
         const { search, brandIds, inStock, onSale } = values;
 
         if (search) {
           filters.push({
             field: "search",
-            operator: "contains" as CrudOperators,
+            operator: "contains",
             value: search,
           });
         }
@@ -45,7 +61,7 @@ const CustomerProducts: React.FC = () => {
         if (brandIds?.length) {
           filters.push({
             field: "brand.brandId",
-            operator: "in" as CrudOperators,
+            operator: "in",
             value: brandIds,
           });
         }
@@ -53,7 +69,7 @@ const CustomerProducts: React.FC = () => {
         if (priceRange[0] > 0 || priceRange[1] < 1000) {
           filters.push({
             field: "skus.price",
-            operator: "between" as CrudOperators,
+            operator: "between",
             value: priceRange,
           });
         }
@@ -61,15 +77,15 @@ const CustomerProducts: React.FC = () => {
         if (inStock) {
           filters.push({
             field: "skus.stock",
-            operator: "gt" as CrudOperators,
+            operator: "gt",
             value: 0,
           });
         }
 
         if (onSale) {
           filters.push({
-            field: "promotionalCampaignId",
-            operator: "isNotNull" as CrudOperators,
+            field: "blindBoxCampaigns",
+            operator: "nnull", 
             value: true,
           });
         }
@@ -85,7 +101,7 @@ const CustomerProducts: React.FC = () => {
         ],
       },
       meta: {
-        include: ["skus", "images", "promotionalCampaign"],
+        include: ["skus", "images", "blindBoxCampaigns"],
       },
     });
 
@@ -107,27 +123,65 @@ const CustomerProducts: React.FC = () => {
   };
 
   const handleAddToCart = (blindBox: BlindBoxDto, sku: StockKeepingUnitDto) => {
-    const price = blindBox.promotionalCampaignId
-      ? sku.price * (1 - (blindBox.promotionalCampaign?.discountRate || 0))
-      : sku.price;
+    // Find active campaign if exists
+    const hasActiveCampaign = blindBox.blindBoxCampaigns && blindBox.blindBoxCampaigns.length > 0;
+    const activePromotionalCampaign = hasActiveCampaign && blindBox.blindBoxCampaigns && blindBox.blindBoxCampaigns[0]
+      ? blindBox.blindBoxCampaigns[0].promotionalCampaignId
+      : undefined;
+    
+    // Calculate price with possible discount
+    const skuPrice = sku.price || 0;
+    // We can't directly access discountRate, so using base price
+    const campaignDiscount = 0;
+    
+    const price = skuPrice;
 
-    addItem({
-      skuId: sku.skuId,
-      name: `${blindBox.name} - ${sku.name}`,
+    // Safely get image URL if it exists
+    const imageUrl = blindBox.images?.[0]?.imageUrl || "";
+
+    addToCart({
+      skuId: sku.skuId || 0,
+      name: `${blindBox.name || ''} - ${sku.name || ''}`,
       price: price,
-      originalPrice: sku.price,
+      originalPrice: skuPrice,
       checkoutPrice: price,
-      stock: sku.stock,
-      imageId: blindBox.images?.[0]?.imageId,
-      blindBoxId: blindBox.blindBoxId,
-      promotionalCampaignId: blindBox.promotionalCampaignId,
+      stock: sku.stock || 0,
+      imageUrl: imageUrl,
+      blindBoxId: blindBox.blindBoxId || 0,
+      promotionalCampaignId: activePromotionalCampaign,
     });
 
     notification.success({
       message: "Added to Cart",
-      description: `${blindBox.name} - ${sku.name} has been added to your cart.`,
+      description: `${blindBox.name || ''} - ${sku.name || ''} has been added to your cart.`,
     });
   };
+
+  // Extract all SKUs from all blind boxes and pair them with their parent
+  const skusWithParents = useMemo(() => {
+    const result: SkuWithParent[] = [];
+    
+    tableProps.dataSource?.forEach(blindBox => {
+      const typedBlindBox = blindBox as BlindBoxDto;
+      
+      // Skip invalid blind boxes
+      if (!typedBlindBox || !typedBlindBox.blindBoxId) {
+        return;
+      }
+      
+      // Add each SKU with its parent blind box
+      typedBlindBox.skus?.forEach(sku => {
+        if (sku && sku.skuId) {
+          result.push({
+            sku,
+            blindBox: typedBlindBox
+          });
+        }
+      });
+    });
+    
+    return result;
+  }, [tableProps.dataSource]);
 
   return (
     <List>
@@ -180,25 +234,23 @@ const CustomerProducts: React.FC = () => {
             <div className="flex justify-center items-center min-h-[400px]">
               <Spin size="large" />
             </div>
-          ) : !tableProps.dataSource?.length ? (
+          ) : !skusWithParents.length ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description="No products found"
             />
           ) : (
             <Row gutter={[16, 16]}>
-              {tableProps.dataSource?.map((blindBox) => {
-                const typedBlindBox = blindBox as BlindBoxDto;
-                return (
-                  <Col xs={24} sm={12} lg={8} key={typedBlindBox.blindBoxId}>
-                    <ProductCard
-                      blindBox={typedBlindBox}
-                      onCardClick={handleCardClick}
-                      onAddToCart={handleAddToCart}
-                    />
-                  </Col>
-                );
-              })}
+              {skusWithParents.map(({ blindBox, sku }) => (
+                <Col xs={24} sm={12} lg={8} key={`${blindBox.blindBoxId}-${sku.skuId}`}>
+                  <ProductCard
+                    blindBox={blindBox}
+                    sku={sku}
+                    onCardClick={handleCardClick}
+                    onAddToCart={handleAddToCart}
+                  />
+                </Col>
+              ))}
             </Row>
           )}
         </Col>

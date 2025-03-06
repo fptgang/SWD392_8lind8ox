@@ -1,0 +1,181 @@
+/* Product Description Styles */
+.product-details-section {
+  margin-top: 32px;
+}
+
+.product-details-section .ant-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.product-details-section .ant-card-body {
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .product-details-section .ant-card-body {
+    padding: 16px;
+  }
+  
+  .product-details-section {
+    margin-top: 24px;
+  }
+}
+
+.product-description-container {
+  margin-top: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.product-description-container .ant-card-body {
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .product-description-container .ant-card-body {
+    padding: 16px;
+  }
+}
+
+.product-description,
+.brand-description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.85);
+  margin-top: 16px;
+}
+
+/* Style for paragraphs in the description */
+.product-description p,
+.brand-description p {
+  margin-bottom: 16px;
+}
+
+/* Style for headings in the description */
+.product-description h1,
+.product-description h2,
+.product-description h3,
+.product-description h4,
+.product-description h5,
+.product-description h6,
+.brand-description h1,
+.brand-description h2,
+.brand-description h3,
+.brand-description h4,
+.brand-description h5,
+.brand-description h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.product-description h1,
+.brand-description h1 {
+  font-size: 2em;
+}
+
+.product-description h2,
+.brand-description h2 {
+  font-size: 1.5em;
+}
+
+.product-description h3,
+.brand-description h3 {
+  font-size: 1.25em;
+}
+
+/* Style for lists in the description */
+.product-description ul,
+.product-description ol,
+.brand-description ul,
+.brand-description ol {
+  padding-left: 2em;
+  margin-bottom: 16px;
+}
+
+.product-description li,
+.brand-description li {
+  margin-bottom: 4px;
+}
+
+/* Style for links in the description */
+.product-description a,
+.brand-description a {
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.product-description a:hover,
+.brand-description a:hover {
+  text-decoration: underline;
+}
+
+/* Style for images in the description */
+.product-description img,
+.brand-description img {
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+  border-radius: 4px;
+}
+
+/* Style for blockquotes in the description */
+.product-description blockquote,
+.brand-description blockquote {
+  padding: 0 1em;
+  color: rgba(0, 0, 0, 0.65);
+  border-left: 4px solid #f0f0f0;
+  margin: 16px 0;
+}
+
+/* Style for code blocks in the description */
+.product-description pre,
+.brand-description pre {
+  background-color: #f6f8fa;
+  border-radius: 4px;
+  padding: 16px;
+  overflow: auto;
+  margin: 16px 0;
+}
+
+.product-description code,
+.brand-description code {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+}
+
+/* Style for tables in the description */
+.product-description table,
+.brand-description table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+}
+
+.product-description th,
+.product-description td,
+.brand-description th,
+.brand-description td {
+  border: 1px solid #f0f0f0;
+  padding: 8px 16px;
+  text-align: left;
+}
+
+.product-description th,
+.brand-description th {
+  background-color: #fafafa;
+  font-weight: 500;
+}
+
+/* Style for horizontal rules in the description */
+.product-description hr,
+.brand-description hr {
+  height: 1px;
+  background-color: #f0f0f0;
+  border: none;
+  margin: 24px 0;
+} 

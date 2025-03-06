@@ -4,17 +4,28 @@ import {
   addItem,
   removeItem,
   clearCart,
+  cleanInvalidItems,
   updateQuantity,
   setShippingInfo,
   setVoucher,
   CartItem,
   ShippingInfo,
   Voucher,
+  setLoading,
+  setError,
 } from "../store/features/cart/cartSlice";
 import { ShippingInfoDto, VoucherDto } from "../../generated";
+import { useApiContext } from "../contexts/api-context";
+
+interface PlaceOrderParams {
+  shippingInfo: ShippingInfoDto;
+  paymentMethod: string;
+  voucherCode?: string;
+}
 
 export const useCart = () => {
   const dispatch = useDispatch();
+  const apiContext = useApiContext();
   const {
     items: cartItems,
     total,
@@ -90,6 +101,17 @@ export const useCart = () => {
   };
 
   /**
+   * Clean invalid items from the cart
+   */
+  const removeInvalidItems = () => {
+    try {
+      dispatch(cleanInvalidItems());
+    } catch (error) {
+      console.error("Error cleaning invalid items:", error);
+    }
+  };
+
+  /**
    * Update shipping information
    * @param info Shipping information DTO
    */
@@ -100,6 +122,7 @@ export const useCart = () => {
       }
 
       const shippingInfo: ShippingInfo = {
+        shippingInfoId: info.shippingInfoId,
         address: info.address,
         ward: info.ward || "",
         district: info.district || "",
@@ -116,23 +139,88 @@ export const useCart = () => {
 
   /**
    * Update voucher information
-   * @param voucherInfo Voucher DTO
+   * @param voucherInfo Voucher information or voucher code
    */
-  const updateVoucher = (voucherInfo: VoucherDto | undefined) => {
+  const updateVoucher = (voucherInfo: VoucherDto | string) => {
     try {
-      if (voucherInfo) {
-        const voucher: Voucher = {
-          code: voucherInfo.code || "",
+      let voucher: Voucher;
+      
+      if (typeof voucherInfo === 'string') {
+        // If a string is passed, assume it's a voucher code and create a default voucher
+        voucher = {
+          code: voucherInfo,
+          discountRate: 10, // Default discount rate
+          limitAmount: 50,  // Default limit amount
+        };
+      } else {
+        // Otherwise use the voucher info directly
+        voucher = {
+          voucherId: voucherInfo.voucherId,
+          code: voucherInfo.code,
           discountRate: voucherInfo.discountRate || 0,
           limitAmount: voucherInfo.limitAmount || 0,
           isUsed: voucherInfo.isUsed,
         };
-        dispatch(setVoucher(voucher));
-      } else {
-        dispatch(setVoucher(undefined));
       }
+
+      dispatch(setVoucher(voucher));
+      return voucher;
     } catch (error) {
       console.error("Error updating voucher:", error);
+    }
+  };
+
+  /**
+   * Place an order with the current cart items
+   * @param params Order parameters including shipping and payment info
+   */
+  const placeOrder = async (params: PlaceOrderParams): Promise<void> => {
+    if (cartItems.length === 0) {
+      throw new Error("Cart is empty");
+    }
+    
+    if (!params.shippingInfo || !params.paymentMethod) {
+      throw new Error("Missing required order information");
+    }
+    
+    dispatch(setLoading(true));
+    dispatch(setError(null));
+    
+    try {
+      const { finalTotal, voucherDiscount } = getCartSummary();
+      
+      // Construct order payload
+      const orderPayload = {
+        items: cartItems.map(item => ({
+          skuId: item.skuId,
+          quantity: item.quantity,
+          price: item.checkoutPrice
+        })),
+        shippingInfo: params.shippingInfo,
+        paymentMethod: params.paymentMethod,
+        ...(params.voucherCode ? { voucherCode: params.voucherCode } : {}),
+        total: finalTotal,
+        discount: voucherDiscount
+      };
+      
+      // Post order to API
+      await apiContext.post('/orders', orderPayload);
+      
+      // If order was successful, clear the cart
+      if (params.paymentMethod === 'wallet') {
+        // For wallet payments, clear cart immediately as payment is already processed
+        dispatch(clearCart());
+      }
+      
+      // For external payments, cart will be cleared after successful payment callback
+      
+      return Promise.resolve();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Failed to place order";
+      dispatch(setError(errorMessage));
+      return Promise.reject(new Error(errorMessage));
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -172,8 +260,10 @@ export const useCart = () => {
     updateItemQuantity,
     removeFromCart,
     emptyCart,
+    removeInvalidItems,
     updateShippingInfo,
     updateVoucher,
+    placeOrder,
 
     // Utilities
     getCartSummary,

@@ -6,7 +6,6 @@ import {
   ShopOutlined,
   TagOutlined,
   InboxOutlined,
-  InfoCircleOutlined,
 } from "@ant-design/icons";
 import {
   BlindBoxDto,
@@ -15,7 +14,7 @@ import {
 } from "../../../../../generated";
 import { SkuSelector } from "./product-images";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 interface ProductInfoProps {
   product: BlindBoxDto;
@@ -102,26 +101,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
             ? "Out of Stock"
             : "Add to Cart"}
         </Button>
-
-        {(product.description || brand?.description) && (
-          <>
-            <Divider orientation="left" className="my-4">
-              <InfoCircleOutlined /> Product Information
-            </Divider>
-            {product.description && (
-              <div className="mb-4">
-                <Text strong>Description</Text>
-                <Paragraph className="mt-2">{product.description}</Paragraph>
-              </div>
-            )}
-            {brand?.description && (
-              <div>
-                <Text strong>About the Brand</Text>
-                <Paragraph className="mt-2">{brand.description}</Paragraph>
-              </div>
-            )}
-          </>
-        )}
       </Space>
     </Card>
   );

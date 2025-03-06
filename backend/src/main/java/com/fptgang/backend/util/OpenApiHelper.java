@@ -143,7 +143,7 @@ public class OpenApiHelper {
         return filterMap;
     }
 
-    public static <T> Specification<T> filtersToSpec(Map<String, String[]> filters) {
+    public static <T> Specification<T>  filtersToSpec(Map<String, String[]> filters) {
         //noinspection unchecked
         Specification<T>[] specs = new Specification[filters.size()];
         int i = 0;
