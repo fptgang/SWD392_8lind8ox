@@ -6,6 +6,8 @@ import { CartPopover } from "./CartPopover";
 import { UserMenu } from "./UserMenu";
 import { Logo } from "./Logo";
 import { useTheme } from "antd-style";
+import { BellOutlined } from "@ant-design/icons";
+import NotificationPopover from "./NotificationPopover";
 
 const { Header } = Layout;
 
@@ -22,6 +24,7 @@ const CustomerHeader: React.FC = () => {
           <Logo />
           <Navigation />
           <div className="flex items-center space-x-4">
+            <NotificationPopover />
             <CartPopover />
             <UserMenu isAuthenticated={isAuthenticated?.authenticated} />
           </div>

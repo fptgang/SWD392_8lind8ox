@@ -1,15 +1,47 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { BaseRecord, useMany } from "@refinedev/core";
-import { useTable, List, EditButton, ShowButton, DeleteButton, TagField, EmailField, DateField, FilterDropdown } from "@refinedev/antd";
-import { Table, Space, Select, Badge, Tooltip, Typography, Tag, Input } from "antd";
-import { UserOutlined, DollarOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import {
+  useTable,
+  List,
+  EditButton,
+  ShowButton,
+  DeleteButton,
+  TagField,
+  EmailField,
+  DateField,
+  FilterDropdown,
+} from "@refinedev/antd";
+import {
+  Table,
+  Space,
+  Select,
+  Badge,
+  Tooltip,
+  Typography,
+  Tag,
+  Input,
+  Button,
+} from "antd";
+import {
+  UserOutlined,
+  DollarOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  EyeOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import { ROLE_COLOR_MAP } from "../../utils/constants";
 import { AccountDto } from "../../../generated/models/AccountDto";
 import { formatCurrency } from "../../utils/currency-formatter";
+import { ShowAccountsShowDrawer } from "./components/ShowAccountDrawer";
+import { EditAccountsDrawer } from "./components/EditAccountDrawer";
 
 const { Text } = Typography;
 
 export const AccountsList: React.FC = () => {
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [editDrawer, setEditDrawer] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>();
   const { tableProps, setFilters } = useTable<AccountDto>({
     syncWithLocation: true,
     sorters: {
@@ -33,15 +65,14 @@ export const AccountsList: React.FC = () => {
           value: undefined,
         },
         {
-          field:"search",
+          field: "search",
           operator: "contains",
           value: undefined,
-        }
+        },
       ],
     },
   });
 
- 
   const getVerificationStatus = (isVerified: boolean | null) => {
     return isVerified ? (
       <Badge status="success" text="Verified" />
@@ -50,186 +81,209 @@ export const AccountsList: React.FC = () => {
     );
   };
 
-
-
   const formatBalance = (balance: number) => {
     return formatCurrency(balance);
   };
 
   return (
-    <List>
-       <div className="mb-6">
-        <Input.Search
-          placeholder="Search accounts..."
-          className="max-w-md"
-          allowClear
-          onSearch={(value) => {
-            // Use the destructured setFilters
-            setFilters([
-              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
-              {
-                field: "search",
-                operator: "contains",
-                value: value || undefined,
-              }
-            ]);
-          }}
-        />
-      </div>
+    <>
+      <List>
+        <div className="mb-6">
+          <Input.Search
+            placeholder="Search accounts..."
+            className="max-w-md"
+            allowClear
+            onSearch={(value) => {
+              // Use the destructured setFilters
+              setFilters([
+                ...(tableProps.filters?.filter(
+                  (filter) => filter.field !== "search"
+                ) || []),
+                {
+                  field: "search",
+                  operator: "contains",
+                  value: value || undefined,
+                },
+              ]);
+            }}
+          />
+        </div>
 
-      <Table
-        {...tableProps}
-        rowKey="id"
-        className="overflow-x-auto"
-        scroll={{ x: true }}
-      >
-        
-        <Table.Column
-          dataIndex={["accountId"]}
-          title={
-            <Tooltip title="Unique identifier for the account">
-              <Space>
-                <UserOutlined />
-                <span>Account ID</span>
-              </Space>
-            </Tooltip>
-          }
-          sorter
-          className="font-medium"
-        />
-
-        <Table.Column
-          dataIndex={["email"]}
-          title="Email"
-          render={(value: string) => (
-            <EmailField value={value} className="text-blue-600" />
-          )}
-          sorter
-        />
-
-        <Table.Column
-          title="Name"
-          render={(_, record: AccountDto) => (
-            <Text>
-              {record.firstName} {record.lastName}
-            </Text>
-          )}
-          sorter={(a: AccountDto, b: AccountDto) =>
-            `${a.firstName} ${a.lastName}`.localeCompare(
-              `${b.firstName} ${b.lastName}`
-            )
-          }
-        />
-
-        <Table.Column
-          dataIndex="balance"
-          title={
-            <Tooltip title="Current account balance">
-              <Space>
-                <DollarOutlined />
-                <span>Balance</span>
-              </Space>
-            </Tooltip>
-          }
-          render={(value: number) => (
-            <Text className={value < 0 ? "text-red-500" : "text-green-500"}>
-              {formatBalance(value)}
-            </Text>
-          )}
-          sorter
-        />
-
-        <Table.Column
-          dataIndex="role"
-          title="Role"
-          filterMode="menu"
-          filters={[
-            { text: "Admin", value: "ADMIN" },
-            { text: "Freelancer", value: "FREELANCER" },
-            { text: "Staff", value: "STAFF" },
-            { text: "Client", value: "CLIENT" },
-          ]}
-          filterMultiple={false}
-          render={(value: keyof typeof ROLE_COLOR_MAP) => (
-            <Tag
-              color={ROLE_COLOR_MAP[value] || "default"}
-              className="capitalize"
-            >
-              {value}
-            </Tag>
-          )}
-        />
-
-        <Table.Column
-          dataIndex="isVerified"
-          title={
-            <Tooltip title="Account verification status">
-              <Space>
-                <CheckCircleOutlined />
-                <span>Status</span>
-              </Space>
-            </Tooltip>
-          }
-          render={(value: boolean) => getVerificationStatus(value)}
-          filters={[
-            { text: "Verified", value: true },
-            { text: "Pending", value: false },
-          ]}
-          filterMultiple={false}
-        />
-
-        <Table.Column
-          dataIndex="createdAt"
-          title={
-            <Space>
-              <ClockCircleOutlined />
-              <span>Created</span>
-            </Space>
-          }
-          render={(value: string) => (
-            <DateField value={value} format="MMMM DD, YYYY" />
-          )}
-          sorter
-          defaultSortOrder="descend"
-        />
-
-        <Table.Column
-          title="Actions"
-          fixed="right"
-          render={(_, record: AccountDto) => (
-            <Space size="middle">
-              <Tooltip title="Edit Account">
-                <EditButton
-                  hideText
-                  size="small"
-                  recordItemId={record.accountId}
-                  className="text-blue-600 hover:text-blue-700"
-                />
+        <Table
+          {...tableProps}
+          rowKey="id"
+          className="overflow-x-auto"
+          scroll={{ x: true }}
+        >
+          <Table.Column
+            dataIndex={["accountId"]}
+            title={
+              <Tooltip title="Unique identifier for the account">
+                <Space>
+                  <UserOutlined />
+                  <span>Account ID</span>
+                </Space>
               </Tooltip>
-              <Tooltip title="View Details">
-                <ShowButton
-                  hideText
-                  size="small"
-                  recordItemId={record.accountId}
-                  className="text-green-600 hover:text-green-700"
-                />
+            }
+            sorter
+            className="font-medium"
+          />
+
+          <Table.Column
+            dataIndex={["email"]}
+            title="Email"
+            render={(value: string) => (
+              <EmailField value={value} className="text-blue-600" />
+            )}
+            sorter
+          />
+
+          <Table.Column
+            title="Name"
+            render={(_, record: AccountDto) => (
+              <Text>
+                {record.firstName} {record.lastName}
+              </Text>
+            )}
+            sorter={(a: AccountDto, b: AccountDto) =>
+              `${a.firstName} ${a.lastName}`.localeCompare(
+                `${b.firstName} ${b.lastName}`
+              )
+            }
+          />
+
+          <Table.Column
+            dataIndex="balance"
+            title={
+              <Tooltip title="Current account balance">
+                <Space>
+                  <DollarOutlined />
+                  <span>Balance</span>
+                </Space>
               </Tooltip>
-              <Tooltip title="Delete Account">
-                <DeleteButton
-                  hideText
-                  size="small"
-                  recordItemId={record.accountId}
-                  className="text-red-600 hover:text-red-700"
-                  confirmTitle="Delete Account"
-                  confirmOkText="Delete"
-                  confirmCancelText="Cancel"
-                  about="Are you sure you want to delete this account? This action cannot be undone."
-                />
+            }
+            render={(value: number) => (
+              <Text className={value < 0 ? "text-red-500" : "text-green-500"}>
+                {formatBalance(value)}
+              </Text>
+            )}
+            sorter
+          />
+
+          <Table.Column
+            dataIndex="role"
+            title="Role"
+            filterMode="menu"
+            filters={[
+              { text: "Admin", value: "ADMIN" },
+              { text: "Freelancer", value: "FREELANCER" },
+              { text: "Staff", value: "STAFF" },
+              { text: "Client", value: "CLIENT" },
+            ]}
+            filterMultiple={false}
+            render={(value: keyof typeof ROLE_COLOR_MAP) => (
+              <Tag
+                color={ROLE_COLOR_MAP[value] || "default"}
+                className="capitalize"
+              >
+                {value}
+              </Tag>
+            )}
+          />
+
+          <Table.Column
+            dataIndex="isVerified"
+            title={
+              <Tooltip title="Account verification status">
+                <Space>
+                  <CheckCircleOutlined />
+                  <span>Status</span>
+                </Space>
               </Tooltip>
-            </Space>
-          )}
-        />
-      </Table>
-    </List>
+            }
+            render={(value: boolean) => getVerificationStatus(value)}
+            filters={[
+              { text: "Verified", value: true },
+              { text: "Pending", value: false },
+            ]}
+            filterMultiple={false}
+          />
+
+          <Table.Column
+            dataIndex="createdAt"
+            title={
+              <Space>
+                <ClockCircleOutlined />
+                <span>Created</span>
+              </Space>
+            }
+            render={(value: string) => (
+              <DateField value={value} format="MMMM DD, YYYY" />
+            )}
+            sorter
+            defaultSortOrder="descend"
+          />
+
+          <Table.Column
+            title="Actions"
+            fixed="right"
+            render={(_, record: AccountDto) => (
+              <Space size="middle">
+                <Tooltip title="Edit Account">
+                  <Button
+                    type="link"
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setSelectedAccountId("" + record?.accountId);
+                      setEditDrawer(true);
+                    }}
+                    style={{
+                      border: "1px solid #e8e8e8",
+                    }}
+                  />
+                </Tooltip>
+                <Tooltip title="View Details">
+                  <Button
+                    type="link"
+                    size="small"
+                    icon={<EyeOutlined />}
+                    onClick={() => {
+                      setSelectedAccountId("" + record?.accountId);
+                      setShowDrawer(true);
+                    }}
+                    style={{
+                      border: "1px solid #e8e8e8",
+                    }}
+                  />
+                </Tooltip>
+                <Tooltip title="Delete Account">
+                  <DeleteButton
+                    hideText
+                    size="small"
+                    recordItemId={record.accountId}
+                    className="text-red-600 hover:text-red-700"
+                    confirmTitle="Delete Account"
+                    confirmOkText="Delete"
+                    confirmCancelText="Cancel"
+                    about="Are you sure you want to delete this account? This action cannot be undone."
+                  />
+                </Tooltip>
+              </Space>
+            )}
+          />
+        </Table>
+      </List>
+      <ShowAccountsShowDrawer
+        accountId={selectedAccountId}
+        open={showDrawer}
+        onClose={() => setShowDrawer(false)}
+      />
+      <EditAccountsDrawer
+        accountId={selectedAccountId}
+        open={editDrawer}
+        onClose={() => setEditDrawer(false)}
+      />
+    </>
   );
 };

@@ -49,7 +49,6 @@ public class TransactionController implements TransactionsApi {
 
     @Override
     public ResponseEntity<String> createTransaction(TransactionDto transactionDto) {
-
         String response = transactionService.create(transactionMapper.toEntity(transactionDto), SecurityUtil.getRemoteAddress());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -95,40 +94,5 @@ public class TransactionController implements TransactionsApi {
         return OpenApiHelper.respondPage(resultPage, GetTransactions200Response.class);
     }
 
-    @GetMapping("/vnpay_ipn")
-    public int handleVNPayReturn(@RequestParam Map<String, String> requestParams) throws UnsupportedEncodingException {
-        Map fields = new HashMap();
-        for (Map.Entry<String, String> entry : requestParams.entrySet()) {
-            fields.put(URLEncoder.encode(entry.getKey(), StandardCharsets.US_ASCII.toString()), URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII.toString()));
-        }
-        String paymentId = requestParams.get("vnp_TxnRef");
-        String vnp_SecureHash = requestParams.get("vnp_SecureHash");
-        if (fields.containsKey("vnp_SecureHashType")) {
-            fields.remove("vnp_SecureHashType");
-        }
-        if (fields.containsKey("vnp_SecureHash")) {
-            fields.remove("vnp_SecureHash");
-        }
-        log.info("vnp_TxnRef: " + paymentId, "vnp_SecureHash: " + vnp_SecureHash);
-        Transaction transaction = transactionService.findById(Long.parseLong(paymentId));
-        if (transaction == null) {
-            log.info("Transaction not found");
-            return -1;
-        }
-        if (VnPayConfig.hashAllFields(fields).equals(vnp_SecureHash)) {
-            if ("00".equals(fields.get("vnp_ResponseCode"))) {
-                log.info("Payment success");
-                transaction.setStatus(Transaction.Status.SUCCESS);
-                transactionService.update(transaction);
-                return 1;
-            } else {
-                log.info("Payment failed");
-                transaction.setStatus(Transaction.Status.FAILED);
-                transactionService.update(transaction);
-                return 0;
-            }
-        }
-        log.info("FAILED: Invalid signature");
-        return -1;
-    }
+
 }
