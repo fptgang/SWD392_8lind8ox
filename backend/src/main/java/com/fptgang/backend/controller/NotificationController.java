@@ -42,10 +42,6 @@ public class NotificationController implements NotificationsApi {
     public ResponseEntity<NotificationDto> createNotification(NotificationDto notificationDto) {
         log.info("Creating notification");
         Notification notification = notificationService.create(notificationMapper.toEntity(notificationDto));
-        messagingTemplate.convertAndSend(
-                "noti/"+notification.getAccount().getEmail(),
-                notificationMapper.toDTO(notification, DetailLevel.FULL)
-        );
         return new ResponseEntity<>(
                 notificationMapper.toDTO(notification, DetailLevel.FULL),
                 HttpStatus.CREATED
