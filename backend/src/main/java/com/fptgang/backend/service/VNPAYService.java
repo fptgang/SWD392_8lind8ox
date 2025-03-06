@@ -7,5 +7,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface VNPAYService {
-    String createVNPay(Transaction transaction,String vnp_IpAddr);
+    String createVNPay(Transaction transaction);
 }

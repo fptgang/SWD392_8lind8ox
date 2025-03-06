@@ -63,7 +63,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setStatus(Transaction.Status.PENDING);
             transaction = transactionRepos.save(transaction);
             if (transaction.getPaymentMethod() == Transaction.PaymentMethod.VNPAY) {
-                return VNPAYService.createVNPay(transaction, SecurityUtil.getRemoteAddress());
+                return VNPAYService.createVNPay(transaction);
             }
             return "Transaction created successfully";
         } catch (Exception e) {

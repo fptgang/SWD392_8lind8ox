@@ -7,6 +7,7 @@ import com.fptgang.backend.repository.TransactionRepos;
 import com.fptgang.backend.service.OrderService;
 import com.fptgang.backend.service.VNPAYService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,8 @@ import java.util.*;
 public class VNPAYServiceImpl implements VNPAYService {
 
     @Override
-    public String createVNPay(Transaction transaction, String vnp_IpAddr) {
+    public String createVNPay(Transaction transaction) {
+        String vnp_IpAddr= SecurityUtil.getRemoteAddress();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
