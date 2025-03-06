@@ -15,8 +15,9 @@ export interface FilterSidebarProps {
   loading?: boolean;
 }
 
-export interface ProductCardProps {
+export interface SkuCardProps {
   blindBox: BlindBoxDto;
+  sku: StockKeepingUnitDto;
   onCardClick: (id: number) => void;
   onAddToCart: (blindBox: BlindBoxDto, sku: StockKeepingUnitDto) => void;
 }

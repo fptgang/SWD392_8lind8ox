@@ -18,14 +18,15 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  PictureOutlined,
+  BoxPlotOutlined,
 } from "@ant-design/icons";
-import { BlindBoxDto } from "../../../generated";
+import { PackDto } from "../../../generated";
 
 const { Text } = Typography;
 
-export const BlindBoxesList: React.FC = () => {
-  const { tableProps, setFilters } = useTable<BlindBoxDto>({
+
+export const PacksList: React.FC = () => {
+  const { tableProps, setFilters } = useTable<PackDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -38,12 +39,12 @@ export const BlindBoxesList: React.FC = () => {
     filters: {
       initial: [
         {
-          field: "type",
+          field: "isVisible",
           operator: "eq",
           value: undefined,
         },
         {
-          field: "isVisible",
+          field: "type",
           operator: "eq",
           value: undefined,
         },
@@ -68,9 +69,9 @@ export const BlindBoxesList: React.FC = () => {
 
   return (
     <List>
-      <div className="mb-6">
+         <div className="mb-6">
         <Input.Search
-          placeholder="Search products..."
+          placeholder="Search packs..."
           className="max-w-md"
           allowClear
           onSearch={(value) => {
@@ -85,25 +86,29 @@ export const BlindBoxesList: React.FC = () => {
           }}
         />
       </div>
+
       <Table
         {...tableProps}
-        rowKey="blindBoxId"
+        rowKey="productId"
         className="overflow-x-auto"
         scroll={{ x: true }}
       >
         <Table.Column
-          dataIndex="blindBoxId"
+          dataIndex="packId"
           title={
             <Tooltip title="Unique product identifier">
               <Space>
                 <GiftOutlined />
-                <span>BlindBox Id</span>
+                <span>Pack ID</span>
               </Space>
             </Tooltip>
           }
           sorter
           className="font-medium"
         />
+
+  
+
         <Table.Column
           dataIndex="name"
           title="Name"
@@ -122,6 +127,7 @@ export const BlindBoxesList: React.FC = () => {
         />
 
         <Table.Column
+          dataIndex="currentPrice"
           title={
             <Tooltip title="Current selling price">
               <Space>
@@ -130,23 +136,10 @@ export const BlindBoxesList: React.FC = () => {
               </Space>
             </Tooltip>
           }
-          render={(_, record: BlindBoxDto) => {
-            const sku = record.skus?.[0];
-            if (!sku) return formatCurrency(0);
-            
-            const basePrice = sku.price || 0;
-            const hasActiveCampaign = record.blindBoxCampaigns && record.blindBoxCampaigns.length > 0;
-            
-            if (!hasActiveCampaign) return formatCurrency(basePrice);
-            
-            // Apply discount if exists
-            try {
-              // Since we don't have direct access to discount rate, we're showing base price
-              return formatCurrency(basePrice);
-            } catch (err) {
-              return formatCurrency(basePrice);
-            }
-          }}
+          render={(value: number) => (
+            <Text className="font-semibold">{formatCurrency(value)}</Text>
+          )}
+          sorter
         />
 
         <Table.Column
@@ -196,35 +189,59 @@ export const BlindBoxesList: React.FC = () => {
         />
 
         <Table.Column
-          dataIndex="images"
+          dataIndex="guaranteedToys"
           title={
-            <Tooltip title="Product images">
+            <Tooltip title="Toys included in this pack">
               <Space>
-                <PictureOutlined />
-                <span>Images</span>
+                <BoxPlotOutlined />
+                <span>Toys</span>
               </Space>
             </Tooltip>
           }
           render={(value: any[]) => (
+            <Space size="small">
+              {value?.length ? (
+                value.map((toy) => (
+                  <Tooltip
+                    key={toy.toyId}
+                    title={`${toy.name} (${toy.rarity})`}
+                  >
+                    <Tag color={toy.rarity === "SECRET" ? "gold" : "default"}>
+                      {toy.name.slice(0, 12)}...
+                    </Tag>
+                  </Tooltip>
+                ))
+              ) : (
+                <Text type="secondary">-</Text>
+              )}
+            </Space>
+          )}
+        />
+
+        <Table.Column
+          dataIndex="toyCount"
+          title="Toy Count"
+          render={(value: number) => (
             <Badge
-              count={value?.length || 0}
+              count={value}
               showZero
-              color={value?.length ? "blue" : "gray"}
+              color={value > 0 ? "blue" : "gray"}
               className="font-medium"
             />
           )}
+          sorter
         />
 
         <Table.Column
           title="Actions"
           fixed="right"
-          render={(_, record: BlindBoxDto) => (
+          render={(_, record: PackDto) => (
             <Space size="middle">
-              <Tooltip title="Edit Product">
+              <Tooltip title="Edit Pack">
                 <EditButton
                   hideText
                   size="small"
-                  recordItemId={record.blindBoxId}
+                  recordItemId={record.packId}
                   icon={<EditOutlined className="text-blue-600" />}
                   className="hover:text-blue-700"
                 />
@@ -233,18 +250,18 @@ export const BlindBoxesList: React.FC = () => {
                 <ShowButton
                   hideText
                   size="small"
-                  recordItemId={record.blindBoxId}
+                  recordItemId={record.packId}
                   className="text-green-600 hover:text-green-700"
                 />
               </Tooltip>
-              <Tooltip title="Delete Product">
+              <Tooltip title="Delete Pack">
                 <DeleteButton
                   hideText
                   size="small"
-                  recordItemId={record.blindBoxId}
+                  recordItemId={record.packId}
                   icon={<DeleteOutlined className="text-red-600" />}
                   className="hover:text-red-700"
-                  confirmTitle="Delete Product"
+                  confirmTitle="Delete Pack"
                   confirmOkText="Delete"
                   confirmCancelText="Cancel"
                 />

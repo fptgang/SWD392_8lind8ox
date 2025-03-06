@@ -49,9 +49,7 @@ public class TransactionController implements TransactionsApi {
 
     @Override
     public ResponseEntity<String> createTransaction(TransactionDto transactionDto) {
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admin can create transactions");
-        }
+
         String response = transactionService.create(transactionMapper.toEntity(transactionDto), SecurityUtil.getRemoteAddress());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

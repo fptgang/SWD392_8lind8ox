@@ -20,6 +20,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import java.util.Optional;
 
+import static com.fptgang.backend.util.SecurityUtil.getCurrentUserId;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")
@@ -38,6 +40,8 @@ public class OrderController implements OrdersApi {
         if (!SecurityUtil.hasPermission(Account.Role.CUSTOMER)) {
             throw new AccessDeniedException("Only customers can create orders.");
         }
+       var userId =  getCurrentUserId();
+        orderDto.account(new AccountDto().accountId(userId));
         return new ResponseEntity<>(
                 orderMapper.toDTO(
                         orderService.create(orderMapper.toEntity(orderDto)),
@@ -85,7 +89,7 @@ public class OrderController implements OrdersApi {
 
         // Customers can only view their own orders
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
-            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
+            params.setFilter("account.accountId", "eq", getCurrentUserId());
         }
 
         var resultPage = orderService.getAll(params.build())

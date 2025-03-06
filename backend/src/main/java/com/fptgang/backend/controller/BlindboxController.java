@@ -75,7 +75,7 @@ public class BlindboxController implements BlindBoxesApi {
                 .includeInvisible(includeInvisible);
 
         var res = blindBoxService.getAll(params.build())
-                .map(e -> blindBoxMapper.toDTO(e, DetailLevel.SUMMARY));
+                .map(e -> blindBoxMapper.toDTO(e, DetailLevel.FULL));
         return OpenApiHelper.respondPage(res, GetBlindBoxes200Response.class);
     }
 

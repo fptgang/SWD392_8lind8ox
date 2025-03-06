@@ -1,18 +1,23 @@
 // components/cart/CartItemsTable.tsx
 import React from "react";
-import { Table, Button, InputNumber, notification, Space } from "antd";
-import { DeleteOutlined, ShoppingOutlined } from "@ant-design/icons";
+import { Table, Button, InputNumber, notification, Space, Tag, Tooltip } from "antd";
+import { DeleteOutlined, ShoppingOutlined, WarningOutlined } from "@ant-design/icons";
 import { useCart } from "../../../hooks/useCart";
 import { CartItem } from "../../../store/features/cart/cartSlice";
 
 interface CartItemsTableProps {
+  items?: CartItem[];
   showOriginalPrice?: boolean;
 }
 
 const CartItemsTable: React.FC<CartItemsTableProps> = ({
+  items,
   showOriginalPrice = false,
 }) => {
-  const { cartItems, updateItemQuantity, removeFromCart } = useCart();
+  const { cartItems: storeCartItems, updateItemQuantity, removeFromCart } = useCart();
+  
+  // Use provided items or fallback to store items
+  const cartItems = items || storeCartItems;
 
   const handleQuantityChange = async (skuId: number, quantity: number) => {
     try {
@@ -61,10 +66,17 @@ const CartItemsTable: React.FC<CartItemsTableProps> = ({
             <span className="font-medium text-gray-800">{text}</span>
             {showOriginalPrice &&
               record.originalPrice !== record.checkoutPrice && (
-                <span className="text-sm  line-through">
-                  {/* ${record.originalPrice.toFixed(2)} */}
+                <span className="text-sm line-through text-gray-500">
+                  ${record.originalPrice.toFixed(2)}
                 </span>
               )}
+            {!record.skuId && (
+              <Tooltip title="This item is invalid and cannot be processed. Please remove it.">
+                <Tag color="error" className="mt-1">
+                  <WarningOutlined /> Invalid Item
+                </Tag>
+              </Tooltip>
+            )}
           </div>
         </div>
       ),
@@ -74,9 +86,8 @@ const CartItemsTable: React.FC<CartItemsTableProps> = ({
       dataIndex: "checkoutPrice",
       key: "price",
       render: (price: number) => (
-        <span className=" font-medium">
-          {/* ${price.toFixed(2)} */}
-          asda
+        <span className="font-medium">
+          ${price.toFixed(2)}
         </span>
       ),
     },
@@ -89,8 +100,9 @@ const CartItemsTable: React.FC<CartItemsTableProps> = ({
             min={1}
             max={record.stock}
             value={record.quantity}
-            onChange={(value) => handleQuantityChange(record.skuId, value || 1)}
+            onChange={(value) => record.skuId && handleQuantityChange(record.skuId, value || 1)}
             className="w-20"
+            disabled={!record.skuId}
             controls
             addonAfter={
               record.stock > 0 && (
@@ -120,7 +132,25 @@ const CartItemsTable: React.FC<CartItemsTableProps> = ({
           type="text"
           danger
           icon={<DeleteOutlined />}
-          onClick={() => handleRemoveItem(record.skuId)}
+          onClick={() => {
+            // Handle removal for both cases
+            if (record.skuId) {
+              handleRemoveItem(record.skuId);
+            } else {
+              // If no skuId, use another unique identifier or remove differently
+              notification.info({
+                message: "Removing invalid item",
+              });
+              // Find item index and remove it directly if needed
+              const index = cartItems.findIndex(item => 
+                item.name === record.name && 
+                item.checkoutPrice === record.checkoutPrice
+              );
+              if (index >= 0) {
+                removeFromCart(index);
+              }
+            }
+          }}
           className="hover:text-red-700 transition-colors"
           aria-label="Remove item"
         />
@@ -135,6 +165,7 @@ const CartItemsTable: React.FC<CartItemsTableProps> = ({
       pagination={false}
       rowKey="skuId"
       className="cart-items-table"
+      rowClassName={(record) => !record.skuId ? 'bg-red-50' : ''}
       locale={{
         emptyText: (
           <div className="py-8">

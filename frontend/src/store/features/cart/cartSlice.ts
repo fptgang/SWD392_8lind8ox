@@ -142,6 +142,14 @@ const cartSlice = createSlice({
       localStorage.removeItem(CART_STORAGE_KEY);
     },
 
+    cleanInvalidItems: (state) => {
+      state.items = state.items.filter(item => item.skuId && typeof item.skuId === 'number');
+      const totals = calculateTotals(state.items);
+      state.total = totals.total;
+      state.originalTotal = totals.originalTotal;
+      saveCartToStorage(state.items);
+    },
+
     setVoucher: (state, action: PayloadAction<Voucher | undefined>) => {
       state.voucher = action.payload;
     },
@@ -169,6 +177,7 @@ export const {
   updateQuantity,
   removeItem,
   clearCart,
+  cleanInvalidItems,
   setVoucher,
   setShippingInfo,
   setAccountId,

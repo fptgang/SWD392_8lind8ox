@@ -1,14 +1,17 @@
 // components/steps/ShippingStep.tsx
 import React from "react";
 import { Button, Form, Input, Select, Typography, Space } from "antd";
-import { ShippingInfoDto } from "../../../../generated";
+import { FormInstance } from "antd/lib/form";
+import { ShippingInfoDto } from "../../types";
 import { StepBaseProps } from "../../types";
 
 const { Title } = Typography;
 
-interface ShippingStepProps extends StepBaseProps {
+export interface ShippingStepProps {
   form: FormInstance;
   onShippingUpdate: (info: ShippingInfoDto) => Promise<void>;
+  onNext?: () => true | Promise<{}> | void | Promise<any>;
+  onPrevious?: () => true | Promise<{}> | void | Promise<any>;
 }
 
 export const ShippingStep: React.FC<ShippingStepProps> = ({

@@ -31,8 +31,8 @@ const { useToken } = theme;
 const sortOptions: SortOption[] = [
   { label: "Newest First", value: "createdAt:desc" },
   { label: "Oldest First", value: "createdAt:asc" },
-  { label: "Price: Low to High", value: "price:asc" },
-  { label: "Price: High to Low", value: "price:desc" },
+  { label: "Price: Low to High", value: "skus.price:asc" },
+  { label: "Price: High to Low", value: "skus.price:desc" },
   { label: "Name A-Z", value: "name:asc" },
   { label: "Name Z-A", value: "name:desc" },
 ];
@@ -252,6 +252,17 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               }}
             >
               On Sale
+            </Tag>
+          )}
+          {(priceRange[0] > 0 || priceRange[1] < 1000) && (
+            <Tag
+              closable
+              onClose={() => {
+                onPriceRangeChange([0, 1000]);
+                searchFormProps.onFinish(form.getFieldsValue());
+              }}
+            >
+              Price: ${priceRange[0]} - ${priceRange[1]}
             </Tag>
           )}
         </div>
