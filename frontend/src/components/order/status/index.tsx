@@ -1,57 +1,54 @@
-import { 
-  ClockCircleOutlined,
+import {
   CarOutlined,
-  ShoppingOutlined,
   CheckCircleOutlined,
-  GiftOutlined
+  ClockCircleOutlined,
+  GiftOutlined,
+  ShoppingOutlined,
+  StopOutlined
 } from "@ant-design/icons";
-import { useTranslate } from "@refinedev/core";
-import { Tag } from "antd";
-
-export enum OrderStatusEnum {
-  CREATED = "CREATED",
-  COURIER_ACCEPTED = "COURIER_ACCEPTED", 
-  SHIPPING = "SHIPPING",
-  DELIVERED = "DELIVERED",
-  RECEIVED = "RECEIVED",
-  COMPLETED = "COMPLETED"
-}
+import {useTranslate} from "@refinedev/core";
+import {Tag} from "antd";
+import {OrderStatusHistoryDtoStateEnum} from "../../../../generated";
 
 type OrderStatusProps = {
-  status: OrderStatusEnum;
+  status: OrderStatusHistoryDtoStateEnum;
 };
 
-export const OrderStatus: React.FC<OrderStatusProps> = ({ status }) => {
+export const OrderStatus: React.FC<OrderStatusProps> = ({status}) => {
   const t = useTranslate();
 
   const statusConfig = {
-    [OrderStatusEnum.CREATED]: {
+    [OrderStatusHistoryDtoStateEnum.Created]: {
       color: "processing",
-      icon: <ClockCircleOutlined />
+      icon: <ClockCircleOutlined/>
     },
-    [OrderStatusEnum.COURIER_ACCEPTED]: {
+    [OrderStatusHistoryDtoStateEnum.CourierAccepted]: {
       color: "cyan",
-      icon: <ShoppingOutlined />
+      icon: <ShoppingOutlined/>
     },
-    [OrderStatusEnum.SHIPPING]: {
+    [OrderStatusHistoryDtoStateEnum.Shipping]: {
       color: "blue",
-      icon: <CarOutlined />
+      icon: <CarOutlined/>
     },
-    [OrderStatusEnum.DELIVERED]: {
+    [OrderStatusHistoryDtoStateEnum.Delivered]: {
       color: "geekblue",
-      icon: <GiftOutlined />
+      icon: <GiftOutlined/>
     },
-    [OrderStatusEnum.RECEIVED]: {
-      color: "purple", 
-      icon: <CheckCircleOutlined />
+    [OrderStatusHistoryDtoStateEnum.Received]: {
+      color: "purple",
+      icon: <CheckCircleOutlined/>
     },
-    [OrderStatusEnum.COMPLETED]: {
+    [OrderStatusHistoryDtoStateEnum.Completed]: {
       color: "success",
-      icon: <CheckCircleOutlined />
+      icon: <CheckCircleOutlined/>
+    },
+    [OrderStatusHistoryDtoStateEnum.Canceled]: {
+      color: "error",
+      icon: <StopOutlined/>
     }
   };
 
-  const { color, icon } = statusConfig[status];
+  const {color, icon} = statusConfig[status];
 
   return (
     <Tag color={color} icon={icon}>

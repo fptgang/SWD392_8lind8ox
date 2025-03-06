@@ -1,4 +1,4 @@
-import { Authenticated, I18nProvider, Refine } from "@refinedev/core";
+import {Authenticated, CanAccess, I18nProvider, Refine} from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
@@ -194,25 +194,22 @@ function App() {
                     <Route
                       path="admin"
                       element={
-                        store.getState().auth.account?.role ===
-                        AccountDtoRoleEnum.Admin ? (
-                          <Authenticated
-                            key="authenticated"
-                            fallback={<Navigate to="/login" replace />}
+                        <Authenticated
+                          key="authenticated"
+                          fallback={<Navigate to="/login" replace />}
+                        >
+                          <ThemedLayoutV2
+                            Header={AdminHeader}
+                            Sider={(props) => (
+                              <ThemedSiderV2 {...props} fixed />
+                            )}
                           >
-                            <ThemedLayoutV2
-                              Header={AdminHeader}
-                              Sider={(props) => (
-                                <ThemedSiderV2 {...props} fixed />
-                              )}
-                            >
+                            <CanAccess fallback={<Navigate to="/" />}>
                               <Outlet />
-                            </ThemedLayoutV2>
-                            //{" "}
-                          </Authenticated>
-                        ) : (
-                          <Navigate to="/" />
-                        )
+                            </CanAccess>
+                          </ThemedLayoutV2>
+                          //{" "}
+                        </Authenticated>
                       }
                     >
                       <Route
