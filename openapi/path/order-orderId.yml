@@ -56,25 +56,3 @@ put:
         application/json:
           schema:
             $ref: '../component/error.yml#/ErrorResponse'
-
-delete:
-  summary: Delete an existing order
-  operationId: deleteOrder
-  security:
-    - bearerAuth: []
-  parameters:
-    - name: orderId
-      in: path
-      required: true
-      schema:
-        type: integer
-        format: int64
-  responses:
-    '200':
-      description: The operation was successful
-    '400':
-      description: The operation failed
-      content:
-        application/json:
-          schema:
-            $ref: '../component/error.yml#/ErrorResponse'

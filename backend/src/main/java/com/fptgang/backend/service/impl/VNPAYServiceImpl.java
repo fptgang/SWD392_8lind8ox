@@ -1,16 +1,8 @@
 package com.fptgang.backend.service.impl;
 
 import com.fptgang.backend.config.VnPayConfig;
-import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Transaction;
-import com.fptgang.backend.repository.TransactionRepos;
-import com.fptgang.backend.service.OrderService;
 import com.fptgang.backend.service.VNPAYService;
-import com.fptgang.backend.service.params.ListParams;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,31 +16,37 @@ import java.util.*;
 @Slf4j
 @Service
 public class VNPAYServiceImpl implements VNPAYService {
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    private final VnPayConfig vnPayConfig;
+
+    public VNPAYServiceImpl(VnPayConfig vnPayConfig) {
+        this.vnPayConfig = vnPayConfig;
+    }
 
     @Override
-    public String createVNPay(Transaction transaction, String vnp_IpAddr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    public String createVNPay(String orderInfo, BigDecimal amount, String txnRef, String vnp_IpAddr) {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
         vnp_Params.put("vnp_Command", "pay");
-        vnp_Params.put("vnp_TmnCode", VnPayConfig.vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", transaction.getAmount().multiply(BigDecimal.valueOf(100)).intValue() + "");
-        vnp_Params.put("vnp_CreateDate", formatter.format(now));
+        vnp_Params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
+        vnp_Params.put("vnp_Amount", String.valueOf(amount.multiply(BigDecimal.valueOf(100)).longValue()));
+        vnp_Params.put("vnp_CreateDate", FORMATTER.format(now));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
-        vnp_Params.put("vnp_Locale", VnPayConfig.vnp_Locale);
-        vnp_Params.put("vnp_OrderInfo", transaction.getType() + " #" + transaction.getTransactionId());
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_OrderInfo", orderInfo);
         vnp_Params.put("vnp_OrderType", "250000");
-        vnp_Params.put("vnp_ReturnUrl", VnPayConfig.vnp_ReturnUrl);
-        vnp_Params.put("vnp_ExpireDate", formatter.format(now.plusMinutes(15)));
-        vnp_Params.put("vnp_TxnRef", String.valueOf(transaction.getTransactionId()));
+        vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+        vnp_Params.put("vnp_ExpireDate", FORMATTER.format(now.plusMinutes(15)));
+        vnp_Params.put("vnp_TxnRef", txnRef);
 
-        Account account = transaction.getAccount();
-        if (account == null) {
-            throw new IllegalArgumentException("Account does not exist");
-        }
+//        Account account = transaction.getAccount();
+//        if (account == null) {
+//            throw new IllegalArgumentException("Account does not exist");
+//        }
 
 //        //Billing
 //        vnp_Params.put("vnp_Bill_Mobile", "0123456789");
@@ -86,7 +84,7 @@ public class VNPAYServiceImpl implements VNPAYService {
         while (itr.hasNext()) {
             String fieldName = itr.next();
             String fieldValue = vnp_Params.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+            if (fieldValue != null && !fieldValue.isEmpty()) {
                 //Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
@@ -103,8 +101,8 @@ public class VNPAYServiceImpl implements VNPAYService {
         }
 
         String queryUrl = query.toString();
-        String vnp_SecureHash = VnPayConfig.hmacSHA512(VnPayConfig.secretKey, hashData.toString());
-        String paymentUrl = VnPayConfig.vnp_PayUrl + "?" + queryUrl + "&vnp_SecureHash=" + vnp_SecureHash;
+        String vnp_SecureHash = VnPayConfig.hmacSHA512(vnPayConfig.getSecretKey(), hashData.toString());
+        String paymentUrl = vnPayConfig.getPayUrl() + "?" + queryUrl + "&vnp_SecureHash=" + vnp_SecureHash;
 
         log.info("VnPay URL: " + paymentUrl);
 

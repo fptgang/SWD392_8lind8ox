@@ -1,0 +1,12 @@
+CartItemDto:
+  type: object
+  properties:
+    skuId:
+      type: integer
+      format: int64
+    slotId:
+      type: integer
+      format: int32
+    quantity:
+      type: integer
+      format: int32

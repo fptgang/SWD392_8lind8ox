@@ -1,0 +1,10 @@
+TrendingProductDto:
+  type: object
+  properties:
+    blindbox:
+      $ref: "../blindbox.yml#/BlindBoxDto"
+    sku:
+      $ref: "../stock-keeping-unit.yml#/StockKeepingUnitDto"
+    total_sales:
+      type: integer
+      format: int32

@@ -2,6 +2,7 @@ package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.OrdersApi;
 import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.mapper.CartMapper;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.OrderMapper;
 import com.fptgang.backend.model.Account;
@@ -16,9 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
-
-import java.util.Optional;
 
 import static com.fptgang.backend.util.SecurityUtil.getCurrentUserId;
 
@@ -28,37 +26,33 @@ import static com.fptgang.backend.util.SecurityUtil.getCurrentUserId;
 public class OrderController implements OrdersApi {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
+    private final CartMapper cartMapper;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper) {
+    public OrderController(OrderService orderService,
+                           OrderMapper orderMapper,
+                           CartMapper cartMapper) {
         this.orderService = orderService;
         this.orderMapper = orderMapper;
+        this.cartMapper = cartMapper;
     }
 
     @Override
-    public ResponseEntity<OrderDto> createOrder(OrderDto orderDto) {
-        log.info("Creating order");
-        if (!SecurityUtil.hasPermission(Account.Role.CUSTOMER)) {
-            throw new AccessDeniedException("Only customers can create orders.");
+    public ResponseEntity<PlaceOrder200Response> placeOrder(CartDto cartDto, Long accountId) {
+        if (accountId != null) {
+            if (accountId != SecurityUtil.requireCurrentUserId() &&
+                    !SecurityUtil.hasPermission(Account.Role.STAFF)) {
+                throw new AccessDeniedException("You can only place orders for yourself.");
+            }
+        } else {
+            accountId = SecurityUtil.requireCurrentUserId();
         }
-       var userId =  getCurrentUserId();
-        orderDto.account(new AccountDto().accountId(userId));
-        return new ResponseEntity<>(
-                orderMapper.toDTO(
-                        orderService.create(orderMapper.toEntity(orderDto)),
-                        DetailLevel.FULL
-                ),
-                HttpStatus.CREATED
-        );
-    }
 
-    @Override
-    public ResponseEntity<Void> deleteOrder(Long orderId) {
-        log.info("Deleting order " + orderId);
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admins can delete orders.");
-        }
-        orderService.deleteById(orderId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        var cart = cartMapper.toEntity(cartDto);
+        cart.setAccountId(accountId);
+        var res = orderService.place(cart);
+        return ResponseEntity.ok(new PlaceOrder200Response()
+                .order(orderMapper.toDTO(res.getOrder(), DetailLevel.FULL))
+                .paymentRedirectUrl(res.getPaymentRedirectUrl()));
     }
 
     @Override

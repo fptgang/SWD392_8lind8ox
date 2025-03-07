@@ -37,7 +37,7 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
         Slot entity = new Slot();
         entity.setSlotId(dto.getSlotId());
         entity.setPosition(dto.getPosition());
-        entity.setOpened(dto.getIsOpened());
+        entity.setState(Slot.State.valueOf(dto.getState().name()));
         entity.setIsVisible(dto.getIsVisible());
         entity.setOpenedAt(DateTimeUtil.fromOffsetToLocal(dto.getOpenedAt()));
         if (dto.getToy() != null) {
@@ -63,7 +63,7 @@ public class SlotMapper extends BaseMapper<SlotDto, Slot> {
         SlotDto dto = new SlotDto();
         dto.setSlotId(entity.getSlotId());
         dto.setPosition(entity.getPosition());
-        dto.setIsOpened(entity.isOpened());
+        dto.setState(SlotDto.StateEnum.valueOf(entity.getState().name()));
         dto.setIsVisible(entity.getIsVisible());
         dto.setOpenedAt(DateTimeUtil.fromLocalToOffset(entity.getOpenedAt()));
         dto.setToy(toyMapper.toDTO(entity.getToy(), DetailLevel.REFERENCE));

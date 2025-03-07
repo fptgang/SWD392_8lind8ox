@@ -29,24 +29,36 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 post:
-  summary: Create an order
-  operationId: createOrder
+  summary: Place an order
+  operationId: placeOrder
   security:
     - bearerAuth: []
   requestBody:
-    description: Order to create
+    description: The cart
     required: true
     content:
       application/json:
         schema:
-          $ref: '../model/order.yml#/OrderDto'
+          $ref: '../model/cart.yml#/CartDto'
+  parameters:
+    - name: accountId
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int64
   responses:
     '200':
       description: The operation was successful
       content:
         application/json:
           schema:
-            $ref: '../model/order.yml#/OrderDto'
+            type: object
+            properties:
+              order:
+                $ref: '../model/order.yml#/OrderDto'
+              paymentRedirectUrl:
+                type: string
     '400':
       description: The operation failed
       content:

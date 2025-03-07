@@ -31,8 +31,9 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         entity.setTransactionId(dto.getTransactionId());
         entity.setAccount(accountRepos.getReferenceById(dto.getAccount().getAccountId()));
         entity.setType(Transaction.Type.valueOf(dto.getType().getValue()));
-        entity.setPaymentMethod(Transaction.PaymentMethod.valueOf(dto.getPaymentMethod().getValue()) );
+        entity.setPaymentMethod(Transaction.PaymentMethod.valueOf(dto.getPaymentMethod().getValue()));
         entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
         entity.setAmount(dto.getAmount());
         entity.setOldBalance(dto.getOldBalance());
         entity.setNewBalance(dto.getNewBalance());
@@ -55,6 +56,7 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         dto.setType(TransactionDto.TypeEnum.valueOf(entity.getType().toString()));
         dto.setPaymentMethod(TransactionDto.PaymentMethodEnum.valueOf(entity.getPaymentMethod().toString()));
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         dto.setAmount(entity.getAmount());
         dto.setOldBalance(entity.getOldBalance());
         dto.setNewBalance(entity.getNewBalance());

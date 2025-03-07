@@ -1,8 +1,8 @@
 import {SkuPool} from "../../pool/sku";
 import {Set} from "../../model/Set";
 import {SetPool} from "../../pool/set";
-import { Slot } from "../../model/Slot";
-import { SlotPool } from "../../pool/slot";
+import {Slot, SlotState} from "../../model/Slot";
+import {SlotPool} from "../../pool/slot";
 
 export function createSet(date: Date) {
   const sku = SkuPool.pickSku(date, 2);
@@ -25,7 +25,7 @@ export function createSet(date: Date) {
     const slot = new Slot({
       slotId: SlotPool.getNextId(),
       createdAt: date,
-      isOpened: false,
+      state: SlotState.AVAILABLE,
       isVisible: true,
       position: i,
       updatedAt: date,

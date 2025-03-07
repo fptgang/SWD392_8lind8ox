@@ -7,8 +7,9 @@ SlotDto:
     position:
       type: integer
       format: int32
-    isOpened:
-      type: boolean
+    state:
+      type: string
+      enum: [OPENED, AVAILABLE, RESERVED]
     isVisible:
       type: boolean
     openedAt:
