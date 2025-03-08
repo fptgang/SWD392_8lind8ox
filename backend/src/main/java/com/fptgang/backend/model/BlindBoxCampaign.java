@@ -18,15 +18,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlindBoxCampaign {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long historyId;
+    @EmbeddedId
+    private BlindBoxCampaignId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("blindBoxId")
     @JoinColumn(name = "blind_box_id", nullable = false)
     private BlindBox blindBox;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("promotionalCampaignId")
     @JoinColumn(name = "promotional_campaign_id", nullable = false)
     private PromotionalCampaign promotionalCampaign;
 

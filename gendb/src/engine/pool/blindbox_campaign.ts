@@ -4,7 +4,6 @@ import { PromotionalCampaignPool } from "./campaign";
 
 export class blindBoxCampaignPool {
   private blindBoxCampaigns: BlindBoxCampaign[] = [];
-  private nextId: number = 1;
 
   add(blindBoxCampaign: BlindBoxCampaign) {
     this.blindBoxCampaigns.push(blindBoxCampaign);
@@ -26,10 +25,6 @@ export class blindBoxCampaignPool {
 
     const randomIndex = Math.floor(Math.random() * eligible.length);
     return eligible[randomIndex];
-  }
-
-  getNextId(): number {
-    return this.nextId++;
   }
 
   dump(): string {

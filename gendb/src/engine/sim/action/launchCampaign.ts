@@ -38,7 +38,6 @@ export function launchCampaign(date: Date) {
             blind_box_id: eligible.blind_box_id,
             created_at: date,
             updated_at: date,
-            history_id: BlindBoxCampaignPool.getNextId(),
             is_visible: true,
             promotional_campaign_id: campaign.campaignId
         })

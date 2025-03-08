@@ -1,15 +1,11 @@
 BlindBoxCampaignDto:
   type: object
   properties:
-    historyId:
-      type: integer
-      format: int64
     blindBoxId:
       type: integer
       format: int64
-    promotionalCampaignId:
-      type: integer
-      format: int64
+    promotionalCampaign:
+      $ref: "promotional-campaign.yml#/PromotionalCampaignDto"
     createdAt:
       type: string
       format: date-time
