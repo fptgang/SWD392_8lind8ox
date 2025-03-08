@@ -13,19 +13,20 @@ import org.springframework.stereotype.Component;
 public class BlindBoxCampaignMapper extends BaseMapper<BlindBoxCampaignDto, BlindBoxCampaign> {
     private final BlindBoxRepos blindBoxRepos;
     private final PromotionalCampaignRepos promotionalCampaignRepos;
+    private final PromotionalCampaignMapper promotionalCampaignMapper;
 
     public BlindBoxCampaignMapper(BlindBoxRepos blindBoxRepos,
-                                  PromotionalCampaignRepos promotionalCampaignRepos) {
+                                  PromotionalCampaignRepos promotionalCampaignRepos, PromotionalCampaignMapper promotionalCampaignMapper) {
         this.blindBoxRepos = blindBoxRepos;
         this.promotionalCampaignRepos = promotionalCampaignRepos;
+        this.promotionalCampaignMapper = promotionalCampaignMapper;
     }
 
     @Override
     public BlindBoxCampaign toEntity(BlindBoxCampaignDto dto) {
         BlindBoxCampaign entity = new BlindBoxCampaign();
-        entity.setHistoryId(dto.getHistoryId());
         entity.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
-        entity.setPromotionalCampaign(promotionalCampaignRepos.getReferenceById(dto.getPromotionalCampaignId()));
+        entity.setPromotionalCampaign(promotionalCampaignRepos.getReferenceById(dto.getPromotionalCampaign().getCampaignId()));
         entity.setIsVisible(dto.getIsVisible());
         entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
         entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
@@ -35,9 +36,8 @@ public class BlindBoxCampaignMapper extends BaseMapper<BlindBoxCampaignDto, Blin
     @Override
     public BlindBoxCampaignDto toDTO(BlindBoxCampaign entity, DetailLevel level) {
         BlindBoxCampaignDto dto = new BlindBoxCampaignDto();
-        dto.setHistoryId(entity.getHistoryId());
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
-        dto.setPromotionalCampaignId(entity.getPromotionalCampaign() != null ? entity.getPromotionalCampaign().getCampaignId() : null);
+        dto.setPromotionalCampaign(promotionalCampaignMapper.toDTO(entity.getPromotionalCampaign(), DetailLevel.REFERENCE));
         dto.setIsVisible(entity.getIsVisible());
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));

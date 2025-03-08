@@ -1,7 +1,6 @@
 import {PromotionalCampaign} from "./PromotionalCampaign";
 
 export class BlindBoxCampaign {
-    history_id: number;
     created_at: Date;
     updated_at: Date | null;
     is_visible: boolean;
@@ -12,7 +11,6 @@ export class BlindBoxCampaign {
     campaign: PromotionalCampaign | null = null;
 
     constructor(data: Partial<BlindBoxCampaign>) {
-        this.history_id = data.history_id || 0;
         this.created_at = data.created_at || new Date();
         this.updated_at = data.updated_at || null;
         this.is_visible = data.is_visible ?? true;
@@ -25,7 +23,6 @@ export class BlindBoxCampaign {
         if (models.length === 0) return '';
 
         const fields = [
-            'history_id',
             'created_at',
             'updated_at',
             'is_visible',
@@ -35,7 +32,6 @@ export class BlindBoxCampaign {
 
         const values = models.map(model => {
             return `(${[
-                model.history_id,
                 model.created_at ? `'${model.created_at.toISOString().slice(0, 19)}.000000'` : 'NULL',
                 model.updated_at ? `'${model.updated_at.toISOString().slice(0, 19)}.000000'` : 'NULL',
                 model.is_visible ? 1 : 0,

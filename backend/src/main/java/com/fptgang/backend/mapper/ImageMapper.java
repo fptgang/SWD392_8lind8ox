@@ -56,12 +56,17 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
 
         ImageDto dto = new ImageDto();
         dto.setImageId(entity.getImageId());
-        dto.setUploader(accountMapper.toDTO(entity.getUploader(), DetailLevel.REFERENCE));
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
         dto.setToyId(entity.getToy() != null ? entity.getToy().getToyId() : null);
         dto.setImageUrl(entity.getImageUrl());
         dto.setIsVisible(entity.getIsVisible());
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+
+        if (level != DetailLevel.FULL) {
+            return dto; // those fields are enough
+        }
+
+        dto.setUploader(accountMapper.toDTO(entity.getUploader(), DetailLevel.REFERENCE));
         return dto;
     }
 }

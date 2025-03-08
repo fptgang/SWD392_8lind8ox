@@ -37,11 +37,6 @@ public class PromotionalCampaignMapper extends BaseMapper<PromotionalCampaignDto
         dto.setCampaignId(entity.getCampaignId());
         dto.setTitle(entity.getTitle());
         dto.setIsVisible(entity.getIsVisible());
-
-        if (level == DetailLevel.REFERENCE) {
-            return dto; // those fields are enough
-        }
-
         dto.setDescription(entity.getDescription());
         dto.setStartDate(DateTimeUtil.fromLocalToOffset(entity.getStartDate()));
         dto.setEndDate(DateTimeUtil.fromLocalToOffset(entity.getEndDate()));
