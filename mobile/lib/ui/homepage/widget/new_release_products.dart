@@ -7,6 +7,7 @@ import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
 import 'package:mobile/blocs/blindbox_list/blindboxes_event.dart';
 import 'package:mobile/data/models/blindbox_model.dart';
+import 'package:mobile/data/models/sku_model.dart';
 import 'package:mobile/ui/common/error.dart';
 import 'package:mobile/ui/common/header.dart';
 import 'package:openapi/api.dart';
@@ -76,7 +77,7 @@ class NewReleaseProducts extends StatelessWidget {
           final blindBox = blindBoxes[index];
           final sku = blindBox.skus.firstWhere(
             (sku) => sku.blindBoxId == blindBox.blindBoxId,
-            orElse: () => StockKeepingUnitDto(price: 0.0),
+            orElse: () => StockKeepingUnitModel(price: 0.0),
           );
 
           return NewReleaseProductCard(

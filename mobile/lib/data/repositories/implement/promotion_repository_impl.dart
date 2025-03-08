@@ -1,6 +1,8 @@
 
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/data/mapper/generic_mapper.dart';
+import 'package:mobile/data/mapper/promotion_mapper.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/promotional_campaign_model.dart';
 import 'package:mobile/main.dart';
@@ -19,15 +21,32 @@ class PromotionRepositoryImpl implements PromotionRepository {
   }
 
   @override
-  Future<PromotionModel> getPromotionById(int id) {
-    // TODO: implement getPromotionById
-    throw UnimplementedError();
+  Future<PromotionModel> getPromotionById(int id) async {
+   try{
+      PromotionalCampaignDto? promotionalCampaignDto = await _apiService.getPromotionalCampaignById(id);
+      if(promotionalCampaignDto == null){
+        throw Exception('[PromotionRepositoryImpl]: Cannot get promotion information');
+      }
+      PromotionModel promotionModel = PromotionMapper.toModel(promotionalCampaignDto);
+      return promotionModel;
+    }catch(e){
+      throw Exception('[PromotionRepositoryImpl]: Cannot get promotion information');
+    }
   }
 
   @override
-  Future<PaginationResponseGeneric<GetPromotionalCampaigns200Response>> getPromotions(Pageable pageable, String filter, String search) {
-    // TODO: implement getPromotions
-    throw UnimplementedError();
+  Future<PaginationResponseGeneric<PromotionModel>> getPromotions(Pageable pageable, String filter, String search) async {
+    try{
+      GetPromotionalCampaigns200Response? response = await _apiService.getPromotionalCampaigns(pageable: pageable, filter: filter, search: search);
+      if(response == null){
+        throw Exception('[PromotionRepositoryImpl]: Cannot get promotion information');
+      }
+      PaginationResponseGeneric<PromotionModel>? promotionModels = PaginationResponseMapper.toModel(dto: response, fromDTO: (data) => PromotionMapper.toModel(data));
+      return promotionModels;
+    }
+    catch(e){
+      throw Exception('[PromotionRepositoryImpl]: Cannot get promotion information');
+    }
   }
   
 

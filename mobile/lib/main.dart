@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +16,7 @@ import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
 import 'package:mobile/ui/account/profile_detail_screen.dart';
-import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
+import 'package:mobile/ui/blind_box_detail/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/cart_screen.dart';
 import 'package:mobile/ui/checkout/checkout_screen.dart';
 import 'package:mobile/ui/common/bottom_navigation_bar.dart';
@@ -28,6 +27,7 @@ import 'package:mobile/ui/register/register_screen.dart';
 import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
 import 'package:mobile/ui/reset_password/new_password_screen.dart';
 import 'package:mobile/ui/search/search_screen.dart';
+import 'package:mobile/ui/shopping/shopping_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'blocs/authentication/authentication_bloc.dart';
@@ -56,7 +56,16 @@ void main() async {
   await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   await Hive.openBox("authentication");
-  configureDependencies();
+  
+  // Initialize GetIt and explicitly register LocaleCubit first to ensure it's available
+  // before any other dependencies that might need it
+  if (!getIt.isRegistered<LocaleCubit>()) {
+    getIt.registerSingleton<LocaleCubit>(LocaleCubit());
+  }
+  
+  // Then configure the rest of the dependencies
+  await configureDependencies();
+  
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
@@ -105,6 +114,7 @@ final router = GoRouter(
         return ProductDetailScreen(blindBoxId: blindBoxId);
       },
     ),
+    GoRoute(path: '/shopping', builder: (context, state) => ShoppingScreen()),
     GoRoute(
       path: '/main',
       builder: (context, state) => const MainScreen(),
@@ -128,30 +138,55 @@ final router = GoRouter(
 );
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Create a direct instance of LocaleCubit to work around dependency injection issues
+    final localeCubit = LocaleCubit();
+    
+    // Create a direct instance of DropdownCubit
+    final dropdownCubit = DropdownCubit(localeCubit);
+    
     return ScreenUtilInit(
-      designSize: const Size(414, 896),
+      designSize: const Size(390, 844),
+      useInheritedMediaQuery: true,
       minTextAdapt: true,
       splitScreenMode: true,
-      child: MultiProvider(
+      builder: (context, widget) => MultiBlocProvider(
         providers: [
-          Provider<AuthRepository>(
-            create: (_) => getIt<AuthRepository>(),
-          ),
+          BlocProvider.value(value: localeCubit), // Direct instance
           BlocProvider(
             create: (context) => getIt<AuthenticationBloc>()
               ..add(AuthenticationSubscriptionRequested()),
           ),
-          BlocProvider(create: (_) => getIt<LocaleCubit>()),
-          BlocProvider(create: (_) => getIt<DropdownCubit>()),
+          // BlocProvider(create: (_) => getIt<LocaleCubit>()), // Comment out GetIt version
+          BlocProvider.value(value: dropdownCubit), // Direct instance
           BlocProvider(create: (_) => getIt<CartCubit>()),
           BlocProvider(create: (_) => getIt<BlindBoxesBloc>()),
           BlocProvider(create: (_) => getIt<SetBloc>()),
         ],
-        child: const AppView(),
+        child: BlocBuilder<LocaleCubit, Locale>(
+          bloc: localeCubit,
+          builder: (context, locale) {
+            return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              // theme: customThemeData,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'), // English
+                Locale('vi'), // Vietnamese
+              ],
+              locale: locale,
+              routerConfig: router,
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,25 +1,27 @@
+import 'package:mobile/data/models/toy_model.dart';
 import 'package:mobile/data/models/video_model.dart';
+import 'package:mobile/enum/enum.dart';
 
 class SlotModel {
-  int slotId;
+  int? slotId;
   int? position;
-  bool? isOpened;
+  SlotStateEnum? state;
+  bool? isVisible;
   DateTime? openedAt;
-  int? toyId;
+  ToyModel? toy;
   int? setId;
-  int? orderDetailId;
   DateTime? createdAt;
   DateTime? updatedAt;
   VideoModel? video;
 
   SlotModel({
-    required this.slotId,
+    this.slotId,
     this.position,
-    this.isOpened,
+    this.state,
+    this.isVisible,
     this.openedAt,
-    this.toyId,
+    this.toy,
     this.setId,
-    this.orderDetailId,
     this.createdAt,
     this.updatedAt,
     this.video,
@@ -28,11 +30,11 @@ class SlotModel {
   List<Object?> get props => [
     slotId,
     position,
-    isOpened,
+    state,
+    isVisible,
     openedAt,
-    toyId,
+    toy,
     setId,
-    orderDetailId,
     createdAt,
     updatedAt,
     video,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/transaction/transaction_event.dart';
 import 'package:mobile/blocs/transaction/transaction_state.dart';
+import 'package:mobile/data/models/transaction_model.dart';
 import 'package:mobile/data/repositories/transaction_repository.dart';
 import 'package:openapi/api.dart';
 
@@ -10,9 +12,16 @@ import 'package:openapi/api.dart';
 @lazySingleton
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final TransactionRepository _transactionRepository;
+  final PagingController<int, TransactionModel> pagingController;
+
+  TransactionPaginationState _paginationState;
+  TransactionDataState _dataState;
 
   TransactionBloc(this._transactionRepository)
-      : super(TransactionState(pageable: Pageable(page: 1, size: 20))) {
+      : _paginationState = TransactionPaginationState(pageable: Pageable(page: 1, size: 20)),
+        _dataState = const TransactionDataState(),
+        pagingController = PagingController(firstPageKey: 1),
+        super(TransactionLoadingState()) {
     on<SelectTransaction>(_onSelectTransaction);
     on<GetTransactions>(_onGetTransactions);
     on<GetTransactionById>(_onGetTransactionById);
@@ -22,33 +31,51 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       SelectTransaction event,
       Emitter<TransactionState> emit,
       ) {
-    emit(state.copyWith(filter: event.transaction));
+    _dataState = _dataState.copyWith(filter: event.transaction);
+    emit(_dataState);
   }
 
   Future<void> _onGetTransactions(
       GetTransactions event,
       Emitter<TransactionState> emit,
       ) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(TransactionLoadingState(isLoading: true));
 
     try {
+      final pageable = Pageable(
+          page: event.pageKey,
+          size: 20,
+          sort: ['desc']
+      );
+
       final transactions = await _transactionRepository.getTransactions(
-          state.pageable,
-          state.filter ?? '',
-          state.search ?? ''
+          pageable,
+          _dataState.filter ?? '',
+          _dataState.search ?? ''
       );
       debugPrint('transactions: $transactions');
 
-      emit(state.copyWith(
-        transactionResponseModel: transactions,
-        isLoading: false,
-        pageable: Pageable(
-          page: state.pageable.page,
-          size: 20,
-        ),
-      ));
-    } catch (e) {
-      emit(state.copyWith(error: e.toString(), isLoading: false));
+      final isLastPage = transactions.content.length < pageable.size;
+
+      if (isLastPage) {
+        pagingController.appendLastPage(transactions.content);
+      } else {
+        pagingController.appendPage(
+            transactions.content,
+            event.pageKey + 1
+        );
+      }
+
+      _paginationState = _paginationState.copyWith(
+        pageable: pageable,
+        hasReachedEnd: isLastPage,
+      );
+
+      _dataState = _dataState.copyWith(transactionResponseModel: transactions);
+      emit(_dataState);
+    } catch (error) {
+      pagingController.error = error;
+      emit(TransactionLoadingState(error: error.toString(), isLoading: false));
     }
   }
 
@@ -56,16 +83,14 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       GetTransactionById event,
       Emitter<TransactionState> emit,
       ) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(TransactionLoadingState(isLoading: true));
 
     try {
       final transaction = await _transactionRepository.getTransactionById(event.id);
-      emit(state.copyWith(
-          transaction: transaction,
-          isLoading: false
-      ));
+      _dataState = _dataState.copyWith(transaction: transaction);
+      emit(_dataState);
     } catch (e) {
-      emit(state.copyWith(error: e.toString(), isLoading: false));
+      emit(TransactionLoadingState(error: e.toString()));
     }
   }
 }

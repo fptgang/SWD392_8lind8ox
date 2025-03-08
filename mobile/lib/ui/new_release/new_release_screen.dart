@@ -20,7 +20,7 @@ class NewReleasesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<SetBloc>()..add(GetSets()),
+      create: (context) => getIt<SetBloc>()..add(GetSets(1)),
       child: Scaffold(
         drawer: const CategoryDrawer(),
         appBar: _buildAppBar(context),
@@ -55,15 +55,15 @@ class NewReleasesScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: BlocBuilder<SetBloc, SetState>(
         builder: (context, state) {
-          if (state.isLoading != null) {
+          if (SetLoadingState().isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.error != null) {
-            return _buildErrorWidget(context, state.error!);
+          if (SetLoadingState().error != null) {
+            return _buildErrorWidget(context, SetLoadingState().error!);
           }
 
-          final sets = state.sets?.content;
+          final sets = SetDataState().sets?.content;
           if (sets == null || sets.isEmpty) {
             return _buildEmptyWidget();
           }
@@ -81,7 +81,7 @@ class NewReleasesScreen extends StatelessWidget {
         children: [
           Text(error),
           ElevatedButton(
-            onPressed: () => context.read<SetBloc>().add(GetSets()),
+            onPressed: () => context.read<SetBloc>().add(GetSets(1)),
             child: const Text('Retry'),
           ),
         ],

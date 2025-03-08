@@ -1,25 +1,43 @@
 
 
+import 'package:mobile/data/models/account_model.dart';
+import 'package:mobile/enum/enum.dart';
+
 class VoucherModel{
-  final int voucherId;
+  final int? voucherId;
   final int? orderId;
-  final int? accountId;
+  final AccountModel? account;
   final String? code;
-  final double discountRate;
+  final double? discountRate;
   final double? limitAmount;
-  final bool isUsed;
+  final VoucherStatusEnum? status;
   final DateTime? createdAt;
+  final DateTime? updatedAt;
   final DateTime? expiredAt;
 
   VoucherModel({
-    required this.voucherId,
+    this.voucherId,
     this.orderId,
-    this.accountId,
+    this.account,
     this.code,
-    required this.discountRate,
+    this.discountRate,
     this.limitAmount,
-    this.isUsed = false,
+    this.status,
     this.createdAt,
+    this.updatedAt,
     this.expiredAt,
   });
+
+  List<Object?> get props => [
+    voucherId,
+    orderId,
+    account,
+    code,
+    discountRate,
+    limitAmount,
+    status,
+    createdAt,
+    updatedAt,
+    expiredAt,
+  ];
 }

@@ -7,6 +7,5 @@ import 'package:openapi/api.dart';
 @Singleton()
 abstract class ImageRepository {
   Future<ImageModel> getImageById(int id);
-  Future<PaginationResponseGeneric<Page>> getImages(
-      Pageable pageable, String filter, String search);
+  Future<PaginationResponseGeneric<ImageModel>> getImages(Pageable pageable, String filter, String search);
 }

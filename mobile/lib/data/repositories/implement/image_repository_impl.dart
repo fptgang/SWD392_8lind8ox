@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/data/mapper/image_mapper.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/image_model.dart';
 import 'package:mobile/main.dart';
@@ -17,14 +18,21 @@ class ImageRepositoryImpl implements ImageRepository {
   }
 
   @override
-  Future<ImageModel> getImageById(int id) {
-    // TODO: implement getImageById
-    throw UnimplementedError();
+  Future<ImageModel> getImageById(int id) async {
+    try{
+      ImageDto? imageDto = await _apiService.getImageById(id);
+      if(imageDto == null){
+        throw Exception('Cannot get image information');
+      }
+      ImageModel imageModel = ImageMapper.toModel(imageDto);
+      return imageModel;
+    }catch(e){
+      throw Exception('Cannot get image information');
+    }
   }
 
   @override
-  Future<PaginationResponseGeneric<Page>> getImages(
-      Pageable pageable, String filter, String search) {
+  Future<PaginationResponseGeneric<ImageModel>> getImages(Pageable pageable, String filter, String search) {
     // TODO: implement getImages
     throw UnimplementedError();
   }

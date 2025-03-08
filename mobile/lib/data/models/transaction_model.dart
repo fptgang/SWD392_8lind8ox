@@ -1,35 +1,36 @@
 
 
+import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/enum/enum.dart';
 
 class TransactionModel{
-  final int transactionId;
-  final int accountId;
-  final TransactionType type;
-  final PaymentMethod paymentMethod;
-  final DateTime createdAt;
-  final double amount;
-  final double oldBalance;
-  final double newBalance;
-  final int orderId;
-  final bool success;
+  final int? transactionId;
+  final AccountModel? account;
+  final TransactionType? type;
+  final PaymentMethod? paymentMethod;
+  final DateTime? createdAt;
+  final double? amount;
+  final double? oldBalance;
+  final double? newBalance;
+  final int? orderId;
+  final TransactionStatusEnum? status;
 
   TransactionModel({
-    required this.transactionId,
-    required this.accountId,
-    required this.type,
-    required this.paymentMethod,
-    required this.createdAt,
-    required this.amount,
-    required this.oldBalance,
-    required this.newBalance,
-    required this.orderId,
-    required this.success,
+    this.transactionId,
+    this.account,
+    this.type,
+    this.paymentMethod,
+    this.createdAt,
+    this.amount,
+    this.oldBalance,
+    this.newBalance,
+    this.orderId,
+    this.status,
   });
 
   List<Object?> get props => [
     transactionId,
-    accountId,
+    account,
     type,
     paymentMethod,
     createdAt,
@@ -37,6 +38,6 @@ class TransactionModel{
     oldBalance,
     newBalance,
     orderId,
-    success,
+    status,
   ];
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/data/mapper/brand_mapper.dart';
+import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/models/brand_model.dart';
-import 'package:mobile/data/models/brands_response_model.dart';
+import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/di/injection.dart';
 import 'package:openapi/api.dart';
 
@@ -23,11 +24,14 @@ class BrandRepositoryImpl implements BrandRepository {
   }
 
   @override
-  Future<BrandsResponseModel> getBrands(Pageable pageable, String filter, String search) async {
+  Future<PaginationResponseGeneric<BrandModel>> getBrands(Pageable pageable, String filter, String search) async {
     try {
       GetBrands200Response? response = await _apiService.getBrands(pageable: pageable, filter: filter, search: search);
       if (response == null) throw Exception("Brands not found");
-      BrandsResponseModel brandsResponseModel = BrandMapper.toModels(response);
+      PaginationResponseGeneric<BrandModel> brandsResponseModel = PaginationResponseMapper.toModel(
+        dto: response,
+        fromDTO: (data) => BrandMapper.toModel(data),
+      );
       return brandsResponseModel;
     } catch (e) {
       debugPrint('[BrandRepositoryImpl] getBrands: $e');

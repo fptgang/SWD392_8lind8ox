@@ -1,5 +1,6 @@
 
 
+import 'package:mobile/data/mapper/image_mapper.dart';
 import 'package:mobile/data/models/toy_model.dart';
 import 'package:mobile/enum/enum.dart';
 import 'package:openapi/api.dart';
@@ -15,7 +16,7 @@ class ToyMapper{
       isVisible: dto.isVisible!,
       createdAt: dto.createdAt!,
       updatedAt: dto.updatedAt,
-      blindBoxId: dto.blindBoxId!,
+      images: dto.images.map((e) => ImageMapper.toModel(e)).toList(),
     );
   }
 

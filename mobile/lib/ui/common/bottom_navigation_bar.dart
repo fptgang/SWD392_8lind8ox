@@ -40,7 +40,7 @@ class MainScreen extends StatelessWidget {
       case 1:
         return SearchScreen();
       case 2:
-        return CartScreen();
+        return CartScreen(isFromBottomNav: true);
       case 3:
         return NewReleasesScreen();
       case 4:

@@ -10,5 +10,5 @@ import 'package:openapi/api.dart';
 @Singleton()
 abstract class VoucherRepository {
   Future<VoucherModel> getVoucherById(int id);
-  Future<PaginationResponseGeneric<GetVouchers200Response>> getVouchers(Pageable pageable, String filter, String search);
+  Future<PaginationResponseGeneric<VoucherModel>> getVouchers(Pageable pageable, String filter, String search);
 }

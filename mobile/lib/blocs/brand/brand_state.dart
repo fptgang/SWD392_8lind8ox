@@ -1,43 +1,73 @@
 import 'package:mobile/data/models/brand_model.dart';
-import 'package:mobile/data/models/brands_response_model.dart';
+import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:openapi/api.dart';
 
-class BrandState {
-  Pageable pageable;
-  final String? filter;
-  final String? search;
-  final bool? isLoading;
-  final BrandsResponseModel? brands;
-  final BrandModel? brand;
+abstract class BrandState {}
+
+class BrandPaginationState implements BrandState {
+  final Pageable pageable;
+  final bool hasReachedEnd;
+
+  const BrandPaginationState({
+    required this.pageable,
+    this.hasReachedEnd = false,
+  });
+
+  BrandPaginationState copyWith({
+    Pageable? pageable,
+    bool? hasReachedEnd,
+  }) {
+    return BrandPaginationState(
+      pageable: pageable ?? this.pageable,
+      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+    );
+  }
+}
+
+class BrandLoadingState implements BrandState {
+  final bool isLoading;
   final String? error;
 
-  BrandState({
-    Pageable? pageable,
-    this.filter,
-    this.search,
-    this.isLoading,
-    this.brands,
-    this.brand,
+  const BrandLoadingState({
+    this.isLoading = false,
     this.error,
-  }) : pageable = pageable ?? Pageable(page: 0, size: 10, sort: ['desc']);
+  });
 
-  BrandState copyWith({
-    Pageable? pageable,
-    String? filter,
-    String? search,
+  BrandLoadingState copyWith({
     bool? isLoading,
-    BrandsResponseModel? brands,
-    BrandModel? brand,
     String? error,
   }) {
-    return BrandState(
-      pageable: pageable ?? this.pageable,
-      filter: filter ?? this.filter,
-      search: search ?? this.search,
+    return BrandLoadingState(
       isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
+}
+
+class BrandDataState implements BrandState {
+  final PaginationResponseGeneric<BrandModel>? brands;
+  final BrandModel? brand;
+  final String? filter;
+  final String? search;
+
+  const BrandDataState({
+    this.brands,
+    this.brand,
+    this.filter,
+    this.search,
+  });
+
+  BrandDataState copyWith({
+    PaginationResponseGeneric<BrandModel>? brands,
+    BrandModel? brand,
+    String? filter,
+    String? search,
+  }) {
+    return BrandDataState(
       brands: brands ?? this.brands,
       brand: brand ?? this.brand,
-      error: error ?? this.error,
+      filter: filter ?? this.filter,
+      search: search ?? this.search,
     );
   }
 }

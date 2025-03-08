@@ -49,10 +49,10 @@ class RecommendedItems extends StatelessWidget {
   }
 
   Widget _buildGridView(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.7,
+    return Container(
+      height: 550,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: PagedGridView<int, BlindBoxModel>(
-        shrinkWrap: true,
         pagingController: context.read<BlindBoxesBloc>().pagingController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -63,7 +63,6 @@ class RecommendedItems extends StatelessWidget {
         builderDelegate: PagedChildBuilderDelegate<BlindBoxModel>(
           itemBuilder: (context, blindBox, index) => _buildGridItem(context, blindBox),
           firstPageErrorIndicatorBuilder: (context) => CommonErrorWidget(
-            // error: AppLocalizations.of(context)?.error ?? 'Error',
             error: 'Error',
             onRetry: () => context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
           ),
@@ -146,15 +145,19 @@ class RecommendedItems extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: getColorSkin().primaryRed950,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           ...blindBox.skus.map((sku) => Text(
-            "\$${sku.price?.toStringAsFixed(2) ?? '0.00'}",
-            style: TextStyle(color: getColorSkin().primaryRed800),
+            "${sku.price?.toStringAsFixed(2) ?? '0.00'}VND",
+            style: TextStyle(
+              color: getColorSkin().primaryRed800,
+              fontWeight: FontWeight.bold,
+            ),
           )),
         ],
       ),
     );
   }
-
 }

@@ -1,47 +1,96 @@
+import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/set_model.dart';
 import 'package:mobile/data/models/sets_response_model.dart';
+import 'package:mobile/data/models/sku_model.dart';
 import 'package:openapi/api.dart';
 
-class SetState {
-  Pageable pageable;
-  final String? filter;
-  final String? search;
-  final bool? isLoading;
-  final bool? isOutOfStock;
-  final SetResponseModel? sets;
-  final SetModel? set;
+abstract class SetState {}
+
+class SetPaginationState implements SetState {
+  final Pageable pageable;
+  final bool hasReachedEnd;
+
+  const SetPaginationState({
+    required this.pageable,
+    this.hasReachedEnd = false,
+  });
+
+  SetPaginationState copyWith({
+    Pageable? pageable,
+    bool? hasReachedEnd,
+  }) {
+    return SetPaginationState(
+      pageable: pageable ?? this.pageable,
+      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+    );
+  }
+}
+
+class SetLoadingState implements SetState {
+  final bool isLoading;
+  final bool isOutOfStock;
   final String? error;
 
-  SetState({
-    Pageable? pageable,
-    this.filter,
-    this.search,
-    this.isLoading,
-    this.isOutOfStock,
-    this.sets,
-    this.set,
+  const SetLoadingState({
+    this.isLoading = false,
+    this.isOutOfStock = false,
     this.error,
-  }) : pageable = pageable ?? Pageable(page: 0, size: 10, sort: ['desc']);
+  });
 
-  SetState copyWith({
-    Pageable? pageable,
-    String? filter,
-    String? search,
+  SetLoadingState copyWith({
     bool? isLoading,
     bool? isOutOfStock,
-    SetResponseModel? sets,
-    SetModel? set,
     String? error,
   }) {
-    return SetState(
-      pageable: pageable ?? this.pageable,
-      filter: filter ?? this.filter,
-      search: search ?? this.search,
+    return SetLoadingState(
       isLoading: isLoading ?? this.isLoading,
       isOutOfStock: isOutOfStock ?? this.isOutOfStock,
-      sets: sets ?? this.sets,
-      set: set ?? this.set,
       error: error ?? this.error,
     );
+  }
+}
+
+class SetDataState implements SetState {
+  final PaginationResponseGeneric<SetModel>? sets;
+  final SetModel? set;
+  final String? filter;
+  final String? search;
+  final List<StockKeepingUnitModel>? skus;
+  final StockKeepingUnitModel? selectedSku;
+  final Map<int, String>? setImages; // Maps set ID to primary image URL
+
+  const SetDataState({
+    this.sets,
+    this.set,
+    this.filter,
+    this.search,
+    this.skus,
+    this.selectedSku,
+    this.setImages,
+  });
+
+  SetDataState copyWith({
+    PaginationResponseGeneric<SetModel>? sets,
+    SetModel? set,
+    String? filter,
+    String? search,
+    List<StockKeepingUnitModel>? skus,
+    StockKeepingUnitModel? selectedSku,
+    Map<int, String>? setImages,
+  }) {
+    return SetDataState(
+      sets: sets ?? this.sets,
+      set: set ?? this.set,
+      filter: filter ?? this.filter,
+      search: search ?? this.search,
+      skus: skus ?? this.skus,
+      selectedSku: selectedSku ?? this.selectedSku,
+      setImages: setImages ?? this.setImages,
+    );
+  }
+  
+  // Helper method to get the image URL for a specific set
+  String? getSetImageUrl(int setId) {
+    return setImages?[setId];
   }
 }

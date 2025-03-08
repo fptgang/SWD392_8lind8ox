@@ -11,9 +11,22 @@ class PromotionMapper {
       endDate: dto.endDate!,
       discountRate: dto.discountRate!,
       isVisible: dto.isVisible!,
-      blindBoxes: [],
       createdAt: dto.createdAt!,
       updatedAt: dto.updatedAt,
+    );
+  }
+
+  static PromotionalCampaignDto toDto(PromotionModel model) {
+    return PromotionalCampaignDto(
+      campaignId: model.campaignId!,
+      title: model.title!,
+      description: model.description!,
+      startDate: model.startDate!,
+      endDate: model.endDate!,
+      discountRate: model.discountRate,
+      isVisible: model.isVisible!,
+      createdAt: model.createdAt!,
+      updatedAt: model.updatedAt,
     );
   }
 }

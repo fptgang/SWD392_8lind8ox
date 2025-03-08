@@ -9,5 +9,5 @@ import 'package:openapi/api.dart';
 @Singleton()
 abstract class PromotionRepository {
   Future<PromotionModel> getPromotionById(int id);
-  Future<PaginationResponseGeneric<GetPromotionalCampaigns200Response>> getPromotions(Pageable pageable, String filter, String search);
+  Future<PaginationResponseGeneric<PromotionModel>> getPromotions(Pageable pageable, String filter, String search);
 }

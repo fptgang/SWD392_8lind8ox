@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/ui/common/bottomsheet.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/homepage/widget/filter_button.dart';
 import 'package:mobile/ui/homepage/widget/new_release_products.dart';
 import 'package:mobile/ui/homepage/widget/recommended_item.dart';
 import 'package:mobile/ui/homepage/widget/set_section.dart';
-
 import '../common/language_dropdown.dart';
 
 class HomePageScreen extends StatelessWidget {
-  // final AuthRepository authRepository;
   const HomePageScreen({super.key});
 
   static Route<void> route() {
@@ -26,7 +24,7 @@ class HomePageScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0.w.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -54,7 +52,7 @@ class HomePageScreen extends StatelessWidget {
                     ),
                     SizedBox(width: 10.w),
                     CircleAvatar(
-                      radius: 22,
+                      radius: 22.r,
                       backgroundColor: getColorSkin().primaryRed600,
                       child: Icon(Icons.search,
                           color: getColorSkin().backgroundColor),
@@ -66,10 +64,10 @@ class HomePageScreen extends StatelessWidget {
                 SizedBox(height: 20.h),
 
                 Container(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.w.h),
                   decoration: BoxDecoration(
                     color: getColorSkin().primaryRed50,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Row(
                     children: [
@@ -87,7 +85,9 @@ class HomePageScreen extends StatelessWidget {
                             ),
                             SizedBox(height: 8.h),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                context.push('/shopping');
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: getColorSkin().primaryRed600,
                                 shape: RoundedRectangleBorder(
@@ -99,9 +99,10 @@ class HomePageScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SvgPicture.asset(
-                        "assets/icons/discount.svg",
-                        height: 100,
+                      Icon(
+                        Icons.local_offer,
+                        color: getColorSkin().primaryRed500,
+                        size: 40,
                       ),
                     ],
                   ),

@@ -51,3 +51,9 @@ class OrderFetched extends CheckoutEvent {
 }
 
 class CalculateTotalPrice extends CheckoutEvent {}
+
+class ApplyVoucher extends CheckoutEvent {
+  final String voucherCode;
+
+  ApplyVoucher(this.voucherCode);
+}

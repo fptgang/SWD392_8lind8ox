@@ -5,7 +5,6 @@ class BrandModel {
   final bool isVisible;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final List<int> blindBoxes;
 
   BrandModel({
     required this.brandId,
@@ -14,7 +13,6 @@ class BrandModel {
     required this.isVisible,
     required this.createdAt,
     this.updatedAt,
-    this.blindBoxes = const [],
   });
 
   List<Object?> get props => [
@@ -24,6 +22,5 @@ class BrandModel {
     isVisible,
     createdAt,
     updatedAt,
-    blindBoxes,
   ];
 }

@@ -10,5 +10,5 @@ import 'package:openapi/api.dart';
 abstract class TransactionRepository {
   Future<TransactionModel> getTransactionById(int id);
   Future<TransactionModel> createTransaction(TransactionModel transaction);
-  Future<PaginationResponseGeneric<GetTransactions200Response>> getTransactions(Pageable pageable, String filter, String search);
+  Future<PaginationResponseGeneric<TransactionModel>> getTransactions(Pageable pageable, String filter, String search);
 }

@@ -1,43 +1,59 @@
+import 'package:equatable/equatable.dart';
 
+abstract class BlindBoxDetailEvent extends Equatable {
+  const BlindBoxDetailEvent();
 
-    abstract class BlindBoxDetailEvent {
-      const BlindBoxDetailEvent();
+  @override
+  List<Object> get props => [];
+}
 
-      @override
-      List<Object> get props => [];
-    }
+class FetchBlindBoxDetail extends BlindBoxDetailEvent {
+  final int id;
 
-    class FetchBlindBoxDetail extends BlindBoxDetailEvent {
-      final int id;
+  const FetchBlindBoxDetail(this.id);
 
-      FetchBlindBoxDetail(this.id);
+  @override
+  List<Object> get props => [id];
+}
 
-      @override
-      List<Object> get props => [id];
-    }
+class OutOfStockBlindBoxDetail extends BlindBoxDetailEvent {
+  final int id;
 
-    class OutOfStockBlindBoxDetail extends BlindBoxDetailEvent {
-      final String id;
+  const OutOfStockBlindBoxDetail(this.id);
 
-      OutOfStockBlindBoxDetail(this.id);
+  @override
+  List<Object> get props => [id];
+}
 
-      @override
-      List<Object> get props => [id];
-    }
+class SelectBlindBoxDetail extends BlindBoxDetailEvent {
+  final int id;
 
-    class SelectBlindBoxDetail extends BlindBoxDetailEvent {
-      final String id;
+  const SelectBlindBoxDetail(this.id);
 
-      SelectBlindBoxDetail(this.id);
+  @override
+  List<Object> get props => [id];
+}
 
-      @override
-      List<Object> get props => [id];
-    }
+class UpdateSelectedImage extends BlindBoxDetailEvent {
+  final int index;
 
-    class UpdateSelectedImage extends BlindBoxDetailEvent {
-      final int index;
-      UpdateSelectedImage(this.index);
-    }
+  const UpdateSelectedImage(this.index);
 
-    class IncrementQuantity extends BlindBoxDetailEvent {}
-    class DecrementQuantity extends BlindBoxDetailEvent {}
+  @override
+  List<Object> get props => [index];
+}
+
+class IncrementQuantity extends BlindBoxDetailEvent {}
+
+class DecrementQuantity extends BlindBoxDetailEvent {}
+
+class SelectSku extends BlindBoxDetailEvent {
+  final int skuId;
+
+  const SelectSku({required this.skuId});
+
+  @override
+  List<Object> get props => [skuId];
+}
+
+class ToggleDescriptionExpansion extends BlindBoxDetailEvent {}

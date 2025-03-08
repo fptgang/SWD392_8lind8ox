@@ -2,6 +2,7 @@
 
 import 'package:mobile/data/mapper/order_mapper.dart';
 import 'package:mobile/data/models/order_status_history_model.dart';
+import 'package:mobile/enum/enum.dart';
 import 'package:openapi/api.dart';
 
 class OrderStatusHistoryMapper {
@@ -9,7 +10,6 @@ class OrderStatusHistoryMapper {
     return OrderStatusHistoryModel(
       orderStatusHistoryId: dto.id!,
       orderId: dto.orderId!,
-      accountId: dto.accountId!,
       orderStatusHistoryEnum: OrderMapper.toOrderStatusHistoryEnumModel(dto.state!),
       createdAt: dto.createdAt!,
     );
@@ -19,8 +19,7 @@ class OrderStatusHistoryMapper {
     return OrderStatusHistoryDto(
       id: model.orderStatusHistoryId,
       orderId: model.orderId,
-      accountId: model.accountId,
-      state: OrderMapper.toOrderStatusHistoryEnumDto(model.orderStatusHistoryEnum),
+      state: OrderMapper.toOrderStatusHistoryEnumDto(model.orderStatusHistoryEnum ?? OrderStatusHistoryEnum.CREATED),
       createdAt: model.createdAt,
     );
   }

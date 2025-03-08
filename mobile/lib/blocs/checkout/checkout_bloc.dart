@@ -1,20 +1,27 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/checkout/checkout_event.dart';
 import 'package:mobile/blocs/checkout/checkout_state.dart';
 import 'package:mobile/blocs/order_detail/order_detail_bloc.dart';
 import 'package:mobile/data/models/order_detail_model.dart';
 import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
+import 'package:mobile/data/repositories/voucher_repository.dart';
 
 import '../order_detail/order_detail_event.dart';
 
+@injectable
+@lazySingleton
 class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   final OrderRepository orderRepository;
   final OrderDetailBloc orderDetailBloc;
+  final VoucherRepository? _voucherRepository;
 
-  CheckoutBloc({
+  CheckoutBloc(this._voucherRepository, {
     required this.orderRepository,
     required this.orderDetailBloc,
+    VoucherRepository? voucherRepository,
+
   }) : super(const CheckoutState()) {
 
     on<Checkout>(_onCheckout);
@@ -22,6 +29,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<OrderDetailAdded>(_onOrderDetailAdded);
     on<OrderFetched>(_onOrderFetched);
     on<CalculateTotalPrice>(_onCalculateTotalPrice);
+    // on<ApplyVoucher>(_onApplyVoucher);
 
     // Listen to OrderDetailBloc state changes
     orderDetailBloc.stream.listen((orderDetailState) {
@@ -39,9 +47,10 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       emit(state.copyWith(isLoading: true));
       final order = await orderRepository.getOrderById(event.orderId);
 
-      // For each order detail, fetch its data using OrderDetailBloc
-      for (var detail in order.orderDetails) {
-        orderDetailBloc.add(OrderDetailFetched(detail.orderDetailId));
+      if (order.orderDetails != null) {
+        for (var detail in order.orderDetails!) {
+          orderDetailBloc.add(OrderDetailFetched(detail.orderDetailId));
+        }
       }
 
       emit(state.copyWith(
@@ -64,7 +73,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       ) {
     if (state.orders == null) return;
 
-    final currentDetails = List<OrderDetailModel>.from(state.orders!.orderDetails);
+    final currentDetails = List<OrderDetailModel>.from(state.orders!.orderDetails ?? []);
 
     final index = currentDetails.indexWhere(
             (detail) => detail.orderDetailId == event.orderDetail.orderDetailId
@@ -78,7 +87,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     final updatedOrder = OrderModel(
       orderId: state.orders!.orderId,
-      accountId: state.orders!.accountId,
+      account: state.orders!.account,
       orderDetails: currentDetails,
       createdAt: state.orders!.createdAt,
       originalPrice: state.orders!.originalPrice,
@@ -98,23 +107,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     final details = state.orders!.orderDetails;
 
-    final originalPrice = details.fold<double>(
-      0,
-          (sum, detail) => sum + detail.originalPrice,
-    );
-
-    final checkoutPrice = details.fold<double>(
-            0,
-          (sum, detail) => sum + (detail.checkoutPrice ?? detail.originalPrice),
-    );
 
     final updatedOrder = OrderModel(
       orderId: state.orders!.orderId,
-      accountId: state.orders!.accountId,
+      account: state.orders!.account,
       orderDetails: details,
       createdAt: state.orders!.createdAt,
-      originalPrice: originalPrice,
-      checkoutPrice: checkoutPrice,
+      originalPrice: state.orders?.originalPrice,
+      checkoutPrice: state.orders?.checkoutPrice,
       updatedAt: DateTime.now(),
     );
 
@@ -135,10 +135,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      // Validate checkout data
-      if (event.orders == null || event.orders!.orderDetails.isEmpty) {
-        throw Exception('No items in order');
-      }
+      // if (event.orders == null || event.orders!.orderDetails.isEmpty) {
+      //   throw Exception('No items in order');
+      // }
 
       if (event.shippingInfo == null) {
         throw Exception('Shipping information is required');
@@ -165,9 +164,24 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
   bool isCheckoutValid() {
     return state.orders != null &&
-        state.orders!.orderDetails.isNotEmpty &&
+        state.orders!.orderDetails?.isNotEmpty == true &&
         state.shippingInfo != null &&
         state.selectedPaymentMethod != null &&
         state.selectedPaymentMethod!.isNotEmpty;
   }
+  // void _onApplyVoucher(ApplyVoucher event, Emitter<CheckoutState> emit) async {
+  //   try {
+  //     // Get the voucher by code from repository
+  //     final voucher = await _voucherRepository.getVoucherByCode(event.voucherCode);
+  //
+  //     if (voucher != null) {
+  //       emit(state.copyWith(selectedVoucher: voucher));
+  //     } else {
+  //       emit(state.copyWith(error: 'Invalid voucher code'));
+  //     }
+  //   } catch (e) {
+  //     emit(state.copyWith(error: 'Error applying voucher: ${e.toString()}'));
+  //   }
+  // }
+
 }

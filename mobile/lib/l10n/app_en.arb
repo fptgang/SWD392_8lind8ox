@@ -68,5 +68,7 @@
   "empty": "No data",
   "retry": "Retry",
   "noSetAvailable": "No sets available",
-    "error": "Error"
+    "error": "Error",
+  "sort": "Sort by",
+  "filterBy": "Filter"
 }
