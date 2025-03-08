@@ -36,4 +36,30 @@ public interface OrderRepos extends JpaRepository<Order, Long>, JpaSpecification
         ORDER BY DATE_FORMAT(o.createdAt, '%Y-%m')
     """)
     List<Object[]> getMonthlyRevenue();
+
+    @Query("""
+    SELECT FUNCTION('DATE_FORMAT', o.createdAt, 
+        CASE 
+            WHEN :groupBy = 'day' THEN '%Y-%m-%d'
+            WHEN :groupBy = 'week' THEN '%Y-%u'
+            WHEN :groupBy = 'month' THEN '%Y-%m'
+            ELSE '%Y-%m-%d'  
+        END
+    ) AS period, 
+    SUM(o.checkoutPrice) AS totalRevenue
+    FROM Order o
+    WHERE o.createdAt BETWEEN :startDate AND :endDate
+    GROUP BY FUNCTION('DATE_FORMAT', o.createdAt, 
+        CASE 
+            WHEN :groupBy = 'day' THEN '%Y-%m-%d'
+            WHEN :groupBy = 'week' THEN '%Y-%u'
+            WHEN :groupBy = 'month' THEN '%Y-%m'
+            ELSE '%Y-%m-%d'
+        END
+    )
+    ORDER BY MIN(o.createdAt)
+""")
+    List<Object[]> getRevenueTrend(String startDate, String endDate, String groupBy);
+
+
 }
