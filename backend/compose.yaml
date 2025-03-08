@@ -17,6 +17,7 @@ services:
     image: 'redis:latest'
     ports:
       - '6379:6379'
+    command: ["redis-server", "--appendonly", "yes", "--replicaof", "no", "one"]
 
 networks:
   app-network:
