@@ -1,0 +1,50 @@
+# Find available voucher, shipping info
+# SELECT a.account_id, a.balance as account_balance, v.voucher_id, v.discount_rate, s.shipping_info_id FROM account a, voucher v, shipping_info s WHERE v.account_id = a.account_id AND s.account_id = a.account_id AND v.state = 'AVAILABLE' AND v.expired_at > now() AND s.is_visible = 1 AND a.is_visible = 1 ORDER BY a.balance DESC
+
+# Find available skus without slots
+# SELECT sku.sku_id, sku.stock FROM sku, sets, slots WHERE sku.is_visible = 1 AND sets.is_visible = 1 AND sets.sku_id <> sku.sku_id AND slots.set_id = sets.set_id GROUP BY sku.sku_id, sku.stock ORDER BY sku.stock DESC
+
+# Find available skus with OPENED slots
+# SELECT sku.sku_id, sku.stock, slots.slot_id FROM sku, sets, slots WHERE sku.is_visible = 1 AND sets.is_visible = 1 AND sets.sku_id = sku.sku_id AND slots.set_id = sets.set_id AND slots.state = 'AVAILABLE' GROUP BY sku.sku_id, sku.stock, slots.slot_id ORDER BY count(slots.slot_id) DESC
+
+### Auth:
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin1@blindbox.com",
+  "password": "1"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### === Place order
+
+POST http://localhost:8080/api/v1/orders?accountId=6
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "voucherId": 67,
+  "items": [
+    {
+      "skuId": 70,
+      "slotId": null,
+      "quantity": 2
+    },
+    {
+      "skuId": 12,
+      "slotId": null,
+      "quantity": 2
+    },
+    {
+      "skuId": 31,
+      "slotId": 2,
+      "quantity": 1
+    }
+  ],
+  "shippingInfoId": 1,
+  "paymentMethod": "INTERNAL_WALLET"
+}
+
+###

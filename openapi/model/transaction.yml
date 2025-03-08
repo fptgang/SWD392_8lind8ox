@@ -11,8 +11,11 @@ TransactionDto:
       enum: [DEPOSIT, ORDER]
     paymentMethod:
       type: string
-      enum: [PAYPAL, VNPAY]
+      enum: [INTERNAL_WALLET, PAYPAL, VNPAY]
     createdAt:
+      type: string
+      format: date-time
+    updatedAt:
       type: string
       format: date-time
     amount:

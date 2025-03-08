@@ -1,9 +1,14 @@
 import {Set} from "./Set";
+import {escapeSingleQuotes} from "../utils";
+
+export enum SlotState {
+    OPENED = "OPENED", AVAILABLE = "AVAILABLE", RESERVED = "RESERVED"
+}
 
 export class Slot {
     slotId: number;
     createdAt: Date;
-    isOpened: boolean;
+    state: SlotState;
     isVisible: boolean;
     position: number;
     updatedAt: Date | null;
@@ -17,7 +22,7 @@ export class Slot {
     constructor(data: Partial<Slot> = {}) {
         this.slotId = data.slotId ?? 0;
         this.createdAt = data.createdAt ?? new Date();
-        this.isOpened = data.isOpened ?? true;
+        this.state = data.state ?? SlotState.AVAILABLE;
         this.isVisible = data.isVisible ?? true;
         this.position = data.position ?? 0;
         this.updatedAt = data.updatedAt ?? null;
@@ -33,7 +38,7 @@ export class Slot {
         const fields = [
             'slot_id',
             'created_at',
-            'is_opened',
+            'state',
             'is_visible',
             'position',
             'updated_at',
@@ -46,7 +51,7 @@ export class Slot {
             const formattedValues = [
                 slot.slotId,
                 slot.createdAt ? `'${slot.createdAt.toISOString().slice(0, 19)}.000000'` : 'NULL',
-                slot.isOpened ? 1 : 0,
+                `'${escapeSingleQuotes(slot.state)}'`,
                 slot.isVisible ? 1 : 0,
                 slot.position,
                 slot.updatedAt ? `'${slot.updatedAt.toISOString().slice(0, 19)}.000000'` : 'NULL',

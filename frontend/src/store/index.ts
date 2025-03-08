@@ -7,6 +7,17 @@ export const store = configureStore({
     cart: cartReducer,
     auth: authReducer
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['auth/setAuthenticatedAccount'],
+        ignoredPaths: [
+          'auth.account.verifiedAt',
+          'auth.account.createdAt',
+          'auth.account.updatedAt'
+        ],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

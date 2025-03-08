@@ -1,5 +1,9 @@
 import {escapeSingleQuotes} from "../utils.js";
 
+export enum VoucherState {
+    USED = "USED", AVAILABLE = "AVAILABLE", RESERVED = "RESERVED"
+}
+
 export class Voucher {
     voucherId: number;
     code: string; 
@@ -7,7 +11,7 @@ export class Voucher {
     updatedAt: Date | null;
     discountRate: number;
     expiredAt: Date;
-    isUsed: boolean;
+    state: VoucherState;
     limitAmount: number;
     accountId: number;
     orderId: number | null;
@@ -19,7 +23,7 @@ export class Voucher {
         this.updatedAt = partial.updatedAt || null;
         this.discountRate = partial.discountRate || 0;
         this.expiredAt = partial.expiredAt || new Date();
-        this.isUsed = partial.isUsed || false;
+        this.state = partial.state || VoucherState.AVAILABLE;
         this.limitAmount = partial.limitAmount || 0;
         this.accountId = partial.accountId || 0;
         this.orderId = partial.orderId ?? null;
@@ -29,7 +33,7 @@ export class Voucher {
         if (models.length === 0) return '';
 
         const fields = ['voucher_id', 'code', 'created_at', 'updated_at', 'discount_rate',
-                       'expired_at', 'is_used', 'limit_amount', 'account_id', 'order_id'];
+                       'expired_at', 'state', 'limit_amount', 'account_id', 'order_id'];
 
         const values = models.map(model => {
             return '(' + model.voucherId + ',' +
@@ -38,7 +42,7 @@ export class Voucher {
                    (model.updatedAt ? "'" + model.updatedAt.toISOString().slice(0, 19).replace('T', ' ') + ".000000'" : 'NULL') + ',' +
                    model.discountRate.toFixed(2) + ',' +
                    "'" + model.expiredAt.toISOString().slice(0, 19).replace('T', ' ') + ".000000'," +
-                   (model.isUsed ? 1 : 0) + ',' +
+                    `'${escapeSingleQuotes(model.state)}'` + ',' +
                    model.limitAmount.toFixed(2) + ',' +
                    model.accountId + ',' +
                    (model.orderId ?? 'NULL') + ')';

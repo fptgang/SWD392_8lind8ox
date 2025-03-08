@@ -1,4 +1,4 @@
-import {Slot} from "../model/Slot";
+import {Slot, SlotState} from "../model/Slot";
 import {SqlFileAppender} from "../appender";
 import {shuffle} from "../utils";
 
@@ -14,8 +14,8 @@ export class slotPool {
     const eligible = this.slots.filter(slot => {
       const matchesDate = slot.createdAt <= date;
       const isVisible = slot.isVisible;
-      const isOpened = slot.isOpened;
-      return matchesDate && isVisible && !isOpened;
+      const isAvailable = slot.state === SlotState.AVAILABLE;
+      return matchesDate && isVisible && isAvailable;
     });
     shuffle(eligible);
 
@@ -24,7 +24,7 @@ export class slotPool {
   }
 
   pickAllOpenedInBlindbox(blindBoxId: number): Slot[] {
-    return this.slots.filter(slot => slot.isOpened && slot.set?.blind_box_id === blindBoxId);
+    return this.slots.filter(slot => slot.state === SlotState.OPENED && slot.set?.blind_box_id === blindBoxId);
   }
 
   getNextId(): number {

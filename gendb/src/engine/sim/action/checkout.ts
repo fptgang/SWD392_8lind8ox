@@ -14,7 +14,7 @@ import {AccountRole} from "../../model/Account";
 import {OrderPool} from "../../pool/order";
 import {OrderDetail} from "../../model/OrderDetail";
 import {OrderDetailPool} from "../../pool/order_detail";
-import {Slot} from "../../model/Slot";
+import {Slot, SlotState} from "../../model/Slot";
 import {Sku} from "../../model/Sku";
 import {BlindBoxCampaignPool} from "../../pool/blindbox_campaign";
 import {VoucherPool} from "../../pool/voucher";
@@ -24,12 +24,14 @@ import {OrderStatusHistoryPool} from "../../pool/order_status_history";
 import {OrderState, OrderStatusHistory} from "../../model/OrderStatusHistory";
 import {TransactionPool} from "../../pool/transaction";
 import {
+  PaymentMethod,
   Transaction,
   TransactionStatus,
   TransactionType
 } from "../../model/Transaction";
 import {NotificationPool} from "../../pool/notification";
 import {Notification} from "../../model/Notification";
+import {VoucherState} from "../../model/Voucher";
 
 class CartItem {
   sku: Sku | null = null;
@@ -205,7 +207,7 @@ export function checkout(date: Date) {
 
   // Use voucher only if order is ok
   if (voucher) {
-    voucher.isUsed = true
+    voucher.state = VoucherState.USED
     voucher.updatedAt = date
     voucher.orderId = orderId
   }
@@ -215,10 +217,11 @@ export function checkout(date: Date) {
     account_id: account.account_id,
     amount: order.checkout_price,
     created_at: date,
+    updated_at: date,
     new_balance: account.balance - order.checkout_price,
     old_balance: account.balance,
     order_id: orderId,
-    payment_method: undefined,
+    payment_method: PaymentMethod.INTERNAL_WALLET,
     status: TransactionStatus.SUCCESS,
     transaction_id: TransactionPool.getNextId(),
     type: TransactionType.ORDER
@@ -248,7 +251,7 @@ export function checkout(date: Date) {
   // Update slots
   for (const detail of details) {
     if (!detail.slot) continue
-    detail.slot.isOpened = true
+    detail.slot.state = SlotState.OPENED
     detail.slot.openedAt = date
     detail.slot.updatedAt = date
   }

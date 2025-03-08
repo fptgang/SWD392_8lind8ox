@@ -1,11 +1,13 @@
 package com.fptgang.backend.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,10 +42,12 @@ public class Transaction {
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(precision = 10, scale = 2)
+    @Nullable
     private BigDecimal oldBalance;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(precision = 10, scale = 2)
+    @Nullable
     private BigDecimal newBalance;
 
     @Column(nullable = false)
@@ -52,6 +56,9 @@ public class Transaction {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     public enum Status {
         PENDING,
@@ -65,6 +72,7 @@ public class Transaction {
     }
 
     public enum PaymentMethod {
+        INTERNAL_WALLET,
         PAYPAL,
         VNPAY
     }
