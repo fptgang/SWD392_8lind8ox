@@ -1,5 +1,6 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.api.model.VoucherDto;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.*;
 import com.fptgang.backend.model.checkout.Cart;
@@ -46,7 +47,8 @@ public class OrderServiceImpl implements OrderService {
                             PromotionalCampaignService promotionalCampaignService,
                             ShippingInfoService shippingInfoService,
                             TransactionService transactionService,
-                            PaymentService paymentService) {
+                            PaymentService paymentService
+    ) {
         this.orderRepos = orderRepos;
         this.orderStatusHistoryRepos = orderStatusHistoryRepos;
         this.orderDetailRepos = orderDetailRepos;
@@ -83,7 +85,8 @@ public class OrderServiceImpl implements OrderService {
                 slot = slotService.findById(item.getSlotId());
                 if (slot == null || !slot.getIsVisible())
                     throw new InvalidInputException("Slot not found");
-                if (slot.getSet().getSku() != sku)
+                if (slot.getSet()
+                        .getSku() != sku)
                     throw new InvalidInputException("Slot does not match sku");
                 if (slot.getState() == Slot.State.OPENED)
                     throw new InvalidInputException("Slot is already opened");
@@ -109,16 +112,22 @@ public class OrderServiceImpl implements OrderService {
             orderDetails.add(orderDetail);
 
             log.info("OrderDetail SkuId={}, SlotId={}, Quantity={}, OriginalPrice={}, CheckoutPrice={}",
-                    item.getSkuId(), item.getSlotId(), item.getQuantity(), sku.getPrice(), checkoutPrice);
+                    item.getSkuId(),
+                    item.getSlotId(),
+                    item.getQuantity(),
+                    sku.getPrice(),
+                    checkoutPrice);
         }
 
         // Calculate total price
         BigDecimal totalOriginalPrice = orderDetails.stream()
-                .map(OrderDetail::getOriginalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                                                    .map(OrderDetail::getOriginalPrice)
+                                                    .reduce(BigDecimal.ZERO,
+                                                            BigDecimal::add);
         BigDecimal totalCheckoutPrice = orderDetails.stream()
-                .map(OrderDetail::getCheckoutPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                                                    .map(OrderDetail::getCheckoutPrice)
+                                                    .reduce(BigDecimal.ZERO,
+                                                            BigDecimal::add);
 
         // Validate voucher and update total checkout price
         Voucher voucher = null;
@@ -126,13 +135,16 @@ public class OrderServiceImpl implements OrderService {
             voucher = voucherService.findById(cart.getVoucherId());
             if (voucher == null)
                 throw new InvalidInputException("Voucher not found");
-            if (!Objects.equals(voucher.getAccount().getAccountId(), cart.getAccountId()))
+            if (!Objects.equals(voucher.getAccount()
+                                       .getAccountId(),
+                    cart.getAccountId()))
                 throw new InvalidInputException("Voucher does not belong to account");
             if (voucher.getState() == Voucher.State.USED)
                 throw new InvalidInputException("Voucher is already used");
             if (voucher.getState() == Voucher.State.RESERVED)
                 throw new InvalidInputException("Voucher has been reserved");
-            if (voucher.getExpiredAt().isBefore(LocalDateTime.now()))
+            if (voucher.getExpiredAt()
+                       .isBefore(LocalDateTime.now()))
                 throw new InvalidInputException("Voucher is expired");
 
             BigDecimal discount = totalCheckoutPrice.multiply(voucher.getDiscountRate());
@@ -141,14 +153,16 @@ public class OrderServiceImpl implements OrderService {
         }
 
         log.info("Order TotalOriginalPrice={}, TotalCheckoutPrice={}",
-                totalOriginalPrice, totalCheckoutPrice);
+                totalOriginalPrice,
+                totalCheckoutPrice);
 
         // Validate account and wallet balance (if using internal wallet)
         Account account = accountService.findById(cart.getAccountId());
         if (account == null)
             throw new InvalidInputException("Account not found");
         if (cart.getPaymentMethod() == Transaction.PaymentMethod.INTERNAL_WALLET) {
-            if (account.getBalance().compareTo(totalCheckoutPrice) < 0) {
+            if (account.getBalance()
+                       .compareTo(totalCheckoutPrice) < 0) {
                 throw new InvalidInputException("Not enough balance");
             }
         }
@@ -157,7 +171,9 @@ public class OrderServiceImpl implements OrderService {
         ShippingInfo shippingInfo = shippingInfoService.findById(cart.getShippingInfoId());
         if (shippingInfo == null)
             throw new InvalidInputException("ShippingInfo not found");
-        if (!Objects.equals(shippingInfo.getAccount().getAccountId(), cart.getAccountId()))
+        if (!Objects.equals(shippingInfo.getAccount()
+                                        .getAccountId(),
+                cart.getAccountId()))
             throw new InvalidInputException("ShippingInfo does not belong to account");
 
         // Create order
@@ -185,7 +201,8 @@ public class OrderServiceImpl implements OrderService {
 
         return cart.getPaymentMethod() == Transaction.PaymentMethod.INTERNAL_WALLET ?
                 payOrderByInternalWallet(order) :
-                payOrderByExternalWallet(order, cart.getPaymentMethod());
+                payOrderByExternalWallet(order,
+                        cart.getPaymentMethod());
     }
 
     private PlaceOrderResult payOrderByInternalWallet(Order order) {
@@ -202,37 +219,47 @@ public class OrderServiceImpl implements OrderService {
 
         // Use the voucher
         if (order.getVoucher() != null) {
-            order.getVoucher().setState(Voucher.State.USED);
-            order.getVoucher().setOrder(order);
+            order.getVoucher()
+                 .setState(Voucher.State.USED);
+            order.getVoucher()
+                 .setOrder(order);
             order.setVoucher(voucherService.update(order.getVoucher()));
         }
 
         // Use the slot
         for (OrderDetail orderDetail : order.getOrderDetails()) {
             if (orderDetail.getSlot() == null) continue;
-            orderDetail.getSlot().setState(Slot.State.OPENED);
+            orderDetail.getSlot()
+                       .setState(Slot.State.OPENED);
             orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
         }
 
-        log.info("Order {} paid by internal wallet successfully!", order.getOrderId());
+        log.info("Order {} paid by internal wallet successfully!",
+                order.getOrderId());
         PlaceOrderResult result = new PlaceOrderResult();
         result.setOrder(order);
         return result;
     }
 
-    private PlaceOrderResult payOrderByExternalWallet(Order order, Transaction.PaymentMethod paymentMethod) {
+    private PlaceOrderResult payOrderByExternalWallet(Order order,
+                                                      Transaction.PaymentMethod paymentMethod
+    ) {
         // Create DEPOSIT transaction
         Transaction depositTransaction = new Transaction();
         depositTransaction.setAccount(order.getAccount());
         depositTransaction.setAmount(order.getCheckoutPrice());
         depositTransaction.setPaymentMethod(paymentMethod);
         depositTransaction.setType(Transaction.Type.DEPOSIT);
+        depositTransaction.setOldBalance(order.getAccount()
+                                              .getBalance());
         depositTransaction.setStatus(Transaction.Status.PENDING);
         depositTransaction = transactionService.create(depositTransaction);
 
         // Create ORDER transaction
         Transaction orderTransaction = new Transaction();
         orderTransaction.setOrder(order);
+        orderTransaction.setOldBalance(order.getAccount()
+                                            .getBalance());
         orderTransaction.setAccount(order.getAccount());
         orderTransaction.setAmount(order.getCheckoutPrice());
         orderTransaction.setPaymentMethod(Transaction.PaymentMethod.INTERNAL_WALLET);
@@ -243,15 +270,18 @@ public class OrderServiceImpl implements OrderService {
 
         // Reserve the voucher
         if (order.getVoucher() != null) {
-            order.getVoucher().setState(Voucher.State.RESERVED);
-            order.getVoucher().setOrder(order);
+            order.getVoucher()
+                 .setState(Voucher.State.RESERVED);
+            order.getVoucher()
+                 .setOrder(order);
             order.setVoucher(voucherService.update(order.getVoucher()));
         }
 
         // Reserve the slot
         for (OrderDetail orderDetail : order.getOrderDetails()) {
             if (orderDetail.getSlot() == null) continue;
-            orderDetail.getSlot().setState(Slot.State.RESERVED);
+            orderDetail.getSlot()
+                       .setState(Slot.State.RESERVED);
             orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
         }
 
@@ -264,8 +294,11 @@ public class OrderServiceImpl implements OrderService {
         );
 
         log.info("Order {} paid by external wallet; depositTxn = {}, orderTxn = {}",
-                order.getOrderId(), depositTransaction.getTransactionId(), orderTransaction.getTransactionId());
-        log.info("Payment URL {}", payUrl);
+                order.getOrderId(),
+                depositTransaction.getTransactionId(),
+                orderTransaction.getTransactionId());
+        log.info("Payment URL {}",
+                payUrl);
         PlaceOrderResult result = new PlaceOrderResult();
         result.setOrder(order);
         result.setPaymentRedirectUrl(payUrl);
@@ -277,7 +310,8 @@ public class OrderServiceImpl implements OrderService {
     public synchronized void handlePaymentCallback(Transaction.PaymentMethod method,
                                                    long depositTxnId,
                                                    long orderId,
-                                                   boolean success) {
+                                                   boolean success
+    ) {
         // Update DEPOSIT transaction
         Transaction depositTransaction = transactionService.findById(depositTxnId);
         if (depositTransaction == null) {
@@ -343,25 +377,33 @@ public class OrderServiceImpl implements OrderService {
         }
 
         log.info("Order {} paid by external wallet status {}; depositTxn = {}, orderTxn = {}",
-                orderId, orderTransaction.getStatus(), depositTxnId, orderTransaction.getTransactionId());
+                orderId,
+                orderTransaction.getStatus(),
+                depositTxnId,
+                orderTransaction.getTransactionId());
     }
 
     @Override
     public Order findById(long id) {
-        return orderRepos.findById(id).orElse(null);
+        return orderRepos.findById(id)
+                         .orElse(null);
     }
 
     @Override
     public Order update(Order order) {
         Order existing = orderRepos.findById(order.getOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
-        EntityUtil.merge(existing, order);
+                                   .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
+        EntityUtil.merge(existing,
+                order);
         return orderRepos.save(existing);
     }
 
     @Override
     public Page<Order> getAll(ListParams params) {
         var spec = params.<Order>toSpec();
-        return orderRepos.findAll(spec, params.getPageable());
+        return orderRepos.findAll(spec,
+                params.getPageable());
     }
+
+
 }

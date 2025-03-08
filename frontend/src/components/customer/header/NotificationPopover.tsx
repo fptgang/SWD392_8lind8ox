@@ -106,7 +106,8 @@ export const NotificationPopover: React.FC = () => {
 
   const [pageSize, setPageSize] = React.useState(10);
 
-  const email = parseJwt(localStorage.getItem("refine-auth") ?? "")?.sub;
+  const jwtPayload = parseJwt(localStorage.getItem("refine-auth") ?? "");
+  const email = jwtPayload?.email || jwtPayload?.sub || "";
 
   const { data, isLoading, isError, refetch } = useList<NotificationDto>({
     resource: "notifications",
@@ -116,7 +117,7 @@ export const NotificationPopover: React.FC = () => {
   });
 
   useSubscription({
-    channel: "noti/" + email,
+    channel: email ? `noti/${email}` : "",
     onLiveEvent: (event) => {
       console.log("New notification", event);
       refetch();

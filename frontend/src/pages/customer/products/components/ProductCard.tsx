@@ -41,7 +41,7 @@ export const ProductCard: React.FC<SkuCardProps> = ({
           ) : (
             <img
               alt={`${blindBox.name || "Product"} - ${sku.name || ""}`}
-              src={imageUrl}
+              src={typeof sku.image === 'string' ? sku.image : sku.image?.imageUrl ?? ""}
               className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-300 hover:scale-110"
               onError={() => {
                 setImgError(true);

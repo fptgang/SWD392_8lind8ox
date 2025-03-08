@@ -47,6 +47,7 @@ public class OrderController implements OrdersApi {
             accountId = SecurityUtil.requireCurrentUserId();
         }
 
+
         var cart = cartMapper.toEntity(cartDto);
         cart.setAccountId(accountId);
         var res = orderService.place(cart);

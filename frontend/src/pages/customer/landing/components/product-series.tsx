@@ -55,9 +55,7 @@ const ProductSeries: React.FC = () => {
     
     // Find active campaign if exists
     const hasActiveCampaign = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
-    const activePromotionalCampaignId = hasActiveCampaign && product.blindBoxCampaigns[0]
-      ? product.blindBoxCampaigns[0].promotionalCampaignId
-      : undefined;
+    const activePromotionalCampaignId = hasActiveCampaign ? product.blindBoxCampaigns?.[0]?.promotionalCampaignId : undefined;
     
     // Calculate discounted price if applicable
     const skuPrice = sku.price || 0;
@@ -86,7 +84,11 @@ const ProductSeries: React.FC = () => {
           <Title level={2} className="!mb-2">Popular Series</Title>
           <Text className="text-gray-600">Discover our latest and most exciting blind box series</Text>
         </div>
-        <Button type="link" size="large">
+        <Button 
+          type="link" 
+          size="large"
+          onClick={() => go({ to: '/products' })}
+        >
           View All Series
         </Button>
       </div>
