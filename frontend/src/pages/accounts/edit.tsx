@@ -46,7 +46,12 @@ export const AccountsEdit: React.FC = () => {
   ];
 
   return (
-    <Edit saveButtonProps={saveButtonProps}>
+    <Edit
+      saveButtonProps={{
+        ...saveButtonProps,
+        disabled: AccountDtosData?.isVerified,
+      }}
+    >
       <Card
         title={
           <span className="text-lg font-semibold flex items-center gap-2">
@@ -113,6 +118,7 @@ export const AccountsEdit: React.FC = () => {
                   placeholder="Enter email address"
                   className="w-full"
                   allowClear
+                  disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>
@@ -135,6 +141,7 @@ export const AccountsEdit: React.FC = () => {
                   placeholder="Enter first name"
                   className="w-full"
                   allowClear
+                  disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>
@@ -155,6 +162,7 @@ export const AccountsEdit: React.FC = () => {
                   placeholder="Enter last name"
                   className="w-full"
                   allowClear
+                  disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>
@@ -181,6 +189,7 @@ export const AccountsEdit: React.FC = () => {
                   className="w-full"
                   showSearch
                   optionFilterProp="label"
+                  disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>

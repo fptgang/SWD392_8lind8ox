@@ -1,7 +1,7 @@
 ImageBlobDto:
   type: object
   properties:
-    uploaderId:
+    skuId:
       type: integer
       format: int64
     blindBoxId:
@@ -13,5 +13,3 @@ ImageBlobDto:
     imageBlob:
       type: string
       format: binary
-    isVisible:
-      type: boolean

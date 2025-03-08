@@ -33,15 +33,16 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<ImageDto> uploadImage(Long uploaderId, Long blindBoxId, Long toyId, MultipartFile imageBlob, Boolean isVisible) {
+    public ResponseEntity<ImageDto> uploadImage(Long skuId, Long blindBoxId, Long toyId, MultipartFile imageBlob) {
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can upload images.");
         }
         ImageDto dto = new ImageDto()
-                .uploader(new AccountDto().accountId(uploaderId))
+                .uploader(new AccountDto().accountId(SecurityUtil.requireCurrentUserId()))
                 .blindBoxId(blindBoxId)
                 .toyId(toyId)
-                .isVisible(isVisible);
+                .skuId(skuId)
+                .isVisible(true);
         return new ResponseEntity<>(
                 imageMapper.toDTO(imageService.create(imageMapper.toEntity(dto), imageBlob), DetailLevel.FULL),
                 HttpStatus.CREATED
@@ -74,16 +75,17 @@ public class ImageController implements ImagesApi {
     }
 
     @Override
-    public ResponseEntity<ImageDto> updateImage(Long imageId, Long uploaderId, Long blindBoxId, Long toyId, MultipartFile imageBlob, Boolean isVisible) {
+    public ResponseEntity<ImageDto> updateImage(Long imageId, Long skuId, Long blindBoxId, Long toyId, MultipartFile imageBlob) {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can update images.");
         }
         ImageDto dto = new ImageDto()
                 .imageId(imageId)
-                .uploader(new AccountDto().accountId(uploaderId))
+                .uploader(new AccountDto().accountId(SecurityUtil.requireCurrentUserId()))
                 .blindBoxId(blindBoxId)
                 .toyId(toyId)
-                .isVisible(isVisible);
+                .skuId(skuId)
+                .isVisible(true);
         return ResponseEntity.ok(
                 imageMapper.toDTO(
                         imageService.update(imageMapper.toEntity(dto), imageBlob),

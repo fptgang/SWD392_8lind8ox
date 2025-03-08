@@ -4,6 +4,7 @@ import com.fptgang.backend.api.model.ImageDto;
 import com.fptgang.backend.model.Image;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.BlindBoxRepos;
+import com.fptgang.backend.repository.StockKeepingUnitRepos;
 import com.fptgang.backend.repository.ToyRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.stereotype.Component;
@@ -14,15 +15,17 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
     private final BlindBoxRepos blindBoxRepos;
     private final ToyRepos toyRepos;
     private final AccountMapper accountMapper;
+    private final StockKeepingUnitRepos stockKeepingUnitRepos;
 
     public ImageMapper(AccountRepos accountRepos,
                        BlindBoxRepos blindBoxRepos,
                        ToyRepos toyRepos,
-                       AccountMapper accountMapper) {
+                       AccountMapper accountMapper, StockKeepingUnitRepos stockKeepingUnitRepos) {
         this.accountRepos = accountRepos;
         this.blindBoxRepos = blindBoxRepos;
         this.toyRepos = toyRepos;
         this.accountMapper = accountMapper;
+        this.stockKeepingUnitRepos = stockKeepingUnitRepos;
     }
 
     @Override
@@ -41,6 +44,9 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
         }
         if (dto.getToyId() != null) {
             entity.setToy(toyRepos.getReferenceById(dto.getToyId()));
+        }
+        if(dto.getSkuId() != null) {
+            entity.setSku(stockKeepingUnitRepos.getReferenceById(dto.getSkuId()));
         }
         entity.setImageUrl(dto.getImageUrl());
         entity.setIsVisible(dto.getIsVisible());
@@ -61,6 +67,7 @@ public class ImageMapper extends BaseMapper<ImageDto, Image> {
         dto.setImageUrl(entity.getImageUrl());
         dto.setIsVisible(entity.getIsVisible());
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+        dto.setSkuId(entity.getSku() != null ? entity.getSku().getSkuId() : null);
 
         if (level != DetailLevel.FULL) {
             return dto; // those fields are enough
