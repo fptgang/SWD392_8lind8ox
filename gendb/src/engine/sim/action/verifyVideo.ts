@@ -1,10 +1,14 @@
-import { faker } from "@faker-js/faker";
-import { Voucher } from "../../model/Voucher";
-import { VideoPool } from "../../pool/video";
-import { VoucherPool } from "../../pool/voucher";
-import { voucherDiscountRate, voucherExpiredDays, voucherLimitAmount } from "../../config";
-import { ToyPool } from "../../pool/toy";
-import { SlotPool } from "../../pool/slot";
+import {faker} from "@faker-js/faker";
+import {Voucher, VoucherState} from "../../model/Voucher";
+import {VideoPool} from "../../pool/video";
+import {VoucherPool} from "../../pool/voucher";
+import {
+    voucherDiscountRate,
+    voucherExpiredDays,
+    voucherLimitAmount
+} from "../../config";
+import {ToyPool} from "../../pool/toy";
+import {SlotPool} from "../../pool/slot";
 
 export function verifyVideo(date: Date) {
     const videos = VideoPool.pickAllUnverified(date);
@@ -20,7 +24,7 @@ export function verifyVideo(date: Date) {
             updatedAt: date,
             discountRate: faker.number.float(voucherDiscountRate()),
             expiredAt: new Date(date.getTime() + 1000 * 60 * 60 * 24 * faker.number.int(voucherExpiredDays())),
-            isUsed: false,
+            state: VoucherState.AVAILABLE,
             limitAmount: faker.number.int(voucherLimitAmount()),
             accountId: video.accountId || 0,
             orderId: null

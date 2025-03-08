@@ -1,0 +1,21 @@
+get:
+  summary: Get trending products
+  operationId: getTrendingProducts
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: interval
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [ DAY, WEEK, MONTH ]
+  responses:
+    '200':
+      description: Current trending products
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../model/sales/trending-product.yml#/TrendingProductDto"

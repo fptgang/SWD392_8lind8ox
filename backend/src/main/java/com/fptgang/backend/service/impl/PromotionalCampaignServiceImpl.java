@@ -5,13 +5,11 @@ import com.fptgang.backend.repository.PromotionalCampaignRepos;
 import com.fptgang.backend.service.PromotionalCampaignService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.EntityUtil;
-import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import static org.antlr.v4.runtime.tree.xpath.XPath.findAll;
+import java.time.LocalDateTime;
 
 @Service
 public class PromotionalCampaignServiceImpl implements PromotionalCampaignService {
@@ -31,6 +29,16 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
     @Override
     public PromotionalCampaign findById(long id) {
         return promotionalCampaignRepos.findById(id).orElse(null);
+    }
+
+    @Override
+    public PromotionalCampaign findBestOngoingCampaignForBlindBox(long blindBoxId) {
+        return promotionalCampaignRepos.findBestOngoingCampaignForBlindBox(blindBoxId, LocalDateTime.now());
+    }
+
+    @Override
+    public PromotionalCampaign findBestOngoingCampaignForSku(long skuId) {
+        return promotionalCampaignRepos.findBestOngoingCampaignForSku(skuId, LocalDateTime.now());
     }
 
     @Override

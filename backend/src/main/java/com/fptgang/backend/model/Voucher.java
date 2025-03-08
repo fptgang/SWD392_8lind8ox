@@ -44,9 +44,14 @@ public class Voucher {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal limitAmount;
 
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     @Builder.Default
-    private Boolean isUsed = false;
+    private State state = State.AVAILABLE;
+
+    public enum State {
+        USED, AVAILABLE, RESERVED
+    }
 
     @CreationTimestamp
     private LocalDateTime createdAt;

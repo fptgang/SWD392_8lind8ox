@@ -26,9 +26,14 @@ public class Slot {
     @Column(nullable = false)
     private int position;
 
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     @Builder.Default
-    private boolean isOpened = true;
+    private State state = State.AVAILABLE;
+
+    public enum State {
+        OPENED, AVAILABLE, RESERVED
+    }
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     @Builder.Default
@@ -52,6 +57,7 @@ public class Slot {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 

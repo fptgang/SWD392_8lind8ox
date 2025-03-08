@@ -17,9 +17,9 @@ VoucherDto:
     limitAmount:
       type: number
       format: double
-    isUsed:
-      type: boolean
-      default: false
+    state:
+      type: string
+      enum: [USED, AVAILABLE, RESERVED]
     createdAt:
       type: string
       format: date-time
