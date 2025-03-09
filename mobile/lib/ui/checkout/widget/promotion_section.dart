@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/blocs/promotion/promotion_bloc.dart';
+import 'package:mobile/blocs/promotion/promotion_event.dart';
 import 'package:mobile/blocs/promotion/promotion_state.dart';
 import 'package:mobile/data/models/promotional_campaign_model.dart';
 import 'package:mobile/di/injection.dart';
+import 'package:mobile/ui/core/theme/theme.dart';
+import 'package:flutter/foundation.dart';
 
 Widget buildPromotionalSection({
   required BuildContext context,
@@ -24,14 +27,26 @@ Widget buildPromotionalSection({
         const SizedBox(height: 12),
         InkWell(
           onTap: () {
-            // Get the bloc directly from the dependency injection
-            final promotionBloc = getIt<PromotionBloc>();
-            _showVoucherSelectionDialog(
-              context: context, 
-              selectedVoucher: selectedVoucher,
-              onVoucherSelected: onVoucherSelected,
-              promotionBloc: promotionBloc, // Pass the bloc instance
-            );
+            try {
+              // Get the bloc directly from the dependency injection
+              final promotionBloc = getIt<PromotionBloc>();
+              // Trigger fetching promotions before showing the dialog
+              promotionBloc.add(GetPromotions(1));
+              _showVoucherSelectionDialog(
+                context: context, 
+                selectedVoucher: selectedVoucher,
+                onVoucherSelected: onVoucherSelected,
+                promotionBloc: promotionBloc, // Pass the bloc instance
+              );
+            } catch (e) {
+              debugPrint('Error loading promotions: $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to load vouchers. Please try again.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           },
           child: Row(
             children: [
@@ -48,6 +63,7 @@ Widget buildPromotionalSection({
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
+                    color: getColorSkin().white,
                     border: Border.all(color: Colors.green),
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -81,6 +97,7 @@ void _showVoucherSelectionDialog({
   required PromotionBloc promotionBloc, // Add this parameter
 }) {
   showModalBottomSheet(
+    backgroundColor: Colors.white,
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
@@ -88,7 +105,7 @@ void _showVoucherSelectionDialog({
     ),
     builder: (context) {
       return BlocProvider.value(
-        value: promotionBloc, // Use the passed bloc instance
+        value: promotionBloc,
         child: DraggableScrollableSheet(
           initialChildSize: 0.7,
           maxChildSize: 0.9,
@@ -101,9 +118,157 @@ void _showVoucherSelectionDialog({
                   return const Center(child: CircularProgressIndicator());
                 }
                 
-                // This would normally be populated from state.promotions
-                // For demo purposes, we'll create some sample vouchers
-                final List<PromotionModel> vouchers = _getSampleVouchers();
+                if (state is PromotionLoadingState && state.error != null) {
+                  debugPrint('Promotion loading error: ${state.error}');
+                  String errorMessage = 'Unable to load vouchers';
+                  
+                  // Try to extract a more user-friendly error message
+                  if (state.error!.contains('Cannot get promotion information')) {
+                    errorMessage = 'Cannot retrieve promotion information';
+                  } else if (state.error!.contains('Failed to map API response')) {
+                    errorMessage = 'Error processing promotion data';
+                  } else if (state.error!.contains('DTO must be a valid response type')) {
+                    errorMessage = 'Invalid promotion data format';
+                  }
+                  
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text(
+                          errorMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Text(
+                            'There was a problem loading the available vouchers. Please try again later.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<PromotionBloc>().add(GetPromotions(1));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: getColorSkin().primaryRed650,
+                          ),
+                          child: const Text('Retry'),
+                        ),
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                
+                // Use actual promotions from API if available, otherwise show empty state
+                List<PromotionModel> vouchers = [];
+                
+                if (state is PromotionDataState && 
+                    state.promotionResponseModel != null && 
+                    state.promotionResponseModel!.content.isNotEmpty) {
+                  vouchers = state.promotionResponseModel!.content;
+                  debugPrint('Loaded ${vouchers.length} vouchers successfully');
+                } else {
+                  debugPrint('No vouchers available or empty data state');
+                }
+                
+                if (vouchers.isEmpty) {
+                  return Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Text(
+                          'Select Voucher',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.confirmation_number_outlined,
+                                size: 64,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No vouchers available',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 32),
+                                child: Text(
+                                  'There are currently no active promotions or vouchers available for your account.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                              ),
+                              if (!(state is PromotionLoadingState)) 
+                                const SizedBox(height: 24),
+                              if (!(state is PromotionLoadingState)) 
+                                ElevatedButton(
+                                  onPressed: () {
+                                    context.read<PromotionBloc>().add(GetPromotions(1));
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: getColorSkin().primaryRed650,
+                                  ),
+                                  child: const Text('Refresh'),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          child: const Text('Close'),
+                        ),
+                      ),
+                    ],
+                  );
+                }
                 
                 return Column(
                   children: [
@@ -143,8 +308,25 @@ void _showVoucherSelectionDialog({
                               color: Colors.red[400],
                             ),
                             title: Text(voucher.title ?? 'Untitled Voucher'),
-                            subtitle: Text(
-                              'Save ${(voucher.discountRate ?? 0) * 100}% on your order'
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Save ${(voucher.discountRate ?? 0) * 100}% on your order'
+                                ),
+                                if (voucher.description != null && voucher.description!.isNotEmpty)
+                                  Text(
+                                    voucher.description!,
+                                    style: const TextStyle(fontSize: 12),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                if (voucher.startDate != null && voucher.endDate != null)
+                                  Text(
+                                    'Valid: ${_formatDate(voucher.startDate!)} - ${_formatDate(voucher.endDate!)}',
+                                    style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                                  ),
+                              ],
                             ),
                             trailing: isSelected
                                 ? Icon(Icons.check_circle, color: Colors.green[600])
@@ -183,35 +365,7 @@ void _showVoucherSelectionDialog({
   );
 }
 
-// Sample vouchers for demonstration
-List<PromotionModel> _getSampleVouchers() {
-  return [
-    PromotionModel(
-      campaignId: 1,
-      title: 'New User Discount',
-      description: 'Special discount for new users',
-      discountRate: 0.15, // 15%
-      startDate: DateTime.now(),
-      endDate: DateTime.now().add(const Duration(days: 30)),
-      isVisible: true,
-    ),
-    PromotionModel(
-      campaignId: 2,
-      title: 'Weekend Sale',
-      description: 'Special discount for weekend shoppers',
-      discountRate: 0.10, // 10%
-      startDate: DateTime.now(),
-      endDate: DateTime.now().add(const Duration(days: 7)),
-      isVisible: true,
-    ),
-    PromotionModel(
-      campaignId: 3,
-      title: 'Free Shipping',
-      description: 'Free shipping on your order',
-      discountRate: 0.05, // 5% (representing shipping cost)
-      startDate: DateTime.now(),
-      endDate: DateTime.now().add(const Duration(days: 14)),
-      isVisible: true,
-    ),
-  ];
+// Helper function to format dates
+String _formatDate(DateTime date) {
+  return '${date.day}/${date.month}/${date.year}';
 }

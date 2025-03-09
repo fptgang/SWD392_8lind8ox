@@ -6,12 +6,6 @@ class PaginationResponseMapper {
     required D dto,
     required T Function(dynamic) fromDTO,
   }) {
-    // Check if dto is one of the valid response types
-    if (!(dto is GetTransactions200Response || dto is GetBlindBoxes200Response || dto is GetVouchers200Response)) {
-      throw ArgumentError('DTO must be a valid response type');
-    }
-    
-    // Use null-safe access with null-aware operators
     return PaginationResponseGeneric<T>(
       content: (dto as dynamic).content?.map<T>((e) => fromDTO(e))?.toList() ?? [],
       totalElements: (dto as dynamic).totalElements ?? 0,

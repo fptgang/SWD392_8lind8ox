@@ -211,7 +211,6 @@ void _registerBlocs() {
     getIt.registerLazySingleton<CheckoutBloc>(() => CheckoutBloc(
       getIt<VoucherRepository>(),
       orderRepository: getIt<OrderRepository>(),
-      orderDetailBloc: getIt<OrderDetailBloc>(),
     ));
   }
   

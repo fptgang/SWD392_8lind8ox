@@ -3,7 +3,6 @@
 import 'package:mobile/data/models/blindbox_model.dart';
 
 class PromotionModel {
-
   final int? campaignId;
   final String? title;
   final String? description;

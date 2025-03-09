@@ -120,15 +120,12 @@ class CartMapper {
       id: id,
       skuId: skuId,
       quantity: quantity,
-      // These fields are required by the CartItemModel constructor
-      // but may not be used in the API
       productName: '',
       price: 0.0,
       image: '',
     );
   }
 
-  /// Converts CartItemModel to CartItemDto
   static CartItemDto _cartItemModelToDto(CartItemModel model) {
     final cartItemDto = CartItemDto();
     
