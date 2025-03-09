@@ -94,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
                     throw new InvalidInputException("Slot has been reserved");
             }
 
-            BigDecimal checkoutPrice = sku.getPrice();
+            BigDecimal checkoutPrice = sku.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
             PromotionalCampaign campaign = promotionalCampaignService
                     .findBestOngoingCampaignForSku(sku.getSkuId());
             if (campaign != null) {
@@ -232,6 +232,11 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.getSlot()
                        .setState(Slot.State.OPENED);
             orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
+
+            // Deduct Sku stock
+            StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
+            sku.setStock(sku.getStock() - orderDetail.getQuantity());
+            stockKeepingUnitService.update(sku);
         }
 
         log.info("Order {} paid by internal wallet successfully!",
@@ -279,10 +284,16 @@ public class OrderServiceImpl implements OrderService {
 
         // Reserve the slot
         for (OrderDetail orderDetail : order.getOrderDetails()) {
-            if (orderDetail.getSlot() == null) continue;
-            orderDetail.getSlot()
-                       .setState(Slot.State.RESERVED);
-            orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
+            if (orderDetail.getSlot() != null) {
+                orderDetail.getSlot()
+                        .setState(Slot.State.RESERVED);
+                orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
+            }
+
+            // Deduct Sku stock
+            StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
+            sku.setStock(sku.getStock() - orderDetail.getQuantity());
+            stockKeepingUnitService.update(sku);
         }
 
         // Generate pay URL
@@ -329,7 +340,7 @@ public class OrderServiceImpl implements OrderService {
 
         Account account = depositTransaction.getAccount();
         account.setUpdateBalanceAt(LocalDateTime.now());
-        account = accountService.update(depositTransaction.getAccount());
+        account = accountService.update(account);
         depositTransaction.setAccount(account);
 
         BigDecimal oldBalance = account.getBalance();
@@ -370,10 +381,18 @@ public class OrderServiceImpl implements OrderService {
         // Update slot
         for (OrderDetail orderDetail : order.getOrderDetails()) {
             Slot slot = orderDetail.getSlot();
-            if (slot == null) continue;
-            slot.setState(success ? Slot.State.OPENED : Slot.State.AVAILABLE);
-            slot = slotService.update(slot);
-            orderDetail.setSlot(slot);
+            if (slot != null) {
+                slot.setState(success ? Slot.State.OPENED : Slot.State.AVAILABLE);
+                slot = slotService.update(slot);
+                orderDetail.setSlot(slot);
+            }
+
+            if (!success) {
+                // Recover Sku stock
+                StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
+                sku.setStock(sku.getStock() + orderDetail.getQuantity());
+                stockKeepingUnitService.update(sku);
+            }
         }
 
         log.info("Order {} paid by external wallet status {}; depositTxn = {}, orderTxn = {}",

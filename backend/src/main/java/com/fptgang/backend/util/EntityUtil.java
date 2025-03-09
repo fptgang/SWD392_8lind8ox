@@ -26,7 +26,8 @@ public class EntityUtil {
                 }
 
                 // If it's @ManyToOne, @OneToOne or normal fields, allow override
-                field.set(existing, newValue);
+                if(field.isAnnotationPresent(Column.class) || field.isAnnotationPresent(OneToOne.class) || field.isAnnotationPresent(ManyToOne.class)) {
+                field.set(existing, newValue);}
 
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Error merging entities", e);
