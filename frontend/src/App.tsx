@@ -89,7 +89,6 @@ import { AccountDtoRoleEnum } from "../generated";
 import { AdminHeader } from "./components/header";
 import CustomerProductShow from "./pages/customer/products/show";
 import VNPayReturnHandler from "./pages/payment/VNPayReturnHandler";
-import OpenBoxPage from "./pages/customer/open";
 import { liveProvider } from "./providers/live-provider";
 import { stompClient } from "./utils/stompClient";
 
@@ -157,7 +156,6 @@ function App() {
                           path="blind-boxes/:id"
                           element={<BlindBoxesShow />}
                         />
-                        <Route path="open" element={<OpenBoxPage />} />
 
                         <Route path="orders" element={<OrdersList />} />
                         <Route path="orders/:id" element={<CustomerOrders />} />
