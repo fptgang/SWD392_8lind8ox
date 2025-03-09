@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Typography, Row, Col, Button, Tag, Carousel, Spin } from "antd";
 import { ThunderboltOutlined, StarOutlined, ShoppingOutlined } from "@ant-design/icons";
-import { useList } from "@refinedev/core";
+import { useList, useGo } from "@refinedev/core";
 import { BlindBoxDto, StockKeepingUnitDto } from "../../../../../generated";
 import { useCart } from "../../../../hooks/useCart";
 
@@ -9,6 +9,8 @@ const { Title, Text } = Typography;
 
 const TrendingProducts: React.FC = () => {
   const { addToCart } = useCart();
+  const go = useGo();
+  
   const { data, isLoading, isError } = useList<BlindBoxDto>({
     resource: "blind-boxes",   
     pagination: {
@@ -40,7 +42,9 @@ const TrendingProducts: React.FC = () => {
     return basePrice;
   };
 
-  const handleAddToCart = (product: BlindBoxDto) => {
+  const handleAddToCart = (e: React.MouseEvent, product: BlindBoxDto) => {
+    e.stopPropagation(); // Prevent card click event from triggering
+    
     if (!product.skus || product.skus.length === 0) return;
     
     const sku = product.skus[0];
@@ -48,9 +52,7 @@ const TrendingProducts: React.FC = () => {
     
     // Find active campaign if exists
     const hasActiveCampaign = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
-    const activePromotionalCampaign = hasActiveCampaign && product.blindBoxCampaigns[0]
-      ? product.blindBoxCampaigns[0].promotionalCampaignId
-      : undefined;
+    const activePromotionalCampaign = hasActiveCampaign ? product.blindBoxCampaigns?.[0]?.promotionalCampaignId : undefined;
     
     addToCart({
       skuId: sku.skuId || 0,
@@ -63,6 +65,16 @@ const TrendingProducts: React.FC = () => {
       blindBoxId: product.blindBoxId || 0,
       promotionalCampaignId: activePromotionalCampaign,
     });
+  };
+
+  const handleCardClick = (product: BlindBoxDto) => {
+    if (product.blindBoxId) {
+      go({ to: `/products/${product.blindBoxId}` });
+    }
+  };
+
+  const handleViewMoreDeals = () => {
+    go({ to: '/products' });
   };
 
   if (isError) {
@@ -88,7 +100,11 @@ const TrendingProducts: React.FC = () => {
           <ThunderboltOutlined className="text-2xl text-yellow-500" />
           <Title level={2} className="!mb-0">Flash Deals</Title>
         </div>
-        <Button type="link" icon={<StarOutlined />}>
+        <Button 
+          type="link" 
+          icon={<StarOutlined />} 
+          onClick={handleViewMoreDeals}
+        >
           View More Deals
         </Button>
       </div>
@@ -103,7 +119,8 @@ const TrendingProducts: React.FC = () => {
             <Col xs={12} sm={12} md={6} key={product.blindBoxId}>
               <Card
                 hoverable
-                className="relative overflow-hidden"
+                className="relative overflow-hidden cursor-pointer"
+                onClick={() => handleCardClick(product)}
                 cover={
                   <div className="relative pt-[100%] overflow-hidden group">
                     <img
@@ -137,7 +154,7 @@ const TrendingProducts: React.FC = () => {
                         type="primary"
                         icon={<ShoppingOutlined />}
                         block
-                        onClick={() => handleAddToCart(product)}
+                        onClick={(e) => handleAddToCart(e, product)}
                         disabled={!product.skus || product.skus.length === 0 || !product.skus[0].stock}
                       >
                         Add to Cart

@@ -1,11 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import cartReducer from './features/cart/cartSlice';
 import authReducer from './auth';
+import checkoutReducer from './features/checkout/checkoutSlice';
+import orderReducer from './features/order/orderSlice';
+import walletReducer from './features/wallet/walletSlice';
 
 export const store = configureStore({
   reducer: {
     cart: cartReducer,
-    auth: authReducer
+    auth: authReducer,
+    checkout: checkoutReducer,
+    order: orderReducer,
+    wallet: walletReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

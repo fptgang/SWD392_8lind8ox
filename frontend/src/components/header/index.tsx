@@ -36,11 +36,13 @@ export const AdminHeader: React.FC<RefineThemedLayoutV2HeaderProps> = ({
 
   const currentLocale = getLocale();
 
-  const menu = (
-    <Menu>
-      <LanguageSelector />
-    </Menu>
-  );
+  const menuItems = [
+    {
+      key: 'language',
+      label: <LanguageSelector />
+    }
+  ];
+  
   const headerStyles: React.CSSProperties = {
     backgroundColor: token.colorBgElevated,
     display: "flex",

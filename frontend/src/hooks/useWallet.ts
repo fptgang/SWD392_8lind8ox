@@ -20,7 +20,7 @@ export const useWallet = () => {
     
     try {
       // Assume we have a wallet endpoint
-      const response = await apiContext.get<{ balance: number }>("/wallet/balance");
+      const response = await apiContext.get<{ balance: number }>("/auth/me");
       setBalance(response.data.balance);
     } catch (err: any) {
       let errorMessage = "Failed to fetch wallet balance";

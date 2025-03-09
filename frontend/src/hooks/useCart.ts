@@ -16,6 +16,7 @@ import {
 } from "../store/features/cart/cartSlice";
 import { ShippingInfoDto, VoucherDto } from "../../generated";
 import { useApiContext } from "../contexts/api-context";
+import { useCreate, useOne } from "@refinedev/core";
 
 interface PlaceOrderParams {
   shippingInfo: ShippingInfoDto;
@@ -115,20 +116,22 @@ export const useCart = () => {
    * Update shipping information
    * @param info Shipping information DTO
    */
-  const updateShippingInfo = (info: ShippingInfoDto) => {
+  const updateShippingInfo = (infos: any) => {
     try {
+      const info = infos.data as ShippingInfoDto;
       if (!info.address || !info.city || !info.name || !info.phoneNumber) {
         throw new Error("Missing required shipping information");
       }
-
+      
+      // Since we've validated the required fields, we can safely create a non-optional object
       const shippingInfo: ShippingInfo = {
-        shippingInfoId: info.shippingInfoId,
+        shippingInfoId: info.shippingInfoId || 0,
         address: info.address,
-        ward: info.ward || "",
-        district: info.district || "",
+        ward: info.ward || '',
+        district: info.district || '',
         city: info.city,
         name: info.name,
-        phoneNumber: info.phoneNumber,
+        phoneNumber: info.phoneNumber
       };
 
       dispatch(setShippingInfo(shippingInfo));
@@ -156,10 +159,10 @@ export const useCart = () => {
         // Otherwise use the voucher info directly
         voucher = {
           voucherId: voucherInfo.voucherId,
-          code: voucherInfo.code,
+          code: voucherInfo.code || '',
           discountRate: voucherInfo.discountRate || 0,
           limitAmount: voucherInfo.limitAmount || 0,
-          isUsed: voucherInfo.isUsed,
+          isUsed: voucherInfo.state === 'USED'
         };
       }
 

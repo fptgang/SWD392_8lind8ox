@@ -51,7 +51,7 @@ export const useCheckoutSubmit = ({
       if (!finalShippingInfoId && shippingInfo) {
         try {
           const shippingResponse = await createShippingInfo({
-            resource: "shipping-infos",
+            resource: "shipping-info",
             values: {
               address: shippingInfo.address,
               city: shippingInfo.city,
