@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseRecord, useMany } from "@refinedev/core";
+import { BaseRecord } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -22,7 +22,7 @@ import {
 const { Text } = Typography;
 
 export const BrandsList: React.FC = () => {
-  const { tableProps, searchFormProps,setFilters } = useTable({
+  const { tableProps, setFilters } = useTable({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -43,29 +43,28 @@ export const BrandsList: React.FC = () => {
     },
   });
 
-  const getVisibilityStatus = (isVisible: boolean) => {
-    return isVisible ? (
-      <Badge status="success" text="Visible" />
-    ) : (
-      <Badge status="error" text="Hidden" />
-    );
-  };
+  const getVisibilityStatus = (isVisible: boolean) => (
+    isVisible ? <Badge status="success" text="Visible" /> : <Badge status="error" text="Hidden" />
+  );
 
   return (
     <List>
-   <div className="mb-6">
+      {/* Search Input */}
+      <div className="mb-6">
         <Input.Search
           placeholder="Search brands..."
           className="max-w-md"
           allowClear
           onSearch={(value) => {
-            setFilters([
-              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+            setFilters((prevFilters) => [
+              ...(prevFilters?.filter(
+                (filter) => (filter as { field: string }).field !== "search"
+              ) || []),
               {
                 field: "search",
                 operator: "contains",
                 value: value || undefined,
-              }
+              },
             ]);
           }}
         />
