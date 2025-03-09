@@ -36,7 +36,7 @@ public class StockKeepingUnitMapper extends BaseMapper<StockKeepingUnitDto, Stoc
         entity.setPrice(dto.getPrice());
         entity.setStock(dto.getStock());
         entity.setSpecCount(dto.getSpecCount());
-        entity.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
+        entity.setBlindBox(dto.getBlindBoxId()!=null ? blindBoxRepos.getReferenceById(dto.getBlindBoxId()):null);
         entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
         entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
         entity.setIsVisible(dto.getIsVisible());

@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseRecord } from "@refinedev/core";
+import { BaseRecord, useSelect } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -19,8 +19,9 @@ import {
   EditOutlined,
   DeleteOutlined,
   PictureOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
-import { BlindBoxDto } from "../../../generated";
+import { BlindBoxDto, BrandDto } from "../../../generated";
 
 const { Text } = Typography;
 
@@ -50,6 +51,11 @@ export const BlindBoxesList: React.FC = () => {
       ],
     },
   });
+  const { options } = useSelect<BrandDto>({
+    resource: "brands",
+    optionLabel: "name",
+    optionValue: "brandId",
+  });
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -75,12 +81,14 @@ export const BlindBoxesList: React.FC = () => {
           allowClear
           onSearch={(value) => {
             setFilters([
-              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              ...(tableProps.filters?.filter(
+                (filter) => filter.field !== "search"
+              ) || []),
               {
                 field: "search",
                 operator: "contains",
                 value: value || undefined,
-              }
+              },
             ]);
           }}
         />
@@ -133,12 +141,13 @@ export const BlindBoxesList: React.FC = () => {
           render={(_, record: BlindBoxDto) => {
             const sku = record.skus?.[0];
             if (!sku) return formatCurrency(0);
-            
+
             const basePrice = sku.price || 0;
-            const hasActiveCampaign = record.blindBoxCampaigns && record.blindBoxCampaigns.length > 0;
-            
+            const hasActiveCampaign =
+              record.blindBoxCampaigns && record.blindBoxCampaigns.length > 0;
+
             if (!hasActiveCampaign) return formatCurrency(basePrice);
-            
+
             // Apply discount if exists
             try {
               // Since we don't have direct access to discount rate, we're showing base price
@@ -149,6 +158,23 @@ export const BlindBoxesList: React.FC = () => {
           }}
         />
 
+        <Table.Column
+          dataIndex="brand"
+          title={
+            <Tooltip title="Product brand">
+              <Space>
+                <ShopOutlined />
+                <span>Brand</span>
+              </Space>
+            </Tooltip>
+          }
+          render={(value: BrandDto) => <Text>{value?.name}</Text>}
+          filters={options?.map((brand) => ({
+            text: brand?.label,
+            value: brand?.value,
+          }))}
+          filterMultiple={false}
+        />
         <Table.Column
           dataIndex="isVisible"
           title={

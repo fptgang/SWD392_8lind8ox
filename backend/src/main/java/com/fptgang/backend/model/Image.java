@@ -32,6 +32,10 @@ public class Image {
     @JoinColumn(name = "toy_id")
     private Toy toy;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sku_id")
+    private StockKeepingUnit sku;
+
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
 
