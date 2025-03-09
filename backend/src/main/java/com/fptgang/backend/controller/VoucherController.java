@@ -78,10 +78,9 @@ public class VoucherController implements VouchersApi {
                 .search(search)
                 .filter(filter)
                 .includeInvisible(includeInvisible);
-        params.setFilter("status", "eq", "ACTIVE");
 
         // Customers can only view their own vouchers
-        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+s        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
             params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 

@@ -84,6 +84,7 @@ import { AccountDtoRoleEnum } from "../generated";
 import { AdminHeader } from "./components/header";
 import CustomerProductShow from "./pages/customer/products/show";
 import VNPayReturnHandler from "./pages/payment/VNPayReturnHandler";
+import OpenBoxPage from "./pages/customer/open";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -144,6 +145,8 @@ function App() {
                           path="blind-boxes/:id"
                           element={<BlindBoxesShow />}
                         />
+                        <Route path="open" element={<OpenBoxPage />} />
+
                         <Route path="orders" element={<OrdersList />} />
                         <Route path="orders/:id" element={<CustomerOrders />} />
 

@@ -120,7 +120,7 @@ const CheckoutPage: React.FC = () => {
   const { mutateAsync: createShippingAddress } = useCreate<ShippingInfoDto>();
   
   // Create order using custom mutation
-  const { mutateAsync: placeOrder } = useCustomMutation<OrderResponse>();
+  const { mutateAsync: placeOrder } = useCreate<OrderResponse>();
   
   // Wallet top-up mutation
   const { mutateAsync: topUpWallet } = useCustomMutation();
@@ -296,8 +296,7 @@ const CheckoutPage: React.FC = () => {
       
       // Place order using the custom mutation
       const response = await placeOrder({
-        url: "orders/place",
-        method: "post",
+        resource: "orders",
         values: cartPayload
       });
       
@@ -319,7 +318,7 @@ const CheckoutPage: React.FC = () => {
         dispatch(clearCart());
         // Clear the disabled items from session storage
         sessionStorage.removeItem('disabledCartItems');
-        navigate("/account/orders");
+        // navigate("/account/orders");
       }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error.message || "Something went wrong while placing your order. Please try again.";
