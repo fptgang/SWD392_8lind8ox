@@ -39,10 +39,9 @@ public class ShippingInfoController implements ShippingInfoApi {
         Account account = new Account();
         account.setAccountId(SecurityUtil.getCurrentUserId());
         shippingInfo.setAccount(account);
-
         return new ResponseEntity<>(
                 shippingInfoMapper.toDTO(
-                        shippingInfoService.create(shippingInfoMapper.toEntity(shippingInfoDto)),
+                        shippingInfoService.create(shippingInfo),
                         DetailLevel.FULL
                 ),
                 HttpStatus.CREATED

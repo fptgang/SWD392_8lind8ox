@@ -199,7 +199,7 @@ export const NotificationPopover: React.FC = () => {
   });
 
   useSubscription({
-    channel: "noti/" + email,
+    channel: email ? `noti/${email}` : "",
     onLiveEvent: (event) => {
       console.log("New notification", event);
       refetch();

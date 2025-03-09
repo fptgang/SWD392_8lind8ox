@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { Menu, Dropdown, Avatar, Button, Space, Switch, theme } from "antd";
+import type { MenuProps } from "antd";
 import {
   UserOutlined,
   ShoppingCartOutlined,
@@ -22,37 +23,56 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
   const { mode, setMode } = useContext(ColorModeContext);
   const { token } = theme.useToken();
 
-  const profileMenu = (
-    <Menu>
-      <Menu.Item key="profile">
+  const profileMenuItems: MenuProps['items'] = [
+    {
+      key: "profile",
+      label: (
         <Link to="/account/profile">
           <UserOutlined className="mr-2" /> Profile
         </Link>
-      </Menu.Item>
-      <Menu.Item key="orders">
+      ),
+    },
+    {
+      key: "orders",
+      label: (
         <Link to="/account/orders">
           <ShoppingCartOutlined className="mr-2" /> My Orders
         </Link>
-      </Menu.Item>
-      <Menu.Item key="theme" onClick={(e: any) => e.stopPropagation()}>
-        <Space>
+      ),
+    },
+    {
+      key: "theme",
+      label: (
+        <Space onClick={(e: any) => e.stopPropagation()}>
           Dark Mode
           <Switch
             checked={mode === "dark"}
             onChange={() => setMode(mode === "light" ? "dark" : "light")}
           />
         </Space>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="wallets">
+      ),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "wallets",
+      label: (
         <Link to="/wallets">{formatCurrency(me?.balance ?? 0)}</Link>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" onClick={() => logout()}>
-        <LogoutOutlined className="mr-2" /> Logout
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "logout",
+      label: (
+        <span onClick={() => logout()}>
+          <LogoutOutlined className="mr-2" /> Logout
+        </span>
+      ),
+    },
+  ];
 
   if (!isAuthenticated) {
     return (
@@ -67,7 +87,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
   }
 
   return (
-    <Dropdown overlay={profileMenu} trigger={["click"]}>
+    <Dropdown overlay={<Menu items={profileMenuItems} />} trigger={["click"]}>
       <Avatar
         icon={<UserOutlined />}
         className="cursor-pointer"
