@@ -156,6 +156,7 @@ function App() {
                           path="blind-boxes/:id"
                           element={<BlindBoxesShow />}
                         />
+
                         <Route path="orders" element={<OrdersList />} />
                         <Route path="orders/:id" element={<CustomerOrders />} />
 
