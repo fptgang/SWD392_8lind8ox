@@ -31,10 +31,23 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public Image create(Image image, MultipartFile file) {
         try {
-            image.setImageUrl(azureBlobService.upload(file, file.getName()));
+            String originalFilename = file.getOriginalFilename();
+
+            if (originalFilename == null || originalFilename.trim().isEmpty()) {
+                log.error("Invalid file name detected.");
+                throw new IllegalArgumentException("Invalid file name");
+            }
+
+            log.info("Received file for upload: {}", originalFilename);
+
+            String uploadedUrl = azureBlobService.upload(file);
+            image.setImageUrl(uploadedUrl);
+
+            log.info("File uploaded successfully. URL: {}", uploadedUrl);
+
             return imageRepos.save(image);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("Error uploading file: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
@@ -50,7 +63,7 @@ public class ImageServiceImpl implements ImageService {
             throw new IllegalArgumentException("Image does not exist");
         }
         try {
-            image.setImageUrl(azureBlobService.upload(file, file.getName()));
+            image.setImageUrl(azureBlobService.upload(file));
             return imageRepos.save(image);
         } catch (IOException e) {
             log.error(e.getMessage());

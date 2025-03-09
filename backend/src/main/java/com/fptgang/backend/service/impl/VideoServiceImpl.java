@@ -41,7 +41,7 @@ public class VideoServiceImpl implements VideoService {
                 .orElseThrow(() -> new InvalidInputException("User not found"));
         try {
             // Upload video to Azure
-            String videoUrl = azureBlobService.upload(file, file.getName());
+            String videoUrl = azureBlobService.upload(file);
             video.setUrl(videoUrl);
 
             // Save video details in DB
@@ -85,7 +85,7 @@ public class VideoServiceImpl implements VideoService {
             throw new IllegalArgumentException("Video does not exist");
         }
         try {
-            video.setUrl(azureBlobService.upload(file, file.getName()));
+            video.setUrl(azureBlobService.upload(file));
             return videoRepos.save(video);
         } catch (IOException e) {
             log.error(e.getMessage());
