@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { useShow, IResourceComponentsProps, useNavigation } from "@refinedev/core";
+import React from "react";
+import { useShow } from "@refinedev/core";
 import {
   Show,
-  ButtonGroup,
   TextField,
   NumberField,
   DateField,
@@ -14,216 +13,201 @@ import {
   Col,
   Card,
   Space,
-  Button,
-  Tabs,
-  Table,
-  Tag,
   Image,
   Divider,
+  Spin,
+  Tag,
 } from "antd";
 import {
-  EditOutlined,
-  DeleteOutlined,
-  BarcodeOutlined,
-  ShoppingOutlined,
   InfoCircleOutlined,
-  PlayCircleOutlined,
-  PictureOutlined,
-  BranchesOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  ShoppingOutlined,
+  DollarOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
-import { BlindBoxDto, StockKeepingUnitDto } from "../../../generated";
-import { useCart } from "../../hooks/useCart";
+import { BlindBoxDto } from "../../../generated";
 
 const { Title, Text } = Typography;
 
 export const BlindBoxesShow = () => {
-  const { edit, list } = useNavigation();
   const { queryResult } = useShow<BlindBoxDto>();
-  const { addToCart } = useCart();
-  const record = queryResult.data?.data;
-
-  const handleAddToCart = (sku: StockKeepingUnitDto) => {
-    if (!record) return;
-    
-    const basePrice = sku.price || 0;
-    
-    // Find active campaign if exists
-    const hasActiveCampaign = record.blindBoxCampaigns && record.blindBoxCampaigns.length > 0;
-    const activePromotionalCampaignId = hasActiveCampaign && record.blindBoxCampaigns[0]
-      ? record.blindBoxCampaigns[0].promotionalCampaignId
-      : undefined;
-    
-    // For now, using base price
-    const currentPrice = basePrice;
-    
-    addToCart({
-      skuId: sku.skuId || 0,
-      name: `${record.name || ''} - ${sku.name || ''}`,
-      price: currentPrice,
-      originalPrice: basePrice,
-      checkoutPrice: currentPrice,
-      stock: sku.stock || 0,
-      imageUrl: record.images?.[0]?.imageUrl || '',
-      blindBoxId: record.blindBoxId || 0,
-      promotionalCampaignId: activePromotionalCampaignId,
-    });
-  };
+  const { data, isLoading } = queryResult;
+  const record = data?.data;
 
   return (
-    <Show isLoading={queryResult.isLoading}>
-      <Row gutter={[24, 24]}>
-        {/* Image Gallery */}
-        {(record?.images?.length ?? 0) > 0 && (
-          <Col span={24}>
-            <Card
-              title={
-                <Space>
-                  <InfoCircleOutlined />
-                  <Text>Product Images</Text>
-                </Space>
-              }
-              bordered={false}
-            >
-              <Space wrap>
-                {record?.images?.map((image: any) => (
-                  <Image
-                    key={image.imageId}
-                    width={200}
-                    src={image.imageUrl}
-                    placeholder={<Spin size="small" />}
-                    style={{ borderRadius: 8 }}
-                  />
-                ))}
-              </Space>
-            </Card>
-          </Col>
-        )}
+    <Show isLoading={isLoading}>
+      <Card bordered={false} className="shadow-sm">
+        {/* Basic Information Section */}
+        <div className="mb-8">
+          <Title level={5} className="mb-4 text-gray-800">
+            Basic Information
+          </Title>
 
-        {/* Main Product Info */}
-        <Col xs={24} lg={16}>
-          <Card
-            title={
-              <Space>
-                <ShoppingOutlined />
-                <Text>Blind Box Details</Text>
-              </Space>
-            }
-            bordered={false}
-          >
-            <Row gutter={[16, 16]}>
-              <Col span={24}>
-                <Label>Product ID</Label>
-                {queryResult.isLoading ? (
+          <Row gutter={24}>
+            <Col xs={24} md={12}>
+              <DetailItem label="Brand">
+                {isLoading ? (
                   <Spin size="small" />
                 ) : (
-                  <Text strong>#{record.blindBoxId}</Text>
+                  <Text strong>{record?.brand?.name}</Text>
                 )}
-              </Col>
-              <Col span={24}>
-                <Label>Name</Label>
+              </DetailItem>
+            </Col>
+            <Col xs={24} md={12}>
+              <DetailItem label="Blind Box Name">
                 <Text strong style={{ fontSize: 18 }}>
                   {record?.name}
                 </Text>
-              </Col>
+              </DetailItem>
+            </Col>
+          </Row>
 
-              <Col span={24}>
-                <Label>Description</Label>
-                <Text type="secondary">{record?.description}</Text>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
+          <DetailItem label="Description">
+            <Text type="secondary">{record?.description}</Text>
+          </DetailItem>
 
-        {/* Pricing & Visibility */}
-        <Col xs={24} lg={8}>
-          <Card
-            title={
-              <Space>
-                <DollarOutlined />
-                <Text>Pricing & Visibility</Text>
-              </Space>
-            }
-            bordered={false}
-          >
-            <Row gutter={[16, 16]}>
-              <Col span={24}>
-                <Label>Current Price</Label>
-                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <NumberField
-                    value={record?.skus?.[0]?.price ?? 0}
-                    options={{
-                      style: "currency",
-                      currency: "USD",
-                    }}
-                    style={{ fontSize: 16, fontWeight: 500 }}
-                  />
-                  {record?.blindBoxCampaigns && record.blindBoxCampaigns.length > 0 && (
-                    <Tag color="red">
-                      On sale - Check active campaign for discount details
-                    </Tag>
-                  )}
-                </Space>
-              </Col>
+          <DetailItem label="Visibility">
+            {record?.isVisible ? (
+              <Tag icon={<EyeOutlined />} color="success">
+                Visible to customers
+              </Tag>
+            ) : (
+              <Tag icon={<EyeInvisibleOutlined />} color="error">
+                Hidden from customers
+              </Tag>
+            )}
+          </DetailItem>
 
-              <Col span={24}>
-                <Label>Visibility</Label>
-                <div>
-                  {record?.isVisible ? (
-                    <Space>
-                      <EyeOutlined style={{ color: "#52c41a" }} />
-                      <Text>Visible to customers</Text>
-                    </Space>
-                  ) : (
-                    <Space>
-                      <EyeInvisibleOutlined style={{ color: "#ff4d4f" }} />
-                      <Text>Hidden from customers</Text>
-                    </Space>
+          <DetailItem label="Blind Box Images">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {record?.images?.map((image) => (
+                <Image
+                  key={image.imageId}
+                  src={image.imageUrl}
+                  className="rounded-lg"
+                  placeholder={<Spin size="small" />}
+                  preview={{
+                    maskClassName: "rounded-lg",
+                    mask: <EyeOutlined className="text-2xl text-white" />,
+                  }}
+                />
+              ))}
+            </div>
+          </DetailItem>
+        </div>
+
+        <Divider className="my-8" />
+
+        {/* SKU Configuration */}
+        <div className="mb-8">
+          <Title level={5} className="mb-4 text-gray-800">
+            SKU Configuration
+          </Title>
+
+          {record?.skus?.map((sku, index) => (
+            <Card
+              key={sku.skuId}
+              className="mb-4 shadow-sm border-0 bg-gray-50"
+              title={`SKU ${index + 1} - ${sku.name}`}
+            >
+              <Row gutter={16}>
+                <Col xs={24} md={6}>
+                  <DetailItem label="Price">
+                    {sku.price !== undefined ? (
+                      <NumberField
+                        value={sku.price}
+                        options={{ style: "currency", currency: "USD" }}
+                      />
+                    ) : (
+                      <Text>Not available</Text>
+                    )}
+                  </DetailItem>
+                </Col>
+                <Col xs={24} md={6}>
+                  <DetailItem label="Stock">
+                    <Text strong>{sku.stock}</Text>
+                  </DetailItem>
+                </Col>
+                <Col xs={24} md={6}>
+                  <DetailItem label="Spec Count">
+                    <Text strong>{sku.specCount}</Text>
+                  </DetailItem>
+                </Col>
+                <Col xs={24} md={6}>
+                  <DetailItem label="Visibility">
+                    {sku.isVisible ? (
+                      <Tag color="success">Visible</Tag>
+                    ) : (
+                      <Tag color="error">Hidden</Tag>
+                    )}
+                  </DetailItem>
+                </Col>
+              </Row>
+
+              <DetailItem label="SKU Images">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {sku.image && (
+                    <Image
+                      key={sku.image.imageId}
+                      src={sku.image.imageUrl}
+                      className="rounded-lg"
+                      placeholder={<Spin size="small" />}
+                      preview={{
+                        maskClassName: "rounded-lg",
+                        mask: <EyeOutlined className="text-2xl text-white" />,
+                      }}
+                    />
                   )}
                 </div>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
+              </DetailItem>
+            </Card>
+          ))}
+        </div>
 
-        {/* Timestamps */}
-        <Col span={24}>
-          <Card
-            title={
-              <Space>
-                <CalendarOutlined />
-                <Text>Timestamps</Text>
-              </Space>
-            }
-            bordered={false}
-          >
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={12}>
-                <Label>Created At</Label>
+        <Divider className="my-8" />
+
+        {/* System Information */}
+        <div>
+          <Title level={5} className="mb-4 text-gray-800">
+            System Information
+          </Title>
+
+          <Row gutter={24}>
+            <Col xs={24} md={12}>
+              <DetailItem label="Created At">
                 <DateField
                   value={record?.createdAt}
                   format="YYYY-MM-DD HH:mm"
                 />
-              </Col>
-              <Col xs={24} md={12}>
-                <Label>Updated At</Label>
+              </DetailItem>
+            </Col>
+            <Col xs={24} md={12}>
+              <DetailItem label="Updated At">
                 <DateField
                   value={record?.updatedAt}
                   format="YYYY-MM-DD HH:mm"
                 />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      </Row>
+              </DetailItem>
+            </Col>
+          </Row>
+        </div>
+      </Card>
     </Show>
   );
 };
 
-const Label = ({ children }: { children: React.ReactNode }) => (
-  <Text
-    type="secondary"
-    style={{ display: "block", marginBottom: 4, fontSize: 12 }}
-  >
-    {children}
-  </Text>
+const DetailItem = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
+  <div className="mb-6">
+    <Text type="secondary" className="block text-sm text-gray-500 mb-2">
+      {label}
+    </Text>
+    <div className="text-gray-800 text-base">{children}</div>
+  </div>
 );

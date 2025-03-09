@@ -1,4 +1,9 @@
-import {Authenticated, CanAccess, I18nProvider, Refine} from "@refinedev/core";
+import {
+  Authenticated,
+  CanAccess,
+  I18nProvider,
+  Refine,
+} from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
@@ -85,6 +90,8 @@ import { AdminHeader } from "./components/header";
 import CustomerProductShow from "./pages/customer/products/show";
 import VNPayReturnHandler from "./pages/payment/VNPayReturnHandler";
 import OpenBoxPage from "./pages/customer/open";
+import { liveProvider } from "./providers/live-provider";
+import { stompClient } from "./utils/stompClient";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -113,12 +120,14 @@ function App() {
                     routerProvider={routerBindings}
                     i18nProvider={i18nProvider}
                     resources={getResources()}
+                    liveProvider={liveProvider(stompClient)}
                     options={{
                       syncWithLocation: true,
                       warnWhenUnsavedChanges: true,
                       useNewQueryKeys: true,
                       title: { text: "8lind8ox", icon: <AppIcon /> },
                       projectId: "HC85dn-RQLFdc-7emtiC",
+                      liveMode: "off",
                     }}
                   >
                     <Routes>
@@ -140,7 +149,10 @@ function App() {
                           element={<CustomerProductShow />}
                         />
                         <Route path="deals" element={<CustomerDeals />} />
-                        <Route path="blind-boxes" element={<BlindBoxesList />} />
+                        <Route
+                          path="blind-boxes"
+                          element={<BlindBoxesList />}
+                        />
                         <Route
                           path="blind-boxes/:id"
                           element={<BlindBoxesShow />}
@@ -163,9 +175,15 @@ function App() {
                           }
                         >
                           <Route path="profile" element={<ProfilePage />} />
-                          <Route path="security" element={<SecuritySettings />} />
+                          <Route
+                            path="security"
+                            element={<SecuritySettings />}
+                          />
                           <Route path="wallet" element={<WalletSettings />} />
-                          <Route path="orders" element={<CustomerOrderList />} />
+                          <Route
+                            path="orders"
+                            element={<CustomerOrderList />}
+                          />
                           <Route path="orders/:id" element={<OrdersShow />} />
                         </Route>
 
@@ -186,9 +204,12 @@ function App() {
                           <Route path="success" element={<OrderSuccess />} />
                           <Route path="failed" element={<OrderFailed />} />
                         </Route>
-                        
+
                         {/* Payment Return Handler */}
-                        <Route path="payment/vnpay/return" element={<VNPayReturnHandler />} />
+                        <Route
+                          path="payment/vnpay/return"
+                          element={<VNPayReturnHandler />}
+                        />
                       </Route>
 
                       {/* Auth Routes */}
@@ -198,7 +219,10 @@ function App() {
                         path="forgot-password"
                         element={<ForgotPassword />}
                       />
-                      <Route path="reset-password" element={<ResetPassword />} />
+                      <Route
+                        path="reset-password"
+                        element={<ResetPassword />}
+                      />
                       {/* Admin Routes */}
                       <Route
                         path="admin"
