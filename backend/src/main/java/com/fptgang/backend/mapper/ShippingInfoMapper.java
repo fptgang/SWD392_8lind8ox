@@ -15,7 +15,11 @@ public class ShippingInfoMapper extends BaseMapper<ShippingInfoDto, ShippingInfo
         }
 
         ShippingInfo entity = new ShippingInfo();
-        entity.setShippingInfoId(dto.getShippingInfoId());
+        if(dto.getShippingInfoId() != null && dto.getShippingInfoId() > 0) {
+            entity.setShippingInfoId(dto.getShippingInfoId());
+        }else {
+            entity.setShippingInfoId(null);
+        }
         entity.setAddress(dto.getAddress());
         entity.setWard(dto.getWard());
         entity.setDistrict(dto.getDistrict());

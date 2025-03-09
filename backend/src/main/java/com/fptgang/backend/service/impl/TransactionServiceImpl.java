@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -24,6 +27,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction create(Transaction transaction) {
+        transaction.setCreatedAt(LocalDateTime.now());
         return transactionRepos.save(transaction);
     }
 
