@@ -195,6 +195,12 @@ export const NotificationPopover: React.FC = () => {
     pagination: {
       pageSize,
     },
+    sorters: [
+      {
+        field: "createdAt",
+        order: "desc",
+      },
+    ],
     liveMode: "off",
   });
 

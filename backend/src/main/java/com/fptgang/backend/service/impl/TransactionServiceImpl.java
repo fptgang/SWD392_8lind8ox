@@ -27,6 +27,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction create(Transaction transaction) {
+        if (transaction.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidInputException("Amount must be greater than 0");
+        }
         transaction.setCreatedAt(LocalDateTime.now());
         return transactionRepos.save(transaction);
     }

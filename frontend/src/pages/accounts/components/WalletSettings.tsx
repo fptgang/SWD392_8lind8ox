@@ -1,8 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Card, Typography, Statistic, Button, Space, List, Modal, Radio, notification, Spin } from "antd";
+import {
+  Card,
+  Typography,
+  Statistic,
+  Button,
+  Space,
+  List,
+  Modal,
+  Radio,
+  notification,
+  Spin,
+  Tag,
+} from "antd";
 import { WalletOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useGetIdentity, useCreate, useApiUrl, useList } from "@refinedev/core";
-import { AccountDto, TransactionDto, TransactionDtoPaymentMethodEnum, TransactionDtoTypeEnum, TransactionDtoStatusEnum } from "../../../../generated";
+import {
+  AccountDto,
+  TransactionDto,
+  TransactionDtoPaymentMethodEnum,
+  TransactionDtoTypeEnum,
+  TransactionDtoStatusEnum,
+} from "../../../../generated";
 import { formatCurrency } from "../../../utils/currency-formatter";
 import { useNavigate, useLocation } from "react-router";
 
@@ -32,22 +50,31 @@ export const WalletSettings: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const apiUrl = useApiUrl();
-  
+
   const [fundModalVisible, setFundModalVisible] = useState(false);
-  const [selectedAmount, setSelectedAmount] = useState<number>(PREDEFINED_AMOUNTS[0].value);
+  const [selectedAmount, setSelectedAmount] = useState<number>(
+    PREDEFINED_AMOUNTS[0].value
+  );
   const [customAmount, setCustomAmount] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<TransactionDtoPaymentMethodEnum>(TransactionDtoPaymentMethodEnum.Vnpay);
+  const [paymentMethod, setPaymentMethod] =
+    useState<TransactionDtoPaymentMethodEnum>(
+      TransactionDtoPaymentMethodEnum.Vnpay
+    );
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // For getting real transactions
-  const { data: transactionsData, isLoading: isTransactionsLoading, refetch: refetchTransactions } = useList<TransactionDto>({
+  const {
+    data: transactionsData,
+    isLoading: isTransactionsLoading,
+    refetch: refetchTransactions,
+  } = useList<TransactionDto>({
     resource: "transactions",
     filters: [
       {
         field: "account.accountId",
         operator: "eq",
         value: me?.accountId,
-      }
+      },
     ],
     pagination: {
       pageSize: 10,
@@ -57,22 +84,22 @@ export const WalletSettings: React.FC = () => {
       {
         field: "createdAt",
         order: "desc",
-      }
+      },
     ],
   });
-  
+
   const { mutateAsync: createTransaction } = useCreate<TransactionDto>();
-  
+
   // Check for payment return (for VNPAY)
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const paymentStatus = searchParams.get("vnp_ResponseCode");
     const transactionId = searchParams.get("vnp_TxnRef");
-    
+
     if (paymentStatus && transactionId) {
       // Clear URL params while preserving the base route
       navigate("/account/wallet", { replace: true });
-      
+
       // Handle different response codes
       if (paymentStatus === "00") {
         notification.success({
@@ -84,7 +111,8 @@ export const WalletSettings: React.FC = () => {
       } else if (paymentStatus === "24") {
         notification.info({
           message: "Payment Pending",
-          description: "Your payment is being processed. The funds will be added to your wallet shortly.",
+          description:
+            "Your payment is being processed. The funds will be added to your wallet shortly.",
           duration: 5,
         });
         refetchTransactions();
@@ -103,11 +131,11 @@ export const WalletSettings: React.FC = () => {
       }
     }
   }, [location.search, navigate, refetchTransactions]);
-  
+
   const handleAddFunds = async () => {
     // Validate amount
     const amount = customAmount ? parseFloat(customAmount) : selectedAmount;
-    
+
     if (!amount || amount <= 0) {
       notification.error({
         message: "Invalid Amount",
@@ -115,10 +143,10 @@ export const WalletSettings: React.FC = () => {
       });
       return;
     }
-    
+
     try {
       setIsLoading(true);
-      
+
       // Create a deposit transaction with proper account structure
       const response = await createTransaction({
         resource: "transactions",
@@ -129,13 +157,13 @@ export const WalletSettings: React.FC = () => {
           type: TransactionDtoTypeEnum.Deposit,
           paymentMethod: paymentMethod,
           amount: amount,
-          status: TransactionDtoStatusEnum.Pending
+          status: TransactionDtoStatusEnum.Pending,
         },
       });
-      
+
       // If the API returns a URL (for VNPAY), redirect the user
       const responseData = response?.data as string | undefined;
-      if (responseData && responseData.startsWith('https://')) {
+      if (responseData && responseData.startsWith("https://")) {
         // It's a payment URL, redirect the user
         window.location.href = responseData;
       } else {
@@ -151,13 +179,14 @@ export const WalletSettings: React.FC = () => {
       console.error("Error adding funds:", error);
       notification.error({
         message: "Failed to Add Funds",
-        description: "There was an error processing your request. Please try again.",
+        description:
+          "There was an error processing your request. Please try again.",
       });
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   // Function to handle fund modal display
   const showFundModal = () => {
     setFundModalVisible(true);
@@ -166,7 +195,7 @@ export const WalletSettings: React.FC = () => {
     setCustomAmount("");
     setPaymentMethod(TransactionDtoPaymentMethodEnum.Vnpay);
   };
-  
+
   // Generate mock transactions for fallback
   const mockTransactions: MockTransaction[] = [
     {
@@ -184,9 +213,10 @@ export const WalletSettings: React.FC = () => {
       status: TransactionDtoStatusEnum.Success,
     },
   ];
-  
+
   // Use a union type to handle both real and mock transactions
-  const displayTransactions: (TransactionDto | MockTransaction)[] = transactionsData?.data || mockTransactions;
+  const displayTransactions: (TransactionDto | MockTransaction)[] =
+    transactionsData?.data || mockTransactions;
 
   return (
     <div>
@@ -202,13 +232,20 @@ export const WalletSettings: React.FC = () => {
             groupSeparator=","
           />
           <Space style={{ marginTop: 16 }}>
-            <Button type="primary" onClick={showFundModal}>Add Funds</Button>
-            <Button icon={<ReloadOutlined />} onClick={() => refetchTransactions()}>Refresh</Button>
+            <Button type="primary" onClick={showFundModal}>
+              Add Funds
+            </Button>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() => refetchTransactions()}
+            >
+              Refresh
+            </Button>
           </Space>
         </Card>
 
-        <Card 
-          title="Recent Transactions" 
+        <Card
+          title="Recent Transactions"
           extra={isTransactionsLoading && <Spin size="small" />}
         >
           <List
@@ -219,7 +256,11 @@ export const WalletSettings: React.FC = () => {
                 key={item.transactionId}
                 extra={[
                   <Typography.Text
-                    type={item.type === TransactionDtoTypeEnum.Deposit ? "success" : "danger"}
+                    type={
+                      item.type === TransactionDtoTypeEnum.Deposit
+                        ? "success"
+                        : "danger"
+                    }
                     key="amount"
                   >
                     {item.type === TransactionDtoTypeEnum.Deposit ? "+" : "-"}
@@ -228,7 +269,26 @@ export const WalletSettings: React.FC = () => {
                 ]}
               >
                 <List.Item.Meta
-                  title={`${item.type === TransactionDtoTypeEnum.Deposit ? "Deposit" : "Order"} - ${item.status}`}
+                  title={
+                    <>
+                      {item.type === TransactionDtoTypeEnum.Deposit
+                        ? "Deposit"
+                        : "Order"}{" "}
+                      -
+                      <Tag
+                        bordered={false}
+                        color={
+                          item.status == "SUCCESS"
+                            ? "success"
+                            : item.status == "PENDING"
+                            ? "processing"
+                            : "error"
+                        }
+                      >
+                        {item.status}
+                      </Tag>
+                    </>
+                  }
                   description={formatTransactionDate(item.createdAt)}
                 />
               </List.Item>
@@ -236,7 +296,7 @@ export const WalletSettings: React.FC = () => {
           />
         </Card>
       </Space>
-      
+
       {/* Add Funds Modal */}
       <Modal
         title="Add Funds to Wallet"
@@ -246,9 +306,9 @@ export const WalletSettings: React.FC = () => {
           <Button key="cancel" onClick={() => setFundModalVisible(false)}>
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
+          <Button
+            key="submit"
+            type="primary"
             loading={isLoading}
             onClick={handleAddFunds}
           >
@@ -259,13 +319,18 @@ export const WalletSettings: React.FC = () => {
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
           <div>
             <Text strong>Select Amount</Text>
-            <RadioGroup 
-              value={selectedAmount} 
+            <RadioGroup
+              value={selectedAmount}
               onChange={(e) => {
                 setSelectedAmount(e.target.value);
                 setCustomAmount("");
               }}
-              style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: '8px' }}
+              style={{
+                marginTop: 8,
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
             >
               {PREDEFINED_AMOUNTS.map((amount) => (
                 <Radio key={amount.value} value={amount.value}>
@@ -287,34 +352,35 @@ export const WalletSettings: React.FC = () => {
               </Radio>
             </RadioGroup>
           </div>
-          
+
           <div>
             <Text strong>Payment Method</Text>
-            <RadioGroup 
-              value={paymentMethod} 
+            <RadioGroup
+              value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
               style={{ marginTop: 8 }}
             >
               <Radio value={TransactionDtoPaymentMethodEnum.Vnpay}>
                 <Space>
-                  <img 
-                    src="/assets/vnpay-logo.png" 
-                    alt="VNPay" 
-                    style={{ width: 30, height: 30, objectFit: 'contain' }}
+                  <img
+                    src="/assets/vnpay-logo.png"
+                    alt="VNPay"
+                    style={{ width: 30, height: 30, objectFit: "contain" }}
                     onError={(e) => {
                       // If image fails to load, show text instead
-                      e.currentTarget.style.display = 'none';
-                    }} 
+                      e.currentTarget.style.display = "none";
+                    }}
                   />
                   <span>VNPay</span>
                 </Space>
               </Radio>
             </RadioGroup>
           </div>
-          
+
           <div>
             <Text type="secondary">
-              You will be redirected to a secure payment page to complete the transaction.
+              You will be redirected to a secure payment page to complete the
+              transaction.
             </Text>
           </div>
         </Space>
@@ -325,17 +391,17 @@ export const WalletSettings: React.FC = () => {
 
 // Helper function to format transaction dates
 const formatTransactionDate = (date: string | Date | undefined): string => {
-  if (!date) return 'Unknown date';
-  
+  if (!date) return "Unknown date";
+
   try {
-    if (typeof date === 'string') {
+    if (typeof date === "string") {
       return new Date(date).toLocaleString();
     } else if (date instanceof Date) {
       return date.toLocaleString();
     }
-    return 'Unknown date';
+    return "Unknown date";
   } catch (e) {
-    return 'Invalid date';
+    return "Invalid date";
   }
 };
 
