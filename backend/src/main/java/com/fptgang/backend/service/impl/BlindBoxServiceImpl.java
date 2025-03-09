@@ -23,6 +23,9 @@ public class BlindBoxServiceImpl implements BlindBoxService {
 
     @Override
     public BlindBox create(BlindBox blindBox) {
+        if(blindBox.getSkus() != null && !blindBox.getSkus().isEmpty()) {
+            blindBox.getSkus().forEach(sku -> sku.setBlindBox(blindBox));
+        }
         return blindBoxRepos.save(blindBox);
     }
 
