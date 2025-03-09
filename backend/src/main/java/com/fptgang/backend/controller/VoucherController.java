@@ -18,9 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
-
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -30,7 +27,9 @@ public class VoucherController implements VouchersApi {
     private final VoucherMapper voucherMapper;
 
     @Autowired
-    public VoucherController(VoucherMapper voucherMapper, VoucherService voucherService) {
+    public VoucherController(VoucherMapper voucherMapper,
+                             VoucherService voucherService
+    ) {
         this.voucherService = voucherService;
         this.voucherMapper = voucherMapper;
     }
@@ -66,31 +65,42 @@ public class VoucherController implements VouchersApi {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can view detailed voucher info.");
         }
-        return new ResponseEntity<>(voucherMapper.toDTO(voucherService.findById(voucherId), DetailLevel.FULL), HttpStatus.OK);
+        return new ResponseEntity<>(voucherMapper.toDTO(voucherService.findById(voucherId),
+                DetailLevel.FULL),
+                HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<GetVouchers200Response> getVouchers(Pageable pageable, String filter, String search) {
+    public ResponseEntity<GetVouchers200Response> getVouchers(Pageable pageable,
+                                                              String filter,
+                                                              String search
+    ) {
         log.info("Getting vouchers");
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
-                .pageable(OpenApiHelper.toPageable(pageable))
-                .search(search)
-                .filter(filter)
-                .includeInvisible(includeInvisible);
+                               .pageable(OpenApiHelper.toPageable(pageable))
+                               .search(search)
+                               .filter(filter)
+                               .includeInvisible(includeInvisible);
 
-        // Customers can only view their own vouchers
-s        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
-            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
+        // Customers can only sview their own vouchers
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            params.setFilter("account.accountId",
+                    "eq",
+                    SecurityUtil.getCurrentUserId());
         }
 
         var res = voucherService.getAll(params.build())
-                .map(v -> voucherMapper.toDTO(v, DetailLevel.SUMMARY));
-        return OpenApiHelper.respondPage(res, GetVouchers200Response.class);
+                                .map(v -> voucherMapper.toDTO(v,
+                                        DetailLevel.SUMMARY));
+        return OpenApiHelper.respondPage(res,
+                GetVouchers200Response.class);
     }
 
     @Override
-    public ResponseEntity<VoucherDto> updateVoucher(Long voucherId, VoucherDto voucherDto) {
+    public ResponseEntity<VoucherDto> updateVoucher(Long voucherId,
+                                                    VoucherDto voucherDto
+    ) {
         voucherDto.setVoucherId(voucherId); // Override voucherId
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can update vouchers.");
