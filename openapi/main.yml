@@ -132,6 +132,25 @@ paths:
     $ref: "path/voucher-voucherId.yml"
   /stats/revenue-by-sku:
     $ref: "path/stats/revenue-by-sku.yml"
-
+  /stats/daily-order:
+    $ref: "path/stats/daily-order.yml"
+  /stats/daily-revenue:
+    $ref: "path/stats/daily-revenue.yml"
+  /stats/monthly-revenue:
+    $ref: "path/stats/monthly-revenue.yml"
+  /stats/daily-new-customers:
+    $ref: "path/stats/daily-new-customer.yml"
+  /stats/monthly-new-customers:
+    $ref: "path/stats/monthly-new-customer.yml"
+  /stats/top-brands:
+    $ref: "path/stats/top-selling-brand.yml"
+  /stats/revenue-by-blind-box:
+    $ref: "path/stats/revenue-by-blindbox.yml"
+  /stats/revenue-by-brand:
+    $ref: "path/stats/revenue-by-brand.yml"
+  /stats/revenue-trend:
+    $ref: "path/stats/revenue-trend.yml"
+  /stats/top-selling-skus:
+    $ref: "path/stats/top-selling-sku.yml"
   /sales/trending-products:
     $ref: "path/sales/trending-products.yml"
