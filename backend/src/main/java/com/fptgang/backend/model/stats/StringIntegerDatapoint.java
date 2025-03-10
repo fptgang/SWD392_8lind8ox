@@ -5,14 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.sql.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class StringBigDecimalDatapoint {
+public class StringIntegerDatapoint {
     private String key;
-    private BigDecimal value;
+    private Integer value;
 }
+
