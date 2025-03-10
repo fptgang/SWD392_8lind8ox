@@ -1,24 +1,35 @@
 package com.fptgang.backend.controller;
 
+import com.fptgang.backend.api.controller.StatsApi;
+import com.fptgang.backend.api.model.StringBigDecimalDatapointDto;
+import com.fptgang.backend.mapper.DetailLevel;
+import com.fptgang.backend.mapper.stats.StringBigDecimalDatapointMapper;
 import com.fptgang.backend.service.StatService;
+import com.fptgang.backend.util.DateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/stats")
-public class StatController {
+@RequestMapping("/api/v1")
+public class StatController implements StatsApi {
 
     private final StatService statService;
+    private final StringBigDecimalDatapointMapper stringBigDecimalDatapointMapper;
 
-    public StatController(StatService statService) {
+    public StatController(StatService statService, StringBigDecimalDatapointMapper stringBigDecimalDatapointMapper) {
         this.statService = statService;
+        this.stringBigDecimalDatapointMapper = stringBigDecimalDatapointMapper;
     }
 
     /**
@@ -77,12 +88,17 @@ public class StatController {
         return ResponseEntity.ok(statService.getTopBrands(startDate, endDate, limit));
     }
 
-    @GetMapping("/revenue-by-sku")
-    public ResponseEntity<List<Map<String, Object>>> getRevenueBySKU(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        log.info("Fetching revenue by SKU from {} to {}", startDate, endDate);
-        return ResponseEntity.ok(statService.getRevenueBySKU(startDate, endDate));
+    @Override
+    public ResponseEntity<List<StringBigDecimalDatapointDto>> revenueBySku(OffsetDateTime startDate, OffsetDateTime endDate) {
+        var data = statService.getRevenueBySKU(
+                DateTimeUtil.fromOffsetToLocal(startDate),
+                DateTimeUtil.fromOffsetToLocal(endDate)
+        );
+        return ResponseEntity.ok(
+                data.stream().map(d -> {
+                    return stringBigDecimalDatapointMapper.toDTO(d, DetailLevel.FULL);
+                }).toList()
+        );
     }
 
     @GetMapping("/revenue-by-blindbox")

@@ -41,7 +41,6 @@ public class AccountServiceImpl implements AccountService {
     public Account update(Account account) {
         Account existing = accountRepos.findById(account.getAccountId())
                 .orElseThrow(() -> new InvalidInputException("Account does not exist"));
-        existing.setPassword(account.getPassword());
         EntityUtil.merge(existing, account);
         return accountRepos.save(existing);
     }

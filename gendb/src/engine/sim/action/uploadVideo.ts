@@ -47,7 +47,6 @@ export function uploadVideo(date: Date) {
                 updatedAt: date,
                 url: faker.helpers.arrayElement(videoURLs),
                 accountId: order.account_id,
-                slotId: detail.slot.slotId,
                 slot: detail.slot
             });
 

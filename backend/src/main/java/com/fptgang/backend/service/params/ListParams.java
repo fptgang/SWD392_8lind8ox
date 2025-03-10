@@ -1,6 +1,5 @@
 package com.fptgang.backend.service.params;
 
-import com.fptgang.backend.model.Account;
 import com.fptgang.backend.util.OpenApiHelper;
 import lombok.Data;
 import org.springframework.data.domain.Pageable;
@@ -71,13 +70,13 @@ public class ListParams {
     }
 
     public <T> Specification<T> toSpec() {
+        if (!includeInvisible) {
+            filter.put("isVisible", new String[]{"eq", "true"});
+        }
         var spec = OpenApiHelper.<T>filtersToSpec(filter);
         if (search != null && !search.isEmpty()) {
             spec = spec.and(OpenApiHelper.searchToSpec(search));
         }
-//        if (!includeInvisible) {
-//            spec = spec.and((a, _, cb) -> cb.isTrue(a.get("isVisible")));
-//        }
         return spec;
     }
 }

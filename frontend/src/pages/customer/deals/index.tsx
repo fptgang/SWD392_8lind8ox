@@ -49,10 +49,10 @@ const CustomerDeals: React.FC = () => {
   };
 
   const calculateDiscount = (
-    originalPrice: number,
+    subTotal: number,
     discountPercentage: number
   ) => {
-    return originalPrice - (originalPrice * discountPercentage) / 100;
+    return subTotal - (subTotal * discountPercentage) / 100;
   };
 
   return (
@@ -101,12 +101,12 @@ const CustomerDeals: React.FC = () => {
                       <Text className="text-lg font-semibold text-red-500">
                         $
                         {calculateDiscount(
-                          deal.originalPrice,
+                          deal.subTotal,
                           deal.discountPercentage
                         )}
                       </Text>
                       <Text className="text-sm line-through text-gray-400">
-                        ${deal.originalPrice}
+                        ${deal.subTotal}
                       </Text>
                     </div>
                     <Text className="text-gray-500 line-clamp-2">

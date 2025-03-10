@@ -54,12 +54,12 @@ export const useOrder = () => {
           skuId: item.skuId,
           quantity: item.quantity,
           price: item.price,
-          checkoutPrice: calculateItemCheckoutPrice(item),
+          finalTotal: calculateItemCheckoutPrice(item),
         })),
         shippingInfo: payload.shippingInfo,
         voucher: payload.voucherCode ? { code: payload.voucherCode } : undefined,
-        originalPrice: summary.subtotal,
-        checkoutPrice: summary.finalTotal,
+        subTotal: summary.subtotal,
+        finalTotal: summary.finalTotal,
       };
 
       const createOrderResponse = await (createOrderMutation as CreateOrderMutation)({

@@ -1,5 +1,6 @@
 package com.fptgang.backend.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,7 +53,9 @@ public class Slot {
     @OneToMany(mappedBy = "slot")
     private List<OrderDetail> orderDetails;
 
-    @OneToOne(mappedBy = "slot", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne
+    @JoinColumn(name = "video_id")
+    @Nullable
     private Video video;
 
     @CreationTimestamp

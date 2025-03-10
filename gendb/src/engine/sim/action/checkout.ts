@@ -1,7 +1,6 @@
 import {faker} from "@faker-js/faker";
 import {Order} from "../../model/Order";
 import {
-  cancelOrderRatio,
   forceCreateShippingInfoChance,
   gachaSlotBuyPerOrder,
   normalProductBuyPerOrder,
@@ -46,9 +45,11 @@ function createCart(date: Date): CartItem[] {
   const skus = SkuPool.pickMultiSkus(date, faker.number.int(normalProductBuyPerOrder()))
   
   for(const sku of skus) {
+    const quantity = faker.number.int(normalProductBuyQuantity());
+    if (quantity > sku.stock) continue
     items.push({
       sku,
-      quantity: faker.number.int(normalProductBuyQuantity()),
+      quantity,
       slot: null
     } as CartItem);
   }
@@ -103,31 +104,30 @@ export function checkout(date: Date) {
   const account = AccountPool.pickAccount(date, AccountRole.CUSTOMER, false)
   if (!account) return
 
-  const orderId = OrderPool.getNextId()
-
   const details = cart.map(item => {
-    const originalPrice = item.sku?.price;
-    if (!originalPrice) return null;
+    if (!item.sku) return null;
 
-    let checkoutPrice = originalPrice
+    const subTotal = item.sku.price * item.quantity;
+    let checkoutPrice = subTotal;
 
     // Apply promotional campaign discount
     const blindBoxId = item.sku?.blindBoxId;
     let campaignId: number | undefined = undefined
     if (blindBoxId){
-      const campaign = BlindBoxCampaignPool.pickActiveBlindBoxCampaign(date, blindBoxId)
-      campaignId = campaign?.promotional_campaign_id
-      if (campaign) {
-        checkoutPrice *= campaign.promotional_campaign_id
+      const blindBoxCampaign = BlindBoxCampaignPool.pickActiveBlindBoxCampaign(date, blindBoxId)
+      campaignId = blindBoxCampaign?.promotional_campaign_id
+      if (blindBoxCampaign && blindBoxCampaign.campaign) {
+        const discount = subTotal * blindBoxCampaign.campaign.discountRate;
+        checkoutPrice -= discount
       }
     }
 
     return new OrderDetail({
-      order_id: orderId,
-      order_detail_id: OrderDetailPool.getNextId(),
       sku_id: item.sku?.skuId,
-      checkout_price: checkoutPrice,
-      original_price: originalPrice,
+      sku: item.sku,
+      unit_price: item.sku?.price,
+      final_total: checkoutPrice,
+      sub_total: subTotal,
       quantity: item.quantity,
       slot_id: item.slot?.slotId,
       campaign_id: campaignId,
@@ -137,14 +137,24 @@ export function checkout(date: Date) {
     })
   }).filter((e): e is OrderDetail => e !== null)
 
-  const originalTotalPrice = details.reduce((acc, detail) => acc + detail.checkout_price * detail.quantity, 0)
-  let totalPrice = originalTotalPrice
+  const originalTotalPrice = details.reduce((acc, detail) => acc + detail.final_total, 0)
+  let finalTotal = originalTotalPrice
 
   // Apply voucher discount
   const voucher = VoucherPool.pickUnusedVoucher(date, account.account_id)
   if (voucher) {
     const discountPrice = Math.min(originalTotalPrice * voucher.discountRate, voucher.limitAmount)
-    totalPrice = Math.max(totalPrice - discountPrice, 0)
+    finalTotal = Math.max(finalTotal - discountPrice, 0)
+  }
+
+  ////////////////////////////////////////////////////////////////
+
+  // Deposit credits if not enough
+  if (account.balance < finalTotal) {
+    if (!TransactionPool.deposit(date, account, finalTotal - account.balance)) {
+      console.log(`Order is skipped because of failing to deposit credits`)
+      return;
+    }
   }
 
   ////////////////////////////////////////////////////////////////
@@ -153,21 +163,24 @@ export function checkout(date: Date) {
   const shippingInfo = pickOrCreateShippingInfo(date, account.account_id)
 
   // Create order
+  const orderId = OrderPool.getNextId()
   const order = new Order({
     order_id: orderId,
     account_id: account.account_id,
-    checkout_price: totalPrice,
-    original_price: originalTotalPrice,
+    final_total: finalTotal,
+    sub_total: originalTotalPrice,
     shipping_info_id: shippingInfo.shipping_info_id,
     updated_at: date,
     created_at: date,
+    latest_status: OrderState.PREPARING,
     details
   })
-
   OrderPool.add(order)
 
   // Create order details
   for (const detail of details) {
+    detail.order_detail_id = OrderDetailPool.getNextId()
+    detail.order_id = orderId
     OrderDetailPool.add(detail)
   }
 
@@ -179,74 +192,21 @@ export function checkout(date: Date) {
     state: OrderState.CREATED
   }))
 
-  let orderOk = faker.number.float() > cancelOrderRatio()
+  // Using internal wallet, the order is paid immediately
+  OrderStatusHistoryPool.add(new OrderStatusHistory({
+    createdAt: new Date(date.getTime() + 1),
+    id: OrderStatusHistoryPool.getNextId(),
+    orderId: orderId,
+    state: OrderState.PREPARING
+  }))
 
-  // Deposit credits if not enough
-  if (orderOk && account.balance < totalPrice) {
-    if (!TransactionPool.deposit(date, account, totalPrice - account.balance)) {
-      orderOk = false
-      console.log(`Order #${orderId} is canceled because of failing to deposit credits`)
-    }
-  }
-
-  ////////////////////////////////////////////////////////////////
-
-  // If not okay:
-  if (!orderOk) {
-    // Create order status history
-    OrderStatusHistoryPool.add(new OrderStatusHistory({
-      createdAt: date,
-      id: OrderStatusHistoryPool.getNextId(),
-      orderId: orderId,
-      state: OrderState.CANCELED
-    }))
-    return;
-  }
-
-  ////////////////////////////////////////////////////////////////
-
-  // Use voucher only if order is ok
+  // Use voucher
   if (voucher) {
     voucher.state = VoucherState.USED
     voucher.updatedAt = date
     voucher.orderId = orderId
+    order.voucher = voucher
   }
-
-  // Create transaction
-  TransactionPool.add(new Transaction({
-    account_id: account.account_id,
-    amount: order.checkout_price,
-    created_at: date,
-    updated_at: date,
-    new_balance: account.balance - order.checkout_price,
-    old_balance: account.balance,
-    order_id: orderId,
-    payment_method: PaymentMethod.INTERNAL_WALLET,
-    status: TransactionStatus.SUCCESS,
-    transaction_id: TransactionPool.getNextId(),
-    type: TransactionType.ORDER
-  }))
-
-  account.balance -= order.checkout_price
-  account.update_balance_at = date
-
-  // Create notification
-  NotificationPool.add(new Notification({
-    account_id: account.account_id,
-    created_at: date,
-    is_read: false,
-    message: `You have spent \$${order.checkout_price} on order #${orderId}. Your new balance is \$${account.balance}`,
-    notification_id: NotificationPool.getNextId(),
-    updated_at: date
-  }))
-  NotificationPool.add(new Notification({
-    account_id: account.account_id,
-    created_at: date,
-    is_read: false,
-    message: `Your order #${orderId} has been successfully placed. Please waiting for confirmation on shipping!`,
-    notification_id: NotificationPool.getNextId(),
-    updated_at: date
-  }))
 
   // Update slots
   for (const detail of details) {
@@ -255,4 +215,47 @@ export function checkout(date: Date) {
     detail.slot.openedAt = date
     detail.slot.updatedAt = date
   }
+
+  // Update SKU stock
+  for (const detail of details) {
+    if (!detail.sku) continue
+    detail.sku.stock -= detail.quantity
+    detail.sku.updatedAt = date
+  }
+
+  // Create transaction
+  TransactionPool.add(new Transaction({
+    account_id: account.account_id,
+    amount: order.final_total,
+    created_at: date,
+    updated_at: date,
+    new_balance: account.balance - order.final_total,
+    old_balance: account.balance,
+    order_id: orderId,
+    payment_method: PaymentMethod.INTERNAL_WALLET,
+    status: TransactionStatus.SUCCESS,
+    transaction_id: TransactionPool.getNextId(),
+    type: TransactionType.ORDER
+  }))
+
+  account.balance -= order.final_total
+  account.update_balance_at = date
+
+  // Create notification
+  NotificationPool.add(new Notification({
+    account_id: account.account_id,
+    created_at: date,
+    is_read: false,
+    message: `You have spent \$${order.final_total} on order #${orderId}. Your new balance is \$${account.balance}`,
+    notification_id: NotificationPool.getNextId(),
+    updated_at: date
+  }))
+  NotificationPool.add(new Notification({
+    account_id: account.account_id,
+    created_at: date,
+    is_read: false,
+    message: `Your order #${orderId} has been successfully placed. The staff is preparing your order!`,
+    notification_id: NotificationPool.getNextId(),
+    updated_at: date
+  }))
 }

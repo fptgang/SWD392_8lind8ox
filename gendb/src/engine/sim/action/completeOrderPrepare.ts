@@ -4,28 +4,30 @@ import {NotificationPool} from "../../pool/notification";
 import {Notification} from "../../model/Notification";
 import { OrderPool } from "../../pool/order";
 
-export function contactDeliveryPartner(date: Date) {
-  const orderIds = OrderStatusHistoryPool.pickAllOrderWithLatestState(date, OrderState.CREATED);
+export function completeOrderPrepare(date: Date) {
+  const orderIds = OrderStatusHistoryPool.pickAllOrderWithLatestState(date, OrderState.PREPARING);
 
   for (const orderId of orderIds) {
-    OrderStatusHistoryPool.add(new OrderStatusHistory({
-      createdAt: date,
-      id: OrderStatusHistoryPool.getNextId(),
-      orderId: orderId,
-      state: OrderState.COURIER_ACCEPTED
-    }));
-
     const order = OrderPool.getById(orderId);
 
     if (!order) {
       continue;
     }
 
+    OrderStatusHistoryPool.add(new OrderStatusHistory({
+      createdAt: date,
+      id: OrderStatusHistoryPool.getNextId(),
+      orderId: orderId,
+      state: OrderState.READY_FOR_PICKUP
+    }));
+
+    order.latest_status = OrderState.READY_FOR_PICKUP
+
     NotificationPool.add(new Notification({
       account_id: order.account_id,
       created_at: date,
       is_read: false,
-      message: `Your order #${orderId} has been transferred to courier. Please waiting for confirmation on shipping!`,
+      message: `Your order #${orderId} has been packaged. Please waiting for shipping!`,
       notification_id: NotificationPool.getNextId(),
       updated_at: date
     }))

@@ -1,5 +1,6 @@
 package com.fptgang.backend.mapper;
 
+import com.fptgang.backend.api.model.OrderStatus;
 import com.fptgang.backend.api.model.OrderStatusHistoryDto;
 import com.fptgang.backend.model.OrderStatusHistory;
 import com.fptgang.backend.repository.OrderRepos;
@@ -39,7 +40,7 @@ public class OrderStatusHistoryMapper extends BaseMapper<OrderStatusHistoryDto, 
 
         OrderStatusHistoryDto dto = new OrderStatusHistoryDto();
         dto.setId(entity.getId());
-        dto.setState(OrderStatusHistoryDto.StateEnum.valueOf(entity.getState().name()));
+        dto.setState(OrderStatus.valueOf(entity.getState().name()));
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         return dto;

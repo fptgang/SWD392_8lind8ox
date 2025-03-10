@@ -8,6 +8,12 @@ export function completeShipping(date: Date) {
   const orderIds = OrderStatusHistoryPool.pickAllOrderWithLatestState(date, OrderState.SHIPPING);
 
   for (const orderId of orderIds) {
+    const order = OrderPool.getById(orderId);
+
+    if (!order) {
+      continue;
+    }
+
     OrderStatusHistoryPool.add(new OrderStatusHistory({
       createdAt: date,
       id: OrderStatusHistoryPool.getNextId(),
@@ -15,11 +21,7 @@ export function completeShipping(date: Date) {
       state: OrderState.DELIVERED
     }));
 
-    const order = OrderPool.getById(orderId);
-
-    if (!order) {
-      continue;
-    }
+    order.latest_status = OrderState.DELIVERED
 
     NotificationPool.add(new Notification({
       account_id: order.account_id,

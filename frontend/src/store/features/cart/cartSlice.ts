@@ -6,8 +6,8 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  originalPrice: number;
-  checkoutPrice: number;
+  subTotal: number;
+  finalTotal: number;
   stock: number;
   imageUrl: string;
   blindBoxId?: number;
@@ -58,8 +58,8 @@ const loadCartFromStorage = (): CartItem[] => {
 const calculateTotals = (items: CartItem[]) => {
   return items.reduce(
     (acc, item) => ({
-      total: acc.total + item.checkoutPrice * item.quantity,
-      originalTotal: acc.originalTotal + item.originalPrice * item.quantity,
+      total: acc.total + item.finalTotal * item.quantity,
+      originalTotal: acc.originalTotal + item.subTotal * item.quantity,
     }),
     { total: 0, originalTotal: 0 }
   );

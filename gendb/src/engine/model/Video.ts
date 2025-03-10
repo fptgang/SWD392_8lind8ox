@@ -10,7 +10,6 @@ export class Video {
     updatedAt: Date | null;
     url: string;
     accountId: number | null;
-    slotId: number;
 
 
     // convenient fields, do not dump
@@ -26,7 +25,6 @@ export class Video {
         this.updatedAt = init.updatedAt ?? null;
         this.url = init.url ?? '';
         this.accountId = init.accountId ?? null;
-        this.slotId = init.slotId ?? 0;
         this.slot = init.slot ?? null;
     }
 
@@ -41,8 +39,7 @@ export class Video {
             'is_visible',
             'updated_at',
             'url',
-            'account_id',
-            'slot_id'
+            'account_id'
         ];
 
         const values = videos.map(video => {
@@ -54,8 +51,7 @@ export class Video {
                 video.isVisible ? 1 : 0,
                 video.updatedAt ? `'${video.updatedAt.toISOString().slice(0, 19)}.000000'` : 'NULL',
                 `'${escapeSingleQuotes(video.url)}'`,
-                video.accountId ?? 'NULL',
-                video.slotId
+                video.accountId ?? 'NULL'
             ];
             return `(${row.join(', ')})`;
         });

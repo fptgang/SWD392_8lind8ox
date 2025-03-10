@@ -32,7 +32,18 @@ public class OrderStatusHistory {
     private LocalDateTime createdAt;
 
     public enum State {
-        CREATED, COURIER_ACCEPTED, SHIPPING, DELIVERED, RECEIVED, COMPLETED, CANCELED
+        CREATED, // Order created, in payment
+
+        PREPARING, // Paid success, staff is preparing
+        PAYMENT_FAILED, // Failed to pay
+        PAYMENT_EXPIRED, // Not paid in time
+        CANCELED, // Customer canceled before paid
+
+        READY_FOR_PICKUP, // Staff has done package, waiting for courier to pickup
+        SHIPPING, // Courier is shipping
+        DELIVERED, // Courier delivered
+        RECEIVED, // Customer confirmed received
+        COMPLETED, // The order completed without issues
     }
 
 }

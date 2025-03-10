@@ -197,7 +197,7 @@ export const useCart = () => {
         items: cartItems.map(item => ({
           skuId: item.skuId,
           quantity: item.quantity,
-          price: item.checkoutPrice
+          price: item.finalTotal
         })),
         shippingInfo: params.shippingInfo,
         paymentMethod: params.paymentMethod,

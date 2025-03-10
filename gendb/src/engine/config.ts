@@ -16,7 +16,7 @@ const store = {
     launchCampaign: 20,
     depositCredits: 20,
     checkout: 60,
-    contactDeliveryPartner: 80,
+    completeOrderPrepare: 80,
     startShipping: 80,
     completeShipping: 40,
     confirmDelivery: 60,
@@ -91,7 +91,6 @@ export let normalProductBuyPerOrder = () => store.normalProductBuyPerOrder;
 export let normalProductBuyQuantity = () => store.normalProductBuyQuantity;
 export let gachaSlotBuyPerOrder = () => store.gachaSlotBuyPerOrder;
 export let forceCreateShippingInfoChance = () => store.forceCreateShippingInfoChance;
-export let cancelOrderRatio = () => store.cancelOrderRatio;
 export let voucherDiscountRate = () => store.voucherDiscountRate;
 export let voucherLimitAmount = () => store.voucherLimitAmount;
 export let voucherExpiredDays = () => store.voucherExpiredDays;
@@ -141,9 +140,6 @@ export const setGachaSlotBuyPerOrder = (value: typeof store.gachaSlotBuyPerOrder
 }
 export const setForceCreateShippingInfoChance = (value: typeof store.forceCreateShippingInfoChance) => {
   Object.assign(store.forceCreateShippingInfoChance, value);
-}
-export const setCancelOrderRatio = (value: typeof store.cancelOrderRatio) => {
-  Object.assign(store.cancelOrderRatio, value);
 }
 export const setVoucherDiscountRate = (value: typeof store.voucherDiscountRate) => {
   Object.assign(store.voucherDiscountRate, value);

@@ -130,6 +130,8 @@ paths:
     $ref: "path/voucher.yml"
   /vouchers/{voucherId}:
     $ref: "path/voucher-voucherId.yml"
+  /stats/revenue-by-sku:
+    $ref: "path/stats/revenue-by-sku.yml"
 
   /sales/trending-products:
     $ref: "path/sales/trending-products.yml"

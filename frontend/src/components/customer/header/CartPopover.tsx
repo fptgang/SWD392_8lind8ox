@@ -61,11 +61,11 @@ const CartItem: React.FC<CartItemProps> = ({
     }
   };
 
-  const discount = (item.originalPrice || 0) > (item.price || 0);
+  const discount = (item.subTotal || 0) > (item.price || 0);
   const discountPercentage = discount
     ? Math.round(
-        (((item.originalPrice || 0) - (item.price || 0)) /
-          (item.originalPrice || 1)) *
+        (((item.subTotal || 0) - (item.price || 0)) /
+          (item.subTotal || 1)) *
           100
       )
     : 0;
@@ -95,7 +95,7 @@ const CartItem: React.FC<CartItemProps> = ({
           </Text>
           <div className="flex items-center gap-2">
             <Text type={discount ? "secondary" : undefined} delete={discount}>
-              {formatCurrency(item.originalPrice || 0)}
+              {formatCurrency(item.subTotal || 0)}
             </Text>
             {discount && (
               <>
