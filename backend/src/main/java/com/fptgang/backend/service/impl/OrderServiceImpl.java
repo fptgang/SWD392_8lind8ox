@@ -1,6 +1,5 @@
 package com.fptgang.backend.service.impl;
 
-import com.fptgang.backend.api.model.VoucherDto;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.*;
 import com.fptgang.backend.model.checkout.Cart;
@@ -68,10 +67,9 @@ public class OrderServiceImpl implements OrderService {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         // Validate cart items and create order details
-        for (Cart.Item item : cart.getItems()) {
-            if (item.getQuantity() <= 0)
-                throw new InvalidInputException("Quantity must be positive");
+        cart.validateCart();
 
+        for (Cart.Item item : cart.getItems()) {
             StockKeepingUnit sku = stockKeepingUnitService.findById(item.getSkuId());
             if (sku == null || !sku.getIsVisible())
                 throw new InvalidInputException("StockKeepingUnit not found");
@@ -85,8 +83,8 @@ public class OrderServiceImpl implements OrderService {
                 slot = slotService.findById(item.getSlotId());
                 if (slot == null || !slot.getIsVisible())
                     throw new InvalidInputException("Slot not found");
-                if (slot.getSet()
-                        .getSku() != sku)
+                if (!Objects.equals(slot.getSet()
+                        .getSku().getSkuId(), sku.getSkuId()))
                     throw new InvalidInputException("Slot does not match sku");
                 if (slot.getState() == Slot.State.OPENED)
                     throw new InvalidInputException("Slot is already opened");
@@ -94,12 +92,13 @@ public class OrderServiceImpl implements OrderService {
                     throw new InvalidInputException("Slot has been reserved");
             }
 
-            BigDecimal checkoutPrice = sku.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal subTotal = sku.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal finalTotal = subTotal;
             PromotionalCampaign campaign = promotionalCampaignService
                     .findBestOngoingCampaignForSku(sku.getSkuId());
             if (campaign != null) {
-                BigDecimal discount = checkoutPrice.multiply(campaign.getDiscountRate());
-                checkoutPrice = checkoutPrice.subtract(discount);
+                BigDecimal discount = subTotal.multiply(campaign.getDiscountRate());
+                finalTotal = finalTotal.subtract(discount);
             }
 
             OrderDetail orderDetail = new OrderDetail();
@@ -107,25 +106,26 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setQuantity(item.getQuantity());
             orderDetail.setPromotionalCampaign(campaign);
             orderDetail.setStockKeepingUnit(sku);
-            orderDetail.setOriginalPrice(sku.getPrice());
-            orderDetail.setCheckoutPrice(checkoutPrice);
+            orderDetail.setUnitPrice(sku.getPrice());
+            orderDetail.setSubTotal(subTotal);
+            orderDetail.setFinalTotal(finalTotal);
             orderDetails.add(orderDetail);
 
             log.info("OrderDetail SkuId={}, SlotId={}, Quantity={}, OriginalPrice={}, CheckoutPrice={}",
                     item.getSkuId(),
                     item.getSlotId(),
                     item.getQuantity(),
-                    sku.getPrice(),
-                    checkoutPrice);
+                    subTotal,
+                    finalTotal);
         }
 
         // Calculate total price
         BigDecimal totalOriginalPrice = orderDetails.stream()
-                                                    .map(OrderDetail::getOriginalPrice)
+                                                    .map(OrderDetail::getSubTotal)
                                                     .reduce(BigDecimal.ZERO,
                                                             BigDecimal::add);
         BigDecimal totalCheckoutPrice = orderDetails.stream()
-                                                    .map(OrderDetail::getCheckoutPrice)
+                                                    .map(OrderDetail::getFinalTotal)
                                                     .reduce(BigDecimal.ZERO,
                                                             BigDecimal::add);
 
@@ -156,6 +156,15 @@ public class OrderServiceImpl implements OrderService {
                 totalOriginalPrice,
                 totalCheckoutPrice);
 
+        // Validate shipping info
+        ShippingInfo shippingInfo = shippingInfoService.findById(cart.getShippingInfoId());
+        if (shippingInfo == null)
+            throw new InvalidInputException("ShippingInfo not found");
+        if (!Objects.equals(shippingInfo.getAccount()
+                        .getAccountId(),
+                cart.getAccountId()))
+            throw new InvalidInputException("ShippingInfo does not belong to account");
+
         // Validate account and wallet balance (if using internal wallet)
         Account account = accountService.findById(cart.getAccountId());
         if (account == null)
@@ -167,22 +176,14 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        // Validate shipping info
-        ShippingInfo shippingInfo = shippingInfoService.findById(cart.getShippingInfoId());
-        if (shippingInfo == null)
-            throw new InvalidInputException("ShippingInfo not found");
-        if (!Objects.equals(shippingInfo.getAccount()
-                                        .getAccountId(),
-                cart.getAccountId()))
-            throw new InvalidInputException("ShippingInfo does not belong to account");
-
         // Create order
         Order order = new Order();
         order.setAccount(account);
         order.setVoucher(voucher);
         order.setShippingInfo(shippingInfo);
-        order.setOriginalPrice(totalOriginalPrice);
-        order.setCheckoutPrice(totalCheckoutPrice);
+        order.setSubTotal(totalOriginalPrice);
+        order.setFinalTotal(totalCheckoutPrice);
+        order.setLatestStatus(OrderStatusHistory.State.CREATED);
         order = orderRepos.save(order);
 
         // Create order status histories
@@ -199,21 +200,38 @@ public class OrderServiceImpl implements OrderService {
         orderDetails = orderDetailRepos.saveAll(orderDetails);
         order.setOrderDetails(orderDetails);
 
+        // Update SKUs
+        for (OrderDetail orderDetail : orderDetails) {
+            StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
+            sku.setStock(sku.getStock() - orderDetail.getQuantity());
+            stockKeepingUnitService.update(sku);
+        }
+
         return cart.getPaymentMethod() == Transaction.PaymentMethod.INTERNAL_WALLET ?
                 payOrderByInternalWallet(order) :
-                payOrderByExternalWallet(order,
+                payOrderByExternalMethod(order,
                         cart.getPaymentMethod());
     }
 
     private PlaceOrderResult payOrderByInternalWallet(Order order) {
+        // Update account balance
+        Account account = order.getAccount();
+        BigDecimal oldBalance = account.getBalance();
+        BigDecimal newBalance = oldBalance.subtract(order.getFinalTotal());
+        account.setBalance(newBalance);
+        account.setUpdateBalanceAt(LocalDateTime.now());
+        accountService.update(account);
+
         // Create ORDER transaction
         Transaction orderTransaction = new Transaction();
         orderTransaction.setOrder(order);
         orderTransaction.setAccount(order.getAccount());
-        orderTransaction.setAmount(order.getCheckoutPrice());
+        orderTransaction.setAmount(order.getFinalTotal());
         orderTransaction.setPaymentMethod(Transaction.PaymentMethod.INTERNAL_WALLET);
         orderTransaction.setType(Transaction.Type.ORDER);
         orderTransaction.setStatus(Transaction.Status.SUCCESS);
+        orderTransaction.setOldBalance(oldBalance);
+        orderTransaction.setNewBalance(newBalance);
         orderTransaction = transactionService.create(orderTransaction);
         order.setTransaction(orderTransaction);
 
@@ -229,15 +247,19 @@ public class OrderServiceImpl implements OrderService {
         // Use the slot
         for (OrderDetail orderDetail : order.getOrderDetails()) {
             if (orderDetail.getSlot() == null) continue;
-            orderDetail.getSlot()
-                       .setState(Slot.State.OPENED);
+            orderDetail.getSlot().setState(Slot.State.OPENED);
             orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
-
-            // Deduct Sku stock
-            StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
-            sku.setStock(sku.getStock() - orderDetail.getQuantity());
-            stockKeepingUnitService.update(sku);
         }
+
+        // Update order status
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setOrder(order);
+        orderStatusHistory.setState(OrderStatusHistory.State.PREPARING);
+        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+        order.getOrderStatusHistories().add(orderStatusHistory);
+
+        order.setLatestStatus(OrderStatusHistory.State.PREPARING);
+        order = orderRepos.save(order);
 
         log.info("Order {} paid by internal wallet successfully!",
                 order.getOrderId());
@@ -246,17 +268,15 @@ public class OrderServiceImpl implements OrderService {
         return result;
     }
 
-    private PlaceOrderResult payOrderByExternalWallet(Order order,
+    private PlaceOrderResult payOrderByExternalMethod(Order order,
                                                       Transaction.PaymentMethod paymentMethod
     ) {
         // Create DEPOSIT transaction
         Transaction depositTransaction = new Transaction();
         depositTransaction.setAccount(order.getAccount());
-        depositTransaction.setAmount(order.getCheckoutPrice());
+        depositTransaction.setAmount(order.getFinalTotal());
         depositTransaction.setPaymentMethod(paymentMethod);
         depositTransaction.setType(Transaction.Type.DEPOSIT);
-        depositTransaction.setOldBalance(order.getAccount()
-                                              .getBalance());
         depositTransaction.setStatus(Transaction.Status.PENDING);
         depositTransaction = transactionService.create(depositTransaction);
 
@@ -266,7 +286,7 @@ public class OrderServiceImpl implements OrderService {
         orderTransaction.setOldBalance(order.getAccount()
                                             .getBalance());
         orderTransaction.setAccount(order.getAccount());
-        orderTransaction.setAmount(order.getCheckoutPrice());
+        orderTransaction.setAmount(order.getFinalTotal());
         orderTransaction.setPaymentMethod(Transaction.PaymentMethod.INTERNAL_WALLET);
         orderTransaction.setType(Transaction.Type.ORDER);
         orderTransaction.setStatus(Transaction.Status.PENDING);
@@ -284,22 +304,15 @@ public class OrderServiceImpl implements OrderService {
 
         // Reserve the slot
         for (OrderDetail orderDetail : order.getOrderDetails()) {
-            if (orderDetail.getSlot() != null) {
-                orderDetail.getSlot()
-                        .setState(Slot.State.RESERVED);
-                orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
-            }
-
-            // Deduct Sku stock
-            StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
-            sku.setStock(sku.getStock() - orderDetail.getQuantity());
-            stockKeepingUnitService.update(sku);
+            if (orderDetail.getSlot() == null) continue;
+            orderDetail.getSlot().setState(Slot.State.RESERVED);
+            orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
         }
 
         // Generate pay URL
         String payUrl = paymentService.generatePaymentLinkForOrder(
                 paymentMethod,
-                order.getCheckoutPrice(),
+                order.getFinalTotal(),
                 depositTransaction.getTransactionId(),
                 order.getOrderId()
         );
@@ -323,83 +336,140 @@ public class OrderServiceImpl implements OrderService {
                                                    long orderId,
                                                    boolean success
     ) {
-        // Update DEPOSIT transaction
-        Transaction depositTransaction = transactionService.findById(depositTxnId);
-        if (depositTransaction == null) {
-            throw new IllegalArgumentException("Transaction " + depositTxnId + " not found");
-        }
-        if (depositTransaction.getStatus() != Transaction.Status.PENDING) {
-            throw new IllegalStateException("Transaction " + depositTxnId + " is not pending");
-        }
-        if (depositTransaction.getType() != Transaction.Type.DEPOSIT) {
-            throw new IllegalStateException("Transaction " + depositTxnId + " type is not DEPOSIT");
-        }
-        if (depositTransaction.getPaymentMethod() != method) {
-            throw new IllegalStateException("Transaction " + depositTxnId + " method is not " + method.name());
-        }
-
-        Account account = depositTransaction.getAccount();
-        account.setUpdateBalanceAt(LocalDateTime.now());
-        account = accountService.update(account);
-        depositTransaction.setAccount(account);
-
-        BigDecimal oldBalance = account.getBalance();
-        BigDecimal newBalance = success ? oldBalance.add(depositTransaction.getAmount()) : oldBalance;
-
-        depositTransaction.setOldBalance(oldBalance);
-        depositTransaction.setNewBalance(newBalance);
-        depositTransaction.setStatus(success ? Transaction.Status.SUCCESS : Transaction.Status.FAILED);
-        transactionService.update(depositTransaction);
-
-        // Update ORDER transaction
         Order order = findById(orderId);
         if (order == null) {
             throw new IllegalArgumentException("Order " + orderId + " not found");
         }
+        if (order.getLatestStatus() != OrderStatusHistory.State.CREATED) {
+            throw new IllegalArgumentException("Order " + orderId + " is not in payment process");
+        }
+
+        // Handle deposit transaction first
+        paymentService.handleDepositCallback(method, depositTxnId, success);
+
+        // ========== IF PAID FAILED ==========
+        if (!success) {
+            cancel(order, OrderStatusHistory.State.PAYMENT_FAILED);
+        }
+        // ========== IF PAID SUCCESSFULLY ==========
+        else {
+            // Deduct account balance
+            Account account = order.getAccount();
+            BigDecimal oldBalance = account.getBalance();
+            BigDecimal newBalance = oldBalance.subtract(order.getFinalTotal());
+            account.setBalance(newBalance);
+            account.setUpdateBalanceAt(LocalDateTime.now());
+            accountService.update(account);
+
+            // Update ORDER transaction
+            Transaction orderTransaction = order.getTransaction();
+            if (orderTransaction == null) {
+                throw new IllegalStateException("Order " + orderId + " transaction not found");
+            }
+            if (orderTransaction.getStatus() != Transaction.Status.PENDING) {
+                throw new IllegalStateException("Transaction " + orderTransaction.getTransactionId() + " is not pending");
+            }
+            orderTransaction.setStatus(Transaction.Status.SUCCESS);
+            orderTransaction.setOldBalance(oldBalance);
+            orderTransaction.setNewBalance(newBalance);
+            orderTransaction = transactionService.update(order.getTransaction());
+            order.setTransaction(orderTransaction);
+
+            // Use the voucher
+            if (order.getVoucher() != null) {
+                order.getVoucher()
+                        .setState(Voucher.State.USED);
+                order.getVoucher()
+                        .setOrder(order);
+                order.setVoucher(voucherService.update(order.getVoucher()));
+            }
+
+            // Use the slot
+            for (OrderDetail orderDetail : order.getOrderDetails()) {
+                if (orderDetail.getSlot() == null) continue;
+                orderDetail.getSlot().setState(Slot.State.OPENED);
+                orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
+            }
+
+            // Update order status
+            OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+            orderStatusHistory.setOrder(order);
+            orderStatusHistory.setState(OrderStatusHistory.State.PREPARING);
+            orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+            order.getOrderStatusHistories().add(orderStatusHistory);
+
+            order.setLatestStatus(OrderStatusHistory.State.PREPARING);
+            order = orderRepos.save(order);
+        }
+
+        log.info("Order {} paid by external wallet status {}; depositTxn = {}, orderTxn = {}",
+                orderId,
+                success ? "SUCCESS" : "FAILED",
+                depositTxnId,
+                order.getTransaction().getTransactionId());
+    }
+
+    @Override
+    @Transactional
+    public synchronized Order cancel(Order order, OrderStatusHistory.State reason) {
+        if (order.getLatestStatus() != OrderStatusHistory.State.CREATED) {
+            throw new IllegalArgumentException("Paid order " + order.getOrderId() + " cannot be cancelled");
+        }
+        if (!(reason == OrderStatusHistory.State.CANCELED ||
+                reason == OrderStatusHistory.State.PAYMENT_FAILED ||
+                reason == OrderStatusHistory.State.PAYMENT_EXPIRED)) {
+            throw new IllegalArgumentException("Invalid cancel reason " + reason);
+        }
+
+        // NOTE: Don't update account balance because order is cancellable only ahead of paid
+
+        // Update ORDER transaction
         Transaction orderTransaction = order.getTransaction();
         if (orderTransaction == null) {
-            throw new IllegalStateException("Order " + orderId + " transaction not found");
+            throw new IllegalStateException("Order " + order.getOrderId() + " transaction not found");
         }
         if (orderTransaction.getStatus() != Transaction.Status.PENDING) {
             throw new IllegalStateException("Transaction " + orderTransaction.getTransactionId() + " is not pending");
         }
-        orderTransaction.setStatus(success ? Transaction.Status.SUCCESS : Transaction.Status.FAILED);
-        orderTransaction.setOldBalance(newBalance);
-        orderTransaction.setNewBalance(oldBalance);
+        orderTransaction.setStatus(Transaction.Status.FAILED);
         orderTransaction = transactionService.update(order.getTransaction());
         order.setTransaction(orderTransaction);
 
         // Update voucher
         if (order.getVoucher() != null) {
             Voucher voucher = order.getVoucher();
-            voucher.setState(success ? Voucher.State.USED : Voucher.State.AVAILABLE);
-            voucher.setOrder(success ? order : null);
-            voucher = voucherService.update(voucher);
-            order.setVoucher(voucher);
+            voucher.setState(Voucher.State.AVAILABLE);
+            voucher.setOrder(null);
+            voucherService.update(voucher);
         }
 
-        // Update slot
         for (OrderDetail orderDetail : order.getOrderDetails()) {
+            // Update slot
             Slot slot = orderDetail.getSlot();
             if (slot != null) {
-                slot.setState(success ? Slot.State.OPENED : Slot.State.AVAILABLE);
-                slot = slotService.update(slot);
-                orderDetail.setSlot(slot);
+                slot.setState(Slot.State.AVAILABLE);
+                slotService.update(slot);
+                orderDetail.setSlot(null);
             }
 
-            if (!success) {
-                // Recover Sku stock
-                StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
-                sku.setStock(sku.getStock() + orderDetail.getQuantity());
-                stockKeepingUnitService.update(sku);
-            }
+            StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
+            sku.setStock(sku.getStock() + orderDetail.getQuantity());
+            stockKeepingUnitService.update(sku);
         }
+        order.setOrderDetails(orderDetailRepos.saveAll(order.getOrderDetails()));
 
-        log.info("Order {} paid by external wallet status {}; depositTxn = {}, orderTxn = {}",
-                orderId,
-                orderTransaction.getStatus(),
-                depositTxnId,
-                orderTransaction.getTransactionId());
+        // Update order status
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setOrder(order);
+        orderStatusHistory.setState(reason);
+        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+        order.getOrderStatusHistories().add(orderStatusHistory);
+
+        order.setLatestStatus(reason);
+        order = orderRepos.save(order);
+
+        log.info("Order {} cancelled; orderTxn = {}", order.getOrderId(), orderTransaction.getTransactionId());
+        return order;
     }
 
     @Override
@@ -412,8 +482,7 @@ public class OrderServiceImpl implements OrderService {
     public Order update(Order order) {
         Order existing = orderRepos.findById(order.getOrderId())
                                    .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
-        EntityUtil.merge(existing,
-                order);
+        EntityUtil.merge(existing, order);
         return orderRepos.save(existing);
     }
 
@@ -423,6 +492,5 @@ public class OrderServiceImpl implements OrderService {
         return orderRepos.findAll(spec,
                 params.getPageable());
     }
-
 
 }

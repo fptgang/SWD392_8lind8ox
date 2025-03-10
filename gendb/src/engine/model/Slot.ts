@@ -15,6 +15,7 @@ export class Slot {
     openedAt: Date | null;
     setId: number | null;
     toyId: number | null;
+    videoId: number | null;
 
     // convenient fields, do not dump
     set: Set | null = null;
@@ -29,6 +30,7 @@ export class Slot {
         this.openedAt = data.openedAt ?? null;
         this.setId = data.setId ?? null;
         this.toyId = data.toyId ?? null;
+        this.videoId = data.videoId ?? null;
         this.set = data.set ?? null;
     }
 
@@ -43,6 +45,7 @@ export class Slot {
             'position',
             'updated_at',
             'opened_at',
+            'video_id',
             'set_id',
             'toy_id',
         ];
@@ -56,6 +59,7 @@ export class Slot {
                 slot.position,
                 slot.updatedAt ? `'${slot.updatedAt.toISOString().slice(0, 19)}.000000'` : 'NULL',
                 slot.openedAt ? `'${slot.openedAt.toISOString().slice(0, 19)}.000000'` : 'NULL',
+                slot.videoId ?? 'NULL',
                 slot.setId ?? 'NULL',
                 slot.toyId ?? 'NULL'
             ];

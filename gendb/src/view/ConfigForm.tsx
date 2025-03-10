@@ -20,7 +20,6 @@ type ConfigFormType = {
   normalProductBuyQuantity: typeof config.normalProductBuyQuantity;
   gachaSlotBuyPerOrder: typeof config.gachaSlotBuyPerOrder;
   forceCreateShippingInfoChance: number;
-  cancelOrderRatio: number;
   voucherDiscountRate: typeof config.voucherDiscountRate;
   voucherLimitAmount: typeof config.voucherLimitAmount;
   voucherExpiredDays: typeof config.voucherExpiredDays;
@@ -44,7 +43,6 @@ export const ConfigForm: React.FC = () => {
       normalProductBuyQuantity: config.normalProductBuyQuantity(),
       gachaSlotBuyPerOrder: config.gachaSlotBuyPerOrder(),
       forceCreateShippingInfoChance: config.forceCreateShippingInfoChance(),
-      cancelOrderRatio: config.cancelOrderRatio(),
       voucherDiscountRate: config.voucherDiscountRate(),
       voucherLimitAmount: config.voucherLimitAmount(),
       voucherExpiredDays: config.voucherExpiredDays(),
@@ -687,28 +685,6 @@ export const ConfigForm: React.FC = () => {
         />
       </Form.Group>
 
-      {/* Cancel Order Ratio */}
-      <Form.Group className="mb-3">
-        <Form.Label>Cancel Order Ratio</Form.Label>
-        <Controller
-          name="cancelOrderRatio"
-          control={control}
-          rules={{required: true, min: 0, max: 1}}
-          render={({field}) => (
-            <Form.Control
-              type="number"
-              step="0.1"
-              {...field}
-              onChange={(e) => {
-                const value = Number(e.target.value);
-                field.onChange(value);
-                config.setCancelOrderRatio(value);
-              }}
-            />
-          )}
-        />
-      </Form.Group>
-      
       <hr className="my-4"/>
 
       {/* Voucher Settings */}

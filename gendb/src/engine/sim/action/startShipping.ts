@@ -5,9 +5,15 @@ import {Notification} from "../../model/Notification";
 import { OrderPool } from "../../pool/order";
 
 export function startShipping(date: Date) {
-  const orderIds = OrderStatusHistoryPool.pickAllOrderWithLatestState(date, OrderState.COURIER_ACCEPTED);
+  const orderIds = OrderStatusHistoryPool.pickAllOrderWithLatestState(date, OrderState.READY_FOR_PICKUP);
 
   for (const orderId of orderIds) {
+    const order = OrderPool.getById(orderId);
+
+    if (!order) {
+      continue;
+    }
+
     OrderStatusHistoryPool.add(new OrderStatusHistory({
       createdAt: date,
       id: OrderStatusHistoryPool.getNextId(),
@@ -15,11 +21,7 @@ export function startShipping(date: Date) {
       state: OrderState.SHIPPING
     }));
 
-    const order = OrderPool.getById(orderId);
-
-    if (!order) {
-      continue;
-    }
+    order.latest_status = OrderState.SHIPPING
 
     NotificationPool.add(new Notification({
       account_id: order.account_id,

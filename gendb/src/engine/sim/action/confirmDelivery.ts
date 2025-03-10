@@ -9,6 +9,12 @@ export function confirmDelivery(date: Date) {
   const orderIds = OrderStatusHistoryPool.pickAllOrderWithLatestState(date, OrderState.DELIVERED);
 
   for (const orderId of orderIds) {
+    const order = OrderPool.getById(orderId);
+
+    if (!order) {
+      continue;
+    }
+
     OrderStatusHistoryPool.add(new OrderStatusHistory({
       createdAt: date,
       id: OrderStatusHistoryPool.getNextId(),
@@ -16,11 +22,7 @@ export function confirmDelivery(date: Date) {
       state: OrderState.RECEIVED
     }));
 
-    const order = OrderPool.getById(orderId);
-
-    if (!order) {
-      continue;
-    }
+    order.latest_status = OrderState.RECEIVED
 
     NotificationPool.add(new Notification({
       account_id: order.account_id,

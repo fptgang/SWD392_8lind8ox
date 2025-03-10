@@ -30,6 +30,10 @@ public class Order {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderStatusHistory> orderStatusHistories; // OrderStatusHistory>
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatusHistory.State latestStatus;
+
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
@@ -50,10 +54,10 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal originalPrice;
+    private BigDecimal subTotal;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal checkoutPrice;
+    private BigDecimal finalTotal;
 
 }
 

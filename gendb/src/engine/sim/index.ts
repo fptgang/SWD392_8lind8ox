@@ -9,7 +9,7 @@ import {completeShipping} from "./action/completeShipping";
 import {uploadVideo} from "./action/uploadVideo";
 import {verifyVideo} from "./action/verifyVideo";
 import {createSet} from "./action/createSet";
-import {contactDeliveryPartner} from "./action/contactDeliveryPartner";
+import {completeOrderPrepare} from "./action/completeOrderPrepare";
 import { confirmDelivery } from "./action/confirmDelivery.js";
 
 const interval = [1000 * 60 * 30, 1000 * 60 * 60 * 3];
@@ -76,9 +76,9 @@ export const Simulate = (callbackProgress: (progress: number) => void): Map<stri
         weight: simulationActionWeights().checkout
       },
       {
-        action: contactDeliveryPartner,
-        name: 'contactDeliveryPartner',
-        weight: simulationActionWeights().contactDeliveryPartner
+        action: completeOrderPrepare,
+        name: 'completeOrderPrepare',
+        weight: simulationActionWeights().completeOrderPrepare
       },
       {
         action: startShipping,

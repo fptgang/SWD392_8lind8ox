@@ -1,8 +1,10 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.model.stats.StringBigDecimalDatapoint;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.OrderDetailRepos;
 import com.fptgang.backend.repository.OrderRepos;
+import com.fptgang.backend.repository.StatsRepos;
 import com.fptgang.backend.service.StatService;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +16,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class StatServiceImpl implements StatService {
-
-
     private final OrderRepos orderRepos;
     private final AccountRepos accountRepos;
     private final OrderDetailRepos orderDetailRepos;
+    private final StatsRepos statsRepos;
 
-    public StatServiceImpl(OrderRepos orderRepos, AccountRepos accountRepos, OrderDetailRepos orderDetailRepos) {
+    public StatServiceImpl(OrderRepos orderRepos, AccountRepos accountRepos, OrderDetailRepos orderDetailRepos, StatsRepos statsRepos) {
         this.orderRepos = orderRepos;
         this.accountRepos = accountRepos;
         this.orderDetailRepos = orderDetailRepos;
+        this.statsRepos = statsRepos;
     }
 
     @Override
@@ -101,15 +103,8 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public List<Map<String, Object>> getRevenueBySKU(LocalDateTime startDate, LocalDateTime endDate) {
-        return orderDetailRepos.getRevenueBySKU(startDate, endDate).stream()
-                .map(entry -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("sku", entry[0] != null ? entry[0].toString() : "Unknown SKU");
-                    map.put("revenue", entry[1] instanceof Number ? ((Number) entry[1]).doubleValue() : 0.0);
-                    return map;
-                })
-                .collect(Collectors.toList());
+    public List<StringBigDecimalDatapoint> getRevenueBySKU(LocalDateTime startDate, LocalDateTime endDate) {
+        return statsRepos.getRevenueBySKU(startDate, endDate);
     }
 
     @Override

@@ -26,8 +26,7 @@ public class Video {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id", nullable = false)
+    @OneToOne(mappedBy = "video", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Slot slot;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")

@@ -35,7 +35,6 @@ export class orderStatusHistoryPool {
       }
     }
 
-
     return Array.from(latestHistoryMap.values())
       .filter((history) => history.state === state)
       .map((history) => history.orderId);

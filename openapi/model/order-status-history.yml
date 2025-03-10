@@ -8,15 +8,7 @@ OrderStatusHistoryDto:
       type: integer
       format: int64
     state:
-      type: string
-      enum:
-        - CREATED
-        - COURIER_ACCEPTED
-        - SHIPPING
-        - DELIVERED
-        - RECEIVED
-        - COMPLETED
-        - CANCELED
+      $ref: "order-status.yml#/OrderStatus"
     createdAt:
       type: string
       format: date-time

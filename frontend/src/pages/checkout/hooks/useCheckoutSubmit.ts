@@ -82,8 +82,8 @@ export const useCheckoutSubmit = ({
         // We'll include it directly rather than as a StockKeepingUnitDto object
         skuId: item.skuId, 
         quantity: item.quantity || 1,
-        originalPrice: item.originalPrice || item.price,
-        checkoutPrice: item.checkoutPrice || item.price,
+        subTotal: item.subTotal || item.price,
+        finalTotal: item.finalTotal || item.price,
         // Include promotional campaign if applicable
         promotionalCampaignId: promotionalCampaignId,
       }));
@@ -97,8 +97,8 @@ export const useCheckoutSubmit = ({
           // Use shippingInfoId directly rather than as ShippingInfoDto object
           shippingInfoId: finalShippingInfoId,
           orderDetails,
-          originalPrice: total,
-          checkoutPrice: total,
+          subTotal: total,
+          finalTotal: total,
         },
       });
 
