@@ -10,6 +10,7 @@ import com.fptgang.backend.repository.OrderStatusHistoryRepos;
 import com.fptgang.backend.service.*;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.EntityUtil;
+import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -121,13 +122,13 @@ public class OrderServiceImpl implements OrderService {
 
         // Calculate total price
         BigDecimal totalOriginalPrice = orderDetails.stream()
-                                                    .map(OrderDetail::getSubTotal)
-                                                    .reduce(BigDecimal.ZERO,
-                                                            BigDecimal::add);
+                .map(OrderDetail::getSubTotal)
+                .reduce(BigDecimal.ZERO,
+                        BigDecimal::add);
         BigDecimal totalCheckoutPrice = orderDetails.stream()
-                                                    .map(OrderDetail::getFinalTotal)
-                                                    .reduce(BigDecimal.ZERO,
-                                                            BigDecimal::add);
+                .map(OrderDetail::getFinalTotal)
+                .reduce(BigDecimal.ZERO,
+                        BigDecimal::add);
 
         // Validate voucher and update total checkout price
         Voucher voucher = null;
@@ -136,7 +137,7 @@ public class OrderServiceImpl implements OrderService {
             if (voucher == null)
                 throw new InvalidInputException("Voucher not found");
             if (!Objects.equals(voucher.getAccount()
-                                       .getAccountId(),
+                            .getAccountId(),
                     cart.getAccountId()))
                 throw new InvalidInputException("Voucher does not belong to account");
             if (voucher.getState() == Voucher.State.USED)
@@ -144,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
             if (voucher.getState() == Voucher.State.RESERVED)
                 throw new InvalidInputException("Voucher has been reserved");
             if (voucher.getExpiredAt()
-                       .isBefore(LocalDateTime.now()))
+                    .isBefore(LocalDateTime.now()))
                 throw new InvalidInputException("Voucher is expired");
 
             BigDecimal discount = totalCheckoutPrice.multiply(voucher.getDiscountRate());
@@ -171,7 +172,7 @@ public class OrderServiceImpl implements OrderService {
             throw new InvalidInputException("Account not found");
         if (cart.getPaymentMethod() == Transaction.PaymentMethod.INTERNAL_WALLET) {
             if (account.getBalance()
-                       .compareTo(totalCheckoutPrice) < 0) {
+                    .compareTo(totalCheckoutPrice) < 0) {
                 throw new InvalidInputException("Not enough balance");
             }
         }
@@ -238,9 +239,9 @@ public class OrderServiceImpl implements OrderService {
         // Use the voucher
         if (order.getVoucher() != null) {
             order.getVoucher()
-                 .setState(Voucher.State.USED);
+                    .setState(Voucher.State.USED);
             order.getVoucher()
-                 .setOrder(order);
+                    .setOrder(order);
             order.setVoucher(voucherService.update(order.getVoucher()));
         }
 
@@ -284,7 +285,7 @@ public class OrderServiceImpl implements OrderService {
         Transaction orderTransaction = new Transaction();
         orderTransaction.setOrder(order);
         orderTransaction.setOldBalance(order.getAccount()
-                                            .getBalance());
+                .getBalance());
         orderTransaction.setAccount(order.getAccount());
         orderTransaction.setAmount(order.getFinalTotal());
         orderTransaction.setPaymentMethod(Transaction.PaymentMethod.INTERNAL_WALLET);
@@ -296,9 +297,9 @@ public class OrderServiceImpl implements OrderService {
         // Reserve the voucher
         if (order.getVoucher() != null) {
             order.getVoucher()
-                 .setState(Voucher.State.RESERVED);
+                    .setState(Voucher.State.RESERVED);
             order.getVoucher()
-                 .setOrder(order);
+                    .setOrder(order);
             order.setVoucher(voucherService.update(order.getVoucher()));
         }
 
@@ -443,27 +444,28 @@ public class OrderServiceImpl implements OrderService {
             voucherService.update(voucher);
         }
 
-        for (OrderDetail orderDetail : order.getOrderDetails()) {
+        List<OrderDetail> orderDetails = orderDetailRepos.findByOrder(order);
+
+        for (OrderDetail orderDetail : orderDetails) {
             // Update slot
             Slot slot = orderDetail.getSlot();
             if (slot != null) {
                 slot.setState(Slot.State.AVAILABLE);
                 slotService.update(slot);
-                orderDetail.setSlot(null);
-            }
+            } else {
 
-            StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
-            sku.setStock(sku.getStock() + orderDetail.getQuantity());
-            stockKeepingUnitService.update(sku);
+                StockKeepingUnit sku = orderDetail.getStockKeepingUnit();
+                sku.setStock(sku.getStock() + orderDetail.getQuantity());
+                stockKeepingUnitService.update(sku);
+            }
         }
-        order.setOrderDetails(orderDetailRepos.saveAll(order.getOrderDetails()));
+//        order.setOrderDetails(orderDetailRepos.saveAll(orderDetails));
 
         // Update order status
         OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
         orderStatusHistory.setOrder(order);
         orderStatusHistory.setState(reason);
         orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
-        order.getOrderStatusHistories().add(orderStatusHistory);
 
         order.setLatestStatus(reason);
         order = orderRepos.save(order);
@@ -475,13 +477,86 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order findById(long id) {
         return orderRepos.findById(id)
-                         .orElse(null);
+                .orElse(null);
     }
 
     @Override
     public Order update(Order order) {
         Order existing = orderRepos.findById(order.getOrderId())
-                                   .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
+        if (order.getLatestStatus()!=null && existing.getLatestStatus() != order.getLatestStatus()) {
+            switch (order.getLatestStatus()) {
+                case READY_FOR_PICKUP:
+                    if(existing.getLatestStatus() != OrderStatusHistory.State.PREPARING){
+                        throw new IllegalArgumentException("Order is not in preparing state");
+                    }
+                    if (SecurityUtil.hasPermission(Account.Role.STAFF)) {
+                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+                        orderStatusHistory.setOrder(existing);
+                        orderStatusHistory.setState(OrderStatusHistory.State.READY_FOR_PICKUP);
+                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+                        existing.getOrderStatusHistories().add(orderStatusHistory);
+                        existing.setLatestStatus(OrderStatusHistory.State.READY_FOR_PICKUP);
+                        return orderRepos.save(existing);
+                    }
+                    break;
+                case SHIPPING:
+                    if(existing.getLatestStatus() != OrderStatusHistory.State.READY_FOR_PICKUP){
+                        throw new IllegalArgumentException("Order is not in ready for pickup state");
+                    }
+                    if (SecurityUtil.hasPermission(Account.Role.STAFF)) {
+                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+                        orderStatusHistory.setOrder(existing);
+                        orderStatusHistory.setState(OrderStatusHistory.State.SHIPPING);
+                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+                        existing.getOrderStatusHistories().add(orderStatusHistory);
+                        existing.setLatestStatus(OrderStatusHistory.State.SHIPPING);
+                        return orderRepos.save(existing);
+                    }
+                    break;
+                case DELIVERED:
+                    if(existing.getLatestStatus() != OrderStatusHistory.State.SHIPPING){
+                        throw new IllegalArgumentException("Order is not in shipping state");
+                    }
+                    if (SecurityUtil.hasPermission(Account.Role.STAFF)) {
+                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+                        orderStatusHistory.setOrder(existing);
+                        orderStatusHistory.setState(OrderStatusHistory.State.DELIVERED);
+                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+                        existing.getOrderStatusHistories().add(orderStatusHistory);
+                        existing.setLatestStatus(OrderStatusHistory.State.DELIVERED);
+                        return orderRepos.save(existing);
+                    }
+                    break;
+                case RECEIVED:
+                    if(existing.getLatestStatus() != OrderStatusHistory.State.DELIVERED){
+                        throw new IllegalArgumentException("Order is not in delivered state");
+                    }
+                    if(SecurityUtil.requireCurrentUserId() == existing.getAccount().getAccountId()) {
+                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+                        orderStatusHistory.setOrder(existing);
+                        orderStatusHistory.setState(OrderStatusHistory.State.RECEIVED);
+                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+                        existing.getOrderStatusHistories().add(orderStatusHistory);
+                        existing.setLatestStatus(OrderStatusHistory.State.RECEIVED);
+                        return orderRepos.save(existing);
+                    }
+                    break;
+                case COMPLETED:
+                    if(SecurityUtil.requireCurrentUserId() == existing.getAccount().getAccountId()||SecurityUtil.hasPermission(Account.Role.STAFF)) {
+                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+                        orderStatusHistory.setOrder(existing);
+                        orderStatusHistory.setState(OrderStatusHistory.State.COMPLETED);
+                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+                        existing.getOrderStatusHistories().add(orderStatusHistory);
+                        existing.setLatestStatus(OrderStatusHistory.State.COMPLETED);
+                        return orderRepos.save(existing);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
         EntityUtil.merge(existing, order);
         return orderRepos.save(existing);
     }
@@ -492,5 +567,6 @@ public class OrderServiceImpl implements OrderService {
         return orderRepos.findAll(spec,
                 params.getPageable());
     }
+
 
 }

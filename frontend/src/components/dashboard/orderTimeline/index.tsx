@@ -20,7 +20,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { OrderDto } from "../../../../generated";
-import { OrderStatus } from "../../order/status";
+import { OrderHistoryStatus } from "../../order/status";
 
 dayjs.extend(relativeTime);
 
@@ -82,7 +82,7 @@ export const OrderTimeline = ({ height = "432px" }: Props) => {
           renderItem={(item) => {
             return (
               <List.Item
-                onClick={() => show("orders", item.orderId ??"")}
+                onClick={() => show("orders", item.orderId ?? "")}
                 style={{
                   cursor: "pointer",
                   height: "54px",
@@ -114,11 +114,9 @@ export const OrderTimeline = ({ height = "432px" }: Props) => {
                     }}
                   >
                     <div style={{ width: "128px" }}>
-                      <OrderStatus status={item.status ?? 'CANCELED'} />
+                      <OrderHistoryStatus status={item.status ?? "CANCELED"} />
                     </div>
-                    <Typography.Text strong>
-                      #{item.orderId}
-                    </Typography.Text>
+                    <Typography.Text strong>#{item.orderId}</Typography.Text>
                   </div>
                 </Skeleton>
               </List.Item>
