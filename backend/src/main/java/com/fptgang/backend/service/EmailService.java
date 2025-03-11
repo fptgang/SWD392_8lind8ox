@@ -7,6 +7,6 @@ import java.io.IOException;
 public interface EmailService {
 
     void sendMail(String from, String to, String subject, String html);
-    void sendOrderTemplate(Order order) throws IOException;
+    void sendOrderPlacedEmail(Order order) throws IOException;
 
 }
