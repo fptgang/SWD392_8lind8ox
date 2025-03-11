@@ -1,9 +1,6 @@
 package com.fptgang.backend;
 
-import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.Order;
-import com.fptgang.backend.model.OrderDetail;
-import com.fptgang.backend.model.StockKeepingUnit;
+import com.fptgang.backend.model.*;
 import com.fptgang.backend.service.EmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
@@ -29,13 +26,66 @@ public class TestEmailTemplate {
     private EmailService emailService;
 
     @Test
-    public void testEmailTemplate() throws IOException {
+    public void testOrderPlacedEmail() throws IOException {
         Order order = createExampleOrder();
-        log.info("Order: {}", order);
+        log.info("Testing Order Placed Email: {}", order);
+        emailService.sendOrderPlacedEmail(order);
+    }
 
-        emailService.sendOrderPlacedEmail(
-                order
-        );
+    @Test
+    public void testUnpaidOrderEmail() throws IOException {
+        Order order = createExampleUnpaidOrder();
+        log.info("Testing Unpaid Order Email: {}", order);
+        emailService.sendUnpaidOrderEmail(order);
+    }
+
+    @Test
+    public void testOrderPaidEmail() throws IOException {
+        Order order = createExamplePaidOrder();
+        log.info("Testing Order Paid Email: {}", order);
+        emailService.sendOrderPaidEmail(order);
+    }
+
+    @Test
+    public void testOrderCancelledEmail() throws IOException {
+        Order order = createExampleCancelledOrder();
+        log.info("Testing Order Cancelled Email: {}", order);
+        emailService.sendOrderCancelledEmail(order);
+    }
+
+    @Test
+    public void testOrderShippedEmail() throws IOException {
+        Order order = createExampleShippedOrder();
+        log.info("Testing Order Shipped Email: {}", order);
+        emailService.sendOrderShippedEmail(order);
+    }
+
+    @Test
+    public void testOrderDeliveredEmail() throws IOException {
+        Order order = createExampleDeliveredOrder();
+        log.info("Testing Order Delivered Email: {}", order);
+        emailService.sendOrderDeliveredEmail(order);
+    }
+
+    @Test
+    public void testVideoSubmittedEmail() throws IOException {
+        Video video = createExampleVideo();
+        log.info("Testing Video Submitted Email: {}", video);
+        emailService.sendVideoSubmittedEmail(video);
+    }
+
+    @Test
+    public void testVideoVerifiedEmail() throws IOException {
+        Video video = createExampleVerifiedVideo();
+        log.info("Testing Video Verified Email: {}", video);
+        emailService.sendVideoVerifiedEmail(video);
+    }
+
+    @Test
+    public void testVoucherGiftedEmail() throws IOException {
+        Voucher voucher = createExampleVoucher();
+        log.info("Testing Voucher Gifted Email: {}", voucher);
+        emailService.sendVoucherGiftedEmail(voucher);
     }
 
     public static Order createExampleOrder() {
@@ -69,5 +119,69 @@ public class TestEmailTemplate {
         order.setFinalTotal(BigDecimal.valueOf(89.97));
 
         return order;
+    }
+
+    private static Order createExampleUnpaidOrder() {
+        Order order = createExampleOrder();
+        order.setLatestStatus(OrderStatusHistory.State.CREATED);
+        return order;
+    }
+
+    private static Order createExamplePaidOrder() {
+        Order order = createExampleOrder();
+        order.setLatestStatus(OrderStatusHistory.State.COMPLETED);
+        return order;
+    }
+
+    private static Order createExampleCancelledOrder() {
+        Order order = createExampleOrder();
+        order.setLatestStatus(OrderStatusHistory.State.CANCELED);
+        return order;
+    }
+
+    private static Order createExampleShippedOrder() {
+        Order order = createExampleOrder();
+        order.setLatestStatus(OrderStatusHistory.State.SHIPPING);
+        return order;
+    }
+
+    private static Order createExampleDeliveredOrder() {
+        Order order = createExampleOrder();
+        order.setLatestStatus(OrderStatusHistory.State.DELIVERED);
+        return order;
+    }
+
+    private static Video createExampleVideo() {
+        Account account = new Account();
+        account.setFirstName("John");
+        account.setEmail("biddify.vn@gmail.com");
+
+        Video video = new Video();
+        video.setVideoId(654321L);
+        video.setAccount(account);
+        video.setUrl("https://yourshop.com/video/654321");
+        video.setDescription("Test video submission.");
+        return video;
+    }
+
+    private static Video createExampleVerifiedVideo() {
+        Video video = createExampleVideo();
+        video.setIsVerified(true);
+        return video;
+    }
+
+    private static Voucher createExampleVoucher() {
+        Account account = new Account();
+        account.setFirstName("John");
+        account.setEmail("biddify.vn@gmail.com");
+
+        Voucher voucher = new Voucher();
+        voucher.setVoucherId(789012L);
+        voucher.setAccount(account);
+        voucher.setCode("GIFT123");
+        voucher.setDiscountRate(BigDecimal.valueOf(10.00));
+        voucher.setLimitAmount(BigDecimal.valueOf(50.00));
+
+        return voucher;
     }
 }

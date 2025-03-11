@@ -1,7 +1,9 @@
 package com.fptgang.backend.service.impl;
 
-import com.fptgang.backend.mapper.template.OrderPlacedEmailTemplateMapper;
+import com.fptgang.backend.mapper.template.*;
 import com.fptgang.backend.model.Order;
+import com.fptgang.backend.model.Video;
+import com.fptgang.backend.model.Voucher;
 import com.fptgang.backend.service.EmailService;
 import com.fptgang.backend.util.TemplateUtil;
 import com.resend.Resend;
@@ -30,10 +32,58 @@ public class EmailServiceImpl implements EmailService {
     @Value("classpath:template/OrderPlacedEmailTemplate.html")
     private Resource orderPlacedEmailTemplate;
 
-    private final OrderPlacedEmailTemplateMapper orderPlacedEmailTemplateMapper;
+    @Value("classpath:template/UnpaidOrderEmailTemplate.html")
+    private Resource unpaidOrderEmailTemplate;
 
-    public EmailServiceImpl(OrderPlacedEmailTemplateMapper orderPlacedEmailTemplateMapper) {
+    @Value("classpath:template/OrderPaidEmailTemplate.html")
+    private Resource orderPaidEmailTemplate;
+
+    @Value("classpath:template/OrderCancelledEmailTemplate.html")
+    private Resource orderCancelledEmailTemplate;
+
+    @Value("classpath:template/OrderShippedEmailTemplate.html")
+    private Resource orderShippedEmailTemplate;
+
+    @Value("classpath:template/OrderDeliveredEmailTemplate.html")
+    private Resource orderDeliveredEmailTemplate;
+
+    @Value("classpath:template/VideoSubmittedEmailTemplate.html")
+    private Resource videoSubmittedEmailTemplate;
+
+    @Value("classpath:template/VideoVerifiedEmailTemplate.html")
+    private Resource videoVerifiedEmailTemplate;
+
+    @Value("classpath:template/VoucherGiftedEmailTemplate.html")
+    private Resource voucherGiftedEmailTemplate;
+
+    private final OrderPaidEmailTemplateMapper orderPaidEmailTemplateMapper;
+    private final OrderPlacedEmailTemplateMapper orderPlacedEmailTemplateMapper;
+    private final UnpaidOrderEmailTemplateMapper unpaidOrderEmailTemplateMapper;
+    private final OrderCancelledEmailTemplateMapper orderCancelledEmailTemplateMapper;
+    private final OrderShippedEmailTemplateMapper orderShippedEmailTemplateMapper;
+    private final OrderDeliveredEmailTemplateMapper orderDeliveredEmailTemplateMapper;
+    private final VideoSubmittedEmailTemplateMapper videoSubmittedEmailTemplateMapper;
+    private final VideoVerifiedEmailTemplateMapper videoVerifiedEmailTemplateMapper;
+    private final VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper;
+
+    public EmailServiceImpl(OrderPlacedEmailTemplateMapper orderPlacedEmailTemplateMapper,
+                            UnpaidOrderEmailTemplateMapper unpaidOrderEmailTemplateMapper,
+                            OrderPaidEmailTemplateMapper orderPaidEmailTemplateMapper,
+                            OrderCancelledEmailTemplateMapper orderCancelledEmailTemplateMapper,
+                            OrderShippedEmailTemplateMapper orderShippedEmailTemplateMapper,
+                            OrderDeliveredEmailTemplateMapper orderDeliveredEmailTemplateMapper,
+                            VideoSubmittedEmailTemplateMapper videoSubmittedEmailTemplateMapper,
+                            VideoVerifiedEmailTemplateMapper videoVerifiedEmailTemplateMapper,
+                            VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper) {
         this.orderPlacedEmailTemplateMapper = orderPlacedEmailTemplateMapper;
+        this.unpaidOrderEmailTemplateMapper = unpaidOrderEmailTemplateMapper;
+        this.orderPaidEmailTemplateMapper = orderPaidEmailTemplateMapper;
+        this.orderCancelledEmailTemplateMapper = orderCancelledEmailTemplateMapper;
+        this.orderShippedEmailTemplateMapper = orderShippedEmailTemplateMapper;
+        this.orderDeliveredEmailTemplateMapper = orderDeliveredEmailTemplateMapper;
+        this.videoSubmittedEmailTemplateMapper = videoSubmittedEmailTemplateMapper;
+        this.videoVerifiedEmailTemplateMapper = videoVerifiedEmailTemplateMapper;
+        this.voucherGiftedEmailTemplateMapper = voucherGiftedEmailTemplateMapper;
     }
 
     @Override
@@ -69,6 +119,116 @@ public class EmailServiceImpl implements EmailService {
         sendMail(emailFrom, to, subject, content);
     }
 
+    @Override
+    public void sendUnpaidOrderEmail(Order order) throws IOException {
+        var template = unpaidOrderEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = unpaidOrderEmailTemplateMapper.create(order);
+        var subject = "Payment Pending - Order #" + order.getOrderId();
+        var to = order.getAccount().getEmail();
+
+        if (to == null) {
+            throw new IllegalArgumentException("Email not found");
+        }
+
+        var content = TemplateUtil.render(unpaidOrderEmailTemplate.getFilename(), template, data);
+        log.info("Unpaid order email content: {}", content);
+        sendMail(emailFrom, to, subject, content);
+    }
+
+    @Override
+    public void sendOrderPaidEmail(Order order) throws IOException {
+        var template = orderPaidEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = orderPaidEmailTemplateMapper.create(order);
+        var subject = "Payment Confirmation - Order #" + order.getOrderId();
+        var to = order.getAccount().getEmail();
+
+        if (to == null) {
+            throw new IllegalArgumentException("Email not found");
+        }
+
+        var content = TemplateUtil.render(orderPaidEmailTemplate.getFilename(), template, data);
+        log.info("Order paid email content: {}", content);
+        sendMail(emailFrom, to, subject, content);
+    }
+
+    @Override
+    public void sendOrderCancelledEmail(Order order) throws IOException {
+        var template = orderCancelledEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = orderCancelledEmailTemplateMapper.create(order);
+        var subject = "Order Cancelled - #" + order.getOrderId();
+        var to = order.getAccount().getEmail();
+        if (to == null) throw new IllegalArgumentException("Email not found");
+
+        var content = TemplateUtil.render(orderCancelledEmailTemplate.getFilename(), template, data);
+        sendMail(emailFrom, to, subject, content);
+    }
+
+    @Override
+    public void sendOrderShippedEmail(Order order) throws IOException {
+        var template = orderShippedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = orderShippedEmailTemplateMapper.create(order);
+        var subject = "Order Shipped - Order #" + order.getOrderId();
+        var to = order.getAccount().getEmail();
+
+        if (to == null) {
+            throw new IllegalArgumentException("Email not found");
+        }
+
+        var content = TemplateUtil.render(orderShippedEmailTemplate.getFilename(), template, data);
+        log.info("Order shipped email content: {}", content);
+        sendMail(emailFrom, to, subject, content);
+    }
+
+    @Override
+    public void sendOrderDeliveredEmail(Order order) throws IOException {
+        var template = orderDeliveredEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = orderDeliveredEmailTemplateMapper.create(order);
+        var subject = "Order Delivered - Order #" + order.getOrderId();
+        var to = order.getAccount().getEmail();
+        if (to == null) throw new IllegalArgumentException("Email not found");
+
+        var content = TemplateUtil.render(orderDeliveredEmailTemplate.getFilename(), template, data);
+        sendMail(emailFrom, to, subject, content);
+    }
+
+    @Override
+    public void sendVideoSubmittedEmail(Video video) throws IOException {
+        var template = videoSubmittedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = videoSubmittedEmailTemplateMapper.create(video);
+        var subject = "Video Submission Received - #" + video.getVideoId();
+        var to = video.getAccount().getEmail();
+        if (to == null) throw new IllegalArgumentException("Email not found");
+
+        var content = TemplateUtil.render(videoSubmittedEmailTemplate.getFilename(), template, data);
+        sendMail(emailFrom, to, subject, content);
+    }
+
+    @Override
+    public void sendVideoVerifiedEmail(Video video) throws IOException {
+        var template = videoVerifiedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = videoVerifiedEmailTemplateMapper.create(video);
+        var subject = "Video Verified - #" + video.getVideoId();
+        var to = video.getAccount().getEmail();
+        if (to == null) throw new IllegalArgumentException("Email not found");
+
+        var content = TemplateUtil.render(videoVerifiedEmailTemplate.getFilename(), template, data);
+        sendMail(emailFrom, to, subject, content);
+    }
+
+    @Override
+    public void sendVoucherGiftedEmail(Voucher voucher) throws IOException {
+        var template = voucherGiftedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = voucherGiftedEmailTemplateMapper.create(voucher);
+        var subject = "🎁 You've Received a Gift Voucher!";
+        var to = voucher.getAccount().getEmail();
+
+        if (to == null) {
+            throw new IllegalArgumentException("Email not found");
+        }
+
+        var content = TemplateUtil.render(voucherGiftedEmailTemplate.getFilename(), template, data);
+        sendMail(emailFrom, to, subject, content);
+    }
 
 }
 
