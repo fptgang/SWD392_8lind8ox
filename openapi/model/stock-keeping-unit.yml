@@ -17,9 +17,8 @@ StockKeepingUnitDto:
     specCount:
       type: integer
       format: int32
-    blindBoxId:
-      type: integer
-      format: int64
+    blindBox:
+      $ref: "blindbox.yml#/BlindBoxDto"
     createdAt:
       type: string
       format: date-time
