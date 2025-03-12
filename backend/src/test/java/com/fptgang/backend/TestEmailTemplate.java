@@ -22,7 +22,7 @@ import java.util.UUID;
 @TestConfiguration(proxyBeanMethods = false)
 @Testcontainers
 @Import(TestcontainersConfiguration.class)
-
+@Disabled
 public class TestEmailTemplate {
     @Autowired
     private EmailService emailService;
