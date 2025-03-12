@@ -66,8 +66,8 @@ public class TransactionController implements TransactionsApi {
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)
-                .filter(filter)
-                .includeInvisible(includeInvisible);
+                .filter(filter);
+//                .includeInvisible(includeInvisible);
 
         // Staffs and Customers can only view their own transactions
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
