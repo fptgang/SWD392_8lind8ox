@@ -1,7 +1,9 @@
 package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.OrderDto;
+import com.fptgang.backend.api.model.OrderStatus;
 import com.fptgang.backend.model.Order;
+import com.fptgang.backend.model.OrderStatusHistory;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.stereotype.Component;
@@ -49,6 +51,9 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
                     .map(orderStatusHistoryMapper::toEntity)
                     .collect(Collectors.toList()));
         }
+        if (dto.getLatestStatus() != null) {
+            entity.setLatestStatus(OrderStatusHistory.State.valueOf(dto.getLatestStatus().name()));
+        }
         if (dto.getOrderDetails() != null) {
             entity.setOrderDetails(dto.getOrderDetails().stream()
                     .map(orderDetailMapper::toEntity)
@@ -65,8 +70,8 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
         }
         entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
         entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
-        entity.setOriginalPrice(dto.getOriginalPrice());
-        entity.setCheckoutPrice(dto.getCheckoutPrice());
+        entity.setSubTotal(dto.getSubTotal());
+        entity.setFinalTotal(dto.getFinalTotal());
         return entity;
     }
 
@@ -86,8 +91,8 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
         dto.setOrderStatusHistories(entity.getOrderStatusHistories().stream()
                 .map(e -> orderStatusHistoryMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
-        dto.setOriginalPrice(entity.getOriginalPrice());
-        dto.setCheckoutPrice(entity.getCheckoutPrice());
+        dto.setSubTotal(entity.getSubTotal());
+        dto.setFinalTotal(entity.getFinalTotal());
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
 
@@ -98,6 +103,7 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
         dto.setOrderDetails(entity.getOrderDetails().stream()
                 .map(e -> orderDetailMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
+        dto.setLatestStatus(OrderStatus.valueOf(entity.getLatestStatus().name()));
         dto.setTransaction(transactionMapper.toDTO(entity.getTransaction(), DetailLevel.REFERENCE));
         dto.setVoucher(voucherMapper.toDTO(entity.getVoucher(), DetailLevel.REFERENCE));
         dto.setShippingInfo(shippingInfoMapper.toDTO(entity.getShippingInfo(), DetailLevel.REFERENCE));

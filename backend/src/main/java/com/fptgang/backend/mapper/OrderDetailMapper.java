@@ -54,8 +54,8 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         if (dto.getPromotionalCampaign() != null) {
             entity.setPromotionalCampaign(promotionalCampaignRepos.getReferenceById(dto.getPromotionalCampaign().getCampaignId()));
         }
-        entity.setOriginalPrice(dto.getOriginalPrice());
-        entity.setCheckoutPrice(dto.getCheckoutPrice());
+        entity.setSubTotal(dto.getSubTotal());
+        entity.setFinalTotal(dto.getFinalTotal());
         if (dto.getSlot() != null) {
             entity.setSlot(slotRepos.getReferenceById(dto.getSlot().getSlotId()));
         }
@@ -76,8 +76,8 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         dto.setSku(skuMapper.toDTO(entity.getStockKeepingUnit(), DetailLevel.REFERENCE));
         dto.setQuantity(entity.getQuantity());
         dto.setPromotionalCampaign(promotionalCampaignMapper.toDTO(entity.getPromotionalCampaign(), DetailLevel.REFERENCE));
-        dto.setOriginalPrice(entity.getOriginalPrice());
-        dto.setCheckoutPrice(entity.getCheckoutPrice());
+        dto.setSubTotal(entity.getSubTotal());
+        dto.setFinalTotal(entity.getFinalTotal());
         dto.setSlot(slotMapper.toDTO(entity.getSlot(), DetailLevel.REFERENCE));
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));

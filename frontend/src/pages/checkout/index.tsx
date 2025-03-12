@@ -120,7 +120,7 @@ const CheckoutPage: React.FC = () => {
   const { mutateAsync: createShippingAddress } = useCreate<ShippingInfoDto>();
   
   // Create order using custom mutation
-  const { mutateAsync: placeOrder } = useCustomMutation<OrderResponse>();
+  const { mutateAsync: placeOrder } = useCreate<OrderResponse>();
   
   // Wallet top-up mutation
   const { mutateAsync: topUpWallet } = useCustomMutation();
@@ -134,8 +134,8 @@ const CheckoutPage: React.FC = () => {
   const getCartSummary = () => {
     // Filter out disabled items
     const itemCount = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = activeCartItems.reduce((sum, item) => sum + (item.checkoutPrice * item.quantity), 0);
-    const originalSubtotal = activeCartItems.reduce((sum, item) => sum + (item.originalPrice * item.quantity), 0);
+    const subtotal = activeCartItems.reduce((sum, item) => sum + (item.finalTotal * item.quantity), 0);
+    const originalSubtotal = activeCartItems.reduce((sum, item) => sum + (item.subTotal * item.quantity), 0);
     const savings = originalSubtotal - subtotal;
     
     // Calculate voucher discount
@@ -296,8 +296,7 @@ const CheckoutPage: React.FC = () => {
       
       // Place order using the custom mutation
       const response = await placeOrder({
-        url: "orders/place",
-        method: "post",
+        resource: "orders",
         values: cartPayload
       });
       
@@ -319,7 +318,7 @@ const CheckoutPage: React.FC = () => {
         dispatch(clearCart());
         // Clear the disabled items from session storage
         sessionStorage.removeItem('disabledCartItems');
-        navigate("/account/orders");
+        // navigate("/account/orders");
       }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error.message || "Something went wrong while placing your order. Please try again.";
@@ -378,9 +377,9 @@ const CheckoutPage: React.FC = () => {
                   key={item.skuId}
                   extra={
                     <div className="text-right">
-                      <Text strong>${(item.checkoutPrice * item.quantity).toFixed(2)}</Text>
+                      <Text strong>${(item.finalTotal * item.quantity).toFixed(2)}</Text>
                       <br />
-                      <Text type="secondary">{item.quantity} x ${item.checkoutPrice.toFixed(2)}</Text>
+                      <Text type="secondary">{item.quantity} x ${item.finalTotal.toFixed(2)}</Text>
                     </div>
                   }
                 >
@@ -400,17 +399,17 @@ const CheckoutPage: React.FC = () => {
                       </div>
                     }
                     description={
-                      item.originalPrice > item.checkoutPrice ? (
+                      item.subTotal > item.finalTotal ? (
                         <Space>
                           <Text delete className="text-gray-500">
-                            ${item.originalPrice.toFixed(2)}
+                            ${item.subTotal.toFixed(2)}
                           </Text>
                           <Tag color="red">
-                            {Math.round((1 - item.checkoutPrice / item.originalPrice) * 100)}% OFF
+                            {Math.round((1 - item.finalTotal / item.subTotal) * 100)}% OFF
                           </Tag>
                         </Space>
                       ) : (
-                        <Text>${item.checkoutPrice.toFixed(2)}</Text>
+                        <Text>${item.finalTotal.toFixed(2)}</Text>
                       )
                     }
                   />

@@ -73,12 +73,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   </Text>
                   <br />
                   <Text type="secondary">
-                    {translate("orders.fields.originalPrice", "Original Price")}
-                    : {formatCurrency(detail.originalPrice ?? 0)}
+                    {translate("orders.fields.subTotal", "Original Price")}
+                    : {formatCurrency(detail.subTotal ?? 0)}
                   </Text>
                 </div>
                 <Text strong className="text-lg">
-                  {formatCurrency(detail.checkoutPrice ?? 0)}
+                  {formatCurrency(detail.finalTotal ?? 0)}
                 </Text>
               </div>
             </Card>

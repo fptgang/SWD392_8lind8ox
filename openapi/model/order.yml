@@ -10,6 +10,8 @@ OrderDto:
       type: array
       items:
         $ref: "order-status-history.yml#/OrderStatusHistoryDto"
+    latestStatus:
+      $ref: "order-status.yml#/OrderStatus"
     orderDetails:
       type: array
       items:
@@ -26,9 +28,9 @@ OrderDto:
     updatedAt:
       type: string
       format: date-time
-    originalPrice:
+    subTotal:
       type: number
       format: double
-    checkoutPrice:
+    finalTotal:
       type: number
       format: double

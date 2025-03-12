@@ -1,22 +1,22 @@
 import { DataProvider, LogicalFilter } from "@refinedev/core";
 import { Axios } from "axios";
 import { generateSortQuery, generateFilterQuery } from "../utils/query-utils";
-import {store} from "../store";
+import { store } from "../store";
 
 function buildHeaders(headers: any) {
   headers = headers || {};
 
   const token = store.getState().auth.accessToken;
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  return headers
+  return headers;
 }
 
 export const dataProvider = (
-    apiUrl: string,
-    _httpClient: Axios // TODO: replace `any` with your http client type
+  apiUrl: string,
+  _httpClient: Axios // TODO: replace `any` with your http client type
 ): DataProvider => ({
   getList: async ({ resource, pagination, filters, sorters, meta }) => {
     let sortQuery = "";
@@ -41,7 +41,7 @@ export const dataProvider = (
     }
 
     const url = `${apiUrl}/${resource}?page=${currentPage}&pageSize=${
-        pagination?.pageSize ?? 20
+      pagination?.pageSize ?? 20
     }&size=${pagination?.pageSize ?? 20}${sortQuery}${filterQuery}`;
 
     console.log("getList", {
@@ -53,7 +53,9 @@ export const dataProvider = (
       url,
     });
 
-    const result = await _httpClient.get(url, { headers: buildHeaders(meta?.headers) });
+    const result = await _httpClient.get(url, {
+      headers: buildHeaders(meta?.headers),
+    });
 
     return {
       data: result.data.content,
@@ -70,18 +72,17 @@ export const dataProvider = (
 
     try {
       // Create an array of promises for each ID
-      const promises = ids.map(id =>
-          _httpClient.get(
-              `${apiUrl}/${resource}/${id}`,
-              { headers: buildHeaders(meta?.headers) }
-          )
+      const promises = ids.map((id) =>
+        _httpClient.get(`${apiUrl}/${resource}/${id}`, {
+          headers: buildHeaders(meta?.headers),
+        })
       );
 
       // Execute all promises in parallel
       const responses = await Promise.all(promises);
 
       // Extract data from each response
-      const data = responses.map(response => response.data);
+      const data = responses.map((response) => response.data);
 
       return {
         data,
@@ -98,7 +99,11 @@ export const dataProvider = (
       variables,
       meta,
     });
-    const response = await _httpClient.post(`${apiUrl}/${resource}`, variables, { headers: buildHeaders(meta?.headers) });
+    const response = await _httpClient.post(
+      `${apiUrl}/${resource}`,
+      variables,
+      { headers: buildHeaders(meta?.headers) }
+    );
 
     return {
       data: response.data,
@@ -116,9 +121,9 @@ export const dataProvider = (
     // TODO: send request to the API
     // const response = await httpClient.post(url, {});
     const response = await _httpClient.put(
-        `${apiUrl}/${resource}/${id}`,
-        variables,
-        { headers: buildHeaders(meta?.headers) }
+      `${apiUrl}/${resource}/${id}`,
+      variables,
+      { headers: buildHeaders(meta?.headers) }
     );
 
     return {
@@ -135,7 +140,9 @@ export const dataProvider = (
 
     // TODO: send request to the API
     // const response = await httpClient.get(url, {});
-    const response = await _httpClient.get(`${apiUrl}/${resource}/${id}`, { headers: buildHeaders(meta?.headers) });
+    const response = await _httpClient.get(`${apiUrl}/${resource}/${id}`, {
+      headers: buildHeaders(meta?.headers),
+    });
     return {
       data: response.data,
     };
@@ -151,7 +158,9 @@ export const dataProvider = (
 
     // TODO: send request to the API
     // const response = await httpClient.post(url, {});
-    const response = await _httpClient.delete(`${apiUrl}/${resource}/${id}`, { headers: buildHeaders(meta?.headers) });
+    const response = await _httpClient.delete(`${apiUrl}/${resource}/${id}`, {
+      headers: buildHeaders(meta?.headers),
+    });
     console.log(response);
     return {
       data: {} as any,
@@ -163,15 +172,23 @@ export const dataProvider = (
   },
 
   custom: async ({
-                   url,
-                   method,
-                   filters,
-                   sorters,
-                   payload,
-                   query,
-                   headers,
-                   meta,
-                 }) => {
+    url,
+    method,
+    filters,
+    sorters,
+    payload,
+    query,
+    headers,
+    meta,
+  }) => {
+    url = `${apiUrl}/${url}`;
+    const response = await _httpClient.request({
+      url,
+      method,
+      data: payload,
+      params: query,
+      headers: buildHeaders(headers),
+    });
     console.log("custom", {
       url,
       method,
@@ -182,11 +199,12 @@ export const dataProvider = (
       headers,
       meta,
     });
+    return {
+      data: response.data,
+    };
 
     // TODO: send request to the API
     // const requestMethod = meta.method
     // const response = await httpClient[requestMethod](url, {});
-
-    return {} as any;
   },
 });

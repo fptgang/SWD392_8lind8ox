@@ -16,7 +16,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
     private final BlindBoxCampaignMapper blindBoxCampaignMapper;
     private final BrandMapper brandMapper;
     private final ToyMapper toyMapper;
-    private final StockKeepingUnitMapper skuMapper;
+    private final StockKeepingUnitMapper.Converter skuConverter;
     private final BrandRepos brandRepos;
     private final ImageRepos imageRepos;
     private final ImageMapper imageMapper;
@@ -24,14 +24,14 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
     public BlindBoxMapper(BlindBoxCampaignMapper blindBoxCampaignMapper,
                           BrandMapper brandMapper,
                           ToyMapper toyMapper,
-                          StockKeepingUnitMapper skuMapper,
+                          StockKeepingUnitMapper.Converter skuConverter,
                           BrandRepos brandRepos,
                           ImageRepos imageRepos,
                           ImageMapper imageMapper) {
         this.blindBoxCampaignMapper = blindBoxCampaignMapper;
         this.brandMapper = brandMapper;
         this.toyMapper = toyMapper;
-        this.skuMapper = skuMapper;
+        this.skuConverter = skuConverter;
         this.brandRepos = brandRepos;
         this.imageRepos = imageRepos;
         this.imageMapper = imageMapper;
@@ -68,7 +68,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         }
         if (dto.getSkus() != null) {
             entity.setSkus(dto.getSkus().stream()
-                    .map(skuMapper::toEntity)
+                    .map(skuConverter::toEntity)
                     .collect(Collectors.toList()));
         }
         entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
@@ -110,7 +110,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
                 .map(e -> toyMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
         dto.setSkus(entity.getSkus().stream()
-                .map(e -> skuMapper.toDTO(e, DetailLevel.REFERENCE))
+                .map(e -> skuConverter.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
         return dto;
     }

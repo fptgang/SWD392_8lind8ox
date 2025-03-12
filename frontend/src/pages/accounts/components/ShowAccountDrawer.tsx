@@ -87,7 +87,7 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
     }
   };
 
-  const footerContent = (
+  const footerContent = !record?.isVerified ? (
     <Space>
       <Button onClick={handleEdit} disabled={!record}>
         Edit
@@ -96,7 +96,7 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
         Delete
       </Button>
     </Space>
-  );
+  ) : null;
 
   return (
     <Drawer
@@ -118,6 +118,14 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
             {" "}
             View account details in full screen <ArrowsAltOutlined />
           </Link>
+          {record?.isVerified && (
+            <Alert
+              message="Verified Account"
+              description="This account has been verified and cannot be modified."
+              type="success"
+              showIcon
+            />
+          )}
           <Card
             title={
               <Space>

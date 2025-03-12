@@ -37,8 +37,8 @@ const CartPage: React.FC = () => {
     const activeItems = cartItems.filter(item => !disabledItems[item.skuId]);
     
     const itemCount = activeItems.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = activeItems.reduce((sum, item) => sum + (item.checkoutPrice * item.quantity), 0);
-    const originalSubtotal = activeItems.reduce((sum, item) => sum + (item.originalPrice * item.quantity), 0);
+    const subtotal = activeItems.reduce((sum, item) => sum + (item.finalTotal * item.quantity), 0);
+    const originalSubtotal = activeItems.reduce((sum, item) => sum + (item.subTotal * item.quantity), 0);
     const savings = originalSubtotal - subtotal;
 
     return {
@@ -199,20 +199,20 @@ const CartPage: React.FC = () => {
                         
                         {/* Price info */}
                         <div className="mb-2">
-                          {item.originalPrice > item.checkoutPrice ? (
+                          {item.subTotal > item.finalTotal ? (
                             <Space>
                               <Text delete className="text-gray-500">
-                                ${item.originalPrice.toFixed(2)}
+                                ${item.subTotal.toFixed(2)}
                               </Text>
                               <Text type="danger" strong>
-                                ${item.checkoutPrice.toFixed(2)}
+                                ${item.finalTotal.toFixed(2)}
                               </Text>
                               <Tag color="red">
-                                {Math.round((1 - item.checkoutPrice / item.originalPrice) * 100)}% OFF
+                                {Math.round((1 - item.finalTotal / item.subTotal) * 100)}% OFF
                               </Tag>
                             </Space>
                           ) : (
-                            <Text>${item.checkoutPrice.toFixed(2)}</Text>
+                            <Text>${item.finalTotal.toFixed(2)}</Text>
                           )}
                         </div>
                         
@@ -253,7 +253,7 @@ const CartPage: React.FC = () => {
                       {/* Item Total */}
                       <div className="ml-4 text-right flex-shrink-0">
                         <Text strong className="text-lg">
-                          ${(item.checkoutPrice * item.quantity).toFixed(2)}
+                          ${(item.finalTotal * item.quantity).toFixed(2)}
                         </Text>
                       </div>
                     </div>

@@ -31,6 +31,9 @@ public class OrderDetail {
     @JoinColumn(nullable = false, name = "sku_id")
     private StockKeepingUnit stockKeepingUnit;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal unitPrice;
+
     @Column(nullable = false)
     private Integer quantity;
 
@@ -40,10 +43,10 @@ public class OrderDetail {
     private PromotionalCampaign promotionalCampaign;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal originalPrice;
+    private BigDecimal subTotal;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal checkoutPrice;
+    private BigDecimal finalTotal;
 
 //    @Column(nullable = false)
 //    private boolean requestUnbox;

@@ -241,6 +241,7 @@ export const AccountsList: React.FC = () => {
                     style={{
                       border: "1px solid #e8e8e8",
                     }}
+                    disabled={record.role === "ADMIN" || record.isVerified}
                   />
                 </Tooltip>
                 <Tooltip title="View Details">
@@ -267,6 +268,7 @@ export const AccountsList: React.FC = () => {
                     confirmOkText="Delete"
                     confirmCancelText="Cancel"
                     about="Are you sure you want to delete this account? This action cannot be undone."
+                    disabled={record.role === "ADMIN"}
                   />
                 </Tooltip>
               </Space>

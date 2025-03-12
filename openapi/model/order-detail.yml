@@ -13,10 +13,13 @@ OrderDetailDto:
       type: integer
     promotionalCampaign:
       $ref: "promotional-campaign.yml#/PromotionalCampaignDto"
-    originalPrice:
+    unitPrice:
       type: number
       format: double
-    checkoutPrice:
+    subTotal:
+      type: number
+      format: double
+    finalTotal:
       type: number
       format: double
     slot:

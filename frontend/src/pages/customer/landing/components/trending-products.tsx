@@ -58,8 +58,8 @@ const TrendingProducts: React.FC = () => {
       skuId: sku.skuId || 0,
       name: product.name || '',
       price: currentPrice,
-      originalPrice: sku.price || 0,
-      checkoutPrice: currentPrice,
+      subTotal: sku.price || 0,
+      finalTotal: currentPrice,
       stock: sku.stock || 0,
       imageUrl: product.images?.[0]?.imageUrl || 'https://product.hstatic.net/200000726533/product/mo-hinh-blind-box-gau-bong-baby-three-12-chinese-zodiac_c710cefbe85f4fffa9f398d62f0103b8_1024x1024.jpg',
       blindBoxId: product.blindBoxId || 0,
@@ -113,7 +113,7 @@ const TrendingProducts: React.FC = () => {
         {data?.data?.map((product: BlindBoxDto) => {
           const currentPrice = calculateCurrentPrice(product);
           const hasDiscount = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
-          const originalPrice = product.skus?.[0]?.price || 0;
+          const subTotal = product.skus?.[0]?.price || 0;
           
           return (
             <Col xs={12} sm={12} md={6} key={product.blindBoxId}>
@@ -146,7 +146,7 @@ const TrendingProducts: React.FC = () => {
                         </Text>
                         {hasDiscount && (
                           <Text delete className="ml-2 text-gray-400">
-                            ${originalPrice.toFixed(2)}
+                            ${subTotal.toFixed(2)}
                           </Text>
                         )}
                       </div>

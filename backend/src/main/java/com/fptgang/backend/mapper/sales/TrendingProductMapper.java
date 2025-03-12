@@ -32,7 +32,7 @@ public class    TrendingProductMapper extends BaseMapper<TrendingProductDto, Tre
         skuDto.setSkuId(entity.getSkuId());
         skuDto.setName(entity.getSkuName());
         skuDto.setPrice(entity.getPrice());
-        skuDto.setBlindBoxId(entity.getBlindBoxId());
+        skuDto.setBlindBox(new BlindBoxDto().blindBoxId(entity.getBlindBoxId()));
         skuDto.setImage(new ImageDto().imageUrl(entity.getImage()));
 
         TrendingProductDto trendingProductDto = new TrendingProductDto();

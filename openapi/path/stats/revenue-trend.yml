@@ -1,0 +1,40 @@
+get:
+  summary: Get revenue trends over a time period (day, week, or month)
+  operationId: getRevenueTrend
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: startDate
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+    - name: endDate
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+    - name: groupBy
+      in: query
+      required: true
+      description: Group by time interval (day, week, or month)
+      schema:
+        type: string
+        enum: [day, week, month]
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../model/stats/string-bigdecimal-datapoint.yml#/StringBigDecimalDatapointDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../../component/error.yml#/ErrorResponse'

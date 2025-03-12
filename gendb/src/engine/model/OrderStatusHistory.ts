@@ -1,11 +1,16 @@
 export enum OrderState {
-    CANCELED = 'CANCELED',
-    COMPLETED = 'COMPLETED',
-    COURIER_ACCEPTED = 'COURIER_ACCEPTED',
-    CREATED = 'CREATED',
-    DELIVERED = 'DELIVERED',
-    RECEIVED = 'RECEIVED',
-    SHIPPING = 'SHIPPING'
+    CREATED = "CREATED", // Order created, in payment
+
+    PREPARING = "PREPARING", // Paid success, staff is preparing
+    PAYMENT_FAILED = "PAYMENT_FAILED", // Failed to pay
+    PAYMENT_EXPIRED = "PAYMENT_EXPIRED", // Not paid in time
+    CANCELED = "CANCELED", // Customer canceled before paid
+
+    READY_FOR_PICKUP = "READY_FOR_PICKUP", // Staff has done package, waiting for courier to pickup
+    SHIPPING = "SHIPPING", // Courier is shipping
+    DELIVERED = "DELIVERED", // Courier delivered
+    RECEIVED = "RECEIVED", // Customer confirmed received
+    COMPLETED = "COMPLETED", // The order completed without issues
 }
 
 export class OrderStatusHistory {

@@ -58,7 +58,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   return (
-    <Card className="sticky top-24">
+    <Card className="sticky top-0">
       <Form
         {...searchFormProps}
         form={form}

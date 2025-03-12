@@ -9,7 +9,7 @@ export class Set {
     sku_id: number;
 
     // convenient fields, do not dump
-    sku?: Sku;
+    sku?: Sku | null;
 
     constructor(init?: Partial<Set>) {
         this.set_id = init?.set_id ?? 0;

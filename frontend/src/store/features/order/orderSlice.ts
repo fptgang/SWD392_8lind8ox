@@ -8,7 +8,7 @@ interface OrderItem {
   skuId: number;
   quantity: number;
   price: number;
-  checkoutPrice: number;
+  finalTotal: number;
 }
 
 interface CreateOrderPayload {
@@ -19,8 +19,8 @@ interface CreateOrderPayload {
 
 interface OrderResponse {
   id: number;
-  originalPrice: number;
-  checkoutPrice: number;
+  subTotal: number;
+  finalTotal: number;
   createdAt: string;
   status: string;
 }
@@ -55,12 +55,12 @@ export const createOrder = createAsyncThunk<
     
     // Calculate totals from cart state
     const originalTotal = items.reduce(
-      (sum, item) => sum + (item.originalPrice * item.quantity), 
+      (sum, item) => sum + (item.subTotal * item.quantity), 
       0
     );
     
     const checkoutTotal = items.reduce(
-      (sum, item) => sum + (item.checkoutPrice * item.quantity), 
+      (sum, item) => sum + (item.finalTotal * item.quantity), 
       0
     );
     
@@ -77,8 +77,8 @@ export const createOrder = createAsyncThunk<
     const orderItems: OrderItem[] = items.map(item => ({
       skuId: item.skuId,
       quantity: item.quantity,
-      price: item.originalPrice,
-      checkoutPrice: item.checkoutPrice,
+      price: item.subTotal,
+      finalTotal: item.finalTotal,
     }));
     
     // Construct order payload
@@ -86,8 +86,8 @@ export const createOrder = createAsyncThunk<
       orderDetails: orderItems,
       shippingInfo: payload.shippingInfo,
       voucher: payload.voucherCode ? { code: payload.voucherCode } : undefined,
-      originalPrice: originalTotal,
-      checkoutPrice: finalTotal,
+      subTotal: originalTotal,
+      finalTotal: finalTotal,
     };
     
     // Mock API call for createOrder - replace with actual API call
