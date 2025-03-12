@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -100,7 +101,8 @@ public class OrderController implements OrdersApi {
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
             throw new IllegalArgumentException("Only staff can update this order status");
         }
-        Order order = orderService.findById(orderId);
+        Order order = new Order();
+        order.setOrderId(orderId);
         order.setLatestStatus(OrderStatusHistory.State.DELIVERED);
 
         log.info("Updating order " + orderId);
@@ -117,7 +119,8 @@ public class OrderController implements OrdersApi {
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
             throw new IllegalArgumentException("Only staff can update this order status");
         }
-        Order order = orderService.findById(orderId);
+        Order order = new Order();
+        order.setOrderId(orderId);
         order.setLatestStatus(OrderStatusHistory.State.READY_FOR_PICKUP);
 
         log.info("Updating order " + orderId);
@@ -130,12 +133,13 @@ public class OrderController implements OrdersApi {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<OrderDto> receiveOrder(Long orderId) {
 
-        Order order = orderService.findById(orderId);
-        if (SecurityUtil.requireCurrentUserId() == order.getAccount().getAccountId()) {
-            throw new IllegalArgumentException("Only owner can update this order status");
-        }
+
+        Order order = new Order();
+        order.setOrderId(orderId);
+        order.setAccount(Account.builder().accountId(SecurityUtil.requireCurrentUserId()).build());
         order.setLatestStatus(OrderStatusHistory.State.RECEIVED);
 
         log.info("Updating order " + orderId);
@@ -152,7 +156,8 @@ public class OrderController implements OrdersApi {
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
             throw new IllegalArgumentException("Only staff can update this order status");
         }
-        Order order = orderService.findById(orderId);
+        Order order = new Order();
+        order.setOrderId(orderId);
         order.setLatestStatus(OrderStatusHistory.State.SHIPPING);
 
         log.info("Updating order " + orderId);
