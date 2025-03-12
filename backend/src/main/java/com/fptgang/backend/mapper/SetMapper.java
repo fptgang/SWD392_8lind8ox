@@ -5,6 +5,7 @@ import com.fptgang.backend.model.Set;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.StockKeepingUnitRepos;
 import com.fptgang.backend.util.DateTimeUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
@@ -16,6 +17,18 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
     private SlotMapper slotMapper;
     private StockKeepingUnitMapper stockKeepingUnitMapper;
     private BlindBoxMapper blindBoxMapper;
+
+    public SetMapper(StockKeepingUnitRepos stockKeepingUnitRepos,
+                     BlindBoxRepos blindBoxRepos,
+                     SlotMapper slotMapper,
+                     StockKeepingUnitMapper stockKeepingUnitMapper,
+                     BlindBoxMapper blindBoxMapper) {
+        this.stockKeepingUnitRepos = stockKeepingUnitRepos;
+        this.blindBoxRepos = blindBoxRepos;
+        this.slotMapper = slotMapper;
+        this.stockKeepingUnitMapper = stockKeepingUnitMapper;
+        this.blindBoxMapper = blindBoxMapper;
+    }
 
     @Override
     public Set toEntity(SetDto dto) {

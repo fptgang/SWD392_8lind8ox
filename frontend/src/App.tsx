@@ -28,6 +28,7 @@ import { Register } from "./pages/register";
 import { accessControlProvider } from "./providers/access-control-provider";
 import { dataProvider } from "./providers/data-provider";
 import { API_URL } from "./utils/constants";
+import StatisticsPage from "./pages/customer/stats";
 
 import {
   UsersCreate,
@@ -91,6 +92,7 @@ import CustomerProductShow from "./pages/customer/products/show";
 import VNPayReturnHandler from "./pages/payment/VNPayReturnHandler";
 import { liveProvider } from "./providers/live-provider";
 import { stompClient } from "./utils/stompClient";
+import CustomerCasesPage from "./pages/customer/case/CustomerCasesPage";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -147,6 +149,7 @@ function App() {
                           path="products/:id"
                           element={<CustomerProductShow />}
                         />
+                        <Route path="case" element={<CustomerCasesPage />} />
                         <Route path="deals" element={<CustomerDeals />} />
                         <Route
                           path="blind-boxes"
@@ -156,6 +159,7 @@ function App() {
                           path="blind-boxes/:id"
                           element={<BlindBoxesShow />}
                         />
+                        <Route path="stats" element={<StatisticsPage />} />
 
                         <Route path="orders" element={<OrdersList />} />
                         <Route path="orders/:id" element={<CustomerOrders />} />
