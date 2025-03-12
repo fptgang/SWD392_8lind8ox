@@ -38,15 +38,19 @@ export const useCart = () => {
     accountId,
   } = useSelector((state: RootState) => state.cart);
 
-  /**
+  
+
+   /**
    * Add item to cart
    * @param item Cart item without quantity
    */
-  const addToCart = (item: Omit<CartItem, "quantity">) => {
+   const addToCart = (item: Omit<CartItem, "quantity">) => {
     try {
       if (!item.skuId || !item.price || !item.stock) {
         throw new Error("Invalid item data");
       }
+      
+      // This will now use the updated addItem reducer that considers slotId
       dispatch(addItem(item));
     } catch (error) {
       console.error("Error adding item to cart:", error);
@@ -56,17 +60,21 @@ export const useCart = () => {
   /**
    * Update item quantity in cart
    * @param skuId SKU ID of the item
+   * @param slotId Slot ID of the item (optional)
    * @param quantity New quantity
    */
-  const updateItemQuantity = (skuId: number, quantity: number) => {
+  const updateItemQuantity = (skuId: number, quantity: number, slotId?: number) => {
     try {
-      const item = cartItems.find((item) => item.skuId === skuId);
+      const item = cartItems.find(item => 
+        item.skuId === skuId && item.slotId === slotId
+      );
+      
       if (!item) {
         throw new Error("Item not found in cart");
       }
 
       if (quantity > 0 && quantity <= item.stock) {
-        dispatch(updateQuantity({ skuId, quantity }));
+        dispatch(updateQuantity({ skuId, slotId, quantity }));
       } else {
         throw new Error("Invalid quantity");
       }
@@ -78,16 +86,37 @@ export const useCart = () => {
   /**
    * Remove item from cart
    * @param skuId SKU ID of the item to remove
+   * @param slotId Slot ID of the item to remove (optional)
    */
-  const removeFromCart = (skuId: number) => {
+  const removeFromCart = (skuId: number, slotId?: number) => {
     try {
       if (!skuId) {
         throw new Error("Invalid SKU ID");
       }
-      dispatch(removeItem(skuId));
+      dispatch(removeItem({ skuId, slotId }));
     } catch (error) {
       console.error("Error removing item from cart:", error);
     }
+  };
+
+  /**
+   * Calculate cart summary
+   */
+  const getCartSummary = () => {
+    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const savings = originalTotal - total;
+    const voucherDiscount = voucher
+      ? Math.min(total * (voucher.discountRate / 100), voucher.limitAmount)
+      : 0;
+    const finalTotal = total - voucherDiscount;
+
+    return {
+      itemCount,
+      subtotal: total,
+      savings,
+      voucherDiscount,
+      finalTotal,
+    };
   };
 
   /**
@@ -227,25 +256,7 @@ export const useCart = () => {
     }
   };
 
-  /**
-   * Calculate cart summary
-   */
-  const getCartSummary = () => {
-    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const savings = originalTotal - total;
-    const voucherDiscount = voucher
-      ? Math.min(total * (voucher.discountRate / 100), voucher.limitAmount)
-      : 0;
-    const finalTotal = total - voucherDiscount;
-
-    return {
-      itemCount,
-      subtotal: total,
-      savings,
-      voucherDiscount,
-      finalTotal,
-    };
-  };
+  
 
   return {
     // State

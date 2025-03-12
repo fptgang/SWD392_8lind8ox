@@ -93,6 +93,7 @@ import VNPayReturnHandler from "./pages/payment/VNPayReturnHandler";
 import { liveProvider } from "./providers/live-provider";
 import { stompClient } from "./utils/stompClient";
 import CustomerCasesPage from "./pages/customer/case/CustomerCasesPage";
+import SetDetailPage from "./pages/customer/case/SetDetailPage";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -150,6 +151,7 @@ function App() {
                           element={<CustomerProductShow />}
                         />
                         <Route path="case" element={<CustomerCasesPage />} />
+                        <Route path="case/:id" element={<SetDetailPage />} />
                         <Route path="deals" element={<CustomerDeals />} />
                         <Route
                           path="blind-boxes"

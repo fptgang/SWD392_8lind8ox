@@ -73,11 +73,6 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         dto.setSku(stockKeepingUnitMapper.toDTO(entity.getSku(), DetailLevel.REFERENCE));
-
-        if (level == DetailLevel.SUMMARY) {
-            return dto; // those fields are enough
-        }
-
         if (entity.getSlots() != null) {
             dto.setSlots(entity.getSlots().stream()
                     .map(e -> slotMapper.toDTO(e, DetailLevel.REFERENCE))

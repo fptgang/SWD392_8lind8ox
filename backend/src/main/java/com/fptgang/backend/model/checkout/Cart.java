@@ -53,9 +53,9 @@ public class Cart {
                 }
             }
 
-            if (!skuIds.add(item.getSkuId())) {
-                throw new IllegalArgumentException("Duplicate skuId found: " + item.getSkuId());
-            }
+//            if (!skuIds.add(item.getSkuId())) {s
+//                throw new IllegalArgumentException("Duplicate skuId found: " + item.getSkuId());
+//            }
         }
     }
 }
