@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Empty,
@@ -11,9 +11,9 @@ import {
   Row,
   Col,
   notification,
-  Badge,
   Space,
   Tag,
+  Badge,
 } from "antd";
 import {
   DeleteOutlined,
@@ -22,14 +22,26 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import {
   updateQuantity,
   removeItem,
   cleanInvalidItems,
+  CartItem,
 } from "../../store/features/cart/cartSlice";
 
 const { Title, Text } = Typography;
+
+// Format number with thousands separator and fixed decimal places
+const formatCurrency = (amount: number, decimals = 2) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(amount);
+};
 
 const CartPage: React.FC = () => {
   // Redux state and dispatch
@@ -45,6 +57,15 @@ const CartPage: React.FC = () => {
   const [disabledItems, setDisabledItems] = useState<Record<number, boolean>>(
     {}
   );
+  
+  // Count of disabled items for display
+  const [disabledItemsCount, setDisabledItemsCount] = useState<number>(0);
+  
+  // Update disabled items count whenever disabledItems changes
+  useEffect(() => {
+    const count = Object.values(disabledItems).filter(value => value === true).length;
+    setDisabledItemsCount(count);
+  }, [disabledItems]);
 
   // Calculate cart summary
   const getCartSummary = () => {
@@ -70,33 +91,59 @@ const CartPage: React.FC = () => {
     };
   };
 
-  // Update item quantity
-  const handleQuantityChange = (skuId: number, quantity: number) => {
-    if (quantity > 0) {
-      dispatch(updateQuantity({ skuId, quantity }));
+  // Update item quantity - only allow integer values
+  const handleQuantityChange = (skuId: number, quantity: number, slotId?: number) => {
+    // Ensure quantity is an integer
+    const intQuantity = Math.floor(quantity);
+    
+    if (intQuantity > 0) {
+      dispatch(updateQuantity({ skuId, slotId, quantity: intQuantity }));
     } else {
       // Show confirmation before removal
-      handleRemoveItem(skuId);
+      handleRemoveItem(skuId, slotId);
     }
   };
 
   // Remove item from cart
-  const handleRemoveItem = (skuId: number) => {
-    dispatch(removeItem(skuId));
-    // Also remove from disabled items if present
-    if (disabledItems[skuId]) {
-      const newDisabled = { ...disabledItems };
-      delete newDisabled[skuId];
-      setDisabledItems(newDisabled);
+  const handleRemoveItem = (skuId: number, slotId?: number) => {
+    try {
+      // Correctly pass the object with skuId and optionally slotId
+      dispatch(removeItem({ skuId, slotId }));
+      
+      // Also remove from disabled items if present
+      if (disabledItems[skuId]) {
+        const newDisabled = { ...disabledItems };
+        delete newDisabled[skuId];
+        setDisabledItems(newDisabled);
+      }
+      
+      notification.success({
+        message: "Item removed",
+        description: "The item has been removed from your cart",
+        duration: 2,
+      });
+    } catch (error) {
+      console.error("Error removing item:", error);
+      notification.error({
+        message: "Failed to remove item",
+        description: "Please try again later",
+      });
     }
   };
 
   // Toggle item disabled state
   const handleToggleItemDisabled = (skuId: number) => {
-    setDisabledItems((prev) => ({
-      ...prev,
-      [skuId]: !prev[skuId],
-    }));
+    setDisabledItems((prev) => {
+      const newState = { ...prev };
+      newState[skuId] = !prev[skuId];
+      
+      // Remove false values to keep the state clean
+      if (!newState[skuId]) {
+        delete newState[skuId];
+      }
+      
+      return newState;
+    });
   };
 
   // Handle proceed to checkout
@@ -113,11 +160,42 @@ const CartPage: React.FC = () => {
     }
 
     // Store disabled items in session storage to remember the user's selection
-    // This way the checkout page can know which items to include
     sessionStorage.setItem("disabledCartItems", JSON.stringify(disabledItems));
 
     // Navigate to checkout page
     navigate("/checkout");
+  };
+
+  // Navigate to the product detail page
+  const navigateToProductDetail = (item: CartItem | undefined) => {
+    if (!item) {
+      notification.error({
+        message: "Navigation error",
+        description: "Could not navigate to product details",
+      });
+      return;
+    }
+
+    try {
+      if (item.blindBoxId) {
+        // Navigate to product/blindbox detail
+        navigate(`/products/${item.blindBoxId}`);
+      } else if (item.skuId) {
+        // Navigate to set detail
+        navigate(`/case/${item.skuId}`);
+      } else {
+        notification.warning({
+          message: "Invalid item",
+          description: "Could not determine the item's product page",
+        });
+      }
+    } catch (error) {
+      console.error("Navigation error:", error);
+      notification.error({
+        message: "Navigation error",
+        description: "Failed to navigate to product details",
+      });
+    }
   };
 
   // Render empty cart message if cart is empty
@@ -183,11 +261,11 @@ const CartPage: React.FC = () => {
               itemLayout="horizontal"
               dataSource={cartItems}
               renderItem={(item) => {
-                const isDisabled = disabledItems[item.skuId] || false;
+                const isDisabled = Boolean(disabledItems[item.skuId]);
 
                 return (
                   <List.Item
-                    key={item.skuId}
+                    key={`${item.skuId}-${item.slotId || '0'}`}
                     className={`${
                       isDisabled ? "opacity-60" : ""
                     } rounded-lg p-2 mb-2 transition-all`}
@@ -196,7 +274,7 @@ const CartPage: React.FC = () => {
                         key="delete"
                         danger
                         icon={<DeleteOutlined />}
-                        onClick={() => handleRemoveItem(item.skuId)}
+                        onClick={() => handleRemoveItem(item.skuId, item.slotId)}
                       />,
                     ]}
                   >
@@ -214,15 +292,34 @@ const CartPage: React.FC = () => {
                           src={item.imageUrl || "https://placehold.co/80"}
                           alt={item.name}
                           style={{ width: 80, height: 80, objectFit: "cover" }}
-                          className="rounded-md"
+                          className="rounded-md cursor-pointer"
+                          onClick={() => navigateToProductDetail(item)}
+                          role="button"
+                          aria-label={`View ${item.name} details`}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') navigateToProductDetail(item);
+                          }}
                         />
                       </div>
 
                       {/* Product Details */}
                       <div className="flex-grow">
                         <div className="flex justify-between">
-                          <Title level={5} className="mb-1">
+                          <Title 
+                            level={5} 
+                            className="mb-1 cursor-pointer hover:text-blue-600 transition-colors"
+                            onClick={() => navigateToProductDetail(item)}
+                          >
                             {item.name}
+                            
+                            {/* Add slot position badge if applicable */}
+                            {item.slotId && (
+                              <Badge 
+                                count={`Slot #${item.slotId}`} 
+                                style={{ backgroundColor: '#1677ff', marginLeft: '8px' }} 
+                              />
+                            )}
                           </Title>
                         </div>
 
@@ -231,10 +328,10 @@ const CartPage: React.FC = () => {
                           {item.subTotal > item.finalTotal ? (
                             <Space>
                               <Text delete className="text-gray-500">
-                                ${item.subTotal.toFixed(2)}
+                                {formatCurrency(item.subTotal)}
                               </Text>
                               <Text type="danger" strong>
-                                ${item.finalTotal.toFixed(2)}
+                                {formatCurrency(item.finalTotal)}
                               </Text>
                               <Tag color="red">
                                 {Math.round(
@@ -244,7 +341,7 @@ const CartPage: React.FC = () => {
                               </Tag>
                             </Space>
                           ) : (
-                            <Text>${item.finalTotal.toFixed(2)}</Text>
+                            <Text>{formatCurrency(item.finalTotal)}</Text>
                           )}
                         </div>
 
@@ -253,54 +350,60 @@ const CartPage: React.FC = () => {
                           <Text type="secondary">In stock: {item.stock}</Text>
                         </div>
 
-                        {/* Quantity controls */}
-                        <div className="flex items-center">
-                          <Text className="mr-2">Quantity:</Text>
+                        {/* Quantity controls - not shown for slot items */}
+                        {!item.slotId && (
                           <div className="flex items-center">
-                            <Button
-                              icon={<MinusOutlined />}
-                              onClick={() =>
-                                handleQuantityChange(
-                                  item.skuId,
-                                  item.quantity - 1
-                                )
-                              }
-                              disabled={isDisabled}
-                            />
-                            <InputNumber
-                              min={1}
-                              max={item.stock}
-                              value={item.quantity}
-                              onChange={(value) =>
-                                handleQuantityChange(
-                                  item.skuId,
-                                  value as number
-                                )
-                              }
-                              disabled={isDisabled}
-                              className="mx-2"
-                              style={{ width: 60 }}
-                            />
-                            <Button
-                              icon={<PlusOutlined />}
-                              onClick={() =>
-                                handleQuantityChange(
-                                  item.skuId,
-                                  item.quantity + 1
-                                )
-                              }
-                              disabled={
-                                isDisabled || item.quantity >= item.stock
-                              }
-                            />
+                            <Text className="mr-2">Quantity:</Text>
+                            <div className="flex items-center">
+                              <Button
+                                icon={<MinusOutlined />}
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.skuId,
+                                    item.quantity - 1
+                                  )
+                                }
+                                disabled={isDisabled}
+                                aria-label="Decrease quantity"
+                              />
+                              <InputNumber
+                                min={1}
+                                max={item.stock}
+                                value={item.quantity}
+                                onChange={(value) =>
+                                  handleQuantityChange(
+                                    item.skuId,
+                                    value as number
+                                  )
+                                }
+                                precision={0} // Only allow integer values
+                                disabled={isDisabled}
+                                className="mx-2"
+                                style={{ width: 60 }}
+                                aria-label="Item quantity"
+                              />
+                              <Button
+                                icon={<PlusOutlined />}
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.skuId,
+                                    item.quantity + 1
+                                  )
+                                }
+                                disabled={
+                                  isDisabled || item.quantity >= item.stock
+                                }
+                                aria-label="Increase quantity"
+                              />
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       {/* Item Total */}
                       <div className="ml-4 text-right flex-shrink-0">
                         <Text strong className="text-lg">
-                          ${(item.finalTotal * item.quantity).toFixed(2)}
+                          {formatCurrency(item.finalTotal * item.quantity)}
                         </Text>
                       </div>
                     </div>
@@ -317,13 +420,13 @@ const CartPage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <Text>Subtotal ({summary.itemCount} items):</Text>
-                <Text>${summary.subtotal.toFixed(2)}</Text>
+                <Text>{formatCurrency(summary.subtotal)}</Text>
               </div>
 
               {summary.savings > 0 && (
                 <div className="flex justify-between text-green-600">
                   <Text type="success">Savings:</Text>
-                  <Text type="success">-${summary.savings.toFixed(2)}</Text>
+                  <Text type="success">-{formatCurrency(summary.savings)}</Text>
                 </div>
               )}
 
@@ -334,7 +437,7 @@ const CartPage: React.FC = () => {
                   Total:
                 </Text>
                 <Text strong className="text-lg">
-                  ${summary.finalTotal.toFixed(2)}
+                  {formatCurrency(summary.finalTotal)}
                 </Text>
               </div>
 
@@ -361,11 +464,10 @@ const CartPage: React.FC = () => {
               </div>
 
               {/* Disabled items summary */}
-              {Object.keys(disabledItems).length > 0 && (
+              {disabledItemsCount > 0 && (
                 <div className="mt-4 p-3 bg-gray-50 rounded-md">
                   <Text type="secondary">
-                    {Object.keys(disabledItems).length} item(s) excluded from
-                    checkout
+                    {disabledItemsCount} item(s) excluded from checkout
                   </Text>
                 </div>
               )}
