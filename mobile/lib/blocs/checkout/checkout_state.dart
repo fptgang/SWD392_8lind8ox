@@ -8,6 +8,7 @@ import 'package:mobile/enum/enum.dart';
 
 class CheckoutState extends Equatable {
   final CartModel? cartModelToCheckout;
+  final int? accountId;
   final bool? loading;
   final String? error;
   
@@ -18,7 +19,8 @@ class CheckoutState extends Equatable {
   final bool isOrderCreated;
 
   const CheckoutState({
-    this.cartModelToCheckout, 
+    this.cartModelToCheckout,
+    this.accountId,
     this.loading, 
     this.error,
     this.selectedPaymentMethod = PaymentMethod.PAYPAL,
@@ -28,7 +30,8 @@ class CheckoutState extends Equatable {
   });
 
   CheckoutState copyWith({
-    CartModel? cartModelToCheckout, 
+    CartModel? cartModelToCheckout,
+    int? accountId,
     bool? isLoading, 
     String? error,
     PaymentMethod? selectedPaymentMethod,
@@ -38,6 +41,7 @@ class CheckoutState extends Equatable {
   }) {
     return CheckoutState(
       cartModelToCheckout: cartModelToCheckout ?? this.cartModelToCheckout,
+      accountId: accountId ?? this.accountId,
       loading: isLoading ?? loading,
       error: error ?? this.error,
       selectedPaymentMethod: selectedPaymentMethod ?? this.selectedPaymentMethod,
@@ -50,6 +54,7 @@ class CheckoutState extends Equatable {
   @override
   List<Object?> get props => [
     cartModelToCheckout,
+    accountId,
     loading, 
     error,
     selectedPaymentMethod,

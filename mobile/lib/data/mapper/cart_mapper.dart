@@ -35,12 +35,32 @@ class CartMapper {
 
     // Set shipping info ID if available
     if (model.shippingInfoId != null) {
-      _setDynamicProperty(cartDto, 'shippingInfoId', model.shippingInfoId);
+      cartDto.shippingInfoId = model.shippingInfoId;
     }
     
     // Set voucher ID if available
     if (model.voucherId != null) {
-      _setDynamicProperty(cartDto, 'voucherId', model.voucherId);
+      cartDto.voucherId = model.voucherId;
+    }
+    
+    // Set payment method if available
+    if (model.paymentMethod != null) {
+      // Convert payment method enum
+      CartDtoPaymentMethodEnum paymentMethod;
+      switch (model.paymentMethod) {
+        case CartPaymentMethodEnum.PAYPAL:
+          paymentMethod = CartDtoPaymentMethodEnum.PAYPAL;
+          break;
+        case CartPaymentMethodEnum.VNPAY:
+          paymentMethod = CartDtoPaymentMethodEnum.VNPAY;
+          break;
+        case CartPaymentMethodEnum.INTERNAL_WALLET:
+          paymentMethod = CartDtoPaymentMethodEnum.INTERNAL_WALLET;
+          break;
+        default:
+          paymentMethod = CartDtoPaymentMethodEnum.VNPAY;
+      }
+      cartDto.paymentMethod = paymentMethod;
     }
     
     // Convert cart items if available
@@ -49,7 +69,7 @@ class CartMapper {
           .map((item) => _cartItemModelToDto(item))
           .toList();
           
-      _setDynamicProperty(cartDto, 'cartItems', cartItems);
+      cartDto.items = cartItems;
     }
     
     return cartDto;
@@ -129,9 +149,12 @@ class CartMapper {
   static CartItemDto _cartItemModelToDto(CartItemModel model) {
     final cartItemDto = CartItemDto();
     
-    // Use dynamic property access to set fields
-    _setDynamicProperty(cartItemDto, 'skuId', model.skuId);
-    _setDynamicProperty(cartItemDto, 'quantity', model.quantity);
+    // Directly set fields instead of using dynamic property access
+    cartItemDto.skuId = model.skuId;
+    cartItemDto.quantity = model.quantity;
+    
+    // Log the created DTO for debugging
+    print('Created CartItemDto: skuId=${cartItemDto.skuId}, quantity=${cartItemDto.quantity}');
     
     return cartItemDto;
   }

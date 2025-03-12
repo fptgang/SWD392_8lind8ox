@@ -23,8 +23,8 @@ Widget buildPaymentOption({
               ),
             ),
           ),
-          trailing ?? (selected 
-            ? Icon(Icons.check_circle, color: Colors.red[400]) 
+          trailing ?? (selected
+            ? Icon(Icons.check_circle, color: Colors.red[400])
             : const Icon(Icons.circle_outlined, color: Colors.grey)
           ),
         ],

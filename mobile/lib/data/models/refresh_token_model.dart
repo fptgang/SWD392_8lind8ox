@@ -1,21 +1,23 @@
 
 
 class RefreshTokenModel{
-  final int refreshTokenId;
-  final int accountId;
-  final String token;
+  final int? refreshTokenId;
+  int? accountId;
+  String? token;
   final String? ipAddress;
   final String? sessionId;
-  final String? clientInfo;
-  final DateTime expiryDate;
+  String? clientInfo;
+  DateTime? expiryDate;
 
   RefreshTokenModel({
-    required this.refreshTokenId,
-    required this.accountId,
-    required this.token,
+    this.refreshTokenId,
+    this.accountId,
+    this.token,
     this.ipAddress,
     this.sessionId,
     this.clientInfo,
-    required this.expiryDate,
+    this.expiryDate,
   });
+
+  List<Object?> get props => [refreshTokenId, accountId, token, ipAddress, sessionId, clientInfo, expiryDate];
 }

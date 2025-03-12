@@ -24,11 +24,25 @@ class BlindBoxLoadingState extends BlindBoxDetailState {
     this.error,
   });
 
+  BlindBoxLoadingState copyWith({
+    int? id,
+    bool? isLoading,
+    bool? isOutOfStock,
+    String? error,
+  }) {
+    return BlindBoxLoadingState(
+      id: id ?? this.id,
+      isLoading: isLoading ?? this.isLoading,
+      isOutOfStock: isOutOfStock ?? this.isOutOfStock,
+      error: error ?? this.error,
+    );
+  }
+
   @override
   List<Object?> get props => [id, isLoading, isOutOfStock, error];
 
   @override
-  String toString() => 'BlindBoxLoadingState(id: $id)';
+  String toString() => 'BlindBoxLoadingState(id: $id, isLoading: $isLoading, isOutOfStock: $isOutOfStock, error: $error)';
 }
 
 class BlindBoxDataState extends BlindBoxDetailState {
@@ -44,10 +58,10 @@ class BlindBoxDataState extends BlindBoxDetailState {
     required super.id,
     required this.blindBox,
     this.sku,
-    this.skuImages,
+    this.skuImages = const [],
     this.selectedImageIndex = 0,
     this.quantity = 1,
-    this.images,
+    this.images = const [],
     this.isExpandedDescription = false,
   });
 
@@ -73,6 +87,14 @@ class BlindBoxDataState extends BlindBoxDetailState {
     );
   }
 
+  bool get hasImages => images != null && images!.isNotEmpty;
+  
+  bool get hasStock => sku != null && (sku!.stock ?? 0) > 0;
+  
+  double get price => sku?.price ?? 0.0;
+  
+  String get skuName => sku?.name ?? blindBox.name ?? 'Unknown';
+
   @override
   List<Object?> get props => [
         id,
@@ -86,7 +108,7 @@ class BlindBoxDataState extends BlindBoxDetailState {
       ];
 
   @override
-  String toString() => 'BlindBoxLoadedState(id: $id, blindBox: ${blindBox.name}, selectedImageIndex: $selectedImageIndex, quantity: $quantity, images: $images, sku: $sku, skuImages: $skuImages)';
+  String toString() => 'BlindBoxDataState(id: $id, blindBox: ${blindBox.name}, selectedImageIndex: $selectedImageIndex, quantity: $quantity, images: ${images?.length}, sku: ${sku?.skuId})';
 }
 
 class BlindBoxErrorState extends BlindBoxDetailState {

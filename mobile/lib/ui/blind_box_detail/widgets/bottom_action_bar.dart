@@ -94,14 +94,11 @@ class BottomActionBar extends StatelessWidget {
     final quantity = state.quantity;
     final selectedSku = state.sku;
     
-    // Check if this is a set (has SKUs with specCount > 1) or a single item
     final bool isSet = selectedSku?.specCount != null && selectedSku!.specCount! > 1;
-    
-    // Get price from selected SKU or first SKU
-    final price = selectedSku?.price ?? 
-                (blindBox.skus.isNotEmpty ? blindBox.skus.first.price : 0) ?? 0.0;
-    
-    // Get image URL - prefer SKU-specific images first
+
+    final skus = blindBox.skus ?? [];
+    final price = selectedSku?.price ?? (skus.isNotEmpty ? skus.first.price : 0) ?? 0.0;
+
     final String imageUrl;
     if (state.skuImages?.isNotEmpty == true) {
       imageUrl = state.skuImages!.first.imageUrl ?? '';
@@ -113,15 +110,13 @@ class BottomActionBar extends StatelessWidget {
       imageUrl = '';
     }
     
-    // Product name should include SKU name for sets
     final String productName;
     if (isSet && selectedSku.name != null) {
       productName = "${blindBox.name} - ${selectedSku.name}";
     } else {
-      productName = blindBox.name;
+      productName = blindBox.name ?? '';
     }
 
-    // Create cart item with ID that uniquely identifies this product variant
     final int itemId = selectedSku?.skuId ?? state.id;
     
     final product = CartDisplayItem(
@@ -130,9 +125,9 @@ class BottomActionBar extends StatelessWidget {
       price: price,
       image: imageUrl,
       quantity: quantity,
+      skuId: selectedSku?.skuId,
     );
     
-    // Add to cart and show confirmation
     context.read<CartCubit>().addToCart(product);
 
     ScaffoldMessenger.of(context).showSnackBar(

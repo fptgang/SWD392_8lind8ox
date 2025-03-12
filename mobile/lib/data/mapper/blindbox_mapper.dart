@@ -4,6 +4,7 @@ import 'package:mobile/data/mapper/image_mapper.dart';
 import 'package:mobile/data/mapper/sku_mapper.dart';
 import 'package:mobile/data/mapper/toy_mapper.dart';
 import 'package:mobile/data/models/blindbox_model.dart';
+import 'package:mobile/data/models/brand_model.dart';
 import 'package:openapi/api.dart';
 
 
@@ -23,31 +24,19 @@ class BlindBoxMapper {
       updatedAt: dto.updatedAt,
     );
   }
-  //
-  // static BlindBoxDto toDto(BlindBoxModel model) {
-  //   return BlindBoxDto(
-  //     blindBoxId: model.blindBoxId,
-  //     brandId: model.brandId,
-  //     name: model.name,
-  //     description: model.description,
-  //     isVisible: model.isVisible,
-  //     toys: model.toys ?? [],
-  //     skus: model.skus,
-  //     setIds: model.setIds ?? [],
-  //     createdAt: model.createdAt,
-  //     updatedAt: model.updatedAt,
-  //   );
-  // }
-
-  // static GetBlindBoxes200Response toBlindBoxesDto(BlindBoxesResponseModel model) {
-  //   return GetBlindBoxes200Response(
-  //     content: model.content.map((e) => BlindBoxMapper.toDto(e)).toList(),
-  //     totalElements: model.totalElements,
-  //     totalPages: model.totalPages,
-  //     last: model.last,
-  //     first: model.first,
-  //     numberOfElements: model.numberOfElements,
-  //     empty: model.empty,
-  //   );
-  // }
+  static BlindBoxDto toDto(BlindBoxModel model) {
+    return BlindBoxDto(
+      blindBoxId: model.blindBoxId,
+      brand: BrandMapper.toDto(model.brand ?? BrandModel()),
+      name: model.name,
+      description: model.description,
+      images: model.images!.map((e) => ImageMapper.toDto(e)).toList(),
+      blindBoxCampaigns: model.blindBoxCampaigns!.map((e) => BlindBoxCampaignMapper.toDto(e)).toList(),
+      isVisible: model.isVisible,
+      toys: model.toys?.map((e) => ToyMapper.toDto(e)).toList() ?? [],
+      skus: model.skus?.map((e) => SkuMapper.toDto(e)).toList() ?? [],
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+    );
+  }
 }

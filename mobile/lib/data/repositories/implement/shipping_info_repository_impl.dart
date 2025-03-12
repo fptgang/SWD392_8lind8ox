@@ -1,5 +1,4 @@
-
-
+import 'package:flutter/cupertino.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/shipping_info_mapper.dart';
@@ -20,9 +19,22 @@ class ShippingInfoRepositoryImpl implements ShippingInfoRepository {
   }
 
   @override
-  Future<ShippingInfoModel> createShippingInfo(ShippingInfoDto shippingInfo) {
-    // TODO: implement createShippingInfo
-    throw UnimplementedError();
+  Future<ShippingInfoModel> createShippingInfo(ShippingInfoDto shippingInfo) async {
+    try {
+      debugPrint('Shipping info created token:1 ${box.get('loginToken')}');
+      ShippingInfoDto? shippingInfoDto = await _apiService.createShippingInfo(shippingInfo);
+      debugPrint('Shipping info created: $shippingInfoDto');
+      if(shippingInfoDto == null){
+        throw Exception('Cannot create shipping info information');
+      }
+      debugPrint('curren user: ${_apiService.getCurrentUser()}');
+      debugPrint('Shipping info created token: ${box.get('loginToken')}');
+      ShippingInfoModel shippingInfoModel = ShippingInfoMapper.toModel(shippingInfoDto);
+      return Future.value(shippingInfoModel);
+    } catch(e, stacktrace){
+      debugPrint('Error creating shipping info: $e, stackTrace: $stacktrace');
+      throw Exception('Cannot create shipping info information: $e');
+    }
   }
 
   @override
@@ -35,7 +47,7 @@ class ShippingInfoRepositoryImpl implements ShippingInfoRepository {
       ShippingInfoModel shippingInfoModel =  ShippingInfoMapper.toModel(shippingInfoDto);
       return shippingInfoModel;
     } catch(e){
-      throw Exception('Cannot get shipping info information');
+      throw Exception('Cannot get shipping info information, ${e}', );
     }
   }
 

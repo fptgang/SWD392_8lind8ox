@@ -7,6 +7,7 @@ import 'package:mobile/blocs/shipping_info/shipping_info_state.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
 import 'package:openapi/api.dart';
+import 'package:hive/hive.dart';
 
 @injectable
 @lazySingleton
@@ -24,6 +25,7 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
         super(ShippingInfoLoadingState()) {
     on<GetShippingInfos>(_onGetShippingInfos);
     on<GetShippingInfoById>(_onGetShippingInfoById);
+    on<CreateShippingInfo>(_onCreateShippingInfo);
     // on<SelectShippingInfo>(_onSelectShippingInfo);
   }
 
@@ -91,6 +93,27 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
       emit(_dataState);
     } catch (e) {
       emit(ShippingInfoLoadingState(error: e.toString()));
+    }
+  }
+
+  // Add handler for creating shipping info
+  Future<void> _onCreateShippingInfo(
+    CreateShippingInfo event,
+    Emitter<ShippingInfoState> emit,
+  ) async {
+    emit(ShippingInfoLoadingState(isLoading: true));
+
+    try {
+      final createdShippingInfo = await _shippingInfoRepository.createShippingInfo(
+        event.shippingInfoDto,
+      );
+      _dataState = _dataState.copyWith(shippingInfo: createdShippingInfo);
+      debugPrint('token from shipping info bloc: ${Hive.box('authentication').get('loginToken')}');
+      debugPrint('Successfully created shipping info: $createdShippingInfo');
+      emit(_dataState);
+    } catch (e, stackTrace) {
+      debugPrint('Error creating shipping info: $e, stackTrace: $stackTrace');
+      emit(ShippingInfoLoadingState(error: 'Failed to create shipping address: ${e.toString()}'));
     }
   }
 }

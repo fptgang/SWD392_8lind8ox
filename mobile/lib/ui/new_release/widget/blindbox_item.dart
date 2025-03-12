@@ -80,7 +80,7 @@ class ProductItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            set.blindBox.name,
+            set.blindBox.name ?? '',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(

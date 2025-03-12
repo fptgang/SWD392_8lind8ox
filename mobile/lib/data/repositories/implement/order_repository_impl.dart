@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:mobile/data/mapper/cart_mapper.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/order_mapper.dart';
-import 'package:mobile/data/mapper/cart_mapper.dart';
+import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/order_model.dart';
-import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/data/models/order_response_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
-import 'package:mobile/enum/enum.dart';
 import 'package:openapi/api.dart';
 
 import '../../../di/injection.dart';
@@ -17,7 +16,7 @@ class OrderRepositoryImpl implements OrderRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
-  OrderRepositoryImpl() {
+  OrderRepositoryImpl(){
     _apiService.apiClient.authentication?.applyToParams([], {
       "Authorization": "Bearer ${box.get('loginToken')}",
     });
@@ -47,6 +46,7 @@ class OrderRepositoryImpl implements OrderRepository {
         debugPrint('Cannot get order information: , response: $response');
         throw Exception('Cannot get order information');
       }
+      debugPrint('token from order repo: ${box.get('loginToken')}');
       PaginationResponseGeneric<OrderModel>? orderModels = PaginationResponseMapper.toModel(dto: response, fromDTO: (data) => OrderMapper.toModel(data));
       return orderModels;
     } catch(e){
@@ -58,12 +58,24 @@ class OrderRepositoryImpl implements OrderRepository {
   @override
   Future<OrderResponseModel> createOrder(CartModel cartModel, int accountId) async {
     try {
+
       final cartDto = CartMapper.toDto(cartModel);
       
+      debugPrint('Making placeOrder request with:');
+      debugPrint('- AccountId: $accountId');
+      debugPrint('- CartDto payment method: ${cartDto.paymentMethod}');
+      debugPrint('- CartDto shipping info ID: ${cartDto.shippingInfoId}');
+      debugPrint('- CartDto items count: ${cartDto.items.length}');
+      debugPrint('- CartDto first item skuId: ${cartDto.items.isNotEmpty ? cartDto.items.first.skuId : "N/A"}');
+      debugPrint('- CartDto first item quantity: ${cartDto.items.isNotEmpty ? cartDto.items.first.quantity : "N/A"}');
+      debugPrint('token from order repo create: ${box.get('loginToken')}');
+      debugPrint('Calling API placeOrder endpoint...');
       final response = await _apiService.placeOrder(cartDto, accountId: accountId);
+      debugPrint('API call completed, response: $response, accountId: $accountId');
+      debugPrint('Received response from placeOrder');
 
       if (response == null) {
-        throw Exception('Failed to create order');
+        throw Exception('Failed to create order: null response');
       }
       
       final orderId = CartMapper.extractOrderId(response);
@@ -72,6 +84,7 @@ class OrderRepositoryImpl implements OrderRepository {
         throw Exception('Failed to extract order ID from response');
       }
       
+      debugPrint('Successfully extracted orderId: $orderId');
       final orderModel = await getOrderById(orderId);
       
       return OrderResponseModel(
@@ -79,7 +92,19 @@ class OrderRepositoryImpl implements OrderRepository {
         paymentRedirectUrl: _extractPaymentUrl(response),
       );
     } catch (e) {
-      debugPrint('Failed to create order: $e');
+      if (e is ApiException) {
+        final apiError = e;
+        debugPrint('API Exception during createOrder:');
+        debugPrint('- Status code: ${apiError.code}');
+        debugPrint('- Message: ${apiError.message}');
+        debugPrint('- Response: ${apiError.toString()}');
+        // Check if there are specific error codes that indicate auth issues
+        if (apiError.code == 401) {
+          debugPrint('Authentication failure - token may be expired or invalid');
+        }
+      }
+      
+      debugPrint('F ailed to create order: $e');
       throw Exception('Failed to create order: $e');
     }
   }

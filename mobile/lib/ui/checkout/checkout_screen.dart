@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mobile/blocs/checkout/checkout_bloc.dart';
 import 'package:mobile/blocs/checkout/checkout_event.dart';
 import 'package:mobile/blocs/checkout/checkout_state.dart';
@@ -10,14 +9,28 @@ import 'package:mobile/blocs/shipping_info/shipping_info_event.dart';
 import 'package:mobile/blocs/shipping_info/shipping_info_state.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/cubit/cart_cubit/cart_state.dart';
-import 'package:mobile/data/models/promotional_campaign_model.dart';
 import 'package:mobile/di/injection.dart';
 import 'package:mobile/enum/enum.dart';
 import 'package:mobile/ui/checkout/widget/address_section.dart';
 import 'package:mobile/ui/checkout/widget/payment_option.dart';
 import 'package:mobile/ui/checkout/widget/promotion_section.dart';
 import 'package:mobile/ui/checkout/widget/shipping_method.dart';
+import 'package:mobile/ui/core/theme/theme.dart';
+import 'package:hive/hive.dart';
+import 'dart:math';
+import 'package:openapi/api.dart';
+import 'package:mobile/data/repositories/shipping_info_repository.dart';
 
+class AccountHelper {
+  static int getAccountId() {
+    final authBox = Hive.box('authentication');
+    final accountId = authBox.get('accountId');
+
+    return accountId;
+  }
+}
+
+/// Main checkout screen
 class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
 
@@ -27,9 +40,11 @@ class CheckoutScreen extends StatelessWidget {
     final cartCubit = getIt<CartCubit>();
     final promotionBloc = getIt<PromotionBloc>();
     final shippingInfoBloc = getIt<ShippingInfoBloc>();
-    
-    // Trigger loading of shipping info immediately
-    shippingInfoBloc.add(GetShippingInfoById(1));
+
+    // Load shipping info for current user
+    final accountId = AccountHelper.getAccountId();
+    debugPrint('Loading shipping info for accountId: $accountId');
+    shippingInfoBloc.add(GetShippingInfoById(accountId));
 
     return MultiBlocProvider(
       providers: [
@@ -52,94 +67,185 @@ class CheckoutScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 0,
         ),
-        body: BlocConsumer<CheckoutBloc, CheckoutState>(
-          listener: (context, checkoutState) {
-            if (checkoutState.loading == false && checkoutState.error == null && checkoutState.isOrderCreated) {
-              context.read<CartCubit>().clearCart();
+        body: _CheckoutScreenContent(),
+      ),
+    );
+  }
+}
+
+/// Main content of the checkout screen with bloc listeners
+class _CheckoutScreenContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CheckoutBloc, CheckoutState>(
+          listener: _handleCheckoutStateChanges,
+        ),
+        BlocListener<ShippingInfoBloc, ShippingInfoState>(
+          listener: _handleShippingInfoStateChanges,
+        ),
+      ],
+      child: BlocBuilder<CheckoutBloc, CheckoutState>(
+        builder: (context, checkoutState) {
+          if (checkoutState.loading == true) {
+            return _buildLoadingIndicator();
+          }
+          
+          return BlocBuilder<CartCubit, CartState>(
+            builder: (context, cartState) {
+              final selectedItems = cartState.items
+                  .where((item) => cartState.selectedItemIds.contains(item.id))
+                  .toList();
               
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Order placed successfully!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
+              if (selectedItems.isEmpty) {
+                return _buildEmptyCartView(context);
+              }
               
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            }
-            
-            if (checkoutState.loading == false && checkoutState.error != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Order failed: ${checkoutState.error}'),
-                  backgroundColor: Colors.red,
-                ),
+              final checkoutItems = _convertToCartItemModels(selectedItems);
+              
+              return _CheckoutFormContent(
+                checkoutItems: checkoutItems,
+                checkoutBloc: context.read<CheckoutBloc>(),
+                shippingInfoBloc: context.read<ShippingInfoBloc>(),
               );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _handleCheckoutStateChanges(BuildContext context, CheckoutState state) {
+    if (state.loading == false && state.error == null && state.isOrderCreated) {
+      _handleSuccessfulOrder(context);
+    } else if (state.loading == false && state.error != null) {
+      _handleOrderError(context, state.error!);
+    }
+  }
+
+  void _handleSuccessfulOrder(BuildContext context) {
+    context.read<CartCubit>().clearCart();
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Order placed successfully!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
+    
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  void _handleOrderError(BuildContext context, String errorMessage) {
+    String displayMessage = errorMessage;
+    bool needsAddress = false;
+    
+    // Convert technical errors to user-friendly messages
+    if (errorMessage.contains('Shipping information is required')) {
+      displayMessage = 'Please add a shipping address';
+      needsAddress = true;
+    } else if (errorMessage.contains('Payment method is required')) {
+      displayMessage = 'Please select a payment method';
+    } else if (errorMessage.contains('No items in cart')) {
+      displayMessage = 'Your cart is empty. Please add items to your cart';
+    } else if (errorMessage.contains('ShippingInfo does not belong to account')) {
+      displayMessage = 'The shipping address does not belong to your account. Please add a new shipping address.';
+      needsAddress = true;
+    }
+    
+    // Show error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Order failed: $displayMessage'),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: needsAddress ? 'Add Address' : 'OK',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            if (needsAddress) {
+              _showAddAddressDialog(context);
             }
-          },
-          builder: (context, checkoutState) {
-            if (checkoutState.loading == true) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Processing your order...'),
-                  ],
-                ),
-              );
-            }
-            
-            return BlocBuilder<CartCubit, CartState>(
-              builder: (context, cartState) {
-                // Filter items to only include selected ones
-                final selectedItems = cartState.items
-                    .where((item) => cartState.selectedItemIds.contains(item.id))
-                    .toList();
-                
-                if (selectedItems.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'No items selected for checkout',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Please select items in your cart to checkout',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                          ),
-                          child: const Text('Back to Cart'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                
-                final checkoutItems = _convertToCartItemModels(selectedItems);
-                
-                return _CheckoutFormContent(
-                  checkoutItems: checkoutItems,
-                  checkoutBloc: checkoutBloc,
-                  shippingInfoBloc: shippingInfoBloc,
-                );
-              },
-            );
           },
         ),
       ),
     );
+  }
+
+  void _handleShippingInfoStateChanges(BuildContext context, ShippingInfoState state) {
+    if (state is ShippingInfoLoadingState && state.isLoading) {
+      // Do nothing, loading indicator already shown in UI
+    } else if (state is ShippingInfoLoadingState && state.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${state.error}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } else if (state is ShippingInfoDataState && 
+               state.shippingInfo != null && 
+               state.shippingInfo!.shippingInfoId != 1) {
+      // Only show success message if it's not the initial load
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Shipping address created successfully'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Widget _buildLoadingIndicator() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Processing your order...'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyCartView(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text(
+            'No items selected for checkout',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Please select items in your cart to checkout',
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            ),
+            child: const Text('Back to Cart'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  void _showAddAddressDialog(BuildContext context) {
+    final shippingInfoBloc = context.read<ShippingInfoBloc>();
+    ShippingAddressForm.show(context, shippingInfoBloc);
   }
 
   List<CartItemModel> _convertToCartItemModels(List<CartDisplayItem> displayItems) {
@@ -147,6 +253,169 @@ class CheckoutScreen extends StatelessWidget {
   }
 }
 
+/// Shipping address form dialog
+class ShippingAddressForm {
+  static void show(BuildContext context, ShippingInfoBloc shippingInfoBloc) {
+    final nameController = TextEditingController();
+    final addressController = TextEditingController();
+    final wardController = TextEditingController();
+    final districtController = TextEditingController();
+    final cityController = TextEditingController();
+    final phoneNumberController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Add Shipping Address'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Name*',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(
+                    labelText: 'Address*',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: wardController,
+                  decoration: const InputDecoration(
+                    labelText: 'Ward*',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: districtController,
+                  decoration: const InputDecoration(
+                    labelText: 'District*',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: cityController,
+                  decoration: const InputDecoration(
+                    labelText: 'City*',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: phoneNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number*',
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => _handleFormSubmit(
+                context,
+                shippingInfoBloc,
+                nameController.text,
+                addressController.text,
+                wardController.text,
+                districtController.text,
+                cityController.text,
+                phoneNumberController.text,
+              ),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static void _handleFormSubmit(
+    BuildContext context,
+    ShippingInfoBloc shippingInfoBloc,
+    String name,
+    String address,
+    String ward,
+    String district,
+    String city,
+    String phoneNumber,
+  ) {
+    // Validate all fields
+    if (name.isEmpty ||
+        address.isEmpty ||
+        ward.isEmpty ||
+        district.isEmpty ||
+        city.isEmpty ||
+        phoneNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all required fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Creating shipping address...'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    Navigator.pop(context);
+
+    try {
+      // Create shipping info DTO
+      final shippingInfoDto = ShippingInfoDto();
+
+      // Set fields using dynamic approach
+      final dto = shippingInfoDto as dynamic;
+      dto.name = name;
+      dto.address = address;
+      dto.ward = ward;
+      dto.district = district;
+      dto.city = city;
+      dto.phoneNumber = phoneNumber;
+      dto.isVisible = true;
+
+      // Ensure account ID is set
+      final authBox = Hive.box('authentication');
+      int accountId = AccountHelper.getAccountId();
+      if (authBox.get('accountId') == null) {
+        authBox.put('accountId', accountId);
+      }
+
+      // Create and dispatch event
+      final createShippingInfoEvent = CreateShippingInfo(shippingInfoDto);
+      shippingInfoBloc.add(createShippingInfoEvent);
+    } catch (e) {
+      debugPrint('Exception setting DTO fields: $e');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error creating shipping address: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+}
+
+/// Main form content for the checkout process
 class _CheckoutFormContent extends StatelessWidget {
   final List<CartItemModel> checkoutItems;
   final CheckoutBloc checkoutBloc;
@@ -182,79 +451,158 @@ class _CheckoutFormContent extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildAddressSection(BuildContext context) {
     return BlocBuilder<ShippingInfoBloc, ShippingInfoState>(
       bloc: shippingInfoBloc,
       builder: (context, state) {
         if (state is ShippingInfoLoadingState && state.isLoading) {
-          return Container(
-            margin: const EdgeInsets.only(top: 8),
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return _buildLoadingAddressSection();
         } else if (state is ShippingInfoLoadingState && state.error != null) {
-          return Container(
-            margin: const EdgeInsets.only(top: 8),
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Shipping Address',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading address: ${state.error}',
-                  style: const TextStyle(color: Colors.red),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    shippingInfoBloc.add(GetShippingInfoById(1));
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
+          return _buildErrorAddressSection(context, state.error!);
         } else if (state is ShippingInfoDataState && state.shippingInfo != null) {
           return buildAddressSection();
         } else {
-          return Container(
-            margin: const EdgeInsets.only(top: 8),
+          return _buildEmptyAddressSection(context);
+        }
+      },
+    );
+  }
+
+  Widget _buildLoadingAddressSection() {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorAddressSection(BuildContext context, String error) {
+    final bool noShippingInfo = error.contains("Cannot get shipping info") ||
+                               error.contains("not found");
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Shipping Address',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            noShippingInfo
+                ? 'You don\'t have a shipping address yet. Please add one to continue.'
+                : 'Error loading address: $error',
+            style: TextStyle(
+              color: noShippingInfo ? Colors.orange[800] : Colors.red,
+              fontWeight: noShippingInfo ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => ShippingAddressForm.show(context, shippingInfoBloc),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: noShippingInfo ? Colors.green : Colors.blue,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: Text(
+                noShippingInfo ? 'Add Shipping Address' : 'Add New Address',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+          if (!noShippingInfo) ...[
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                final accountId = AccountHelper.getAccountId();
+                debugPrint('Retrying to load shipping info for account ID: $accountId');
+                shippingInfoBloc.add(GetShippingInfoById(accountId));
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyAddressSection(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Shipping Address',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.white,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.orange),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.orange[50],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Shipping Address',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'No address found. Please add a shipping address.',
-                  style: TextStyle(color: Colors.grey),
+                Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.orange[800]),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'No shipping address found',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.deepOrange,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    // Navigate to add address screen
-                    // This would be implemented based on your navigation setup
-                  },
-                  child: const Text('Add Address'),
+                const Text(
+                  'Please add a shipping address to continue with your order.',
+                  style: TextStyle(color: Colors.black87),
                 ),
               ],
             ),
-          );
-        }
-      },
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () => ShippingAddressForm.show(context, shippingInfoBloc),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Add Shipping Address',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
   
@@ -325,7 +673,6 @@ class _CheckoutFormContent extends StatelessWidget {
   }
 
   double _calculateSubtotal() {
-    // Use the checkoutItems (CartItemModel) list directly
     return checkoutItems.fold(
       0.0, 
       (sum, item) => sum + (item.price * item.quantity)
@@ -484,16 +831,15 @@ class _CheckoutFormContent extends StatelessWidget {
   }
   
   void _confirmOrder(BuildContext context) {
-    // Validate checkout form
     if (!(checkoutBloc.formKey.currentState?.validate() ?? false)) {
       return;
     }
     
-    // Show confirmation dialog
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: getColorSkin().white,
           title: const Text('Confirm Order'),
           content: const Text('Are you sure you want to place this order?'),
           actions: [
@@ -517,45 +863,31 @@ class _CheckoutFormContent extends StatelessWidget {
   
   void _placeOrder(BuildContext context) {
     final checkoutState = checkoutBloc.state;
-    
-    // Get the shipping info ID from the ShippingInfoBloc state directly
     final shippingInfoState = shippingInfoBloc.state;
     
-    int? shippingInfoId;
+    // Validate shipping info
+    if (!_validateShippingInfo(context, shippingInfoState)) return;
+    final shippingInfoId = (shippingInfoState as ShippingInfoDataState).shippingInfo!.shippingInfoId;
     
-    if (shippingInfoState is ShippingInfoDataState && shippingInfoState.shippingInfo != null) {
-      shippingInfoId = shippingInfoState.shippingInfo!.shippingInfoId;
-    }
-    
-    // Check if shipping info is available
-    if (shippingInfoId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Shipping information is required. Please add a shipping address.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-    
-    // Check if payment method is selected
+    // Validate payment method
     if (checkoutState.selectedPaymentMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a payment method')),
-      );
+      _showError(context, 'Please select a payment method');
       return;
     }
     
-    // Check if terms are accepted
+    // Validate terms acceptance
     if (!checkoutState.termsAccepted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please accept the terms and conditions')),
-      );
+      _showError(context, 'Please accept the terms and conditions');
       return;
     }
     
-    debugPrint('Creating order with shipping ID: $shippingInfoId');
-
+    // Get account ID
+    final accountId = AccountHelper.getAccountId();
+    
+    // Validate cart items
+    if (!_validateCartItems(context)) return;
+    
+    // Create cart model
     final cartModel = CartModel(
       items: checkoutItems,
       paymentMethod: checkoutBloc.mapPaymentMethodToEnum(checkoutState.selectedPaymentMethod),
@@ -565,7 +897,50 @@ class _CheckoutFormContent extends StatelessWidget {
     
     debugPrint('Cart model for checkout: $cartModel');
 
-    checkoutBloc.add(Checkout(cartModelToCheckout: cartModel));
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Processing your order...'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    // Request order creation
+    checkoutBloc.add(Checkout(
+      cartModelToCheckout: cartModel,
+      accountId: accountId,
+    ));
+  }
+  
+  bool _validateShippingInfo(BuildContext context, ShippingInfoState state) {
+    if (state is! ShippingInfoDataState || state.shippingInfo == null) {
+      _showError(context, 'Shipping information is required. Please add a shipping address.');
+      return false;
+    }
+    return true;
+  }
+  
+  bool _validateCartItems(BuildContext context) {
+    if (checkoutItems.isEmpty) {
+      _showError(context, 'Your cart is empty. Please add items to checkout.');
+      return false;
+    }
+    
+    if (checkoutItems.any((item) => item.skuId == null)) {
+      _showError(context, 'Some items in your cart are missing required information.');
+      return false;
+    }
+    
+    return true;
+  }
+  
+  void _showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
   
   Widget _buildProductSection(BuildContext context) {
@@ -581,7 +956,7 @@ class _CheckoutFormContent extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          ...checkoutItems.map((item) => _buildCheckoutItemRow(item)).toList(),
+          ...checkoutItems.map((item) => _buildCheckoutItemRow(item)),
         ],
       ),
     );

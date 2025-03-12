@@ -14,7 +14,7 @@ class NewReleasesScreen extends StatelessWidget {
   const NewReleasesScreen({super.key});
 
   static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => NewReleasesScreen());
+    return MaterialPageRoute<void>(builder: (_) => const NewReleasesScreen());
   }
   
   @override
@@ -32,7 +32,7 @@ class NewReleasesScreen extends StatelessWidget {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: getColorSkin().primaryRed650,
-      elevation: 0,
+      elevation: 2,
       leading: Builder(
         builder: (context) => IconButton(
           icon: Icon(Icons.menu, color: getColorSkin().white),
@@ -44,32 +44,77 @@ class NewReleasesScreen extends StatelessWidget {
         style: TextStyle(
           color: getColorSkin().white,
           fontWeight: FontWeight.bold,
+          fontSize: 18.sp,
         ),
       ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.search, color: getColorSkin().white),
+          onPressed: () {
+            // Handle search action
+          },
+        ),
+      ],
       centerTitle: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(16.r),
+        ),
+      ),
     );
   }
 
   Widget _buildBody() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: BlocBuilder<SetBloc, SetState>(
-        builder: (context, state) {
-          if (SetLoadingState().isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Will be implemented to refresh content
+        await Future.delayed(const Duration(seconds: 1));
+        return;
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        child: BlocBuilder<SetBloc, SetState>(
+          builder: (context, state) {
+            if (state is SetLoadingState && state.isLoading) {
+              return _buildLoadingIndicator();
+            }
 
-          if (SetLoadingState().error != null) {
-            return _buildErrorWidget(context, SetLoadingState().error!);
-          }
+            if (state is SetLoadingState && state.error != null) {
+              return _buildErrorWidget(context, state.error!);
+            }
 
-          final sets = SetDataState().sets?.content;
-          if (sets == null || sets.isEmpty) {
-            return _buildEmptyWidget();
+            if (state is SetDataState) {
+              final sets = state.sets?.content ?? [];
+              if (sets.isEmpty) {
+                return _buildEmptyWidget();
+              }
+              return _buildGrid(sets);
+            }
+            
+            return _buildLoadingIndicator();
           }
+        ),
+      ),
+    );
+  }
 
-          return _buildGrid(sets);
-        },
+  Widget _buildLoadingIndicator() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(getColorSkin().primaryRed650),
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'Loading new releases...',
+            style: TextStyle(
+              color: getColorSkin().grey,
+              fontSize: 16.sp,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -79,10 +124,42 @@ class NewReleasesScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(error),
-          ElevatedButton(
+          Icon(
+            Icons.error_outline,
+            color: getColorSkin().primaryRed600,
+            size: 48.sp,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'Something went wrong',
+            style: TextStyle(
+              color: getColorSkin().black,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            error,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: getColorSkin().grey,
+              fontSize: 14.sp,
+            ),
+          ),
+          SizedBox(height: 24.h),
+          ElevatedButton.icon(
             onPressed: () => context.read<SetBloc>().add(GetSets(1)),
-            child: const Text('Retry'),
+            icon: Icon(Icons.refresh, color: getColorSkin().white),
+            label: const Text('Retry'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: getColorSkin().primaryRed600,
+              foregroundColor: getColorSkin().white,
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
           ),
         ],
       ),
@@ -91,12 +168,32 @@ class NewReleasesScreen extends StatelessWidget {
 
   Widget _buildEmptyWidget() {
     return Center(
-      child: Text(
-        'No items available',
-        style: TextStyle(
-          color: getColorSkin().grey,
-          fontSize: 16.sp,
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.inbox_outlined,
+            color: getColorSkin().grey,
+            size: 64.sp,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'No new releases available',
+            style: TextStyle(
+              color: getColorSkin().black,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Check back later for new products',
+            style: TextStyle(
+              color: getColorSkin().grey,
+              fontSize: 14.sp,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -106,8 +203,8 @@ class NewReleasesScreen extends StatelessWidget {
       padding: EdgeInsets.only(top: 8.h),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 12.h,
+        crossAxisSpacing: 16.w,
+        mainAxisSpacing: 16.h,
         childAspectRatio: 0.75,
       ),
       itemCount: sets.length,

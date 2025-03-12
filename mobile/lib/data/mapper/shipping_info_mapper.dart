@@ -3,7 +3,6 @@ import 'package:openapi/api.dart';
 
 /// Maps between ShippingInfoDto (API data) and ShippingInfoModel (app domain model)
 class ShippingInfoMapper {
-  /// Converts an API DTO to the internal model
   static ShippingInfoModel toModel(ShippingInfoDto dto) {
     return ShippingInfoModel(
       shippingInfoId: dto.shippingInfoId ?? 0,
@@ -13,7 +12,7 @@ class ShippingInfoMapper {
       city: dto.city ?? '',
       name: dto.name ?? '',
       phoneNumber: dto.phoneNumber ?? '',
-      isVisible: dto.isVisible ?? true,
+      isVisible: dto.isVisible,
       createdAt: dto.createdAt ?? DateTime.now(),
       updatedAt: dto.updatedAt,
     );
@@ -29,7 +28,7 @@ class ShippingInfoMapper {
       city: model.city,
       name: model.name,
       phoneNumber: model.phoneNumber,
-      isVisible: model.isVisible,
+      isVisible: model.isVisible ?? true,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
     );

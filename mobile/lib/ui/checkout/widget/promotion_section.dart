@@ -33,7 +33,7 @@ Widget buildPromotionalSection({
               // Trigger fetching promotions before showing the dialog
               promotionBloc.add(GetPromotions(1));
               _showVoucherSelectionDialog(
-                context: context, 
+                context: context,
                 selectedVoucher: selectedVoucher,
                 onVoucherSelected: onVoucherSelected,
                 promotionBloc: promotionBloc, // Pass the bloc instance
@@ -54,7 +54,7 @@ Widget buildPromotionalSection({
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  selectedVoucher != null 
+                  selectedVoucher != null
                     ? '${selectedVoucher.title} (${(selectedVoucher.discountRate ?? 0) * 100}% off)'
                     : 'Select Voucher',
                 ),
@@ -72,7 +72,7 @@ Widget buildPromotionalSection({
                     style: const TextStyle(color: Colors.green),
                   ),
                 )
-              else 
+              else
                 const Text('No voucher applied', style: TextStyle(color: Colors.grey)),
               const Icon(Icons.chevron_right),
             ],
@@ -117,11 +117,11 @@ void _showVoucherSelectionDialog({
                 if (state is PromotionLoadingState && state.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                
+
                 if (state is PromotionLoadingState && state.error != null) {
                   debugPrint('Promotion loading error: ${state.error}');
                   String errorMessage = 'Unable to load vouchers';
-                  
+
                   // Try to extract a more user-friendly error message
                   if (state.error!.contains('Cannot get promotion information')) {
                     errorMessage = 'Cannot retrieve promotion information';
@@ -130,7 +130,7 @@ void _showVoucherSelectionDialog({
                   } else if (state.error!.contains('DTO must be a valid response type')) {
                     errorMessage = 'Invalid promotion data format';
                   }
-                  
+
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -174,19 +174,19 @@ void _showVoucherSelectionDialog({
                     ),
                   );
                 }
-                
+
                 // Use actual promotions from API if available, otherwise show empty state
                 List<PromotionModel> vouchers = [];
-                
-                if (state is PromotionDataState && 
-                    state.promotionResponseModel != null && 
+
+                if (state is PromotionDataState &&
+                    state.promotionResponseModel != null &&
                     state.promotionResponseModel!.content.isNotEmpty) {
                   vouchers = state.promotionResponseModel!.content;
                   debugPrint('Loaded ${vouchers.length} vouchers successfully');
                 } else {
                   debugPrint('No vouchers available or empty data state');
                 }
-                
+
                 if (vouchers.isEmpty) {
                   return Column(
                     children: [
@@ -239,9 +239,9 @@ void _showVoucherSelectionDialog({
                                   style: TextStyle(color: Colors.grey[600]),
                                 ),
                               ),
-                              if (!(state is PromotionLoadingState)) 
+                              if (!(state is PromotionLoadingState))
                                 const SizedBox(height: 24),
-                              if (!(state is PromotionLoadingState)) 
+                              if (!(state is PromotionLoadingState))
                                 ElevatedButton(
                                   onPressed: () {
                                     context.read<PromotionBloc>().add(GetPromotions(1));
@@ -269,7 +269,7 @@ void _showVoucherSelectionDialog({
                     ],
                   );
                 }
-                
+
                 return Column(
                   children: [
                     Container(
@@ -301,7 +301,7 @@ void _showVoucherSelectionDialog({
                         itemBuilder: (context, index) {
                           final voucher = vouchers[index];
                           final isSelected = selectedVoucher?.campaignId == voucher.campaignId;
-                          
+
                           return ListTile(
                             leading: Icon(
                               Icons.confirmation_number,

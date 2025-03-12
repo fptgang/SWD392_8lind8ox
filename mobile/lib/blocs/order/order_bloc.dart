@@ -121,8 +121,8 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       orderStatusHistories: _dataState.order!.orderStatusHistories,
       createdAt: _dataState.order!.createdAt,
       updatedAt: DateTime.now(),
-      originalPrice: _dataState.order!.originalPrice,
-      checkoutPrice: _dataState.order!.checkoutPrice,
+      subTotal: _dataState.order!.subTotal,
+      finalTotal: _dataState.order!.finalTotal,
     );
 
     _dataState = _dataState.copyWith(order: updatedOrder);

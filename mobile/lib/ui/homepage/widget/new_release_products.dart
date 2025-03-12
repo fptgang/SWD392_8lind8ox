@@ -10,6 +10,7 @@ import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/data/models/sku_model.dart';
 import 'package:mobile/ui/common/error.dart';
 import 'package:mobile/ui/common/header.dart';
+import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:openapi/api.dart';
 
 import 'new_release_card.dart';
@@ -25,7 +26,7 @@ class NewReleaseProducts extends StatelessWidget {
       builder: (context, state) {
         if (state is LoadingState) {
           if (state.isLoading && state is! DataState) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildLoadingIndicator();
           }
           if (state.error != null && state is! DataState) {
             return CommonErrorWidget(
@@ -38,17 +39,52 @@ class NewReleaseProducts extends StatelessWidget {
         if (state is DataState) {
           return _buildContent(context, state);
         }
-        return const SizedBox.shrink();
+        return _buildEmptyState(context);
       },
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return SizedBox(
+      height: 200.h,
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(getColorSkin().primaryRed600),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return SizedBox(
+      height: 200.h,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.inbox_outlined,
+              size: 48.sp,
+              color: getColorSkin().grey,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              AppLocalizations.of(context)?.empty ?? 'No items found',
+              style: TextStyle(
+                color: getColorSkin().grey,
+                fontSize: 16.sp,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildContent(BuildContext context, DataState state) {
     final blindBoxes = state.blindBoxes?.content;
     if (blindBoxes == null || blindBoxes.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context)?.empty ?? 'No items found'),
-      );
+      return _buildEmptyState(context);
     }
 
     return Column(
@@ -68,24 +104,33 @@ class NewReleaseProducts extends StatelessWidget {
   Widget _buildProductList(
       BuildContext context, List<BlindBoxModel> blindBoxes) {
     return SizedBox(
-      height: 200.h,
+      height: 220.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
         itemCount: blindBoxes.length,
         itemBuilder: (context, index) {
           final blindBox = blindBoxes[index];
-          final sku = blindBox.skus.firstWhere(
-            (sku) => sku.blindBoxId == blindBox.blindBoxId,
-            orElse: () => StockKeepingUnitModel(price: 0.0),
-          );
+          
+          // Handle null SKUs safely
+          StockKeepingUnitModel? sku;
+          if (blindBox.skus != null && blindBox.skus!.isNotEmpty) {
+            sku = blindBox.skus!.first;
+          }
+
+          final imageUrl = blindBox.images != null && blindBox.images!.isNotEmpty && blindBox.images!.first.imageUrl != null
+              ? blindBox.images!.first.imageUrl!
+              : "";
 
           return NewReleaseProductCard(
-            imageUrl: blindBox.images?.firstOrNull?.imageUrl ?? "",
-            title: blindBox.name,
-            price: sku.price ?? 0.0,
-            onTap: () =>
-                context.push('/blind-box-detail/${blindBox.blindBoxId}'),
+            imageUrl: imageUrl,
+            title: blindBox.name ?? 'Unnamed Product',
+            price: sku?.price ?? 0.0,
+            onTap: () {
+              if (blindBox.blindBoxId != null) {
+                context.push('/blind-box-detail/${blindBox.blindBoxId}');
+              }
+            },
           );
         },
       ),

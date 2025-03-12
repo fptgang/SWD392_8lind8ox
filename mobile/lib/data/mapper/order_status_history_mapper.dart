@@ -8,18 +8,18 @@ import 'package:openapi/api.dart';
 class OrderStatusHistoryMapper {
   static OrderStatusHistoryModel toOrderStatusHistoryModel(OrderStatusHistoryDto dto) {
     return OrderStatusHistoryModel(
-      orderStatusHistoryId: dto.id!,
+      id: dto.id!,
       orderId: dto.orderId!,
-      orderStatusHistoryEnum: OrderMapper.toOrderStatusHistoryEnumModel(dto.state!),
+      orderStatusHistoryEnum: OrderMapper.toLatestOrderStatusModel(dto.state!),
       createdAt: dto.createdAt!,
     );
   }
 
   static OrderStatusHistoryDto toDto(OrderStatusHistoryModel model) {
     return OrderStatusHistoryDto(
-      id: model.orderStatusHistoryId,
+      id: model.id,
       orderId: model.orderId,
-      state: OrderMapper.toOrderStatusHistoryEnumDto(model.orderStatusHistoryEnum ?? OrderStatusHistoryEnum.CREATED),
+      state: OrderMapper.toLatestOrderStatusEnumDto(model.orderStatusHistoryEnum ?? OrderStatusEnum.CREATED),
       createdAt: model.createdAt,
     );
   }

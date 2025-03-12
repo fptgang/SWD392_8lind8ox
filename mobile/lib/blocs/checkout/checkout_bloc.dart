@@ -8,6 +8,9 @@ import 'package:mobile/data/models/promotional_campaign_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
 import 'package:mobile/data/repositories/voucher_repository.dart';
 import 'package:mobile/enum/enum.dart';
+import 'package:hive/hive.dart';
+import 'package:openapi/api.dart';
+import 'package:mobile/di/injection.dart';
 
 @injectable
 @lazySingleton
@@ -15,6 +18,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   final OrderRepository orderRepository;
   final VoucherRepository? _voucherRepository;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final DefaultApi _apiService = getIt<DefaultApi>();
 
   CheckoutBloc(
       this._voucherRepository, {
@@ -106,6 +110,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     try {
       emit(state.copyWith(isLoading: true, error: null));
 
+      // Log authentication data for debugging
+      final authBox = Hive.box('authentication');
+      final loginToken = authBox.get('loginToken');
+      final accountId = authBox.get('accountId');
+      debugPrint('Checkout authentication data:');
+      debugPrint('- LoginToken exists: ${loginToken != null}');
+      debugPrint('- AccountId from box: $accountId');
+      
       // Use the provided cart model if available, otherwise use the current state
       final cartToCheckout = event.cartModelToCheckout ?? state.cartModelToCheckout;
 
@@ -121,21 +133,65 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         throw Exception('Payment method is required');
       }
 
-      // Here you would call the repository to create an order
-      // For example:
-      // final orderResponse = await orderRepository.createOrder(cartToCheckout, userId);
+      debugPrint('Creating order with cart model: $cartToCheckout');
+      
+      // Update API token before making the order request
+      final box = Hive.box('authentication');
+      final token = box.get('loginToken');
+      
+      // Check other authentication-related keys
+      debugPrint('All authentication box keys: ${box.keys.toList()}');
 
-      emit(state.copyWith(
-        cartModelToCheckout: cartToCheckout,
-        isLoading: false,
-        isOrderCreated: true,
-      ));
+      final userId = box.get('accountId');
+      final refreshToken = box.get('refreshToken');
+      
+      debugPrint('UserID from storage: $userId');
+      debugPrint('Has refresh token: ${refreshToken != null}');
+      
+      if (token == null || token.toString().isEmpty) {
+        throw Exception('Authentication token not found. Please log in again.');
+      }
+      
+      // Check token validity - basic checks
+      bool isValidToken = token.toString().contains('.');
+      debugPrint('Token appears to be a valid JWT: $isValidToken');
+      
+      debugPrint('Using token for order: ${token.toString().substring(0, token.toString().length > 10 ? 10 : token.toString().length)}...');
+      
+      // Apply token to API client
+      _apiService.apiClient.authentication?.applyToParams([], {
+        "Authorization": "Bearer $token",
+      });
+      
+      // Check if Authorization header is set
+      final headers = _apiService.apiClient.defaultHeaderMap;
+      debugPrint('API client headers: $headers');
+      
+      // Call the repository to create an order
+      try {
+        // Use the current user ID or the account ID from the event
+        final actualAccountId = userId != null ? int.tryParse(userId.toString()) ?? event.accountId : event.accountId;
+        debugPrint('Using account ID for order: $actualAccountId');
+        
+        final orderResponse = await orderRepository.createOrder(cartToCheckout, actualAccountId);
+        debugPrint('Order created successfully: $orderResponse');
+        
+        emit(state.copyWith(
+          cartModelToCheckout: cartToCheckout,
+          isLoading: false,
+          isOrderCreated: true,
+        ));
+      } catch (orderError) {
+        debugPrint('Error creating order: $orderError');
+        throw Exception('Failed to create order: $orderError');
+      }
 
     } catch (error) {
       debugPrint('Error during checkout: $error');
       emit(state.copyWith(
         error: error.toString(),
         isLoading: false,
+        isOrderCreated: false,
       ));
     }
   }
@@ -172,7 +228,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         state.termsAccepted;
   }
 
-  // Helper methods
   PaymentMethod? _stringToPaymentMethod(String paymentMethod) {
     switch (paymentMethod.toUpperCase()) {
       case 'PAYPAL':
@@ -192,8 +247,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         return CartPaymentMethodEnum.PAYPAL;
       case PaymentMethod.VNPAY:
         return CartPaymentMethodEnum.VNPAY;
-      default:
-        return null;
-    }
+      }
   }
 }

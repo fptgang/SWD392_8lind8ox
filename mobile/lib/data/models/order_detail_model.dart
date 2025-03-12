@@ -8,8 +8,9 @@ class OrderDetailModel {
   final StockKeepingUnitModel? sku;
   final int? quantity;
   final PromotionModel? promotionalCampaign;
-  final double? originalPrice;
-  final double? checkoutPrice;
+  final double? unitPrice;
+  final double? subTotal;
+  final double? finalTotal;
   final SlotModel? slot;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -20,8 +21,9 @@ class OrderDetailModel {
     this.sku,
     this.quantity,
     this.promotionalCampaign,
-    this.originalPrice,
-    this.checkoutPrice,
+    this.unitPrice,
+    this.subTotal,
+    this.finalTotal,
     this.slot,
     this.createdAt,
     this.updatedAt,
@@ -33,8 +35,9 @@ class OrderDetailModel {
     sku,
     quantity,
     promotionalCampaign,
-    originalPrice,
-    checkoutPrice,
+    unitPrice,
+    subTotal,
+    finalTotal,
     slot,
     createdAt,
     updatedAt,

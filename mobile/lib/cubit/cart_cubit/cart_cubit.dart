@@ -42,9 +42,7 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> loadCart() async {
     try {
-      if (_prefs == null) {
-        _prefs = await SharedPreferences.getInstance();
-      }
+      _prefs ??= await SharedPreferences.getInstance();
       
       final cartData = _prefs!.getString('cart');
       if (cartData != null) {
@@ -60,9 +58,11 @@ class CartCubit extends Cubit<CartState> {
                 : item['price'],
             image: item['image'],
             quantity: item['quantity'],
+            skuId: item['skuId'],
+            slotId: item['slotId'],
           );
         }).toList();
-        
+        debugPrint('Cart items loaded: ${cartItems.toString()}');
         debugPrint('Cart items loaded: ${cartItems.length}');
         
         if (!_isClosed) {
@@ -98,6 +98,8 @@ class CartCubit extends Cubit<CartState> {
                 : item['price'],
             image: item['image'],
             quantity: item['quantity'],
+            skuId: item['skuId'],
+            slotId: item['slotId'],
           );
         }).toList();
       }
@@ -151,6 +153,8 @@ class CartCubit extends Cubit<CartState> {
                   : item['price'],
               image: item['image'],
               quantity: item['quantity'],
+              skuId: item['skuId'],
+              slotId: item['slotId'],
             );
           })
           .where((item) => item.id != itemId)
@@ -175,9 +179,7 @@ class CartCubit extends Cubit<CartState> {
         return;
       }
 
-      if (_prefs == null) {
-        _prefs = await SharedPreferences.getInstance();
-      }
+      _prefs ??= await SharedPreferences.getInstance();
       
       final cartData = _prefs!.getString('cart');
       
@@ -194,16 +196,17 @@ class CartCubit extends Cubit<CartState> {
                 : item['price'],
             image: item['image'],
             quantity: item['quantity'],
+            skuId: item['skuId'],
+            slotId: item['slotId'],
           );
         }).toList();
-        
+        debugPrint('currentItems: $currentItems');
         final itemIndex = currentItems.indexWhere((item) => item.id == itemId);
         if (itemIndex != -1) {
           currentItems[itemIndex] = currentItems[itemIndex].copyWith(quantity: newQuantity);
           
           final encodedCart = jsonEncode(currentItems.map((item) => item.toJson()).toList());
           await _prefs!.setString('cart', encodedCart);
-          
           if (!_isClosed) {
             emit(state.copyWith(items: currentItems));
           }
@@ -216,9 +219,7 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> clearCart() async {
     try {
-      if (_prefs == null) {
-        _prefs = await SharedPreferences.getInstance();
-      }
+      _prefs ??= await SharedPreferences.getInstance();
       
       await _prefs!.remove('cart');
       

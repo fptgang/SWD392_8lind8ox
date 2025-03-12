@@ -20,6 +20,20 @@ class ToyMapper{
     );
   }
 
+  static ToyDto toDto(ToyModel model){
+    return ToyDto(
+      toyId: model.toyId ?? 1,
+      name: model.name ?? '',
+      description: model.description ?? '',
+      weight: model.weight ?? 1,
+      rarity: _mapModelRarity(model.rarity!),
+      isVisible: model.isVisible ?? true,
+      createdAt: model.createdAt ?? DateTime.now(),
+      updatedAt: model.updatedAt ?? DateTime.now(),
+      images: model.images?.map((e) => ImageMapper.toDto(e)).toList() ?? [],
+    );
+  }
+
   static ToyRarityEnum _mapDtoRarity(ToyDtoRarityEnum dtoRarity) {
     switch (dtoRarity) {
       case ToyDtoRarityEnum.REGULAR:
@@ -29,5 +43,14 @@ class ToyMapper{
       default:
         throw Exception('Unknown toy rarity: $dtoRarity');
     }
+  }
+
+  static ToyDtoRarityEnum _mapModelRarity(ToyRarityEnum dtoRarity) {
+    switch (dtoRarity) {
+      case ToyRarityEnum.REGULAR:
+        return ToyDtoRarityEnum.REGULAR;
+      case ToyRarityEnum.SECRET:
+        return ToyDtoRarityEnum.SECRET;
+      }
   }
 }

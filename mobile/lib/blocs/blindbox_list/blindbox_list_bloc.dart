@@ -36,7 +36,6 @@ class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
   }
 
 
-
   Future<void> _onGetBlindBoxes(
       GetBlindBoxes event,
       Emitter<BlindBoxesState> emit,

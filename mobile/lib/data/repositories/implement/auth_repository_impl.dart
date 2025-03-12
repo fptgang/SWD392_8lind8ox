@@ -66,7 +66,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       AuthResponseDto? dto = await _apiService.loginWithGoogle(token);
       debugPrint("dto: $dto");
-      debugPrint("token: $token");
+      debugPrint("token from repo: $token");
       if (dto == null) {
         throw Exception('Login failed, please try again');
       }
@@ -189,5 +189,11 @@ class AuthRepositoryImpl implements AuthRepository {
     //   throw Exception('Google sign in failed, please try again, ${e.toString()}');
     // }
     return null;
+  }
+
+  @override
+  void updateAuthStatus(AuthenticationStatus status) {
+    debugPrint('Manually updating auth status to: $status');
+    _controller.add(status);
   }
 }

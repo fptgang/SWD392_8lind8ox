@@ -39,11 +39,9 @@ class AccountScreen extends StatelessWidget {
             create: (context) => RegisterBloc(authRepository: authRepository),
             child: Center(
               child: SafeArea(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: SettingScreen(),
-                  ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SettingScreen(),
                 ),
               ),
             ),

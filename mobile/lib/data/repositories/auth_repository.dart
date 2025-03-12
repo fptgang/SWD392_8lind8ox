@@ -19,4 +19,6 @@ abstract class AuthRepository {
   void logout();
   Future<JwtResponseModel> refreshToken(String refreshToken);
   Stream<AuthenticationStatus> get status;
+  
+  void updateAuthStatus(AuthenticationStatus status);
 }

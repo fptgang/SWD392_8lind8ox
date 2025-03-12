@@ -11,6 +11,19 @@ enum OrderStatusHistoryEnum {
   COMPLETED
 }
 
+enum OrderStatusEnum{
+  CREATED,
+  PREPARING,
+  PAYMENT_FAILED,
+  PAYMENT_EXPIRED,
+  CANCELED,
+  READY_FOR_PICKUP,
+  SHIPPING,
+  DELIVERED,
+  RECEIVED,
+  COMPLETED,
+}
+
 enum TransactionType {
   DEPOSIT,
   ORDER

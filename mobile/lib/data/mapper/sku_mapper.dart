@@ -1,9 +1,12 @@
 
 
+import 'package:mobile/data/mapper/blindbox_mapper.dart';
 import 'package:mobile/data/mapper/image_mapper.dart';
 import 'package:mobile/data/models/image_model.dart';
 import 'package:mobile/data/models/sku_model.dart';
 import 'package:openapi/api.dart';
+
+import '../models/blindbox_model.dart';
 
 class SkuMapper{
   static StockKeepingUnitModel toModel(StockKeepingUnitDto dto){
@@ -14,7 +17,7 @@ class SkuMapper{
       price: dto.price!,
       stock: dto.stock!,
       specCount: dto.specCount!,
-      blindBoxId: dto.blindBoxId!,
+      blindBox: BlindBoxMapper.toModel(dto.blindBox ?? BlindBoxDto()),
       createdAt: dto.createdAt!,
       updatedAt: dto.updatedAt,
       isVisible: dto.isVisible,
@@ -29,7 +32,7 @@ class SkuMapper{
       price: model.price,
       stock: model.stock,
       specCount: model.specCount,
-      blindBoxId: model.blindBoxId,
+      blindBox: BlindBoxMapper.toDto(model.blindBox ?? BlindBoxModel()),
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       isVisible: model.isVisible

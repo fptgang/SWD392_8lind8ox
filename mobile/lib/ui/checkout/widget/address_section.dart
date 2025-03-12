@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/di/injection.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
-
 import '../../../blocs/shipping_info/shipping_info_bloc.dart';
-import '../../../blocs/shipping_info/shipping_info_event.dart';
 import '../../../blocs/shipping_info/shipping_info_state.dart';
 
 Widget buildAddressSection() {

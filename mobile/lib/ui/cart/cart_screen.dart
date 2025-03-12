@@ -8,6 +8,7 @@ import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../cubit/bottom_navigation_bar/bottom_navigation_cubit.dart';
 import '../../di/injection.dart';
 import '../common/widgets/custom_button.dart';
 
@@ -42,27 +43,16 @@ class CartScreen extends StatelessWidget {
             ),
           ),
           centerTitle: true,
-          leading: !isFromBottomNav
-              ? IconButton(
+          leading: IconButton(
             icon: Icon(Icons.arrow_back, color: getColorSkin().backgroundColor),
-            onPressed: () => Navigator.pop(context),
-          )
-              : null,
-          actions: [
-            BlocBuilder<CartCubit, CartState>(
-              builder: (context, state) {
-                if (state.items.isNotEmpty) {
-                  return IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    color: getColorSkin().white,
-                    onPressed: () => _showClearCartConfirmation(context),
-                    tooltip: 'Clear Cart',
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
+            onPressed: () {
+              if (isFromBottomNav) {
+                context.read<BottomNavigationCubit>().changeTab(0);
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
         ),
         body: SafeArea(
           child: BlocBuilder<CartCubit, CartState>(
@@ -112,7 +102,6 @@ class CartScreen extends StatelessWidget {
       ),
     );
   }
-
   void _showClearCartConfirmation(BuildContext context) {
     showDialog(
       context: context,

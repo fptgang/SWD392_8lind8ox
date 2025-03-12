@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
-import 'package:mobile/cubit/cart_cubit/cart_state.dart';
 import 'package:mobile/di/injection.dart';
-import 'package:mobile/ui/cart/cart_screen.dart';
+import 'package:mobile/ui/blind_box_detail/widgets/loading.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
-import 'package:badges/badges.dart' as badges;
 
 import '../../blocs/blindbox_detail/blindbox_detail_bloc.dart';
 import '../../blocs/blindbox_detail/blindbox_detail_event.dart';
 import '../../blocs/blindbox_detail/blindbox_detail_state.dart';
-import 'widgets/bottom_action_bar.dart';
-import 'widgets/image_carousel.dart';
-import 'widgets/product_details.dart';
-import 'widgets/thumbnails_gallery.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final int blindBoxId;
@@ -81,8 +75,7 @@ class _PageControllerInherited extends InheritedWidget {
   });
   
   static _PageControllerInherited of(BuildContext context) {
-    final _PageControllerInherited? result = 
-        context.dependOnInheritedWidgetOfExactType<_PageControllerInherited>();
+    final _PageControllerInherited? result = context.dependOnInheritedWidgetOfExactType<_PageControllerInherited>();
     assert(result != null, 'No _PageControllerInherited found in context');
     return result!;
   }
@@ -130,85 +123,11 @@ class _ProductDetailView extends StatelessWidget {
         }
 
         if (state is BlindBoxDataState) {
-          return _buildLoadedState(context, state, pageController);
+          return buildBlindBoxDetailLoadedState(context, state, pageController);
         }
-
         return const SizedBox.shrink();
       },
     );
   }
 
-  Scaffold _buildLoadedState(
-    BuildContext context, 
-    BlindBoxDataState state, 
-    PageController pageController
-  ) {
-    return Scaffold(
-      backgroundColor: getColorSkin().white,
-      appBar: AppBar(
-        backgroundColor: getColorSkin().primaryRed650,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: getColorSkin().white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.favorite_border, color: getColorSkin().white),
-            onPressed: () {},
-          ),
-          BlocBuilder<CartCubit, CartState>(
-            builder: (context, cartState) {
-              // Calculate total items in cart
-              final int itemCount = cartState.items.fold(
-                0, (sum, item) => sum + item.quantity);
-              
-              return badges.Badge(
-                showBadge: itemCount > 0,
-                badgeContent: Text(
-                  itemCount.toString(),
-                  style: TextStyle(
-                    color: getColorSkin().white,
-                    fontSize: 10,
-                  ),
-                ),
-                badgeStyle: badges.BadgeStyle(
-                  badgeColor: getColorSkin().primaryRed200,
-                  padding: const EdgeInsets.all(5),
-                ),
-                position: badges.BadgePosition.topEnd(top: 0, end: 0),
-                child: IconButton(
-                  icon: Icon(Icons.shopping_cart, color: getColorSkin().white),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const CartScreen(isFromBottomNav: false),
-                    ),
-                  ),
-                ),
-              );
-            }
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ImageCarousel(
-              pageController: pageController,
-              state: state,
-            ),
-            const SizedBox(height: 16),
-            ThumbnailsGallery(
-              pageController: pageController,
-              state: state,
-            ),
-            const SizedBox(height: 16),
-            ProductDetails(state: state),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomActionBar(state: state),
-    );
-  }
 }

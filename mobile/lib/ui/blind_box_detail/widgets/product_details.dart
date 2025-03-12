@@ -25,11 +25,9 @@ class ProductDetails extends StatelessWidget {
     final quantity = state.quantity;
     final appLocalizations = AppLocalizations.of(context)!;
     
-    // Create an HTML unescape instance to handle HTML entities
     final htmlUnescape = HtmlUnescape();
     
-    // Process description - it could be HTML or plain text
-    final String description = blindBox.description;
+    final String description = blindBox.description ?? '';
     final bool isHtmlContent = _isHtmlContent(description);
     
     return Padding(
@@ -38,7 +36,7 @@ class ProductDetails extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            blindBox.name,
+            blindBox.name ?? 'Unnamed Product',
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -46,7 +44,6 @@ class ProductDetails extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
 
-          // Price + Quantity
           Row(
             children: [
               Text(
@@ -62,7 +59,6 @@ class ProductDetails extends StatelessWidget {
           TypeSelector(state: state),
           SizedBox(height: 16.h),
 
-          // Description
           Text(
             appLocalizations.description,
             style: const TextStyle(
@@ -72,7 +68,6 @@ class ProductDetails extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
           
-          // Render description as HTML or plain text based on content
           if (isHtmlContent)
             Container(
               decoration: BoxDecoration(
@@ -128,6 +123,8 @@ class ProductDetails extends StatelessWidget {
 
   // Helper method to check if content is HTML
   bool _isHtmlContent(String text) {
+    if (text.isEmpty) return false;
+    
     // Simple check for common HTML tags
     return text.contains('<') && 
            text.contains('>') && 
@@ -143,9 +140,11 @@ class ProductDetails extends StatelessWidget {
   String _formatPrice(BlindBoxDataState state) {
     final selectedSku = state.sku;
     if (selectedSku != null && selectedSku.price != null) {
-      return "\$${selectedSku.price!}";
-    } else if (state.blindBox.skus.isNotEmpty && state.blindBox.skus.first.price != null) {
-      return "\$${state.blindBox.skus.first.price!}";
+      return "\$${selectedSku.price!.toStringAsFixed(2)}";
+    } else if (state.blindBox.skus != null && 
+               state.blindBox.skus!.isNotEmpty && 
+               state.blindBox.skus!.first.price != null) {
+      return "\$${state.blindBox.skus!.first.price!.toStringAsFixed(2)}";
     }
     return "\$0.00";
   }

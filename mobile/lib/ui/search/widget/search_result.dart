@@ -35,8 +35,8 @@ class SearchResults extends StatelessWidget {
                 leading: box.images!.isNotEmpty
                     ? Image.network(box.images?.first.imageUrl ?? '')
                     : const Icon(Icons.image),
-                title: Text(box.name),
-                subtitle: Text(box.description),
+                title: Text(box.name ?? ''),
+                subtitle: Text(box.description ?? ''),
                 onTap: () => context.push('/blind-box-detail/${box.blindBoxId}'),
               );
             },

@@ -10,26 +10,28 @@ class OrderModel {
   final int? orderId;
   final AccountModel? account;
   final List<OrderStatusHistoryModel>? orderStatusHistories;
+  final OrderStatusEnum? latestStatus;
   final List<OrderDetailModel>? orderDetails;
   final TransactionModel? transaction;
   final ShippingInfoModel? shippingInfo;
   final VoucherModel? voucher;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final double? originalPrice;
-  final double? checkoutPrice;
+  final double? subTotal;
+  final double? finalTotal;
 
   OrderModel({
     this.orderId,
     this.account,
     this.orderStatusHistories,
+    this.latestStatus,
     this.orderDetails,
     this.transaction,
     this.shippingInfo,
     this.voucher,
     this.createdAt,
     this.updatedAt,
-    this.originalPrice,
-    this.checkoutPrice,
+    this.subTotal,
+    this.finalTotal,
   });
 }

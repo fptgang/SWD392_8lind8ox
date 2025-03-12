@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/blindbox_detail/blindbox_detail_event.dart';
@@ -49,9 +50,13 @@ class BlindBoxDetailBloc
       final blindBox = await _blindBoxRepository.getBlindBoxById(event.id);
 
       final StockKeepingUnitModel? selectedSku =
-          (blindBox.skus.isNotEmpty) ? blindBox.skus.first : null;
+          (blindBox.skus != null && blindBox.skus!.isNotEmpty) 
+            ? blindBox.skus!.first 
+            : null;
 
       final combinedImageUrls = <String>[];
+      
+      // Add blindbox images
       if (blindBox.images != null) {
         combinedImageUrls.addAll(
           blindBox.images!
@@ -60,10 +65,14 @@ class BlindBoxDetailBloc
         );
       }
 
+      // Add sku image if available
       final skuImageList = <ImageModel>[];
-      if (selectedSku?.image != null) {
-        skuImageList.add(selectedSku!.image!);
-        combinedImageUrls.add(selectedSku.image!.imageUrl ?? '');
+      if (selectedSku?.image != null && selectedSku!.image!.imageUrl != null) {
+        skuImageList.add(selectedSku.image!);
+        final skuImageUrl = selectedSku.image!.imageUrl!;
+        if (skuImageUrl.isNotEmpty) {
+          combinedImageUrls.add(skuImageUrl);
+        }
       }
 
       emit(
@@ -77,7 +86,12 @@ class BlindBoxDetailBloc
           images: combinedImageUrls,
         ),
       );
+      
+      // Log success
+      debugPrint('Loaded BlindBox id: ${event.id}, name: ${blindBox.name}');
+      
     } catch (e) {
+      debugPrint('Error loading BlindBox id: ${event.id}: $e');
       emit(BlindBoxErrorState(id: event.id, error: e.toString()));
     }
   }
@@ -96,9 +110,13 @@ class BlindBoxDetailBloc
     SelectBlindBoxDetail event,
     Emitter<BlindBoxDetailState> emit,
   ) {
-    if (state is BlindBoxDataState) {
-      final dataState = state as BlindBoxDataState;
+    if (state is! BlindBoxDataState) {
+      add(FetchBlindBoxDetail(event.id));
+      return;
     }
+    
+    // Re-fetch details for the selected blind box
+    add(FetchBlindBoxDetail(event.id));
   }
 
   void _onUpdateSelectedImage(
@@ -107,7 +125,9 @@ class BlindBoxDetailBloc
   ) {
     if (state is BlindBoxDataState) {
       final dataState = state as BlindBoxDataState;
-      emit(dataState.copyWith(selectedImageIndex: event.index));
+      if (event.index >= 0 && event.index < (dataState.images?.length ?? 0)) {
+        emit(dataState.copyWith(selectedImageIndex: event.index));
+      }
     }
   }
 
@@ -117,7 +137,12 @@ class BlindBoxDetailBloc
   ) {
     if (state is BlindBoxDataState) {
       final dataState = state as BlindBoxDataState;
-      emit(dataState.copyWith(quantity: dataState.quantity + 1));
+      final newQuantity = dataState.quantity + 1;
+      // Optional: Add maximum quantity check if needed
+      // final maxQuantity = 10; // Example max
+      // if (newQuantity > maxQuantity) return;
+      
+      emit(dataState.copyWith(quantity: newQuantity));
     }
   }
 
@@ -137,48 +162,53 @@ class BlindBoxDetailBloc
     SelectSku event,
     Emitter<BlindBoxDetailState> emit,
   ) async {
-    if (state is BlindBoxDataState) {
-      final dataState = state as BlindBoxDataState;
-      final blindBox = dataState.blindBox;
-      
-      // Find the selected SKU by ID
-      final selectedSku = blindBox.skus.firstWhere(
-        (sku) => sku.skuId == event.skuId,
-        orElse: () => blindBox.skus.first,
+    if (state is! BlindBoxDataState) return;
+    
+    final dataState = state as BlindBoxDataState;
+    final blindBox = dataState.blindBox;
+    
+    if (blindBox.skus == null || blindBox.skus!.isEmpty) {
+      debugPrint('No SKUs available for BlindBox id: ${blindBox.blindBoxId}');
+      return;
+    }
+    
+    // Find the selected SKU by ID
+    final selectedSku = blindBox.skus!.firstWhere(
+      (sku) => sku.skuId == event.skuId,
+      orElse: () => blindBox.skus!.first,
+    );
+    
+    // Update images
+    final combinedImageUrls = <String>[];
+    final skuImageList = <ImageModel>[];
+    
+    // First add blind box images
+    if (blindBox.images != null) {
+      combinedImageUrls.addAll(
+        blindBox.images!
+            .map((img) => img.imageUrl ?? '')
+            .where((url) => url.isNotEmpty),
       );
-      
-      if (selectedSku.skuId != null) {
-        // Update images if the SKU has an image
-        final combinedImageUrls = <String>[];
-        final skuImageList = <ImageModel>[];
-        
-        // First add blind box images
-        if (blindBox.images != null) {
-          combinedImageUrls.addAll(
-            blindBox.images!
-                .map((img) => img.imageUrl ?? '')
-                .where((url) => url.isNotEmpty),
-          );
-        }
-        
-        // Then add the SKU image if available
-        if (selectedSku.image != null) {
-          skuImageList.add(selectedSku.image!);
-          if (selectedSku.image!.imageUrl != null && 
-              selectedSku.image!.imageUrl!.isNotEmpty) {
-            combinedImageUrls.add(selectedSku.image!.imageUrl!);
-          }
-        }
-        
-        // Emit the updated state
-        emit(dataState.copyWith(
-          sku: selectedSku,
-          skuImages: skuImageList,
-          images: combinedImageUrls,
-          selectedImageIndex: 0, // Reset image selection when SKU changes
-        ));
+    }
+    
+    // Then add the SKU image if available
+    if (selectedSku.image != null && selectedSku.image!.imageUrl != null) {
+      skuImageList.add(selectedSku.image!);
+      final imageUrl = selectedSku.image!.imageUrl!;
+      if (imageUrl.isNotEmpty) {
+        combinedImageUrls.add(imageUrl);
       }
     }
+    
+    debugPrint('Selected SKU: ${selectedSku.skuId}, name: ${selectedSku.name}, images: ${combinedImageUrls.length}');
+    
+    // Emit the updated state
+    emit(dataState.copyWith(
+      sku: selectedSku,
+      skuImages: skuImageList,
+      images: combinedImageUrls,
+      selectedImageIndex: 0, // Reset image selection when SKU changes
+    ));
   }
   
   void _onToggleDescriptionExpansion(
@@ -190,6 +220,7 @@ class BlindBoxDetailBloc
       emit(dataState.copyWith(
         isExpandedDescription: !dataState.isExpandedDescription,
       ));
+      debugPrint('Description expanded: ${!dataState.isExpandedDescription}');
     }
   }
 }
