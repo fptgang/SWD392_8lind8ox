@@ -87,6 +87,21 @@ public class TestEmailTemplate {
         log.info("Testing Voucher Gifted Email: {}", voucher);
         emailService.sendVoucherGiftedEmail(voucher);
     }
+    @Test
+    public void testSendResetPasswordEmail() throws IOException {
+        Account account = new Account();
+        account.setFirstName("John");
+        account.setEmail("biddify.vn@gmail.com");
+
+        String resetLink = "https://yourshop.com/reset-password?token=test123";
+
+        log.info("Testing Reset Password Email for {}", account.getEmail());
+
+        emailService.sendResetPasswordEmail(account, resetLink);
+
+        log.info("Reset Password Email sent successfully for {}", account.getEmail());
+    }
+
 
     public static Order createExampleOrder() {
         Account account = new Account();

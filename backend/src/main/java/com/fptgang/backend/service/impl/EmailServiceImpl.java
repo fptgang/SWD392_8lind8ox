@@ -1,6 +1,7 @@
 package com.fptgang.backend.service.impl;
 
 import com.fptgang.backend.mapper.template.*;
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Order;
 import com.fptgang.backend.model.Video;
 import com.fptgang.backend.model.Voucher;
@@ -56,6 +57,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("classpath:template/VoucherGiftedEmailTemplate.html")
     private Resource voucherGiftedEmailTemplate;
 
+    @Value("classpath:template/ResetPasswordEmailTemplate.html")
+    private Resource resetPasswordEmailTemplate;
+
     private final OrderPaidEmailTemplateMapper orderPaidEmailTemplateMapper;
     private final OrderPlacedEmailTemplateMapper orderPlacedEmailTemplateMapper;
     private final UnpaidOrderEmailTemplateMapper unpaidOrderEmailTemplateMapper;
@@ -65,6 +69,7 @@ public class EmailServiceImpl implements EmailService {
     private final VideoSubmittedEmailTemplateMapper videoSubmittedEmailTemplateMapper;
     private final VideoVerifiedEmailTemplateMapper videoVerifiedEmailTemplateMapper;
     private final VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper;
+    private final ResetPasswordEmailTemplateMapper resetPasswordEmailTemplateMapper;
 
     public EmailServiceImpl(OrderPlacedEmailTemplateMapper orderPlacedEmailTemplateMapper,
                             UnpaidOrderEmailTemplateMapper unpaidOrderEmailTemplateMapper,
@@ -74,7 +79,8 @@ public class EmailServiceImpl implements EmailService {
                             OrderDeliveredEmailTemplateMapper orderDeliveredEmailTemplateMapper,
                             VideoSubmittedEmailTemplateMapper videoSubmittedEmailTemplateMapper,
                             VideoVerifiedEmailTemplateMapper videoVerifiedEmailTemplateMapper,
-                            VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper) {
+                            VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper,
+                            ResetPasswordEmailTemplateMapper resetPasswordEmailTemplateMapper) {
         this.orderPlacedEmailTemplateMapper = orderPlacedEmailTemplateMapper;
         this.unpaidOrderEmailTemplateMapper = unpaidOrderEmailTemplateMapper;
         this.orderPaidEmailTemplateMapper = orderPaidEmailTemplateMapper;
@@ -84,6 +90,7 @@ public class EmailServiceImpl implements EmailService {
         this.videoSubmittedEmailTemplateMapper = videoSubmittedEmailTemplateMapper;
         this.videoVerifiedEmailTemplateMapper = videoVerifiedEmailTemplateMapper;
         this.voucherGiftedEmailTemplateMapper = voucherGiftedEmailTemplateMapper;
+        this.resetPasswordEmailTemplateMapper = resetPasswordEmailTemplateMapper;
     }
 
     @Override
@@ -230,6 +237,25 @@ public class EmailServiceImpl implements EmailService {
         sendMail(emailFrom, to, subject, content);
     }
 
+    @Override
+    public void sendResetPasswordEmail(Account account, String resetLink) throws IOException {
+        if (account.getEmail() == null || account.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Recipient email is missing.");
+        }
+        if (resetLink == null || resetLink.isBlank()) {
+            throw new IllegalArgumentException("Reset link is missing.");
+        }
+
+        log.info("Preparing reset password email for: {}", account.getEmail());
+
+        var template = resetPasswordEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
+        var data = resetPasswordEmailTemplateMapper.create(account, resetLink);
+        String subject = "Password Reset Request";
+        String content = TemplateUtil.render(resetPasswordEmailTemplate.getFilename(), template, data);
+        sendMail(emailFrom, account.getEmail(), subject, content);
+
+        log.info("Password reset email successfully sent to: {}", account.getEmail());
+    }
 }
 
 
