@@ -484,6 +484,7 @@ public class OrderServiceImpl implements OrderService {
     public Order update(Order order) {
         Order existing = orderRepos.findById(order.getOrderId())
                 .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
+        log.info("{} {}",order.getLatestStatus(), existing.getLatestStatus());
         if (order.getLatestStatus() != null && existing.getLatestStatus() != order.getLatestStatus()) {
             switch (order.getLatestStatus()) {
                 case READY_FOR_PICKUP:
@@ -494,6 +495,7 @@ public class OrderServiceImpl implements OrderService {
                     return orderRepos.save(existing);
 
                 case SHIPPING:
+                    log.info("update to shipping state");
                     if (existing.getLatestStatus() != OrderStatusHistory.State.READY_FOR_PICKUP) {
                         throw new IllegalArgumentException("Order is not in ready for pickup state");
                     }
@@ -510,6 +512,9 @@ public class OrderServiceImpl implements OrderService {
                 case RECEIVED:
                     if (existing.getLatestStatus() != OrderStatusHistory.State.DELIVERED) {
                         throw new IllegalArgumentException("Order is not in delivered state");
+                    }
+                    if(!existing.getAccount().getAccountId().equals(order.getAccount().getAccountId())){
+                        throw new IllegalArgumentException("You are not this order's owner");
                     }
                     createStatusHistory(existing, OrderStatusHistory.State.RECEIVED);
                     boolean canCompleted = true;
@@ -538,14 +543,13 @@ public class OrderServiceImpl implements OrderService {
         return orderRepos.save(existing);
     }
 
-    private Order createStatusHistory(Order existing, OrderStatusHistory.State state) {
+    private void createStatusHistory(Order existing, OrderStatusHistory.State state) {
         OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
         orderStatusHistory.setOrder(existing);
         orderStatusHistory.setState(state);
         orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
         existing.getOrderStatusHistories().add(orderStatusHistory);
         existing.setLatestStatus(state);
-        return existing;
     }
 
     @Override
