@@ -4,7 +4,7 @@ import type { MenuProps } from "antd";
 import { Link } from "react-router";
 
 export const Navigation: React.FC = () => {
-  const items: MenuProps['items'] = [
+  const items: MenuProps["items"] = [
     {
       key: "/",
       label: <Link to="/">Home</Link>,
@@ -12,6 +12,10 @@ export const Navigation: React.FC = () => {
     {
       key: "/products",
       label: <Link to="/products">Products</Link>,
+    },
+    {
+      key: "/cases",
+      label: <Link to="/case">Buy Selected</Link>,
     },
   ];
 
