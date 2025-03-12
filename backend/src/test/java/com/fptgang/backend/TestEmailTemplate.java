@@ -13,14 +13,16 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @SpringBootTest
 @TestConfiguration(proxyBeanMethods = false)
 @Testcontainers
 @Import(TestcontainersConfiguration.class)
-@Disabled
+
 public class TestEmailTemplate {
     @Autowired
     private EmailService emailService;
@@ -88,10 +90,28 @@ public class TestEmailTemplate {
         emailService.sendVoucherGiftedEmail(voucher);
     }
 
-    public static Order createExampleOrder() {
+    @Test
+    public void testResetPasswordEmail() throws IOException {
+        Account account = createExampleAccount();
+        String resetLink = "https://yourshop.com/reset-password?token=" + UUID.randomUUID();
+
+        log.info("Testing Reset Password Email for {}", account.getEmail());
+        emailService.sendResetPasswordEmail(account, resetLink);
+        log.info("Reset Password Email sent successfully to {}", account.getEmail());
+    }
+
+    private static Account createExampleAccount() {
         Account account = new Account();
         account.setFirstName("John");
-        account.setEmail("biddify.vn@gmail.com");
+        account.setLastName("Doe");
+        account.setEmail("minhlhse182315@fpt.edu.vn");
+        account.setCreatedAt(LocalDateTime.now());
+        account.setUpdatedAt(LocalDateTime.now());
+        return account;
+    }
+
+    public static Order createExampleOrder() {
+        Account account = createExampleAccount();
 
         StockKeepingUnit sku1 = new StockKeepingUnit();
         sku1.setName("Mystery Toy Box");
@@ -152,28 +172,38 @@ public class TestEmailTemplate {
     }
 
     private static Video createExampleVideo() {
-        Account account = new Account();
-        account.setFirstName("John");
-        account.setEmail("biddify.vn@gmail.com");
+        Account account = createExampleAccount();
+        account.setLastName("Doe");
 
         Video video = new Video();
         video.setVideoId(654321L);
         video.setAccount(account);
         video.setUrl("https://yourshop.com/video/654321");
         video.setDescription("Test video submission.");
+        video.setCreatedAt(LocalDateTime.now());
+        video.setUpdatedAt(LocalDateTime.now());
+        video.setIsVerified(false);
+        video.setIsVisible(true);
         return video;
     }
 
     private static Video createExampleVerifiedVideo() {
         Video video = createExampleVideo();
+        
+        // Create and set up a slot
+        Slot slot = new Slot();
+        slot.setSlotId(1L);
+        slot.setPosition(1);
+        
+        // Set up the video verification details
         video.setIsVerified(true);
+        video.setSlot(slot);
+        
         return video;
     }
 
     private static Voucher createExampleVoucher() {
-        Account account = new Account();
-        account.setFirstName("John");
-        account.setEmail("biddify.vn@gmail.com");
+        Account account = createExampleAccount();
 
         Voucher voucher = new Voucher();
         voucher.setVoucherId(789012L);
@@ -181,7 +211,10 @@ public class TestEmailTemplate {
         voucher.setCode("GIFT123");
         voucher.setDiscountRate(BigDecimal.valueOf(10.00));
         voucher.setLimitAmount(BigDecimal.valueOf(50.00));
-
+        voucher.setExpiredAt(LocalDateTime.now().plusDays(30));
+        voucher.setCreatedAt(LocalDateTime.now());
+        voucher.setUpdatedAt(LocalDateTime.now());
+        
         return voucher;
     }
 }
