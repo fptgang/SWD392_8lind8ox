@@ -60,7 +60,7 @@ export default function LandingPage() {
     isLoading: statsLoading,
     isError: statsError,
   } = useCustom<TrendingProductStats[]>({
-    url: "trending-products",
+    url: "sales/trending-products",
     method: "get",
     config: {
       query: {
