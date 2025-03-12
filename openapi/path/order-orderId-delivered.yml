@@ -1,0 +1,25 @@
+put:
+  summary: Update order status to delivered
+  operationId: deliverOrder
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: orderId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+  responses:
+    '200':
+        description: The operation was successful
+        content:
+            application/json:
+                schema:
+                    $ref: '../model/order.yml#/OrderDto'
+    '400':
+        description: The operation failed
+        content:
+            application/json:
+                schema:
+                    $ref: '../component/error.yml#/ErrorResponse'

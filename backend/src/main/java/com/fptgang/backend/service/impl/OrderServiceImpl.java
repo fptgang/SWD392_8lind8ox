@@ -484,72 +484,49 @@ public class OrderServiceImpl implements OrderService {
     public Order update(Order order) {
         Order existing = orderRepos.findById(order.getOrderId())
                 .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
-        if (order.getLatestStatus()!=null && existing.getLatestStatus() != order.getLatestStatus()) {
+        if (order.getLatestStatus() != null && existing.getLatestStatus() != order.getLatestStatus()) {
             switch (order.getLatestStatus()) {
                 case READY_FOR_PICKUP:
-                    if(existing.getLatestStatus() != OrderStatusHistory.State.PREPARING){
+                    if (existing.getLatestStatus() != OrderStatusHistory.State.PREPARING) {
                         throw new IllegalArgumentException("Order is not in preparing state");
                     }
-                    if (SecurityUtil.hasPermission(Account.Role.STAFF)) {
-                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
-                        orderStatusHistory.setOrder(existing);
-                        orderStatusHistory.setState(OrderStatusHistory.State.READY_FOR_PICKUP);
-                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
-                        existing.getOrderStatusHistories().add(orderStatusHistory);
-                        existing.setLatestStatus(OrderStatusHistory.State.READY_FOR_PICKUP);
-                        return orderRepos.save(existing);
-                    }
-                    break;
+                    createStatusHistory(existing, OrderStatusHistory.State.READY_FOR_PICKUP);
+                    return orderRepos.save(existing);
+
                 case SHIPPING:
-                    if(existing.getLatestStatus() != OrderStatusHistory.State.READY_FOR_PICKUP){
+                    if (existing.getLatestStatus() != OrderStatusHistory.State.READY_FOR_PICKUP) {
                         throw new IllegalArgumentException("Order is not in ready for pickup state");
                     }
-                    if (SecurityUtil.hasPermission(Account.Role.STAFF)) {
-                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
-                        orderStatusHistory.setOrder(existing);
-                        orderStatusHistory.setState(OrderStatusHistory.State.SHIPPING);
-                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
-                        existing.getOrderStatusHistories().add(orderStatusHistory);
-                        existing.setLatestStatus(OrderStatusHistory.State.SHIPPING);
-                        return orderRepos.save(existing);
-                    }
-                    break;
+                    createStatusHistory(existing, OrderStatusHistory.State.SHIPPING);
+                    return orderRepos.save(existing);
+
                 case DELIVERED:
-                    if(existing.getLatestStatus() != OrderStatusHistory.State.SHIPPING){
+                    if (existing.getLatestStatus() != OrderStatusHistory.State.SHIPPING) {
                         throw new IllegalArgumentException("Order is not in shipping state");
                     }
-                    if (SecurityUtil.hasPermission(Account.Role.STAFF)) {
-                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
-                        orderStatusHistory.setOrder(existing);
-                        orderStatusHistory.setState(OrderStatusHistory.State.DELIVERED);
-                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
-                        existing.getOrderStatusHistories().add(orderStatusHistory);
-                        existing.setLatestStatus(OrderStatusHistory.State.DELIVERED);
-                        return orderRepos.save(existing);
-                    }
-                    break;
+                    createStatusHistory(existing, OrderStatusHistory.State.DELIVERED);
+                    return orderRepos.save(existing);
+
                 case RECEIVED:
-                    if(existing.getLatestStatus() != OrderStatusHistory.State.DELIVERED){
+                    if (existing.getLatestStatus() != OrderStatusHistory.State.DELIVERED) {
                         throw new IllegalArgumentException("Order is not in delivered state");
                     }
-                    if(SecurityUtil.requireCurrentUserId() == existing.getAccount().getAccountId()) {
-                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
-                        orderStatusHistory.setOrder(existing);
-                        orderStatusHistory.setState(OrderStatusHistory.State.RECEIVED);
-                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
-                        existing.getOrderStatusHistories().add(orderStatusHistory);
-                        existing.setLatestStatus(OrderStatusHistory.State.RECEIVED);
-                        return orderRepos.save(existing);
+                    createStatusHistory(existing, OrderStatusHistory.State.RECEIVED);
+                    boolean canCompleted = true;
+                    for (OrderDetail od : orderDetailRepos.findByOrder(order)) {
+                        if (od.getSlot() != null) {
+                            canCompleted = false;
+                            break;
+                        }
                     }
-                    break;
+                    if (canCompleted) {
+                        createStatusHistory(existing, OrderStatusHistory.State.COMPLETED);
+                    }
+                    return orderRepos.save(existing);
+
                 case COMPLETED:
-                    if(SecurityUtil.requireCurrentUserId() == existing.getAccount().getAccountId()||SecurityUtil.hasPermission(Account.Role.STAFF)) {
-                        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
-                        orderStatusHistory.setOrder(existing);
-                        orderStatusHistory.setState(OrderStatusHistory.State.COMPLETED);
-                        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
-                        existing.getOrderStatusHistories().add(orderStatusHistory);
-                        existing.setLatestStatus(OrderStatusHistory.State.COMPLETED);
+                    if (SecurityUtil.requireCurrentUserId() == existing.getAccount().getAccountId() || SecurityUtil.hasPermission(Account.Role.STAFF)) {
+                        createStatusHistory(existing, OrderStatusHistory.State.COMPLETED);
                         return orderRepos.save(existing);
                     }
                     break;
@@ -559,6 +536,16 @@ public class OrderServiceImpl implements OrderService {
         }
         EntityUtil.merge(existing, order);
         return orderRepos.save(existing);
+    }
+
+    private Order createStatusHistory(Order existing, OrderStatusHistory.State state) {
+        OrderStatusHistory orderStatusHistory = new OrderStatusHistory();
+        orderStatusHistory.setOrder(existing);
+        orderStatusHistory.setState(state);
+        orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
+        existing.getOrderStatusHistories().add(orderStatusHistory);
+        existing.setLatestStatus(state);
+        return existing;
     }
 
     @Override

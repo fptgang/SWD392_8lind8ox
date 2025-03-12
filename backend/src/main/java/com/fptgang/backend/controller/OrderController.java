@@ -94,14 +94,71 @@ public class OrderController implements OrdersApi {
         return OpenApiHelper.respondPage(resultPage, GetOrders200Response.class);
     }
 
+
     @Override
-    public ResponseEntity<OrderDto> updateOrder(Long orderId, OrderDto orderDto) {
-        orderDto.setOrderId(orderId); // Override orderId
+    public ResponseEntity<OrderDto> deliverOrder(Long orderId) {
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            throw new IllegalArgumentException("Only staff can update this order status");
+        }
+        Order order = orderService.findById(orderId);
+        order.setLatestStatus(OrderStatusHistory.State.DELIVERED);
 
         log.info("Updating order " + orderId);
         return ResponseEntity.ok(
                 orderMapper.toDTO(
-                        orderService.update(orderMapper.toEntity(orderDto)),
+                        orderService.update(order),
+                        DetailLevel.FULL
+                )
+        );
+    }
+
+    @Override
+    public ResponseEntity<OrderDto> pickUpOrder(Long orderId) {
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            throw new IllegalArgumentException("Only staff can update this order status");
+        }
+        Order order = orderService.findById(orderId);
+        order.setLatestStatus(OrderStatusHistory.State.READY_FOR_PICKUP);
+
+        log.info("Updating order " + orderId);
+        return ResponseEntity.ok(
+                orderMapper.toDTO(
+                        orderService.update(order),
+                        DetailLevel.FULL
+                )
+        );
+    }
+
+    @Override
+    public ResponseEntity<OrderDto> receiveOrder(Long orderId) {
+
+        Order order = orderService.findById(orderId);
+        if (SecurityUtil.requireCurrentUserId() == order.getAccount().getAccountId()) {
+            throw new IllegalArgumentException("Only owner can update this order status");
+        }
+        order.setLatestStatus(OrderStatusHistory.State.RECEIVED);
+
+        log.info("Updating order " + orderId);
+        return ResponseEntity.ok(
+                orderMapper.toDTO(
+                        orderService.update(order),
+                        DetailLevel.FULL
+                )
+        );
+    }
+
+    @Override
+    public ResponseEntity<OrderDto> shipOrder(Long orderId) {
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            throw new IllegalArgumentException("Only staff can update this order status");
+        }
+        Order order = orderService.findById(orderId);
+        order.setLatestStatus(OrderStatusHistory.State.SHIPPING);
+
+        log.info("Updating order " + orderId);
+        return ResponseEntity.ok(
+                orderMapper.toDTO(
+                        orderService.update(order),
                         DetailLevel.FULL
                 )
         );
