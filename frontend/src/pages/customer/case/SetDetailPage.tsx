@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOne, useMany } from '@refinedev/core';
 import { useParams, useNavigate } from 'react-router';
 import { SetDto, SlotDtoStateEnum, ToyDto } from '../../../../generated';
@@ -64,20 +64,41 @@ const SetDetailPage: React.FC = () => {
   // Sort slots by position (smallest to largest)
   const sortedSlots = data?.data?.slots?.sort((a, b) => (a.position || 0) - (b.position || 0)) || [];
   
-  // Get toy IDs to fetch related toys
-  const toyIds = sortedSlots
+  // Get toy IDs to fetch related toys - The key issue is here!
+  // We need to fetch the toys from the blindBox if they exist
+  const blindBoxId = data?.data?.blindBox?.blindBoxId;
+  
+  // First attempt to get toys from slots if they have toys
+  let toyIds = sortedSlots
     .filter(slot => slot.toy?.toyId)
     .map(slot => slot.toy?.toyId)
     .filter(Boolean) as number[];
   
-  // Fetch related toys data
-  const { data: relatedToysData, isLoading: relatedToysLoading } = useMany<ToyDto>({
-    resource: 'toys',
-    ids: toyIds,
+  // If we don't have toys in slots, we'll fetch them directly using the blindBoxId
+  const { data: blindBoxData, isLoading: blindBoxLoading } = useOne({
+    resource: 'blind-boxes',
+    id: blindBoxId?.toString() || '',
     queryOptions: {
-      enabled: toyIds.length > 0,
+      enabled: blindBoxId !== undefined && toyIds.length === 0,
     },
   });
+  
+  // Once we have the blind box data, extract toy IDs if available
+  useEffect(() => {
+    if (blindBoxData?.data?.toys && blindBoxData.data.toys.length > 0 && toyIds.length === 0) {
+      toyIds = blindBoxData.data.toys.map(toy => toy.toyId).filter(Boolean) as number[];
+    }
+  }, [blindBoxData]);
+  
+
+  
+  // For displaying toys, we'll use either the toys directly from the blind box if available,
+  // or the related toys fetched via useMany
+  const discoveredToys = sortedSlots
+  .filter(slot => slot.state === SlotDtoStateEnum.Opened && slot.toy)
+  .map(slot => slot.toy);
+  const displayToys = discoveredToys;
+  
   
   const handleSlotClick = (slot: any) => {
     setSelectedSlot(slot);
@@ -135,7 +156,7 @@ const SetDetailPage: React.FC = () => {
       
       addToCart({
         skuId: data.data.sku.skuId || 0,
-        name: data.data.blindBox?.name + selectedSlot.slotId|| '',
+        name: data.data.blindBox?.name + ' - Slot #' + selectedSlot.position || '',
         price: data.data.sku.price || 0,
         stock: data.data.sku.stock || 0,
         imageUrl: data.data.sku.image?.imageUrl || '',
@@ -160,6 +181,16 @@ const SetDetailPage: React.FC = () => {
   const availableSlots = sortedSlots.filter(slot => slot.state === SlotDtoStateEnum.Available).length;
   const totalSlots = sortedSlots.length;
   const availablePercentage = totalSlots > 0 ? (availableSlots / totalSlots) * 100 : 0;
+
+  // If we're fetching blind box data specifically (after finding no toys in slots), show loading
+  if (blindBoxLoading && toyIds.length === 0) {
+    return (
+      <div className="flex justify-center items-center min-h-[80vh]">
+        <Spin size="large" />
+        <div className="ml-3">Loading toys data...</div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -326,7 +357,7 @@ const SetDetailPage: React.FC = () => {
                     ${slot.state === SlotDtoStateEnum.Available ? 'cursor-pointer' : 'opacity-70'}
                     ${hoveredSlotId === slot.slotId ? 'ring-2 ring-primary' : ''}
                   `}
-                  style={{ height: 140 ,width:100}}
+                  style={{ height: 140, width: 100 }}
                 >
                   <div className="absolute inset-0 flex items-center justify-center">
                     {slot.state === SlotDtoStateEnum.Available ? (
@@ -338,7 +369,7 @@ const SetDetailPage: React.FC = () => {
                           style={{ maxHeight: 90, maxWidth: '100%', objectFit: 'contain' }}
                         />
                       </motion.div>
-                    ) : slot.toy?.toyId ? (
+                    ) : slot.toy ? (
                       <Tooltip title="Click to see proof" placement="top">
                         <div 
                           className="relative w-full h-full flex items-center justify-center cursor-pointer"
@@ -347,12 +378,18 @@ const SetDetailPage: React.FC = () => {
                             handleToyClick(slot.toy, slot);
                           }}
                         >
-                          <Image
-                            src={slot.toy.images?.[0]?.imageUrl || 'https://via.placeholder.com/100x100?text=Toy'}
-                            alt={slot.toy.name || `Toy ${index + 1}`}
-                            preview={false}
-                            style={{ maxHeight: 90, maxWidth: '100%', objectFit: 'contain' }}
-                          />
+                          {slot.toy.images && slot.toy.images.length > 0 ? (
+                            <Image
+                              src={slot.toy.images[0]?.imageUrl || 'https://via.placeholder.com/100x100?text=Toy'}
+                              alt={slot.toy.name || `Toy ${index + 1}`}
+                              preview={false}
+                              style={{ maxHeight: 90, maxWidth: '100%', objectFit: 'contain' }}
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full">
+                              <Tag color="purple">{slot.toy.name || `Toy ${index + 1}`}</Tag>
+                            </div>
+                          )}
                           {slot.video && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity duration-200">
                               <PlayCircleOutlined className="text-white text-2xl" />
@@ -404,14 +441,14 @@ const SetDetailPage: React.FC = () => {
           }
           className="shadow-md"
         >
-          {relatedToysLoading ? (
+          {false ? (
             <div className="py-16 text-center">
               <Spin size="large" />
               <div className="mt-4 text-gray-500">Loading toys...</div>
             </div>
-          ) : toyIds.length > 0 && relatedToysData?.data && relatedToysData.data.length > 0 ? (
+          ) : displayToys.length > 0 ? (
             <Row gutter={[24, 24]} className="p-4">
-              {relatedToysData.data.map((toy) => {
+              {displayToys.map((toy) => {
                 // Find the slot that contains this toy to check for video proof
                 const toySlot = sortedSlots.find(s => s.toy?.toyId === toy.toyId);
                 const hasVideoProof = Boolean(toySlot?.video?.url);
@@ -429,12 +466,16 @@ const SetDetailPage: React.FC = () => {
                           className={`shadow-sm h-full ${hasVideoProof ? 'cursor-pointer' : ''}`}
                           cover={
                             <div className="p-4 text-center h-40 flex items-center justify-center bg-gray-50 relative">
-                              <Image
-                                src={toy.images?.[0]?.imageUrl || 'https://via.placeholder.com/150x150?text=Toy'}
-                                alt={toy.name || 'Toy'}
-                                preview={false}
-                                style={{ maxHeight: 120, maxWidth: '100%', objectFit: 'contain' }}
-                              />
+                              {toy.images && toy.images.length > 0 ? (
+                                <Image
+                                  src={toy.images[0]?.imageUrl || 'https://via.placeholder.com/150x150?text=Toy'}
+                                  alt={toy.name || 'Toy'}
+                                  preview={false}
+                                  style={{ maxHeight: 120, maxWidth: '100%', objectFit: 'contain' }}
+                                />
+                              ) : (
+                                <GiftOutlined style={{ fontSize: 48 }} className="text-gray-300" />
+                              )}
                               {hasVideoProof && (
                                 <div className="absolute top-2 right-2">
                                   <PlayCircleOutlined className="text-primary text-xl" />
@@ -650,12 +691,18 @@ const SetDetailPage: React.FC = () => {
             <Row gutter={[16, 16]}>
               <Col xs={24} md={8}>
                 <div className="text-center">
-                  <Image
-                    src={selectedToy.images?.[0]?.imageUrl || 'https://via.placeholder.com/150x150?text=Toy'}
-                    alt={selectedToy.name || 'Toy'}
-                    preview={false}
-                    style={{ maxHeight: 200, maxWidth: '100%', objectFit: 'contain' }}
-                  />
+                  {selectedToy.images && selectedToy.images.length > 0 ? (
+                    <Image
+                      src={selectedToy.images[0]?.imageUrl || 'https://via.placeholder.com/150x150?text=Toy'}
+                      alt={selectedToy.name || 'Toy'}
+                      preview={false}
+                      style={{ maxHeight: 200, maxWidth: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <div className="bg-gray-100 flex items-center justify-center" style={{ height: 200 }}>
+                      <GiftOutlined style={{ fontSize: 48 }} className="text-gray-300" />
+                    </div>
+                  )}
                   <div className="mt-3">
                     <Title level={5}>{selectedToy.name}</Title>
                     <Tag color={selectedToy.rarity === 'SECRET' ? 'gold' : 'blue'}>
@@ -675,40 +722,42 @@ const SetDetailPage: React.FC = () => {
                         allowFullScreen
                       />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-md">
-                        <Text type="secondary">No video available</Text>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-3">
-                    <Descriptions column={1} size="small">
-                      <Descriptions.Item label="Video dimensions">
-                        {selectedToy.video?.width || 'Unknown'} x {selectedToy.video?.height || 'Unknown'}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Recorded date">
-                        {selectedToy.video?.createdAt ? 
-                          new Date(selectedToy.video.createdAt).toLocaleString() : 
-                          'Unknown'
-                        }
-                      </Descriptions.Item>
-                    </Descriptions>
-                  </div>
-                </div>
-              </Col>
-              <Col span={24}>
-                <Alert
-                  message="Authenticity Verification"
-                  description="This video serves as proof of the toy discovery process, ensuring transparency and fairness."
-                  type="info"
-                  showIcon
-                />
-              </Col>
-            </Row>
-          </div>
-        )}
-      </Modal>
-    </div>
-  );
+<div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-md">
+                       <Text type="secondary">No video available</Text>
+                     </div>
+                   )}
+                 </div>
+                 <div className="mt-3">
+                   <Descriptions column={1} size="small">
+                     <Descriptions.Item label="Video dimensions">
+                       {selectedToy.video?.width || 'Unknown'} x {selectedToy.video?.height || 'Unknown'}
+                     </Descriptions.Item>
+                     <Descriptions.Item label="Recorded date">
+                       {selectedToy.video?.createdAt ? 
+                         new Date(selectedToy.video.createdAt).toLocaleString() : 
+                         'Unknown'
+                       }
+                     </Descriptions.Item>
+                   </Descriptions>
+                 </div>
+               </div>
+             </Col>
+             <Col span={24}>
+               <Alert
+                 message="Authenticity Verification"
+                 description="This video serves as proof of the toy discovery process, ensuring transparency and fairness."
+                 type="info"
+                 showIcon
+               />
+             </Col>
+           </Row>
+         </div>
+       )}
+     </Modal>
+
+
+   </div>
+ );
 };
 
 export default SetDetailPage;
