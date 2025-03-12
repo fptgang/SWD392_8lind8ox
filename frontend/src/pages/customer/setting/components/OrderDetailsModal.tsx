@@ -16,6 +16,8 @@ import { OrderDto, OrderDetailDto } from "../../../../../generated";
 import { formatCurrency } from "../../../../utils/currency-formatter";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { OrderTimeline } from "./OrderTimeline";
+import api from "../../../../config/openapi-config";
+import { error } from "console";
 
 const { Text } = Typography;
 
@@ -29,37 +31,31 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   onClose,
 }) => {
   const { translate } = useTranslation();
-  const { mutate: cancelOrder } = useDelete();
-  const { mutate: updateOrder } = useUpdate();
 
   if (!order) return null;
 
   const handleCancel = async () => {
     try {
-      cancelOrder(
-        {
-          resource: "orders",
-          id: order.orderId || -1,
-        },
-        {
-          onError: (error, variables, context) => {
-            // An error occurred!
-            console.error("Error canceling order:", error);
-            notification.error({
-              message: "Error Canceling Order",
-              description: "An error occurred while canceling the order.",
-            });
-          },
-          onSuccess: (data, variables, context) => {
-            // Order canceled successfully
+      api
+        .cancelOrder({
+          orderId: order.orderId || -1,
+        })
+        .then((response) => {
+          if (response != null) {
             notification.success({
               message: "Order Canceled",
               description: "Order has been canceled successfully.",
             });
             onClose();
-          },
-        }
-      );
+          }
+        })
+        .catch((error) => {
+          notification.error({
+            message: "Order Canceled",
+            description: error,
+          });
+          onClose();
+        });
     } catch (error) {
       console.error("Error canceling order:", error);
     }
@@ -67,33 +63,26 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
   const confirmReceive = async () => {
     try {
-      updateOrder(
-        {
-          resource: "orders",
-          id: order.orderId || -1,
-          values: {
-            latestStatus: "RECEIVED",
-          },
-        },
-        {
-          onError: (error, variables, context) => {
-            // An error occurred!
-            console.error("Error confirming receive:", error);
-            notification.error({
-              message: "Error Confirming Receive",
-              description: "An error occurred while confirming receive.",
-            });
-          },
-          onSuccess: (data, variables, context) => {
-            // Order canceled successfully
+      api
+        .receiveOrder({
+          orderId: order.orderId || -1,
+        })
+        .then((response) => {
+          if (response != null) {
             notification.success({
               message: "Order Received",
               description: "Order has been received successfully.",
             });
             onClose();
-          },
-        }
-      );
+          }
+        })
+        .catch((error) => {
+          notification.error({
+            message: "Order Received",
+            description: error,
+          });
+          onClose();
+        });
     } catch (error) {
       console.error("Error confirming receive:", error);
     }
