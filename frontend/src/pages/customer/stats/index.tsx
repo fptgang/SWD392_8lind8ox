@@ -104,7 +104,7 @@ const StatisticsPage: React.FC = () => {
 
   // Fetch trending product stats
   const { data: statsData, isLoading: statsLoading } = useCustom<TrendingProductStats[]>({
-    url: "trending-products",
+    url: "sales/trending-products",
     method: "get",
     config: {
       query: {
