@@ -1,5 +1,6 @@
 package com.fptgang.backend.service;
 
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Order;
 import com.fptgang.backend.model.Video;
 import com.fptgang.backend.model.Voucher;
@@ -18,4 +19,5 @@ public interface EmailService {
     void sendVideoSubmittedEmail(Video video) throws IOException;
     void sendVideoVerifiedEmail(Video video) throws IOException;
     void sendVoucherGiftedEmail(Voucher voucher) throws IOException;
+    void sendResetPasswordEmail(Account account, String resetLink) throws IOException;
 }
