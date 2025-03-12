@@ -20,4 +20,5 @@ public interface EmailService {
     void sendVideoVerifiedEmail(Video video) throws IOException;
     void sendVoucherGiftedEmail(Voucher voucher) throws IOException;
     void sendResetPasswordEmail(Account account, String resetLink) throws IOException;
+
 }

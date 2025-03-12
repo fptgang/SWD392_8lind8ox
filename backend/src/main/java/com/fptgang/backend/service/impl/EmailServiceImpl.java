@@ -69,8 +69,8 @@ public class EmailServiceImpl implements EmailService {
     private final VideoSubmittedEmailTemplateMapper videoSubmittedEmailTemplateMapper;
     private final VideoVerifiedEmailTemplateMapper videoVerifiedEmailTemplateMapper;
     private final VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper;
-    private final ResetPasswordEmailTemplateMapper resetPasswordEmailTemplateMapper;
 
+    private final ResetPasswordEmailTemplateMapper resetPasswordEmailTemplateMapper;
     public EmailServiceImpl(OrderPlacedEmailTemplateMapper orderPlacedEmailTemplateMapper,
                             UnpaidOrderEmailTemplateMapper unpaidOrderEmailTemplateMapper,
                             OrderPaidEmailTemplateMapper orderPaidEmailTemplateMapper,
@@ -81,6 +81,7 @@ public class EmailServiceImpl implements EmailService {
                             VideoVerifiedEmailTemplateMapper videoVerifiedEmailTemplateMapper,
                             VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper,
                             ResetPasswordEmailTemplateMapper resetPasswordEmailTemplateMapper) {
+                            VoucherGiftedEmailTemplateMapper voucherGiftedEmailTemplateMapper) {
         this.orderPlacedEmailTemplateMapper = orderPlacedEmailTemplateMapper;
         this.unpaidOrderEmailTemplateMapper = unpaidOrderEmailTemplateMapper;
         this.orderPaidEmailTemplateMapper = orderPaidEmailTemplateMapper;
@@ -232,6 +233,9 @@ public class EmailServiceImpl implements EmailService {
         if (to == null) {
             throw new IllegalArgumentException("Email not found");
         }
+        var content = TemplateUtil.render(voucherGiftedEmailTemplate.getFilename(), template, data);
+        sendMail(emailFrom, to, subject, content);
+    }
 
         var content = TemplateUtil.render(voucherGiftedEmailTemplate.getFilename(), template, data);
         sendMail(emailFrom, to, subject, content);

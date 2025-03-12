@@ -75,10 +75,52 @@ public class TestEmailTemplate {
     }
 
     @Test
+    public void testOrderPaidEmail() throws IOException {
+        Order order = createExamplePaidOrder();
+        log.info("Testing Order Paid Email: {}", order);
+        emailService.sendOrderPaidEmail(order);
+    }
+
+    @Test
+    public void testOrderCancelledEmail() throws IOException {
+        Order order = createExampleCancelledOrder();
+        log.info("Testing Order Cancelled Email: {}", order);
+        emailService.sendOrderCancelledEmail(order);
+    }
+
+    @Test
+    public void testOrderShippedEmail() throws IOException {
+        Order order = createExampleShippedOrder();
+        log.info("Testing Order Shipped Email: {}", order);
+        emailService.sendOrderShippedEmail(order);
+    }
+
+    @Test
+    public void testOrderDeliveredEmail() throws IOException {
+        Order order = createExampleDeliveredOrder();
+        log.info("Testing Order Delivered Email: {}", order);
+        emailService.sendOrderDeliveredEmail(order);
+    }
+
+    @Test
+    public void testVideoSubmittedEmail() throws IOException {
+        Video video = createExampleVideo();
+        log.info("Testing Video Submitted Email: {}", video);
+        emailService.sendVideoSubmittedEmail(video);
+    }
+
+    @Test
     public void testVideoVerifiedEmail() throws IOException {
         Video video = createExampleVerifiedVideo();
         log.info("Testing Video Verified Email: {}", video);
         emailService.sendVideoVerifiedEmail(video);
+    }
+
+    @Test
+    public void testVoucherGiftedEmail() throws IOException {
+        Voucher voucher = createExampleVoucher();
+        log.info("Testing Voucher Gifted Email: {}", voucher);
+        emailService.sendVoucherGiftedEmail(voucher);
     }
 
     @Test
