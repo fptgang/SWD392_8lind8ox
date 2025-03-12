@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🎁 You've Received a Gift Voucher! 🎉</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .table-container {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .table-container th, .table-container td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .table-container th {
+            background-color: #f2f2f2;
+        }
+        .voucher-code {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d9534f;
+        }
+        .button {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🎁 Congratulations, {{account.firstName}}! 🎉</h2>
+    <p>You've been gifted a special voucher. Use it on your next purchase to enjoy a discount!</p>
+
+    <h3>Voucher Details</h3>
+    <table class="table-container">
+        <tr>
+            <th>Voucher Code</th>
+            <td class="voucher-code">{{code}}</td>
+        </tr>
+        <tr>
+            <th>Discount</th>
+            <td>{{discountRate}}%</td>
+        </tr>
+        <tr>
+            <th>Maximum Discount</th>
+            <td>${{limitAmount}}</td>
+        </tr>
+        <tr>
+            <th>Valid Until</th>
+            <td>{{expiredAt}}</td>
+        </tr>
+        <tr>
+            <th>Gifted By</th>
+            <td>{{giftedBy}}</td>
+        </tr>
+    </table>
+
+    <p>Click the button below to redeem your voucher:</p>
+    <p>
+        <a class="button" href="https://yourshop.com/vouchers/redeem?code={{code}}">Redeem Now</a>
+    </p>
+
+    <div class="footer">
+        <p>If you have any questions, contact our support team at <a href="mailto:support@yourshop.com">support@yourshop.com</a>.</p>
+        <p>&copy; 2025 YourShop. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+get:
+  summary: Get the total daily revenue
+  operationId: getDailyRevenue
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../model/stats/string-bigdecimal-datapoint.yml#/StringBigDecimalDatapointDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../../component/error.yml#/ErrorResponse'
