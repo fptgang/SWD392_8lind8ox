@@ -60,7 +60,9 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
                     .map(blindBoxCampaignMapper::toEntity)
                     .collect(Collectors.toList()));
         }
-        entity.setIsVisible(dto.getIsVisible());
+
+
+        entity.setIsVisible(dto.getIsVisible() == null || dto.getIsVisible());
         if (dto.getToys() != null) {
             entity.setToys(dto.getToys().stream()
                     .map(toyMapper::toEntity)

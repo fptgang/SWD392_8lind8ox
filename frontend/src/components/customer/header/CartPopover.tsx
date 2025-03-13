@@ -26,8 +26,8 @@ import type { CartItem as CartItemType } from "../../../store/features/cart/cart
 const { Text, Title } = Typography;
 interface CartItemProps {
   item: CartItemType;
-  onUpdateQuantity: (skuId: number, quantity: number) => void;
-  onRemove: (skuId: number) => void;
+  onUpdateQuantity: (skuId: number, quantity: number, slotId?: number) => void;
+  onRemove: (skuId: number, slotId?: number) => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({
@@ -39,7 +39,7 @@ const CartItem: React.FC<CartItemProps> = ({
     if (!value) return;
 
     try {
-      onUpdateQuantity(item.skuId, value);
+      onUpdateQuantity(item.skuId, value, item.slotId);  // Pass the slotId
     } catch (error) {
       notification.error({
         message: "Error updating quantity",
@@ -51,7 +51,7 @@ const CartItem: React.FC<CartItemProps> = ({
 
   const handleRemove = () => {
     try {
-      onRemove(item.skuId);
+      onRemove(item.skuId, item.slotId);  // Pass the slotId
     } catch (error) {
       notification.error({
         message: "Error removing item",
@@ -93,6 +93,11 @@ const CartItem: React.FC<CartItemProps> = ({
           <Text strong className="block truncate">
             {item.name}
           </Text>
+          {item.slotId && (
+            <Tag color="blue" className="mt-1">
+              Slot #{item.slotId}
+            </Tag>
+          )}
           <div className="flex items-center gap-2">
             <Text type={discount ? "secondary" : undefined} delete={discount}>
               {formatCurrency(item.subTotal || 0)}
@@ -106,58 +111,76 @@ const CartItem: React.FC<CartItemProps> = ({
               </>
             )}
           </div>
-          {(item.stock || 0) < 10 && (
+          {(item.stock || 0) < 10 && !item.slotId && (
             <Tag color="warning" className="mt-1">
               Only {item.stock} left
             </Tag>
           )}
         </div>
         <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-1">
+          {!item.slotId ? (
+            // Only show quantity controls for regular items (without slotId)
+            <>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="small"
+                  icon={<MinusOutlined />}
+                  onClick={() =>
+                    handleQuantityChange(Math.max(1, (item.quantity || 1) - 1))
+                  }
+                  className="flex items-center justify-center"
+                  disabled={(item.quantity || 1) <= 1}
+                />
+                <InputNumber
+                  min={1}
+                  max={item.stock}
+                  value={item.quantity}
+                  onChange={handleQuantityChange}
+                  className="w-14"
+                  controls={false}
+                />
+                <Button
+                  size="small"
+                  icon={<PlusOutlined />}
+                  onClick={() =>
+                    handleQuantityChange(
+                      Math.min(item.stock || 0, (item.quantity || 1) + 1)
+                    )
+                  }
+                  className="flex items-center justify-center"
+                  disabled={(item.quantity || 1) >= (item.stock || 0)}
+                />
+              </div>
+              <Button
+                type="text"
+                danger
+                size="small"
+                icon={<DeleteOutlined />}
+                onClick={handleRemove}
+                className="flex items-center justify-center"
+              >
+                Remove
+              </Button>
+            </>
+          ) : (
+            // For items with slotId, only show the remove button
             <Button
+              type="text"
+              danger
               size="small"
-              icon={<MinusOutlined />}
-              onClick={() =>
-                handleQuantityChange(Math.max(1, (item.quantity || 1) - 1))
-              }
+              icon={<DeleteOutlined />}
+              onClick={handleRemove}
               className="flex items-center justify-center"
-              disabled={(item.quantity || 1) <= 1}
-            />
-            <InputNumber
-              min={1}
-              max={item.stock}
-              value={item.quantity}
-              onChange={handleQuantityChange}
-              className="w-14"
-              controls={false}
-            />
-            <Button
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={() =>
-                handleQuantityChange(
-                  Math.min(item.stock || 0, (item.quantity || 1) + 1)
-                )
-              }
-              className="flex items-center justify-center"
-              disabled={(item.quantity || 1) >= (item.stock || 0)}
-            />
-          </div>
-          <Button
-            type="text"
-            danger
-            size="small"
-            icon={<DeleteOutlined />}
-            onClick={handleRemove}
-            className="flex items-center justify-center"
-          >
-            Remove
-          </Button>
+            >
+              Remove
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>
   );
 };
+
 interface CartSummaryProps {
   total: number;
   originalTotal: number;
@@ -253,7 +276,7 @@ export const CartPopover: React.FC = () => {
           ) : (
             cartItems.map((item) => (
               <CartItem
-                key={item.skuId}
+                key={`${item.skuId}-${item.slotId || '0'}`}  // Use composite key
                 item={item}
                 onUpdateQuantity={updateItemQuantity}
                 onRemove={removeFromCart}

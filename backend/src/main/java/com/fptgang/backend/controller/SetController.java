@@ -60,9 +60,9 @@ public class SetController implements SetsApi {
     @Override
     public ResponseEntity<SetDto> getSetById(Long setId) {
         log.info("Getting set by id " + setId);
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admins can view detailed set info.");
-        }
+//        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+//            throw new AccessDeniedException("Only admins can view detailed set info.");
+//        }
         return new ResponseEntity<>(setMapper.toDTO(setService.findById(setId), DetailLevel.FULL), HttpStatus.OK);
     }
 

@@ -65,7 +65,7 @@ export const OrderTable: React.FC = () => {
         />
 
         <Table.Column
-          dataIndex="totalPrice"
+          dataIndex="finalTotal"
           title={
             <Space>
               <DollarOutlined />

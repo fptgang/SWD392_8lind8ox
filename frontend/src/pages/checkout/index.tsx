@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-  Typography, 
-  Empty, 
-  Button, 
+  Typography,
+  Empty,
+  Button,
   Card,
   Form,
-  notification, 
+  notification,
   Alert,
   Divider,
   Radio,
@@ -17,24 +17,29 @@ import {
   Spin,
   Tag,
   InputNumber,
-  Tooltip
+  Tooltip,
 } from "antd";
 import { useNavigate, Link } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../hooks/useRedux";
 import { fetchWalletBalance } from "../../store/features/wallet/walletSlice";
 import { clearCart } from "../../store/features/cart/cartSlice";
-import { ShippingInfoDto, CartDto, CartItemDto, VoucherDto } from "../../../generated";
+import {
+  ShippingInfoDto,
+  CartDto,
+  CartItemDto,
+  VoucherDto,
+} from "../../../generated";
 import { useForm } from "antd/lib/form/Form";
 import { useList, useCreate, useCustomMutation } from "@refinedev/core";
-import { 
-  PlusOutlined, 
-  CheckCircleFilled, 
-  EditOutlined, 
-  BankOutlined, 
-  WalletOutlined, 
+import {
+  PlusOutlined,
+  CheckCircleFilled,
+  EditOutlined,
+  BankOutlined,
+  WalletOutlined,
   CreditCardOutlined,
   TagOutlined,
-  CheckOutlined
+  CheckOutlined,
 } from "@ant-design/icons";
 import AddressForm from "./components/AddressForm";
 
@@ -50,33 +55,44 @@ const CheckoutPage: React.FC = () => {
   // Get dispatch and navigate
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  
+
   // Get redux state
-  const { items: cartItems, total, originalTotal } = useAppSelector(state => state.cart);
-  const { balance: walletBalance } = useAppSelector(state => state.wallet);
+  const {
+    items: cartItems,
+    total,
+    originalTotal,
+  } = useAppSelector((state) => state.cart);
+  const { balance: walletBalance } = useAppSelector((state) => state.wallet);
 
   // Local state
   const [addressModalVisible, setAddressModalVisible] = useState(false);
   const [voucherModalVisible, setVoucherModalVisible] = useState(false);
-  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
-  const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    null
+  );
+  const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(
+    null
+  );
   const [selectedVoucherCode, setSelectedVoucherCode] = useState<string>("");
-  const [selectedVoucherDiscount, setSelectedVoucherDiscount] = useState<number>(0);
+  const [selectedVoucherDiscount, setSelectedVoucherDiscount] =
+    useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>("VNPAY");
   const [createNewAddress, setCreateNewAddress] = useState(false);
   const [orderProcessing, setOrderProcessing] = useState(false);
   const [walletTopupVisible, setWalletTopupVisible] = useState(false);
   const [topupAmount, setTopupAmount] = useState<number>(0);
   const [topupProcessing, setTopupProcessing] = useState(false);
-  
+
   // Form instance
   const [form] = useForm();
-  
+
   // Load disabled items from storage
-  const [disabledItemsMap, setDisabledItemsMap] = useState<Record<number, boolean>>({});
+  const [disabledItemsMap, setDisabledItemsMap] = useState<
+    Record<number, boolean>
+  >({});
   useEffect(() => {
     try {
-      const storedDisabledItems = sessionStorage.getItem('disabledCartItems');
+      const storedDisabledItems = sessionStorage.getItem("disabledCartItems");
       if (storedDisabledItems) {
         setDisabledItemsMap(JSON.parse(storedDisabledItems));
       }
@@ -84,66 +100,80 @@ const CheckoutPage: React.FC = () => {
       console.error("Error loading disabled items:", error);
     }
   }, []);
-  
+
   // Calculate active cart items (excluding disabled ones)
-  const activeCartItems = cartItems.filter(item => !disabledItemsMap[item.skuId]);
-  
+  const activeCartItems = cartItems.filter(
+    (item) => !disabledItemsMap[item.skuId]
+  );
+
   // Fetch shipping addresses
-  const { 
-    data: shippingAddressesData, 
+  const {
+    data: shippingAddressesData,
     isLoading: loadingAddresses,
-    refetch: refetchAddresses
+    refetch: refetchAddresses,
   } = useList<ShippingInfoDto>({
-    resource: "shipping-info"
+    resource: "shipping-info",
   });
-  
+
   // Fetch available vouchers
   const {
     data: vouchersData,
     isLoading: loadingVouchers,
-    refetch: refetchVouchers
+    refetch: refetchVouchers,
   } = useList<VoucherDto>({
     resource: "vouchers",
     filters: [
       {
         field: "state",
         operator: "eq",
-        value: "ACTIVE"
-      }
-    ]
+        value: "AVAIABLE",
+      },
+    ],
   });
-  
+
   const shippingAddresses = shippingAddressesData?.data || [];
   const availableVouchers = vouchersData?.data || [];
-  
+
   // Create new shipping address function
   const { mutateAsync: createShippingAddress } = useCreate<ShippingInfoDto>();
-  
+
   // Create order using custom mutation
   const { mutateAsync: placeOrder } = useCreate<OrderResponse>();
-  
+
   // Wallet top-up mutation
   const { mutateAsync: topUpWallet } = useCustomMutation();
-  
+
   // Fetch wallet balance on component mount
   useEffect(() => {
     dispatch(fetchWalletBalance());
   }, [dispatch]);
-  
+
   // Calculate cart summary
   const getCartSummary = () => {
     // Filter out disabled items
-    const itemCount = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = activeCartItems.reduce((sum, item) => sum + (item.finalTotal * item.quantity), 0);
-    const originalSubtotal = activeCartItems.reduce((sum, item) => sum + (item.subTotal * item.quantity), 0);
+    const itemCount = activeCartItems.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
+    const subtotal = activeCartItems.reduce(
+      (sum, item) => sum + item.finalTotal * item.quantity,
+      0
+    );
+    const originalSubtotal = activeCartItems.reduce(
+      (sum, item) => sum + item.subTotal * item.quantity,
+      0
+    );
     const savings = originalSubtotal - subtotal;
-    
+
     // Calculate voucher discount
     let voucherDiscount = 0;
     if (selectedVoucherId && selectedVoucherDiscount) {
-      voucherDiscount = Math.min(subtotal * (selectedVoucherDiscount / 100), subtotal);
+      voucherDiscount = Math.min(
+        subtotal * (selectedVoucherDiscount / 100),
+        subtotal
+      );
     }
-    
+
     const finalTotal = subtotal - voucherDiscount;
 
     return {
@@ -154,23 +184,23 @@ const CheckoutPage: React.FC = () => {
       finalTotal,
     };
   };
-  
+
   // Handle address creation
   const handleCreateAddress = async (values: ShippingInfoDto) => {
     try {
       const response = await createShippingAddress({
         resource: "shipping-info",
-        values
+        values,
       });
-      
+
       if (response?.data) {
         notification.success({
-          message: "Address added successfully"
+          message: "Address added successfully",
         });
         await refetchAddresses();
         // Type check to ensure shippingInfoId is a number before setting
         const shippingInfoId = response.data.shippingInfoId;
-        if (typeof shippingInfoId === 'number') {
+        if (typeof shippingInfoId === "number") {
           setSelectedAddressId(shippingInfoId);
         }
         setCreateNewAddress(false);
@@ -179,16 +209,17 @@ const CheckoutPage: React.FC = () => {
     } catch (error: any) {
       notification.error({
         message: "Failed to add address",
-        description: error.message || "An error occurred while adding the address"
+        description:
+          error.message || "An error occurred while adding the address",
       });
     }
   };
-  
+
   // Handle address selection
   const handleSelectAddress = (addressId: number) => {
     setSelectedAddressId(addressId);
   };
-  
+
   // Handle voucher selection
   const handleSelectVoucher = (voucher: VoucherDto) => {
     if (voucher.voucherId && voucher.code && voucher.discountRate) {
@@ -197,53 +228,53 @@ const CheckoutPage: React.FC = () => {
       setSelectedVoucherDiscount(voucher.discountRate);
       notification.success({
         message: "Voucher Applied",
-        description: `Voucher "${voucher.code}" applied with ${voucher.discountRate}% discount`
+        description: `Voucher "${voucher.code}" applied with ${voucher.discountRate}% discount`,
       });
       setVoucherModalVisible(false);
     }
   };
-  
+
   // Handle removing voucher
   const handleRemoveVoucher = () => {
     setSelectedVoucherId(null);
     setSelectedVoucherCode("");
     setSelectedVoucherDiscount(0);
     notification.info({
-      message: "Voucher Removed"
+      message: "Voucher Removed",
     });
   };
-  
+
   // Handle payment method change
   const handlePaymentMethodChange = (e: any) => {
     setPaymentMethod(e.target.value);
   };
-  
+
   // Handle wallet top-up
   const handleWalletTopup = async () => {
     if (topupAmount <= 0) {
       notification.error({
         message: "Invalid amount",
-        description: "Please enter an amount greater than 0"
+        description: "Please enter an amount greater than 0",
       });
       return;
     }
-    
+
     setTopupProcessing(true);
-    
+
     try {
       await topUpWallet({
         url: "wallet/topup",
         method: "post",
         values: {
-          amount: topupAmount
-        }
+          amount: topupAmount,
+        },
       });
-      
+
       notification.success({
         message: "Wallet topped up successfully",
-        description: `Added $${topupAmount.toFixed(2)} to your wallet`
+        description: `Added $${topupAmount.toFixed(2)} to your wallet`,
       });
-      
+
       // Refresh wallet balance
       dispatch(fetchWalletBalance());
       setWalletTopupVisible(false);
@@ -251,80 +282,85 @@ const CheckoutPage: React.FC = () => {
     } catch (error: any) {
       notification.error({
         message: "Failed to top up wallet",
-        description: error.message || "An error occurred while topping up your wallet"
+        description:
+          error.message || "An error occurred while topping up your wallet",
       });
     } finally {
       setTopupProcessing(false);
     }
   };
-  
+
   // Handle place order
   const handlePlaceOrder = async () => {
     // Validate if an address is selected
     if (!selectedAddressId) {
       notification.error({
         message: "Shipping address required",
-        description: "Please select a shipping address to continue"
+        description: "Please select a shipping address to continue",
       });
       return;
     }
-    
+
     // Check if there are items in the cart
     if (activeCartItems.length === 0) {
       notification.error({
         message: "Cart is empty",
-        description: "Please add items to your cart before placing an order"
+        description: "Please add items to your cart before placing an order",
       });
       return;
     }
-    
+
     setOrderProcessing(true);
-    
+
     try {
       // Create order payload according to the generated CartDto format
-      const orderItems: CartItemDto[] = activeCartItems.map(item => ({
+      const orderItems: CartItemDto[] = activeCartItems.map((item) => ({
         skuId: item.skuId,
-        quantity: item.quantity
+        quantity: item.quantity,
       }));
-      
+
       const cartPayload: CartDto = {
         items: orderItems,
         shippingInfoId: selectedAddressId,
         voucherId: selectedVoucherId || undefined,
-        paymentMethod: paymentMethod as any // Type casting since enum is expected
+        paymentMethod: paymentMethod as any, // Type casting since enum is expected
       };
-      
+
       // Place order using the custom mutation
       const response = await placeOrder({
         resource: "orders",
-        values: cartPayload
+        values: cartPayload,
       });
-      
+
       // Check if it's an external payment (has a payment URL)
       if (response.data?.paymentRedirectUrl) {
         // Redirect to external payment gateway
         window.location.assign(response.data.paymentRedirectUrl);
         notification.info({
           message: "Redirecting to payment gateway",
-          description: "Please complete your payment to finalize the order."
+          description: "Please complete your payment to finalize the order.",
         });
       } else {
         // Order placed successfully with wallet
         notification.success({
           message: "Order placed successfully",
-          description: "Your order has been placed and will be processed shortly."
+          description:
+            "Your order has been placed and will be processed shortly.",
         });
-        
+
         dispatch(clearCart());
         // Clear the disabled items from session storage
-        sessionStorage.removeItem('disabledCartItems');
+        sessionStorage.removeItem("disabledCartItems");
         // navigate("/account/orders");
       }
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error.message || "Something went wrong while placing your order. Please try again.";
+      const errorMessage =
+        error?.response?.data?.message ||
+        error.message ||
+        "Something went wrong while placing your order. Please try again.";
       notification.error({
         message: "Failed to place order",
-        description: errorMessage
+        description: errorMessage,
       });
     } finally {
       setOrderProcessing(false);
@@ -338,20 +374,15 @@ const CheckoutPage: React.FC = () => {
         <Empty
           description={
             <span className="text-gray-600">
-              {cartItems.length > 0 
+              {cartItems.length > 0
                 ? "All items are disabled for checkout. Please enable at least one item."
-                : "Your cart is empty"
-              }
+                : "Your cart is empty"}
             </span>
           }
           className="my-8"
         />
         <div className="text-center">
-          <Button
-            type="primary"
-            onClick={() => navigate("/cart")}
-            size="large"
-          >
+          <Button type="primary" onClick={() => navigate("/cart")} size="large">
             Return to Cart
           </Button>
         </div>
@@ -363,7 +394,9 @@ const CheckoutPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Title level={2} className="mb-6">Checkout</Title>
+      <Title level={2} className="mb-6">
+        Checkout
+      </Title>
 
       <Row gutter={24}>
         {/* Left Column - Order Items & Payment */}
@@ -372,30 +405,42 @@ const CheckoutPage: React.FC = () => {
           <Card title="Order Items" className="mb-4">
             <List
               dataSource={activeCartItems}
-              renderItem={item => (
+              renderItem={(item) => (
                 <List.Item
                   key={item.skuId}
                   extra={
                     <div className="text-right">
-                      <Text strong>${(item.finalTotal * item.quantity).toFixed(2)}</Text>
+                      <Text strong>
+                        ${(item.finalTotal * item.quantity).toFixed(2)}
+                      </Text>
                       <br />
-                      <Text type="secondary">{item.quantity} x ${item.finalTotal.toFixed(2)}</Text>
+                      <Text type="secondary">
+                        {item.quantity} x ${item.finalTotal.toFixed(2)}
+                      </Text>
                     </div>
                   }
                 >
                   <List.Item.Meta
                     avatar={
-                      <img 
-                        src={item.skuImageUrl || item.imageUrl || 'https://placehold.co/60'} 
-                        alt={item.name} 
-                        style={{ width: 60, height: 60, objectFit: 'cover' }}
+                      <img
+                        src={
+                          item.skuImageUrl ||
+                          item.imageUrl ||
+                          "https://placehold.co/60"
+                        }
+                        alt={item.name}
+                        style={{ width: 60, height: 60, objectFit: "cover" }}
                         className="rounded-md"
                       />
                     }
                     title={
                       <div>
                         <div>{item.name}</div>
-                        {item.skuName && <div className="text-xs text-gray-500">Variant: {item.skuName}</div>}
+                        {item.skuName && (
+                          <div className="text-xs text-gray-500">
+                            Variant: {item.skuName}
+                          </div>
+                        )}
                       </div>
                     }
                     description={
@@ -405,7 +450,10 @@ const CheckoutPage: React.FC = () => {
                             ${item.subTotal.toFixed(2)}
                           </Text>
                           <Tag color="red">
-                            {Math.round((1 - item.finalTotal / item.subTotal) * 100)}% OFF
+                            {Math.round(
+                              (1 - item.finalTotal / item.subTotal) * 100
+                            )}
+                            % OFF
                           </Tag>
                         </Space>
                       ) : (
@@ -418,7 +466,9 @@ const CheckoutPage: React.FC = () => {
             />
 
             <div className="mt-4 text-right">
-              <Link to="/cart" className="text-blue-500">Edit Cart</Link>
+              <Link to="/cart" className="text-blue-500">
+                Edit Cart
+              </Link>
             </div>
           </Card>
 
@@ -434,21 +484,19 @@ const CheckoutPage: React.FC = () => {
                     <Text strong>{selectedVoucherCode}</Text>
                   </div>
                   <Text type="success">
-                    {selectedVoucherDiscount}% discount saved ${summary.voucherDiscount.toFixed(2)}
+                    {selectedVoucherDiscount}% discount saved $
+                    {summary.voucherDiscount.toFixed(2)}
                   </Text>
                 </div>
-                <Button 
-                  danger 
-                  onClick={handleRemoveVoucher}
-                >
+                <Button danger onClick={handleRemoveVoucher}>
                   Remove
                 </Button>
               </div>
             ) : (
               <div className="flex items-center justify-between">
                 <Text className="text-gray-500">No voucher applied</Text>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   icon={<TagOutlined />}
                   onClick={() => setVoucherModalVisible(true)}
                 >
@@ -470,18 +518,24 @@ const CheckoutPage: React.FC = () => {
                   dataSource={shippingAddresses}
                   renderItem={(address: ShippingInfoDto) => (
                     <List.Item
-                      className={`cursor-pointer rounded-lg transition-all hover:bg-gray-50 ${selectedAddressId === address.shippingInfoId ? 'bg-blue-50 border-blue-200' : ''}`}
-                      onClick={() => handleSelectAddress(address.shippingInfoId as number)}
+                      className={`cursor-pointer rounded-lg transition-all hover:bg-gray-50 ${
+                        selectedAddressId === address.shippingInfoId
+                          ? "bg-blue-50 border-blue-200"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        handleSelectAddress(address.shippingInfoId as number)
+                      }
                       actions={[
-                        <Button 
+                        <Button
                           key="edit"
-                          type="text" 
-                          icon={<EditOutlined />} 
+                          type="text"
+                          icon={<EditOutlined />}
                           onClick={(e) => {
                             e.stopPropagation();
                             // Implement edit functionality here
                           }}
-                        />
+                        />,
                       ]}
                     >
                       <div className="flex items-center w-full">
@@ -494,7 +548,8 @@ const CheckoutPage: React.FC = () => {
                           <div className="font-medium">{address.name}</div>
                           <div>{address.phoneNumber}</div>
                           <div className="text-gray-500">
-                            {address.address}, {address.ward}, {address.district}, {address.city}
+                            {address.address}, {address.ward},{" "}
+                            {address.district}, {address.city}
                           </div>
                         </div>
                       </div>
@@ -502,8 +557,8 @@ const CheckoutPage: React.FC = () => {
                   )}
                 />
                 <div className="mt-4">
-                  <Button 
-                    icon={<PlusOutlined />} 
+                  <Button
+                    icon={<PlusOutlined />}
                     onClick={() => {
                       setCreateNewAddress(true);
                       setAddressModalVisible(true);
@@ -515,9 +570,11 @@ const CheckoutPage: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-6">
-                <Paragraph className="mb-4">You don't have any saved addresses.</Paragraph>
-                <Button 
-                  type="primary" 
+                <Paragraph className="mb-4">
+                  You don't have any saved addresses.
+                </Paragraph>
+                <Button
+                  type="primary"
                   icon={<PlusOutlined />}
                   onClick={() => {
                     setCreateNewAddress(true);
@@ -532,30 +589,37 @@ const CheckoutPage: React.FC = () => {
 
           {/* Payment Method */}
           <Card title="Payment Method" className="mb-4">
-            <Radio.Group onChange={handlePaymentMethodChange} value={paymentMethod}>
+            <Radio.Group
+              onChange={handlePaymentMethodChange}
+              value={paymentMethod}
+            >
               <Space direction="vertical" className="w-full">
                 <Radio value="VNPAY" className="p-3 border rounded-lg w-full">
                   <div className="flex items-center">
                     <BankOutlined className="mr-2 text-lg" />
                     <div>
                       <div>VNPAY</div>
-                      <div className="text-xs text-gray-500">Pay via VNPAY gateway</div>
+                      <div className="text-xs text-gray-500">
+                        Pay via VNPAY gateway
+                      </div>
                     </div>
                   </div>
                 </Radio>
-                
+
                 <Radio value="PAYPAL" className="p-3 border rounded-lg w-full">
                   <div className="flex items-center">
                     <CreditCardOutlined className="mr-2 text-lg" />
                     <div>
                       <div>PayPal / Credit Card</div>
-                      <div className="text-xs text-gray-500">Pay with international cards via PayPal</div>
+                      <div className="text-xs text-gray-500">
+                        Pay with international cards via PayPal
+                      </div>
                     </div>
                   </div>
                 </Radio>
-                
-                <Radio 
-                  value="WALLET" 
+
+                <Radio
+                  value="WALLET"
                   className="p-3 border rounded-lg w-full"
                   disabled={walletBalance < summary.finalTotal}
                 >
@@ -567,12 +631,14 @@ const CheckoutPage: React.FC = () => {
                         <div className="text-xs text-gray-500">
                           Available balance: ${walletBalance.toFixed(2)}
                           {walletBalance < summary.finalTotal && (
-                            <span className="text-red-500 ml-2">Insufficient balance</span>
+                            <span className="text-red-500 ml-2">
+                              Insufficient balance
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
-                    <Button 
+                    <Button
                       type="link"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent radio selection
@@ -587,7 +653,7 @@ const CheckoutPage: React.FC = () => {
             </Radio.Group>
           </Card>
         </Col>
-        
+
         {/* Right Column - Order Summary */}
         <Col xs={24} lg={8}>
           <Card title="Order Summary" className="sticky top-4">
@@ -596,32 +662,38 @@ const CheckoutPage: React.FC = () => {
                 <Text>Subtotal ({summary.itemCount} items):</Text>
                 <Text>${summary.subtotal.toFixed(2)}</Text>
               </div>
-              
+
               {summary.savings > 0 && (
                 <div className="flex justify-between text-green-600">
                   <Text type="success">Savings:</Text>
                   <Text type="success">-${summary.savings.toFixed(2)}</Text>
                 </div>
               )}
-              
+
               {summary.voucherDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <Text type="success">Voucher Discount:</Text>
-                  <Text type="success">-${summary.voucherDiscount.toFixed(2)}</Text>
+                  <Text type="success">
+                    -${summary.voucherDiscount.toFixed(2)}
+                  </Text>
                 </div>
               )}
-              
+
               <Divider />
-              
+
               <div className="flex justify-between">
-                <Text strong className="text-lg">Total:</Text>
-                <Text strong className="text-lg">${summary.finalTotal.toFixed(2)}</Text>
+                <Text strong className="text-lg">
+                  Total:
+                </Text>
+                <Text strong className="text-lg">
+                  ${summary.finalTotal.toFixed(2)}
+                </Text>
               </div>
-              
+
               <div className="pt-4">
-                <Button 
-                  type="primary" 
-                  size="large" 
+                <Button
+                  type="primary"
+                  size="large"
                   block
                   onClick={handlePlaceOrder}
                   loading={orderProcessing}
@@ -629,17 +701,17 @@ const CheckoutPage: React.FC = () => {
                 >
                   Place Order
                 </Button>
-                
-                <Button 
-                  type="link" 
-                  block 
+
+                <Button
+                  type="link"
+                  block
                   onClick={() => navigate("/cart")}
                   className="mt-2"
                 >
                   Return to Cart
                 </Button>
               </div>
-              
+
               {!selectedAddressId && (
                 <Alert
                   type="warning"
@@ -652,7 +724,7 @@ const CheckoutPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-      
+
       {/* Address Modal */}
       <Modal
         title={createNewAddress ? "Add New Address" : "Select Address"}
@@ -662,7 +734,10 @@ const CheckoutPage: React.FC = () => {
         width={600}
       >
         {createNewAddress ? (
-          <AddressForm onSubmit={handleCreateAddress} onCancel={() => setAddressModalVisible(false)} />
+          <AddressForm
+            onSubmit={handleCreateAddress}
+            onCancel={() => setAddressModalVisible(false)}
+          />
         ) : (
           <div>
             {/* Address selection would go here, but we're handling it in the main UI */}
@@ -670,7 +745,7 @@ const CheckoutPage: React.FC = () => {
           </div>
         )}
       </Modal>
-      
+
       {/* Voucher Modal */}
       <Modal
         title="Select Voucher"
@@ -679,7 +754,7 @@ const CheckoutPage: React.FC = () => {
         footer={[
           <Button key="cancel" onClick={() => setVoucherModalVisible(false)}>
             Cancel
-          </Button>
+          </Button>,
         ]}
         width={600}
       >
@@ -692,16 +767,23 @@ const CheckoutPage: React.FC = () => {
             dataSource={availableVouchers}
             renderItem={(voucher: VoucherDto) => {
               // Calculate potential discount
-              const discountAmount = voucher.discountRate ? 
-                Math.min(summary.subtotal * (voucher.discountRate / 100), voucher.limitAmount || summary.subtotal) : 
-                0;
-                
+              const discountAmount = voucher.discountRate
+                ? Math.min(
+                    summary.subtotal * (voucher.discountRate / 100),
+                    voucher.limitAmount || summary.subtotal
+                  )
+                : 0;
+
               return (
                 <List.Item
-                  className={`cursor-pointer rounded-lg transition-all hover:bg-gray-50 ${selectedVoucherId === voucher.voucherId ? 'bg-green-50 border-green-200' : ''}`}
+                  className={`cursor-pointer rounded-lg transition-all hover:bg-gray-50 ${
+                    selectedVoucherId === voucher.voucherId
+                      ? "bg-green-50 border-green-200"
+                      : ""
+                  }`}
                   onClick={() => handleSelectVoucher(voucher)}
                   actions={[
-                    <Button 
+                    <Button
                       key="select"
                       type="primary"
                       size="small"
@@ -711,33 +793,41 @@ const CheckoutPage: React.FC = () => {
                       }}
                     >
                       Select
-                    </Button>
+                    </Button>,
                   ]}
                 >
                   <div className="flex items-start w-full">
                     <div className="mr-4 flex-shrink-0 bg-blue-100 rounded-md p-2 text-blue-600">
-                      <TagOutlined style={{ fontSize: '24px' }} />
+                      <TagOutlined style={{ fontSize: "24px" }} />
                     </div>
                     <div className="flex-grow">
                       <div className="flex justify-between">
                         <div>
-                          <Title level={5} className="mb-0">{voucher.code}</Title>
+                          <Title level={5} className="mb-0">
+                            {voucher.code}
+                          </Title>
                           <Text type="secondary">
-                            {voucher.description || `${voucher.discountRate}% discount up to $${voucher.limitAmount?.toFixed(2) || 'unlimited'}`}
+                            {voucher.description ||
+                              `${voucher.discountRate}% discount up to $${
+                                voucher.limitAmount?.toFixed(2) || "unlimited"
+                              }`}
                           </Text>
                         </div>
                         <div className="text-right">
-                          <Text type="success" strong>${discountAmount.toFixed(2)}</Text>
+                          <Text type="success" strong>
+                            ${discountAmount.toFixed(2)}
+                          </Text>
                           <div>
                             <Text type="secondary">Potential savings</Text>
                           </div>
                         </div>
                       </div>
-                      
+
                       {voucher.expiresAt && (
                         <div className="mt-2">
                           <Text type="secondary">
-                            Expires: {new Date(voucher.expiresAt).toLocaleDateString()}
+                            Expires:{" "}
+                            {new Date(voucher.expiresAt).toLocaleDateString()}
                           </Text>
                         </div>
                       )}
@@ -751,7 +841,7 @@ const CheckoutPage: React.FC = () => {
           <Empty description="No vouchers available at the moment" />
         )}
       </Modal>
-      
+
       {/* Wallet Top-up Modal */}
       <Modal
         title="Top Up Wallet"
@@ -761,15 +851,15 @@ const CheckoutPage: React.FC = () => {
           <Button key="cancel" onClick={() => setWalletTopupVisible(false)}>
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
+          <Button
+            key="submit"
+            type="primary"
             loading={topupProcessing}
             onClick={handleWalletTopup}
             disabled={topupAmount <= 0}
           >
             Top Up
-          </Button>
+          </Button>,
         ]}
       >
         <div className="py-4">
@@ -782,8 +872,10 @@ const CheckoutPage: React.FC = () => {
               className="w-full mt-2"
               min={1}
               step={10}
-              formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, ''))}
+              formatter={(value) =>
+                `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              parser={(value) => parseFloat(value!.replace(/\$\s?|(,*)/g, ""))}
               value={topupAmount}
               onChange={(value) => setTopupAmount(value || 0)}
             />
@@ -791,7 +883,9 @@ const CheckoutPage: React.FC = () => {
           {summary.finalTotal > walletBalance && (
             <Alert
               type="info"
-              message={`To complete your order with wallet, you need to top up at least $${(summary.finalTotal - walletBalance).toFixed(2)}`}
+              message={`To complete your order with wallet, you need to top up at least $${(
+                summary.finalTotal - walletBalance
+              ).toFixed(2)}`}
               className="mt-2"
             />
           )}

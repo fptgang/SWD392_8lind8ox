@@ -81,6 +81,7 @@ public class OrderDetailMapper extends BaseMapper<OrderDetailDto, OrderDetail> {
         dto.setSlot(slotMapper.toDTO(entity.getSlot(), DetailLevel.REFERENCE));
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+        dto.setUnitPrice(entity.getUnitPrice());
         return dto;
     }
 }

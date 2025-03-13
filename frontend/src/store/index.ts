@@ -4,6 +4,7 @@ import authReducer from './auth';
 import checkoutReducer from './features/checkout/checkoutSlice';
 import orderReducer from './features/order/orderSlice';
 import walletReducer from './features/wallet/walletSlice';
+import setReducer from './features/set/setSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     auth: authReducer,
     checkout: checkoutReducer,
     order: orderReducer,
-    wallet: walletReducer
+    wallet: walletReducer,
+    set: setReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
