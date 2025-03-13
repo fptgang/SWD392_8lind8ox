@@ -1,5 +1,6 @@
 package com.fptgang.backend.repository;
 
+import com.fptgang.backend.model.Order;
 import com.fptgang.backend.model.OrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -57,4 +58,6 @@ public interface OrderDetailRepos extends JpaRepository<OrderDetail, Long>, JpaS
     LIMIT :limit
 """)
     List<Object[]> getTopSellingSKUs(LocalDateTime startDate, LocalDateTime endDate, int limit);
+
+    List<OrderDetail> findByOrder(Order order);
 }

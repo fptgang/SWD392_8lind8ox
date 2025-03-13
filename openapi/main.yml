@@ -86,6 +86,16 @@ paths:
     $ref: "path/order.yml"
   /orders/{orderId}:
     $ref: "path/order-orderId.yml"
+  /orders/{orderId}/cancel:
+    $ref: "path/order-orderId-cancel.yml"
+  /orders/{orderId}/shipping:
+    $ref: "path/order-orderId-shipping.yml"
+  /orders/{orderId}/ready:
+    $ref: "path/order-orderId-ready.yml"
+  /orders/{orderId}/delivered:
+    $ref: "path/order-orderId-delivered.yml"
+  /orders/{orderId}/receive:
+    $ref: "path/order-orderId-receive.yml"
   /transactions:
     $ref: "path/transaction.yml"
   /transactions/{transactionId}:

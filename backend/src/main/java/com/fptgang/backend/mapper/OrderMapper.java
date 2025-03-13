@@ -45,7 +45,8 @@ public class OrderMapper extends BaseMapper<OrderDto, Order> {
 
         Order entity = new Order();
         entity.setOrderId(dto.getOrderId());
-        entity.setAccount(accountRepos.getReferenceById(dto.getAccount().getAccountId()));
+        if(dto.getAccount() != null) {
+        entity.setAccount(accountRepos.getReferenceById(dto.getAccount().getAccountId()));}
         if (dto.getOrderStatusHistories() != null) {
             entity.setOrderStatusHistories(dto.getOrderStatusHistories().stream()
                     .map(orderStatusHistoryMapper::toEntity)

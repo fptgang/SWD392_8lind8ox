@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // Type definitions based on DTOs
 export interface CartItem {
   skuId: number;
+  slotId?: number;
   name: string;
   price: number;
   quantity: number;
@@ -86,8 +87,10 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addItem: (state, action: PayloadAction<Omit<CartItem, "quantity">>) => {
+      // Update this finder to include slotId in uniqueness check
       const existingItemIndex = state.items.findIndex(
-        (item) => item.skuId === action.payload.skuId
+        (item) => item.skuId === action.payload.skuId && 
+                  item.slotId === action.payload.slotId
       );
 
       if (existingItemIndex > -1) {
@@ -96,6 +99,7 @@ const cartSlice = createSlice({
           item.quantity += 1;
         }
       } else {
+        // Create a new item
         state.items.push({ ...action.payload, quantity: 1 });
       }
 
@@ -107,12 +111,16 @@ const cartSlice = createSlice({
 
     updateQuantity: (
       state,
-      action: PayloadAction<{ skuId: number; quantity: number }>
+      action: PayloadAction<{ skuId: number; slotId?: number; quantity: number }>
     ) => {
-      const { skuId, quantity } = action.payload;
+      const { skuId, slotId, quantity } = action.payload;
       if (quantity < 1) return;
 
-      const itemIndex = state.items.findIndex((item) => item.skuId === skuId);
+      // Also update this finder to check both skuId and slotId
+      const itemIndex = state.items.findIndex(
+        (item) => item.skuId === skuId && item.slotId === slotId
+      );
+      
       if (itemIndex > -1) {
         const item = state.items[itemIndex];
         if (quantity <= item.stock) {
@@ -125,14 +133,22 @@ const cartSlice = createSlice({
       }
     },
 
-    removeItem: (state, action: PayloadAction<number>) => {
-      state.items = state.items.filter((item) => item.skuId !== action.payload);
+    removeItem: (
+      state, 
+      action: PayloadAction<{ skuId: number; slotId?: number }>
+    ) => {
+      // Update to remove only items with matching skuId AND slotId
+      state.items = state.items.filter(
+        (item) => !(item.skuId === action.payload.skuId && 
+                  item.slotId === action.payload.slotId)
+      );
       const totals = calculateTotals(state.items);
       state.total = totals.total;
       state.originalTotal = totals.originalTotal;
       saveCartToStorage(state.items);
     },
 
+    // Keep existing reducers
     clearCart: (state) => {
       state.items = [];
       state.total = 0;
@@ -171,7 +187,6 @@ const cartSlice = createSlice({
     },
   },
 });
-
 export const {
   addItem,
   updateQuantity,
