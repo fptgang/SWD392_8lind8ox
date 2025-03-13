@@ -47,10 +47,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (dto == null) {
         throw Exception('Login failed, please try again');
       }
-      await Future.delayed(
-        const Duration(milliseconds: 300),
-        () => _controller.add(AuthenticationStatus.authenticated),
-      );
+      _controller.add(AuthenticationStatus.authenticated);
       debugPrint("dto: $dto");
       debugPrint("AuthMapper.toModel(dto): ${AuthMapper.toModel(dto)}");
       debugPrint("${AuthenticationStatus.authenticated}");

@@ -9,7 +9,8 @@ import '../new_release/new_release_screen.dart';
 import 'custom_bottom_app_bar.dart';
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+  final int initialIndex;
+  const MainScreen({super.key, this.initialIndex = 0});
 
   static Route<void> route() {
     return MaterialPageRoute<void>(builder: (_) => const MainScreen());
@@ -17,21 +18,28 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Add debug print to see if this component is being rendered
-    debugPrint('Building MainScreen...');
-    
+    debugPrint('Building MainScreen with initialIndex: $initialIndex');
+
     return BlocProvider(
-      create: (context) => BottomNavigationCubit(),
+      create: (context) {
+        // Create the cubit and immediately set the initial tab
+        final cubit = BottomNavigationCubit();
+
+        // If initialIndex is not the default (0), change to that tab
+        if (initialIndex != 0) {
+          cubit.changeTab(initialIndex);
+        }
+
+        return cubit;
+      },
       child: BlocBuilder<BottomNavigationCubit, int>(
         builder: (context, selectedIndex) {
-          // Add debug print to see the selected index
           debugPrint('MainScreen selected index: $selectedIndex');
-          
-          final bool isCartScreen = selectedIndex == 2; // Hide Bottom Bar when in Cart
+
+          final bool isCartScreen = selectedIndex == 2;
 
           return Scaffold(
             body: _buildBody(context, selectedIndex),
-            // Always show the bottom navigation bar for debugging
             bottomNavigationBar: CustomBottomAppBar(
               selectedIndex: selectedIndex,
               onItemSelected: (index) =>
@@ -55,6 +63,4 @@ class MainScreen extends StatelessWidget {
       ],
     );
   }
-
-
 }

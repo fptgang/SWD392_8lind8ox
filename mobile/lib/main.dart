@@ -22,7 +22,6 @@ import 'package:mobile/ui/blind_box_detail/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/cart_screen.dart';
 import 'package:mobile/ui/checkout/checkout_screen.dart';
 import 'package:mobile/ui/common/bottom_navigation_bar.dart';
-import 'package:mobile/ui/core/storage_keys_helper.dart';
 import 'package:mobile/ui/homepage/homepage_screen.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/new_release/new_release_screen.dart';
@@ -31,152 +30,103 @@ import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
 import 'package:mobile/ui/reset_password/new_password_screen.dart';
 import 'package:mobile/ui/search/search_screen.dart';
 import 'package:mobile/ui/shopping/shopping_screen.dart';
-import 'package:provider/provider.dart';
 
 import 'blocs/authentication/authentication_bloc.dart';
 import 'blocs/authentication/authentication_state.dart';
 import 'cubit/dropdown_cubit/dropdown_cubit.dart';
 import 'cubit/locale_cubit/locale_cubit.dart';
-import 'data/repositories/auth_repository.dart';
 import 'di/injection.dart';
 import 'enum/enum.dart';
 
-final getIt = GetIt.instance;
-
-GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-
-NavigatorState get navigator => navigatorKey.currentState!;
-
+// Global instances
+final GetIt getIt = GetIt.instance;
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 late AppLinks _appLinks;
 StreamSubscription<Uri>? _linkSubscription;
 
-// Locale locale = const Locale('en', 'US');
-
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
-  unawaited(SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]));
-
-  await initDeepLinks();
-  await dotenv.load(fileName: ".env");
-  // await SharedPreferencesHelper.instance.init();
-  await Hive.initFlutter();
-  await Hive.openBox("authentication");
-
-  if (!getIt.isRegistered<LocaleCubit>()) {
-    getIt.registerSingleton<LocaleCubit>(LocaleCubit());
-  }
-  
-  await configureDependencies();
-  
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-
+  await _initializeApp();
   runApp(const MyApp());
 }
 
-Future<void> initDeepLinks() async {
-  _appLinks = AppLinks();
+Future<void> _initializeApp() async {
+  // Initialize Flutter bindings
+  WidgetsFlutterBinding.ensureInitialized();
 
-  _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-    debugPrint('onAppLink: $uri');
-    openAppLink(uri);
-  });
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Initialize environment variables
+  await dotenv.load(fileName: ".env");
+
+  // Initialize local storage
+  await Hive.initFlutter();
+  await Hive.openBox("authentication");
+
+  // Initialize deep linking
+  await _initDeepLinks();
+
+  // Initialize dependency injection
+  await _initDependencyInjection();
 }
 
-void openAppLink(Uri uri) {
+Future<void> _initDeepLinks() async {
+  _appLinks = AppLinks();
+  _linkSubscription = _appLinks.uriLinkStream.listen(_handleDeepLink);
+}
+
+void _handleDeepLink(Uri uri) {
+  debugPrint('Received deep link: $uri');
   if (uri.path == "${dotenv.env['BASE_URL']}/reset-password") {
     final token = uri.queryParameters["token"] ?? "";
     navigatorKey.currentContext?.go("/reset-password", extra: {"token": token});
   }
 }
 
-final router = GoRouter(
-  navigatorKey: navigatorKey,
-  initialLocation: '/main',
-  routes: [
-    GoRoute(
-        path: '/forgot-password',
-        builder: (context, state) => ForgotPasswordScreen()),
-    GoRoute(
-      path: '/reset-password',
-      builder: (context, state) {
-        final token = state.uri.queryParameters['token'] ?? '';
-        return NewPasswordScreen(token: token);
-      },
-    ),
-    GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
-    GoRoute(path: '/sign-up', builder: (context, state) => RegisterScreen()),
-    GoRoute(path: '/account', builder: (context, state) => AccountScreen()),
-    GoRoute(path: '/splash', builder: (context, state) => SplashScreen()),
-    GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
-    GoRoute(
-      path: '/blind-box-detail/:id',
-      builder: (context, state) {
-        final blindBoxId = int.parse(state.pathParameters['id'] ?? '0');
-        return ProductDetailScreen(blindBoxId: blindBoxId);
-      },
-    ),
-    GoRoute(path: '/shopping', builder: (context, state) => ShoppingScreen()),
-    GoRoute(
-      path: '/main',
-      builder: (context, state) => const MainScreen(),
-      routes: [
-        GoRoute(
-            path: '/home', builder: (context, state) => const HomePageScreen()),
-        GoRoute(
-            path: '/search', builder: (context, state) => const SearchScreen()),
-        GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
-        GoRoute(
-            path: '/new-releases',
-            builder: (context, state) => const NewReleasesScreen()),
-        GoRoute(path: '/account', builder: (context, state) => AccountScreen()),
-      ],
-    ),
-    GoRoute(path: '/checkout', builder: (context, state) => CheckoutScreen()),
-    GoRoute(
-        path: '/profile-detail',
-        builder: (context, state) => ProfileDetailScreen()),
-    GoRoute(path: '/orders-history', builder: (context, state) => MyOrdersScreen()),
-    GoRoute(path: '/order-history-detail/:id', builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['id'] ?? '', status: OrderStatusEnum.DELIVERED)),
-  ],
-);
+Future<void> _initDependencyInjection() async {
+  // Register LocaleCubit if not already registered
+  if (!getIt.isRegistered<LocaleCubit>()) {
+    getIt.registerSingleton<LocaleCubit>(LocaleCubit());
+  }
+
+  // Configure other dependencies
+  await configureDependencies();
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final localeCubit = LocaleCubit();
-    
-    final dropdownCubit = DropdownCubit(localeCubit);
-    
-    final authBloc = getIt<AuthenticationBloc>()..add(AuthenticationSubscriptionRequested());
-    
-    debugPrint('Building MyApp - setting up providers...');
-    
     return ScreenUtilInit(
       designSize: const Size(390, 844),
       useInheritedMediaQuery: true,
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, widget) => MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: localeCubit),
-          BlocProvider(
-            create: (context) => getIt<AuthenticationBloc>()
-              ..add(AuthenticationSubscriptionRequested()),
-          ),
-          BlocProvider.value(value: dropdownCubit),
-          BlocProvider(create: (_) => getIt<CartCubit>()),
-          BlocProvider(create: (_) => getIt<BlindBoxesBloc>()),
-          BlocProvider(create: (_) => getIt<SetBloc>()),
-        ],
-        child: AppView(),
-      ),
+      builder: (context, widget) => _buildProviders(),
+    );
+  }
+
+  Widget _buildProviders() {
+    final localeCubit = getIt<LocaleCubit>();
+    final dropdownCubit = DropdownCubit(localeCubit);
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: localeCubit),
+        BlocProvider(
+          create: (context) => getIt<AuthenticationBloc>()
+            ..add(AuthenticationSubscriptionRequested()),
+        ),
+        BlocProvider.value(value: dropdownCubit),
+        BlocProvider(create: (_) => getIt<CartCubit>()),
+        BlocProvider(create: (_) => getIt<BlindBoxesBloc>()),
+        BlocProvider(create: (_) => getIt<SetBloc>()),
+      ],
+      child: const AppView(),
     );
   }
 }
@@ -186,12 +136,10 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Building AppView...');
-    
     return BlocBuilder<LocaleCubit, Locale>(
       builder: (context, locale) {
         return MaterialApp.router(
-          localizationsDelegates: [
+          localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -202,35 +150,11 @@ class AppView extends StatelessWidget {
             Locale('vi', 'VN'),
           ],
           locale: locale,
-          routerConfig: router,
+          routerConfig: AppRouter.router,
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             return BlocListener<AuthenticationBloc, AuthenticationState>(
-              listener: (context, state) {
-                debugPrint('Auth state changed: ${state.status}');
-                
-                Future.microtask(() {
-                  try {
-                    final BuildContext routerContext = navigatorKey.currentContext!;
-                    switch (state.status) {
-                      case AuthenticationStatus.authenticated:
-                        debugPrint('Authenticated, navigating to /main');
-                        router.go('/main');
-                        break;
-                      case AuthenticationStatus.unauthenticated:
-                        debugPrint('Unauthenticated, navigating to /login');
-                        router.go('/main');
-                        break;
-                      case AuthenticationStatus.unknown:
-                        debugPrint('Unknown auth state, navigating to /splash');
-                        router.go('/splash');
-                        break;
-                    }
-                  } catch (e) {
-                    debugPrint('Error during navigation: $e');
-                  }
-                });
-              },
+              listener: _handleAuthStateChanges,
               child: child ?? const SizedBox.shrink(),
             );
           },
@@ -238,4 +162,128 @@ class AppView extends StatelessWidget {
       },
     );
   }
+
+  void _handleAuthStateChanges(
+      BuildContext context, AuthenticationState state) {
+    debugPrint('Auth state changed: ${state.status}');
+
+    Future.microtask(() {
+      try {
+        switch (state.status) {
+          case AuthenticationStatus.authenticated:
+            AppRouter.router.replace('/main', extra: {'index': 0});
+            break;
+          case AuthenticationStatus.unauthenticated:
+            AppRouter.router.replace('/main');
+          case AuthenticationStatus.unknown:
+            AppRouter.router.go('/splash');
+            break;
+        }
+      } catch (e) {
+        debugPrint('Error during navigation: $e');
+      }
+    });
+  }
+}
+
+// Extracted router configuration to a separate class
+class AppRouter {
+  static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
+    initialLocation: '/main',
+    routes: [
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        builder: (context, state) {
+          final token = state.uri.queryParameters['token'] ?? '';
+          return NewPasswordScreen(token: token);
+        },
+      ),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => LoginScreen(),
+      ),
+      GoRoute(
+        path: '/sign-up',
+        builder: (context, state) => RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/account',
+        builder: (context, state) => AccountScreen(),
+      ),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => SplashScreen(),
+      ),
+      GoRoute(
+        path: '/cart',
+        builder: (context, state) => CartScreen(),
+      ),
+      GoRoute(
+        path: '/blind-box-detail/:id',
+        builder: (context, state) {
+          final blindBoxId = int.parse(state.pathParameters['id'] ?? '0');
+          return ProductDetailScreen(blindBoxId: blindBoxId);
+        },
+      ),
+      GoRoute(
+        path: '/shopping',
+        builder: (context, state) => ShoppingScreen(),
+      ),
+      GoRoute(
+        path: '/main',
+        builder: (context, state) {
+          final int initialIndex = state.extra != null && state.extra is Map
+              ? (state.extra as Map)['index'] ?? 0
+              : 0;
+          return MainScreen(initialIndex: initialIndex);
+        },
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => const HomePageScreen(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const SearchScreen(),
+          ),
+          GoRoute(
+            path: '/cart',
+            builder: (context, state) => const CartScreen(),
+          ),
+          GoRoute(
+            path: '/new-releases',
+            builder: (context, state) => const NewReleasesScreen(),
+          ),
+          GoRoute(
+            path: '/account',
+            builder: (context, state) => AccountScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/checkout',
+        builder: (context, state) => CheckoutScreen(),
+      ),
+      GoRoute(
+        path: '/profile-detail',
+        builder: (context, state) => ProfileDetailScreen(),
+      ),
+      GoRoute(
+        path: '/orders-history',
+        builder: (context, state) => MyOrdersScreen(),
+      ),
+      GoRoute(
+        path: '/order-history-detail/:id',
+        builder: (context, state) => OrderDetailScreen(
+          orderId: state.pathParameters['id'] ?? '',
+          status: OrderStatusEnum.DELIVERED,
+        ),
+      ),
+    ],
+  );
 }

@@ -33,7 +33,8 @@ class HomePageScreen extends StatelessWidget {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 16.0.h),
+              padding:
+                  EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 16.0.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -54,7 +55,7 @@ class HomePageScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildSearchBar(BuildContext context) {
     return Row(
       children: [
@@ -77,8 +78,8 @@ class HomePageScreen extends StatelessWidget {
                 context.push('/main/search');
               },
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: 20.w, vertical: 10.h),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                 border: InputBorder.none,
                 hintText: AppLocalizations.of(context)!.searchHint,
                 hintStyle: TextStyle(
@@ -93,42 +94,38 @@ class HomePageScreen extends StatelessWidget {
         CircleAvatar(
           radius: 22.r,
           backgroundColor: getColorSkin().primaryRed600,
-          child: Icon(Icons.search,
-              color: getColorSkin().backgroundColor),
+          child: Icon(Icons.search, color: getColorSkin().backgroundColor),
         ),
         SizedBox(width: 16.w),
         // LanguageDropdown(),
-        BlocBuilder<CartCubit, CartState>(
-            builder: (context, cartState) {
-              final int itemCount = cartState.items.fold(
-                  0, (sum, item) => sum + item.quantity);
+        BlocBuilder<CartCubit, CartState>(builder: (context, cartState) {
+          final int itemCount =
+              cartState.items.fold(0, (sum, item) => sum + item.quantity);
 
-              return badges.Badge(
-                showBadge: itemCount > 0,
-                badgeContent: Text(
-                  itemCount.toString(),
-                  style: TextStyle(
-                    color: getColorSkin().white,
-                    fontSize: 10,
-                  ),
-                ),
-                badgeStyle: badges.BadgeStyle(
-                  badgeColor: getColorSkin().primaryRed650,
-                  padding: const EdgeInsets.all(5),
-                ),
-                position: badges.BadgePosition.topEnd(top: 0, end: 0),
-                child: IconButton(
-                  icon: Icon(Icons.shopping_cart, color: getColorSkin().black),
-                  onPressed: () => context.push('/cart'),
-                ),
-              );
-            }
-        ),
-
+          return badges.Badge(
+            showBadge: itemCount > 0,
+            badgeContent: Text(
+              itemCount.toString(),
+              style: TextStyle(
+                color: getColorSkin().white,
+                fontSize: 10,
+              ),
+            ),
+            badgeStyle: badges.BadgeStyle(
+              badgeColor: getColorSkin().primaryRed650,
+              padding: const EdgeInsets.all(5),
+            ),
+            position: badges.BadgePosition.topEnd(top: 0, end: 0),
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart, color: getColorSkin().black),
+              onPressed: () => context.push('/cart'),
+            ),
+          );
+        }),
       ],
     );
   }
-  
+
   Widget _buildPromoBanner(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(16.w.h),
@@ -166,7 +163,8 @@ class HomePageScreen extends StatelessWidget {
                     backgroundColor: getColorSkin().primaryRed600,
                     foregroundColor: getColorSkin().white,
                     elevation: 2,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
@@ -198,7 +196,7 @@ class HomePageScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildFilterSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

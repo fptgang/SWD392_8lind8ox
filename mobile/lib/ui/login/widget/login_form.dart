@@ -10,8 +10,8 @@ import '../../../blocs/login/login_event.dart';
 import '../../../blocs/login/login_state.dart';
 import '../../core/storage_keys_helper.dart';
 import '../../core/theme/theme.dart';
-class LoginForm extends StatelessWidget {
 
+class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
 
   @override
@@ -23,10 +23,13 @@ class LoginForm extends StatelessWidget {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(content: Text(AppLocalizations.of(context)!.authenticationFailed)),
+              SnackBar(
+                  content:
+                      Text(AppLocalizations.of(context)!.authenticationFailed)),
             );
-        } else if (state.status.isSuccess){
-           debugPrint('Login success in form listener - letting the LoginButton handle authentication');
+        } else if (state.status.isSuccess) {
+          debugPrint(
+              'Login success in form listener - letting the LoginButton handle authentication');
         }
       },
       child: Card(
@@ -56,13 +59,11 @@ class LoginForm extends StatelessWidget {
                   color: getColorSkin().grey,
                 ),
               ),
-
               const SizedBox(height: 24),
               _UsernameInput(),
               const SizedBox(height: 16),
               _PasswordInput(),
               const SizedBox(height: 16),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -83,7 +84,7 @@ class LoginForm extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Row(
-                children:  [
+                children: [
                   Expanded(
                     child: Divider(
                       color: getColorSkin().grey,
@@ -106,7 +107,6 @@ class LoginForm extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -125,8 +125,11 @@ class LoginForm extends StatelessWidget {
                         vertical: 12,
                       ),
                     ),
-                    icon: Icon(Icons.g_mobiledata,
-                        color: getColorSkin().black, size: 35,),
+                    icon: Icon(
+                      Icons.g_mobiledata,
+                      color: getColorSkin().black,
+                      size: 35,
+                    ),
                     label: Text(
                       AppLocalizations.of(context)!.loginWithGoogle,
                       style: TextStyle(color: getColorSkin().black),
@@ -169,7 +172,7 @@ class _UsernameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayError = context.select(
-          (LoginBloc bloc) => bloc.state.username.displayError,
+      (LoginBloc bloc) => bloc.state.username.displayError,
     );
 
     return TextField(
@@ -177,9 +180,12 @@ class _UsernameInput extends StatelessWidget {
       onChanged: (username) {
         context.read<LoginBloc>().add(LoginUsernameChanged(username));
       },
+      controller: TextEditingController(text: 'acc5@blindbox.com'),
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.email,
-        errorText: displayError != null ? AppLocalizations.of(context)!.invalidEmail : null,
+        errorText: displayError != null
+            ? AppLocalizations.of(context)!.invalidEmail
+            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -192,7 +198,7 @@ class _PasswordInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayError = context.select(
-          (LoginBloc bloc) => bloc.state.password.displayError,
+      (LoginBloc bloc) => bloc.state.password.displayError,
     );
 
     return TextField(
@@ -201,9 +207,12 @@ class _PasswordInput extends StatelessWidget {
         context.read<LoginBloc>().add(LoginPasswordChanged(password));
       },
       obscureText: true,
+      controller: TextEditingController(text: '123456'),
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.password,
-        errorText: displayError != null ? AppLocalizations.of(context)!.invalidPassword : null,
+        errorText: displayError != null
+            ? AppLocalizations.of(context)!.invalidPassword
+            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -217,7 +226,7 @@ class _LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isInProgressOrSuccess = context.select(
-          (LoginBloc bloc) => bloc.state.status.isInProgressOrSuccess,
+      (LoginBloc bloc) => bloc.state.status.isInProgressOrSuccess,
     );
 
     if (isInProgressOrSuccess) return const CircularProgressIndicator();
@@ -230,8 +239,8 @@ class _LoginButton extends StatelessWidget {
         if (loginState.status == FormzSubmissionStatus.success) {
           // StorageHelper.instance.write(SecureKey.TOKEN, loginState.token);
           context.read<AuthenticationBloc>().add(
-            AuthenticationLoggedIn(token: loginState.token),
-          );
+                AuthenticationLoggedIn(token: loginState.token),
+              );
         }
       },
       child: ElevatedButton(
