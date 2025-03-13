@@ -13,9 +13,7 @@ class VoucherRepositoryImpl implements VoucherRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   VoucherRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
   }
 
   @override

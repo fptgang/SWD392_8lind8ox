@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
+import 'package:mobile/cubit/cart_cubit/cart_state.dart';
 import 'package:mobile/ui/common/bottomsheet.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:mobile/ui/homepage/widget/filter_button.dart';
 import 'package:mobile/ui/homepage/widget/new_release_products.dart';
 import 'package:mobile/ui/homepage/widget/recommended_item.dart';
-import 'package:mobile/ui/homepage/widget/set_section.dart';
-import '../common/language_dropdown.dart';
+import 'package:badges/badges.dart' as badges;
 
 class HomePageScreen extends StatelessWidget {
   const HomePageScreen({super.key});
@@ -71,6 +73,9 @@ class HomePageScreen extends StatelessWidget {
               ],
             ),
             child: TextField(
+              onTap: () {
+                context.push('/main/search');
+              },
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                     horizontal: 20.w, vertical: 10.h),
@@ -92,7 +97,34 @@ class HomePageScreen extends StatelessWidget {
               color: getColorSkin().backgroundColor),
         ),
         SizedBox(width: 16.w),
-        LanguageDropdown(),
+        // LanguageDropdown(),
+        BlocBuilder<CartCubit, CartState>(
+            builder: (context, cartState) {
+              final int itemCount = cartState.items.fold(
+                  0, (sum, item) => sum + item.quantity);
+
+              return badges.Badge(
+                showBadge: itemCount > 0,
+                badgeContent: Text(
+                  itemCount.toString(),
+                  style: TextStyle(
+                    color: getColorSkin().white,
+                    fontSize: 10,
+                  ),
+                ),
+                badgeStyle: badges.BadgeStyle(
+                  badgeColor: getColorSkin().primaryRed650,
+                  padding: const EdgeInsets.all(5),
+                ),
+                position: badges.BadgePosition.topEnd(top: 0, end: 0),
+                child: IconButton(
+                  icon: Icon(Icons.shopping_cart, color: getColorSkin().black),
+                  onPressed: () => context.push('/cart'),
+                ),
+              );
+            }
+        ),
+
       ],
     );
   }

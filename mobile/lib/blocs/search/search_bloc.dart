@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/search/search_event.dart';
@@ -84,7 +85,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         '',  // filter
         query,
       );
-
+      debugPrint('Search query: $query, page: ${pageable.page}, size: ${pageable.size}');
+      debugPrint('Search results: $results');
       emit(SearchDataState(searchResults: results));
     } catch (e) {
       emit(SearchLoadingState(error: e.toString()));

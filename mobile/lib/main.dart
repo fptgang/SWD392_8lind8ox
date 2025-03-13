@@ -15,6 +15,8 @@ import 'package:mobile/blocs/set/set_bloc.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
+import 'package:mobile/ui/account/order_history_screen.dart';
+import 'package:mobile/ui/account/order_tracking_screen.dart';
 import 'package:mobile/ui/account/profile_detail_screen.dart';
 import 'package:mobile/ui/blind_box_detail/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/cart_screen.dart';
@@ -138,6 +140,8 @@ final router = GoRouter(
     GoRoute(
         path: '/profile-detail',
         builder: (context, state) => ProfileDetailScreen()),
+    GoRoute(path: '/orders-history', builder: (context, state) => MyOrdersScreen()),
+    GoRoute(path: '/order-history-detail/:id', builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['id'] ?? '', status: OrderStatusEnum.DELIVERED)),
   ],
 );
 

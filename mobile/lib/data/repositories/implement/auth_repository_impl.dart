@@ -54,6 +54,7 @@ class AuthRepositoryImpl implements AuthRepository {
       debugPrint("dto: $dto");
       debugPrint("AuthMapper.toModel(dto): ${AuthMapper.toModel(dto)}");
       debugPrint("${AuthenticationStatus.authenticated}");
+
       return AuthMapper.toModel(dto);
     } catch (e) {
       throw Exception(

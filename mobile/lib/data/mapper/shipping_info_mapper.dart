@@ -1,3 +1,4 @@
+import 'package:mobile/data/models/create_shipping_info_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:openapi/api.dart';
 
@@ -31,6 +32,30 @@ class ShippingInfoMapper {
       isVisible: model.isVisible ?? true,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
+    );
+  }
+
+  static ShippingInfoModel fromCreateToModel(CreateShippingInfoModel model) {
+    return ShippingInfoModel(
+      address: model.address,
+      ward: model.ward,
+      district: model.district,
+      city: model.city,
+      name: model.name,
+      phoneNumber: model.phoneNumber,
+      isVisible: model.isVisible ?? true,
+    );
+  }
+
+  static ShippingInfoDto fromCreateToDto(CreateShippingInfoModel model) {
+    return ShippingInfoDto(
+      address: model.address,
+      ward: model.ward,
+      district: model.district,
+      city: model.city,
+      name: model.name,
+      phoneNumber: model.phoneNumber,
+      isVisible: model.isVisible ?? true,
     );
   }
 }

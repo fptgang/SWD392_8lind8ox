@@ -30,7 +30,7 @@ class SearchScreen extends StatelessWidget {
       )..add(InitializeSearch()),
       child: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
-        appBar: _buildAppBar(context),
+        // appBar: _buildAppBar(context),
         body: SafeArea(
           child: Column(
             children: const [

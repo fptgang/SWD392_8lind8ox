@@ -112,7 +112,6 @@ class NewReleaseProducts extends StatelessWidget {
         itemBuilder: (context, index) {
           final blindBox = blindBoxes[index];
           
-          // Handle null SKUs safely
           StockKeepingUnitModel? sku;
           if (blindBox.skus != null && blindBox.skus!.isNotEmpty) {
             sku = blindBox.skus!.first;

@@ -9,6 +9,9 @@ import 'package:mobile/blocs/shipping_info/shipping_info_event.dart';
 import 'package:mobile/blocs/shipping_info/shipping_info_state.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/cubit/cart_cubit/cart_state.dart';
+import 'package:mobile/data/mapper/shipping_info_mapper.dart';
+import 'package:mobile/data/models/create_shipping_info_model.dart';
+import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/di/injection.dart';
 import 'package:mobile/enum/enum.dart';
 import 'package:mobile/ui/checkout/widget/address_section.dart';
@@ -267,6 +270,7 @@ class ShippingAddressForm {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: getColorSkin().white,
           title: const Text('Add Shipping Address'),
           content: SingleChildScrollView(
             child: Column(
@@ -320,9 +324,12 @@ class ShippingAddressForm {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text('Cancel', style: TextStyle(color: getColorSkin().black)),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: Colors.red)),
+              ),
               onPressed: () => _handleFormSubmit(
                 context,
                 shippingInfoBloc,
@@ -333,7 +340,7 @@ class ShippingAddressForm {
                 cityController.text,
                 phoneNumberController.text,
               ),
-              child: const Text('Save'),
+              child: const Text('Save', style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -378,29 +385,17 @@ class ShippingAddressForm {
     Navigator.pop(context);
 
     try {
-      // Create shipping info DTO
-      final shippingInfoDto = ShippingInfoDto();
+      final CreateShippingInfoModel model = CreateShippingInfoModel(
+        name: name,
+        address: address,
+        ward: ward,
+        district: district,
+        city: city,
+        phoneNumber: phoneNumber,
+      );
 
-      // Set fields using dynamic approach
-      final dto = shippingInfoDto as dynamic;
-      dto.name = name;
-      dto.address = address;
-      dto.ward = ward;
-      dto.district = district;
-      dto.city = city;
-      dto.phoneNumber = phoneNumber;
-      dto.isVisible = true;
-
-      // Ensure account ID is set
-      final authBox = Hive.box('authentication');
-      int accountId = AccountHelper.getAccountId();
-      if (authBox.get('accountId') == null) {
-        authBox.put('accountId', accountId);
-      }
-
-      // Create and dispatch event
-      final createShippingInfoEvent = CreateShippingInfo(shippingInfoDto);
-      shippingInfoBloc.add(createShippingInfoEvent);
+      debugPrint('Shipping info DTO from checkout screen: ${model.toString()}');
+      shippingInfoBloc.add(CreateShippingInfo(model));
     } catch (e) {
       debugPrint('Exception setting DTO fields: $e');
 
@@ -441,7 +436,6 @@ class _CheckoutFormContent extends StatelessWidget {
         children: [
           _buildAddressSection(context),
           _buildProductSection(context),
-          buildShippingMethod(),
           _buildPromotionalSection(context),
           _buildPaymentMethods(context),
           _buildOrderSummary(context, subtotal, shipping, discount, total),
@@ -460,7 +454,7 @@ class _CheckoutFormContent extends StatelessWidget {
           return _buildLoadingAddressSection();
         } else if (state is ShippingInfoLoadingState && state.error != null) {
           return _buildErrorAddressSection(context, state.error!);
-        } else if (state is ShippingInfoDataState && state.shippingInfo != null) {
+        } else if (state is ShippingInfoDataState) {
           return buildAddressSection();
         } else {
           return _buildEmptyAddressSection(context);
@@ -474,8 +468,8 @@ class _CheckoutFormContent extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(16),
       color: Colors.white,
-      child: const Center(
-        child: CircularProgressIndicator(),
+      child: Center(
+        child: CircularProgressIndicator(color: getColorSkin().primaryRed950),
       ),
     );
   }
@@ -496,8 +490,7 @@ class _CheckoutFormContent extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          Text(
-            noShippingInfo
+          Text(noShippingInfo
                 ? 'You don\'t have a shipping address yet. Please add one to continue.'
                 : 'Error loading address: $error',
             style: TextStyle(
@@ -511,12 +504,16 @@ class _CheckoutFormContent extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => ShippingAddressForm.show(context, shippingInfoBloc),
               style: ElevatedButton.styleFrom(
-                backgroundColor: noShippingInfo ? Colors.green : Colors.blue,
+                backgroundColor: getColorSkin().white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: Colors.white),
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               child: Text(
                 noShippingInfo ? 'Add Shipping Address' : 'Add New Address',
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16, color: getColorSkin().black),
               ),
             ),
           ),
@@ -865,29 +862,20 @@ class _CheckoutFormContent extends StatelessWidget {
     final checkoutState = checkoutBloc.state;
     final shippingInfoState = shippingInfoBloc.state;
     
-    // Validate shipping info
     if (!_validateShippingInfo(context, shippingInfoState)) return;
     final shippingInfoId = (shippingInfoState as ShippingInfoDataState).shippingInfo!.shippingInfoId;
     
-    // Validate payment method
     if (checkoutState.selectedPaymentMethod == null) {
       _showError(context, 'Please select a payment method');
       return;
     }
     
-    // Validate terms acceptance
     if (!checkoutState.termsAccepted) {
       _showError(context, 'Please accept the terms and conditions');
       return;
     }
-    
-    // Get account ID
-    final accountId = AccountHelper.getAccountId();
-    
-    // Validate cart items
     if (!_validateCartItems(context)) return;
     
-    // Create cart model
     final cartModel = CartModel(
       items: checkoutItems,
       paymentMethod: checkoutBloc.mapPaymentMethodToEnum(checkoutState.selectedPaymentMethod),
@@ -908,7 +896,6 @@ class _CheckoutFormContent extends StatelessWidget {
     // Request order creation
     checkoutBloc.add(Checkout(
       cartModelToCheckout: cartModel,
-      accountId: accountId,
     ));
   }
   

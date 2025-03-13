@@ -17,9 +17,7 @@ class OrderRepositoryImpl implements OrderRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   OrderRepositoryImpl(){
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
   }
 
   @override
@@ -56,13 +54,12 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<OrderResponseModel> createOrder(CartModel cartModel, int accountId) async {
+  Future<OrderResponseModel> createOrder(CartModel cartModel) async {
     try {
 
       final cartDto = CartMapper.toDto(cartModel);
       
       debugPrint('Making placeOrder request with:');
-      debugPrint('- AccountId: $accountId');
       debugPrint('- CartDto payment method: ${cartDto.paymentMethod}');
       debugPrint('- CartDto shipping info ID: ${cartDto.shippingInfoId}');
       debugPrint('- CartDto items count: ${cartDto.items.length}');
@@ -70,8 +67,8 @@ class OrderRepositoryImpl implements OrderRepository {
       debugPrint('- CartDto first item quantity: ${cartDto.items.isNotEmpty ? cartDto.items.first.quantity : "N/A"}');
       debugPrint('token from order repo create: ${box.get('loginToken')}');
       debugPrint('Calling API placeOrder endpoint...');
-      final response = await _apiService.placeOrder(cartDto, accountId: accountId);
-      debugPrint('API call completed, response: $response, accountId: $accountId');
+      final response = await _apiService.placeOrder(cartDto);
+      debugPrint('API call completed, response: $response');
       debugPrint('Received response from placeOrder');
 
       if (response == null) {

@@ -1,6 +1,5 @@
 
-class ShippingInfoModel{
-  final int? shippingInfoId;
+class CreateShippingInfoModel{
   final String? address;
   final String? ward;
   final String? district;
@@ -8,12 +7,9 @@ class ShippingInfoModel{
   final String? name;
   final String? phoneNumber;
   final bool? isVisible;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
 
 
-  ShippingInfoModel({
-    this.shippingInfoId,
+  CreateShippingInfoModel({
     this.address,
     this.ward,
     this.district,
@@ -21,19 +17,15 @@ class ShippingInfoModel{
     this.name,
     this.phoneNumber,
     this.isVisible = true,
-    this.createdAt,
-    this.updatedAt,
   });
 
   @override
   String toString() {
-    return 'ShippingInfoModel{name: $name, address: $address, ward: $ward, '
-        'district: $district, city: $city, phoneNumber: $phoneNumber, '
-        'createdAt: $createdAt}';
+    return 'CreateShippingInfoModel{name: $name, address: $address, ward: $ward, '
+        'district: $district, city: $city, phoneNumber: $phoneNumber';
   }
 
   List<Object?> get props => [
-    shippingInfoId,
     address,
     ward,
     district,
@@ -41,7 +33,5 @@ class ShippingInfoModel{
     name,
     phoneNumber,
     isVisible,
-    createdAt,
-    updatedAt,
   ];
 }

@@ -68,7 +68,8 @@ class _NewReleaseProductCardState extends State<NewReleaseProductCard> with Sing
             scale: _scaleAnimation.value,
             child: Container(
               width: 180.w,
-              margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              // height: 800.h,
+              margin: EdgeInsets.symmetric(horizontal: 6.w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
                 color: getColorSkin().backgroundColor,
@@ -77,8 +78,8 @@ class _NewReleaseProductCardState extends State<NewReleaseProductCard> with Sing
                     color: _isHovering 
                         ? getColorSkin().primaryRed200.withOpacity(0.5)
                         : Colors.grey.shade300,
-                    blurRadius: _isHovering ? 8 : 4,
-                    offset: Offset(0, _isHovering ? 4 : 2),
+                    blurRadius: _isHovering ? 4 : 2,
+                    offset: Offset(0, _isHovering ? 2 : 1),
                   ),
                 ],
               ),
@@ -166,14 +167,14 @@ class _NewReleaseProductCardState extends State<NewReleaseProductCard> with Sing
 
   Widget _buildProductInfo(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            overflow: TextOverflow.visible,
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,

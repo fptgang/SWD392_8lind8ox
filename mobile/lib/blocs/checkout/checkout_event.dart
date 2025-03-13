@@ -16,15 +16,13 @@ abstract class CheckoutEvent extends Equatable {
 
 class Checkout extends CheckoutEvent {
   final CartModel? cartModelToCheckout;
-  final int accountId;
 
   const Checkout({
     this.cartModelToCheckout,
-    this.accountId = 104,
   });
 
   @override
-  List<Object?> get props => [cartModelToCheckout, accountId];
+  List<Object?> get props => [cartModelToCheckout];
 }
 
 class SelectPaymentMethod extends CheckoutEvent {

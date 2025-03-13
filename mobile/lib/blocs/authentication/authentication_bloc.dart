@@ -68,17 +68,17 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     }
   }
 
-  void _onLoggedIn(
+  Future<void> _onLoggedIn(
       AuthenticationLoggedIn event,
       Emitter<AuthenticationState> emit,
-      ) {
+      ) async {
     try {
-      debugPrint('Auth bloc: login success event received with token: ${event.token}');
       _authenticationRepository.updateAuthStatus(AuthenticationStatus.authenticated);
       
       emit(AuthenticationState.authenticated(AccountModel()));
       debugPrint('login success, emitted authenticated state');
-      debugPrint('token: ${Hive.box("authentication").get("loginToken")}');
+      final token = await Hive.box("authentication").get("loginToken");
+      debugPrint('token: $token');
     } catch (e) {
       debugPrint('Login failed: $e');
       emit(state);

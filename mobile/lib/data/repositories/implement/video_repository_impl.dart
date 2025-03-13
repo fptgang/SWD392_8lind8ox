@@ -15,9 +15,7 @@ class VideoRepositoryImpl implements VideoRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   VideoRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
   }
 
   @override

@@ -8,9 +8,9 @@ Widget buildAddressSection() {
   return BlocBuilder<ShippingInfoBloc, ShippingInfoState>(
     builder: (context, state) {
       if (state is ShippingInfoLoadingState) {
-        return const Center(child: CircularProgressIndicator());
+        return Center(child: CircularProgressIndicator(color: getColorSkin().primaryRed950));
       } else if (state is ShippingInfoDataState) {
-        final shippingInfo = state.shippingInfo;
+        final shippingInfo = state.shippingInfoResponseModel?.content.firstOrNull;
         return Container(
           color: getColorSkin().backgroundColor,
           padding: const EdgeInsets.all(16),

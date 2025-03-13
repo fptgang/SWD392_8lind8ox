@@ -1,3 +1,4 @@
+import 'package:mobile/data/models/create_shipping_info_model.dart';
 import 'package:openapi/api.dart';
 
 abstract class ShippingInfoEvent {}
@@ -15,9 +16,9 @@ class GetShippingInfoById extends ShippingInfoEvent {
 }
 
 class CreateShippingInfo extends ShippingInfoEvent {
-  final ShippingInfoDto shippingInfoDto;
+  final CreateShippingInfoModel createShippingInfoModel;
 
-  CreateShippingInfo(this.shippingInfoDto);
+  CreateShippingInfo(this.createShippingInfoModel);
 }
 
 // class SelectShippingInfo extends ShippingInfoEvent {

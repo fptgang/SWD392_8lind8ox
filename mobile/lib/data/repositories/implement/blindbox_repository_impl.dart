@@ -37,6 +37,7 @@ class BlindBoxRepositoryImpl implements BlindBoxRepository {
         dto: blindBoxes,
         fromDTO: (data) => BlindBoxMapper.toModel(data),
       );
+      debugPrint('[BlindBox Repository Impl]: get blind boxes: ${blindBoxModels.content}');
       return blindBoxModels;
     } catch (e, stackTrace) {
       debugPrint('[BlindBox Repository Impl]: error from get blind boxes: $e, $stackTrace');

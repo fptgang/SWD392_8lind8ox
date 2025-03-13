@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/shipping_info_mapper.dart';
+import 'package:mobile/data/models/create_shipping_info_model.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
@@ -13,24 +14,24 @@ class ShippingInfoRepositoryImpl implements ShippingInfoRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   ShippingInfoRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    debugPrint('Shipping info created token: ${box.get('loginToken')}');
+
+    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    debugPrint('authorization header: ' + _apiService.apiClient.authentication.toString());
   }
 
   @override
-  Future<ShippingInfoModel> createShippingInfo(ShippingInfoDto shippingInfo) async {
+  Future<ShippingInfoModel> createShippingInfo(CreateShippingInfoModel shippingInfo) async {
     try {
       debugPrint('Shipping info created token:1 ${box.get('loginToken')}');
-      ShippingInfoDto? shippingInfoDto = await _apiService.createShippingInfo(shippingInfo);
+      debugPrint('Shipping info dto from repo ipml: ${shippingInfo}');
+      ShippingInfoDto? shippingInfoDto = await _apiService.createShippingInfo(ShippingInfoMapper.fromCreateToDto(shippingInfo));
       debugPrint('Shipping info created: $shippingInfoDto');
       if(shippingInfoDto == null){
         throw Exception('Cannot create shipping info information');
       }
-      debugPrint('curren user: ${_apiService.getCurrentUser()}');
-      debugPrint('Shipping info created token: ${box.get('loginToken')}');
       ShippingInfoModel shippingInfoModel = ShippingInfoMapper.toModel(shippingInfoDto);
-      return Future.value(shippingInfoModel);
+      return shippingInfoModel;
     } catch(e, stacktrace){
       debugPrint('Error creating shipping info: $e, stackTrace: $stacktrace');
       throw Exception('Cannot create shipping info information: $e');

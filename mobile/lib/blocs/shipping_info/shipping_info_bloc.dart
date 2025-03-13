@@ -105,8 +105,9 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
 
     try {
       final createdShippingInfo = await _shippingInfoRepository.createShippingInfo(
-        event.shippingInfoDto,
+        event.createShippingInfoModel,
       );
+      debugPrint('shipping info created: ${event.createShippingInfoModel}');
       _dataState = _dataState.copyWith(shippingInfo: createdShippingInfo);
       debugPrint('token from shipping info bloc: ${Hive.box('authentication').get('loginToken')}');
       debugPrint('Successfully created shipping info: $createdShippingInfo');

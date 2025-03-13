@@ -12,9 +12,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   TransactionRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
   }
 
   @override

@@ -228,8 +228,6 @@ class _LoginButton extends StatelessWidget {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, loginState) {
         if (loginState.status == FormzSubmissionStatus.success) {
-          final token = Hive.box("authentication").put("loginToken", loginState.token);
-          debugPrint('LoginButton: Login successful, token: $token');
           // StorageHelper.instance.write(SecureKey.TOKEN, loginState.token);
           context.read<AuthenticationBloc>().add(
             AuthenticationLoggedIn(token: loginState.token),

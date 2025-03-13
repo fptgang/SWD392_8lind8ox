@@ -135,7 +135,7 @@ class RecommendedItems extends StatelessWidget {
   }
   Widget _buildDetailsSection(BlindBoxModel blindBox) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.symmetric(horizontal: 8.0.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
