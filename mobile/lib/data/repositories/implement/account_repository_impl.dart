@@ -1,12 +1,33 @@
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/data/mapper/account_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
+import 'package:mobile/di/injection.dart';
+import 'package:openapi/api.dart';
 
 class AccountRepositoryImpl extends AccountRepository {
-  AccountModel? _user;
+  var box = Hive.box('authentication');
+  final DefaultApi _apiService = getIt<DefaultApi>();
+
+  AccountRepositoryImpl() {
+    _apiService.apiClient.authentication?.applyToParams([], {
+      "Authorization": "Bearer ${box.get('loginToken')}",
+    });
+  }
 
   @override
   Future<AccountModel> getUser() async {
-    if (_user != null) return _user!;
-    throw Exception('User not found');
+   try{
+      debugPrint('token from account repo impl: ${box.get('loginToken')}');
+        AccountDto? userDto = await _apiService.getCurrentUser();
+        if(userDto == null){
+          throw Exception('Cannot get user information');
+        }
+       AccountModel user = AccountMapper.toModel(userDto);
+        return user;
+   } catch(e, stackTrace){
+     throw Exception('Cannot get user information: $e, stackTrace: $stackTrace');
+   }
   }
 }

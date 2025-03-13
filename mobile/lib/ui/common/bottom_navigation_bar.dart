@@ -17,15 +17,25 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Add debug print to see if this component is being rendered
+    debugPrint('Building MainScreen...');
+    
     return BlocProvider(
       create: (context) => BottomNavigationCubit(),
       child: BlocBuilder<BottomNavigationCubit, int>(
         builder: (context, selectedIndex) {
+          // Add debug print to see the selected index
+          debugPrint('MainScreen selected index: $selectedIndex');
+          
+          final bool isCartScreen = selectedIndex == 2; // Hide Bottom Bar when in Cart
+
           return Scaffold(
-            body: _buildBody(selectedIndex),
+            body: _buildBody(context, selectedIndex),
+            // Always show the bottom navigation bar for debugging
             bottomNavigationBar: CustomBottomAppBar(
               selectedIndex: selectedIndex,
-              onItemSelected: (index) => context.read<BottomNavigationCubit>().changeTab(index),
+              onItemSelected: (index) =>
+                  context.read<BottomNavigationCubit>().changeTab(index),
             ),
           );
         },
@@ -33,20 +43,18 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(int selectedIndex) {
-    switch (selectedIndex) {
-      case 0:
-        return HomePageScreen();
-      case 1:
-        return SearchScreen();
-      case 2:
-        return CartScreen();
-      case 3:
-        return NewReleasesScreen();
-      case 4:
-        return AccountScreen();
-      default:
-        return HomePageScreen();
-    }
+  Widget _buildBody(BuildContext context, int selectedIndex) {
+    return IndexedStack(
+      index: selectedIndex,
+      children: [
+        HomePageScreen(),
+        SearchScreen(),
+        CartScreen(isFromBottomNav: true),
+        NewReleasesScreen(),
+        AccountScreen(),
+      ],
+    );
   }
+
+
 }

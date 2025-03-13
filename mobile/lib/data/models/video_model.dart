@@ -1,41 +1,40 @@
 
 
-class VideoModel{
+import 'package:mobile/data/models/account_model.dart';
 
-  final int videoId;
-  final int accountId;
-  final int orderDetailId;
+class VideoModel{
+  final int? videoId;
+  final AccountModel? account;
+  final int? slotId;
   final String? url;
   final String? description;
-  final DateTime createdAt;
+  final bool? isVisible;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
-  final  bool isVisible;
   final bool? isVerified;
-  final int? slotId;
 
   VideoModel({
-    required this.videoId,
-    required this.accountId,
-    required this.orderDetailId,
+    this.videoId,
+    this.account,
+    this.slotId,
     this.url,
     this.description,
-    required this.createdAt,
+    this.isVisible,
+    this.createdAt,
     this.updatedAt,
-    required this.isVisible,
     this.isVerified,
-    this.slotId,
   });
 
   List<Object?> get props => [
     videoId,
-    accountId,
-    orderDetailId,
+    account,
+    slotId,
     url,
     description,
+    isVisible,
     createdAt,
     updatedAt,
     isVisible,
     isVerified,
-    slotId,
   ];
 }

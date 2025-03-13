@@ -36,17 +36,27 @@ class ProductItem extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-      child: set.images.isNotEmpty
-          ? Image.network(
-        set.images.first.imageUrl ?? '',
-        height: 140.h,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildErrorImage(),
-      )
-          : _buildErrorImage(),
+    // return ClipRRect(
+    //   borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
+    //   child: set.images.isNotEmpty
+    //       ? Image.network(
+    //     set.images.first.imageUrl ?? '',
+    //     height: 140.h,
+    //     width: double.infinity,
+    //     fit: BoxFit.cover,
+    //     errorBuilder: (_, __, ___) => _buildErrorImage(),
+    //   )
+    //       : _buildErrorImage(),
+    // );
+    return Container(
+      height: 140.h,
+      width: double.infinity,
+      color: Colors.grey[200],
+      child: Icon(
+        Icons.image_not_supported,
+        color: Colors.grey[400],
+        size: 40.r,
+      ),
     );
   }
 
@@ -70,7 +80,7 @@ class ProductItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            set.blindBox.name,
+            set.blindBox.name ?? '',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -81,7 +91,7 @@ class ProductItem extends StatelessWidget {
           ),
           SizedBox(height: 4.h),
           Text(
-            '\$${set.sku.price.toStringAsFixed(2)}',
+            '\$${set.sku.price?.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 12.sp,
               color: getColorSkin().primaryRed800,

@@ -8,6 +8,6 @@ import 'package:openapi/api.dart';
 @injectable
 @Singleton()
 abstract class NotificationRepository {
-  Future<NotificationModel> getNotificationById(int id);
-  Future<PaginationResponseGeneric<GetNotifications200Response>> getNotifications(Pageable pageable, String filter, String search);
+  Future<NotificationModel> updateNotification(int id, NotificationModel notificationModel);
+  Future<PaginationResponseGeneric<NotificationModel>> getNotifications(Pageable pageable, String filter, String search);
 }

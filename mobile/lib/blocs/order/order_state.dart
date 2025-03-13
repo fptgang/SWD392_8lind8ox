@@ -1,47 +1,77 @@
+import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/order_model.dart';
-import 'package:mobile/data/models/order_response_model.dart';
 import 'package:openapi/api.dart';
 
-class OrderState {
-  Pageable pageable;
-  final String? filter;
-  final String? search;
-  final bool? isLoading;
-  final bool? isOutOfStock;
-  final OrderResponseModel? orders;
-  final OrderModel? order;
+abstract class OrderState {}
+
+class OrderPaginationState implements OrderState {
+  final Pageable pageable;
+  final bool hasReachedEnd;
+
+  const OrderPaginationState({
+    required this.pageable,
+    this.hasReachedEnd = false,
+  });
+
+  OrderPaginationState copyWith({
+    Pageable? pageable,
+    bool? hasReachedEnd,
+  }) {
+    return OrderPaginationState(
+      pageable: pageable ?? this.pageable,
+      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+    );
+  }
+}
+
+class OrderLoadingState implements OrderState {
+  final bool isLoading;
+  final bool isOutOfStock;
   final String? error;
 
-  OrderState({
-    Pageable? pageable,
-    this.filter,
-    this.search,
-    this.isLoading,
-    this.isOutOfStock,
-    this.orders,
-    this.order,
+  const OrderLoadingState({
+    this.isLoading = false,
+    this.isOutOfStock = false,
     this.error,
-  }) : pageable = pageable ?? Pageable(page: 0, size: 10, sort: ['desc']);
+  });
 
-  OrderState copyWith({
-    Pageable? pageable,
-    String? filter,
-    String? search,
+  OrderLoadingState copyWith({
     bool? isLoading,
     bool? isOutOfStock,
-    OrderResponseModel? orders,
-    OrderModel? order,
     String? error,
   }) {
-    return OrderState(
-      pageable: pageable ?? this.pageable,
-      filter: filter ?? this.filter,
-      search: search ?? this.search,
+    return OrderLoadingState(
       isLoading: isLoading ?? this.isLoading,
       isOutOfStock: isOutOfStock ?? this.isOutOfStock,
+      error: error ?? this.error,
+    );
+  }
+}
+
+class OrderDataState implements OrderState {
+  final PaginationResponseGeneric<OrderModel>? orders;
+  final OrderModel? order;
+  final String? filter;
+  final String? search;
+
+  const OrderDataState({
+    this.orders,
+    this.order,
+    this.filter,
+    this.search,
+  });
+
+  OrderDataState copyWith({
+    PaginationResponseGeneric<OrderModel>? orders,
+    OrderModel? order,
+    String? filter,
+    String? search,
+  }) {
+    return OrderDataState(
       orders: orders ?? this.orders,
       order: order ?? this.order,
-      error: error ?? this.error,
+      filter: filter ?? this.filter,
+      search: search ?? this.search,
     );
   }
 }

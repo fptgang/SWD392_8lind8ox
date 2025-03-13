@@ -31,17 +31,17 @@ class SetItem extends StatelessWidget {
     return CircleAvatar(
       radius: 30.r,
       backgroundColor: getColorSkin().primaryRed50,
-      child: ClipOval(
-        child: set.images.isNotEmpty
-            ? Image.network(
-          set.images.first.imageUrl ?? '',
-          width: 30.w,
-          height: 30.h,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
-        )
-            : _buildErrorImage(),
-      ),
+      // child: ClipOval(
+      //   child: set.images.isNotEmpty
+      //       ? Image.network(
+      //     set.images.first.imageUrl ?? '',
+      //     width: 30.w,
+      //     height: 30.h,
+      //     fit: BoxFit.cover,
+      //     errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
+      //   )
+      //       : _buildErrorImage(),
+      // ),
     );
   }
 
@@ -68,7 +68,7 @@ class SetItem extends StatelessWidget {
         ),
         SizedBox(height: 4.h),
         Text(
-          '\$${set.sku.price.toStringAsFixed(2)}',
+          '\$${set.sku.price?.toStringAsFixed(2)}',
           style: TextStyle(
             fontSize: 12.sp,
             color: getColorSkin().primaryRed600,

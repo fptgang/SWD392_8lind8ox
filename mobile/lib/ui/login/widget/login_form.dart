@@ -8,6 +8,7 @@ import '../../../blocs/authentication/authentication_bloc.dart';
 import '../../../blocs/login/login_bloc.dart';
 import '../../../blocs/login/login_event.dart';
 import '../../../blocs/login/login_state.dart';
+import '../../core/storage_keys_helper.dart';
 import '../../core/theme/theme.dart';
 class LoginForm extends StatelessWidget {
 
@@ -25,8 +26,7 @@ class LoginForm extends StatelessWidget {
               SnackBar(content: Text(AppLocalizations.of(context)!.authenticationFailed)),
             );
         } else if (state.status.isSuccess){
-          // navigator.pushReplacement(HomePageScreen.route());
-          context.push('/main/home');
+           debugPrint('Login success in form listener - letting the LoginButton handle authentication');
         }
       },
       child: Card(
@@ -228,9 +228,9 @@ class _LoginButton extends StatelessWidget {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, loginState) {
         if (loginState.status == FormzSubmissionStatus.success) {
-          final token = Hive.box("authentication").get("loginToken");
+          // StorageHelper.instance.write(SecureKey.TOKEN, loginState.token);
           context.read<AuthenticationBloc>().add(
-            AuthenticationLoggedIn(token: token),
+            AuthenticationLoggedIn(token: loginState.token),
           );
         }
       },

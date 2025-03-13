@@ -1,4 +1,5 @@
-import 'package:mobile/data/models/blindboxes_response_model.dart';
+import 'package:mobile/data/models/blindbox_model.dart';
+import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:openapi/api.dart';
 
 abstract class SearchState {}
@@ -64,14 +65,14 @@ class SearchLoadingState implements SearchState {
 }
 
 class SearchDataState implements SearchState {
-  final BlindBoxesResponseModel? searchResults;
+  final PaginationResponseGeneric<BlindBoxModel>? searchResults;
 
   const SearchDataState({
     this.searchResults,
   });
 
   SearchDataState copyWith({
-    BlindBoxesResponseModel? searchResults,
+    PaginationResponseGeneric<BlindBoxModel>? searchResults,
   }) {
     return SearchDataState(
       searchResults: searchResults ?? this.searchResults,

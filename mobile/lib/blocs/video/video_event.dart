@@ -6,7 +6,11 @@ class SelectVideo extends VideoEvent {
   SelectVideo(this.video);
 }
 
-class GetVideos extends VideoEvent {}
+class GetVideos extends VideoEvent {
+  final int pageKey;
+
+  GetVideos(this.pageKey);
+}
 
 class GetVideoById extends VideoEvent {
   final int id;

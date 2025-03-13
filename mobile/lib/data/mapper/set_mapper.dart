@@ -9,9 +9,8 @@ import '../models/set_model.dart';
 class SetMapper {
   static SetModel toModel(SetDto dto) {
     return SetModel(
-      setId: dto.setId!,
+      setId: dto.setId ?? 0,
       sku: SkuMapper.toModel(dto.sku!),
-      images: [],
       isVisible: dto.isVisible,
       slots: dto.slots.map((e) => SlotMapper.toModel(e)).toList(),
       blindBox: BlindBoxMapper.toModel(dto.blindBox!),

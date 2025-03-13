@@ -2,42 +2,72 @@ import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/video_model.dart';
 import 'package:openapi/api.dart';
 
-class VideoState {
-  Pageable pageable;
-  final String? filter;
-  final String? search;
-  final bool? isLoading;
-  final PaginationResponseGeneric<GetVideos200Response>? videoResponseModel;
-  final VideoModel? video;
+abstract class VideoState {}
+
+class VideoPaginationState implements VideoState {
+  final Pageable pageable;
+  final bool hasReachedEnd;
+
+  const VideoPaginationState({
+    required this.pageable,
+    this.hasReachedEnd = false,
+  });
+
+  VideoPaginationState copyWith({
+    Pageable? pageable,
+    bool? hasReachedEnd,
+  }) {
+    return VideoPaginationState(
+      pageable: pageable ?? this.pageable,
+      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+    );
+  }
+}
+
+class VideoLoadingState implements VideoState {
+  final bool isLoading;
   final String? error;
 
-  VideoState({
-    Pageable? pageable,
-    this.filter,
-    this.search,
-    this.isLoading,
-    this.videoResponseModel,
-    this.video,
+  const VideoLoadingState({
+    this.isLoading = false,
     this.error,
-  }) : pageable = pageable ?? Pageable(page: 0, size: 10, sort: ['desc']);
+  });
 
-  VideoState copyWith({
-    Pageable? pageable,
-    String? filter,
-    String? search,
+  VideoLoadingState copyWith({
     bool? isLoading,
-    final PaginationResponseGeneric<GetVideos200Response>? videoResponseModel,
-    VideoModel? video,
     String? error,
   }) {
-    return VideoState(
-      pageable: pageable ?? this.pageable,
-      filter: filter ?? this.filter,
-      search: search ?? this.search,
+    return VideoLoadingState(
       isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
+}
+
+class VideoDataState implements VideoState {
+  final PaginationResponseGeneric<VideoModel>? videoResponseModel;
+  final VideoModel? video;
+  final String? filter;
+  final String? search;
+
+  const VideoDataState({
+    this.videoResponseModel,
+    this.video,
+    this.filter,
+    this.search,
+  });
+
+  VideoDataState copyWith({
+    PaginationResponseGeneric<VideoModel>? videoResponseModel,
+    VideoModel? video,
+    String? filter,
+    String? search,
+  }) {
+    return VideoDataState(
       videoResponseModel: videoResponseModel ?? this.videoResponseModel,
       video: video ?? this.video,
-      error: error ?? this.error,
+      filter: filter ?? this.filter,
+      search: search ?? this.search,
     );
   }
 }

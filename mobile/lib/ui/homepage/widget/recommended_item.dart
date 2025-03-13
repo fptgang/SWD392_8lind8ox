@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:mobile/blocs/blindbox_list/blindbox_list_bloc.dart';
@@ -49,21 +50,20 @@ class RecommendedItems extends StatelessWidget {
   }
 
   Widget _buildGridView(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.7,
+    return Container(
+      height: 550.h,
+      padding: EdgeInsets.symmetric(horizontal: 16.0.w),
       child: PagedGridView<int, BlindBoxModel>(
-        shrinkWrap: true,
         pagingController: context.read<BlindBoxesBloc>().pagingController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.75,
+          childAspectRatio: 0.70,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
         ),
         builderDelegate: PagedChildBuilderDelegate<BlindBoxModel>(
           itemBuilder: (context, blindBox, index) => _buildGridItem(context, blindBox),
           firstPageErrorIndicatorBuilder: (context) => CommonErrorWidget(
-            // error: AppLocalizations.of(context)?.error ?? 'Error',
             error: 'Error',
             onRetry: () => context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
           ),
@@ -133,25 +133,45 @@ class RecommendedItems extends StatelessWidget {
       fit: BoxFit.cover,
     );
   }
-
   Widget _buildDetailsSection(BlindBoxModel blindBox) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.symmetric(horizontal: 8.0.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Product Name
           Text(
-            blindBox.name,
+            blindBox.name ?? "",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: getColorSkin().primaryRed950,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          ...blindBox.skus.map((sku) => Text(
-            "\$${sku.price?.toStringAsFixed(2) ?? '0.00'}",
-            style: TextStyle(color: getColorSkin().primaryRed800),
-          )),
+
+        if (blindBox.skus?.isEmpty ?? true)
+       const Text('No SKUs available')
+
+          else...[
+            Text(
+              "${blindBox.skus?.first.price?.toStringAsFixed(2) ?? '0.00'}VND",
+              style: TextStyle(
+                color: getColorSkin().primaryRed800,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+          if ((blindBox.skus?.length ?? 0) > 1)
+              Text(
+                "${blindBox.skus?[1].price?.toStringAsFixed(2) ?? '0.00'}VND - Set",
+                style: TextStyle(
+                  color: getColorSkin().primaryRed500,
+                  fontSize: 14,
+                ),
+              ),
+          ],
         ],
       ),
     );

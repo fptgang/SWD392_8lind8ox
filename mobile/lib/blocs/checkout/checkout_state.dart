@@ -1,26 +1,60 @@
 import 'package:equatable/equatable.dart';
+import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
+import 'package:mobile/data/models/voucher_model.dart';
+import 'package:mobile/data/models/promotional_campaign_model.dart';
+import 'package:mobile/enum/enum.dart';
 
 class CheckoutState extends Equatable {
-  final OrderModel? orders;
-  final ShippingInfoModel? shippingInfo;
-  final String? selectedPaymentMethod;
+  final CartModel? cartModelToCheckout;
   final bool? loading;
   final String? error;
+  
+  // Form state properties
+  final PaymentMethod? selectedPaymentMethod;
+  final PromotionModel? selectedVoucher;
+  final bool termsAccepted;
+  final bool isOrderCreated;
 
-  const CheckoutState({this.orders, this.shippingInfo, this.selectedPaymentMethod,this.loading, this.error});
+  const CheckoutState({
+    this.cartModelToCheckout,
+    this.loading, 
+    this.error,
+    this.selectedPaymentMethod = PaymentMethod.PAYPAL,
+    this.selectedVoucher,
+    this.termsAccepted = false,
+    this.isOrderCreated = false,
+  });
 
-  CheckoutState copyWith({OrderModel? orders, ShippingInfoModel? shippingInfo, bool? isLoading, String? error, String? selectedPaymentMethod}) {
+  CheckoutState copyWith({
+    CartModel? cartModelToCheckout,
+    bool? isLoading, 
+    String? error,
+    PaymentMethod? selectedPaymentMethod,
+    PromotionModel? selectedVoucher,
+    bool? termsAccepted,
+    bool? isOrderCreated,
+  }) {
     return CheckoutState(
-      orders: orders ?? this.orders,
-      shippingInfo: shippingInfo ?? shippingInfo,
-      selectedPaymentMethod: selectedPaymentMethod ?? selectedPaymentMethod,
-      loading: loading ?? loading,
+      cartModelToCheckout: cartModelToCheckout ?? this.cartModelToCheckout,
+      loading: isLoading ?? loading,
       error: error ?? this.error,
+      selectedPaymentMethod: selectedPaymentMethod ?? this.selectedPaymentMethod,
+      selectedVoucher: selectedVoucher ?? this.selectedVoucher,
+      termsAccepted: termsAccepted ?? this.termsAccepted,
+      isOrderCreated: isOrderCreated ?? this.isOrderCreated,
     );
   }
 
   @override
-  List<Object?> get props => [orders, shippingInfo, selectedPaymentMethod,loading, error];
+  List<Object?> get props => [
+    cartModelToCheckout,
+    loading, 
+    error,
+    selectedPaymentMethod,
+    selectedVoucher,
+    termsAccepted,
+    isOrderCreated,
+  ];
 }

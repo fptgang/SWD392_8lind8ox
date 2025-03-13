@@ -67,5 +67,7 @@
   "empty": "Không có dữ liệu",
   "retry": "Thử lại",
   "noSetAvailable": "Không có sản phẩm nào",
-  "error": "Lỗi"
+  "error": "Lỗi",
+  "sort": "Sắp xếp",
+  "filter": "Lọc"
 }

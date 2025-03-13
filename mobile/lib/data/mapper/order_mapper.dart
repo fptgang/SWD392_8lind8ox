@@ -1,9 +1,14 @@
 
 
+import 'package:mobile/data/mapper/account_mapper.dart';
 import 'package:mobile/data/mapper/order_detail_mapper.dart';
 import 'package:mobile/data/mapper/order_status_history_mapper.dart';
 import 'package:mobile/data/mapper/shipping_info_mapper.dart';
+import 'package:mobile/data/mapper/transaction_mapper.dart';
 import 'package:mobile/data/mapper/voucher_mapper.dart';
+import 'package:mobile/data/models/account_model.dart';
+import 'package:mobile/data/models/order_response_model.dart';
+import 'package:mobile/data/models/transaction_model.dart';
 import 'package:mobile/enum/enum.dart';
 import 'package:openapi/api.dart';
 
@@ -13,71 +18,97 @@ class OrderMapper {
   static OrderModel toModel(OrderDto dto) {
     return OrderModel(
       orderId: dto.orderId!,
-      accountId: dto.accountId!,
+      account: AccountMapper.toModel(dto.account ?? AccountDto()),
+      orderStatusHistories: dto.orderStatusHistories.map((e) => OrderStatusHistoryMapper.toOrderStatusHistoryModel(e)).toList(),
+      latestStatus: toLatestOrderStatusModel(dto.latestStatus ?? OrderStatus.CREATED),
+      orderDetails: dto.orderDetails.map((e) => OrderDetailMapper.toModel(e)).toList(),
+      transaction: TransactionMapper.toModel(dto.transaction ?? TransactionDto()),
       shippingInfo: dto.shippingInfo != null ? ShippingInfoMapper.toModel(dto.shippingInfo!): null,
       voucher: dto.voucher != null ? VoucherMapper.toModel(dto.voucher!) : null,
-      orderDetails: dto.orderDetails.map((e) => OrderDetailMapper.toModel(e)).toList(),
-      orderStatusHistories: dto.orderStatusHistories.map((e) => OrderStatusHistoryMapper.toOrderStatusHistoryModel(e)).toList(),
       createdAt: dto.createdAt!,
       updatedAt: dto.updatedAt,
-      originalPrice: dto.originalPrice!,
-      checkoutPrice: dto.checkoutPrice!,
+      subTotal: dto.subTotal,
+      finalTotal: dto.finalTotal,
     );
   }
 
-  static OrderStatusHistoryEnum toOrderStatusHistoryEnumModel(OrderStatusHistoryDtoStateEnum dto) {
+  static OrderStatusEnum toLatestOrderStatusModel(OrderStatus dto) {
     switch (dto) {
-      case OrderStatusHistoryDtoStateEnum.CREATED:
-        return OrderStatusHistoryEnum.CREATED;
-      case OrderStatusHistoryDtoStateEnum.COURIER_ACCEPTED:
-        return OrderStatusHistoryEnum.COURIER_ACCEPTED;
-      case OrderStatusHistoryDtoStateEnum.SHIPPING:
-        return OrderStatusHistoryEnum.SHIPPING;
-      case OrderStatusHistoryDtoStateEnum.DELIVERED:
-        return OrderStatusHistoryEnum.DELIVERED;
-      case OrderStatusHistoryDtoStateEnum.RECEIVED:
-        return OrderStatusHistoryEnum.RECEIVED;
-      case OrderStatusHistoryDtoStateEnum.COMPLETED:
-        return OrderStatusHistoryEnum.COMPLETED;
+      case OrderStatus.CREATED:
+        return OrderStatusEnum.CREATED;
+      case OrderStatus.PREPARING:
+        return OrderStatusEnum.PREPARING;
+      case OrderStatus.PAYMENT_FAILED:
+        return OrderStatusEnum.PAYMENT_FAILED;
+      case OrderStatus.PAYMENT_EXPIRED:
+        return OrderStatusEnum.PAYMENT_EXPIRED;
+      case OrderStatus.CANCELED:
+        return OrderStatusEnum.CANCELED;
+      case OrderStatus.READY_FOR_PICKUP:
+        return OrderStatusEnum.READY_FOR_PICKUP;
+      case OrderStatus.SHIPPING:
+        return OrderStatusEnum.SHIPPING;
+      case OrderStatus.DELIVERED:
+        return OrderStatusEnum.DELIVERED;
+      case OrderStatus.RECEIVED:
+        return OrderStatusEnum.RECEIVED;
+      case OrderStatus.COMPLETED:
+        return OrderStatusEnum.COMPLETED;
       default:
         throw Exception('Unknown order status: $dto');
+    }
+  }
+
+  static OrderStatus toLatestOrderStatusEnumDto(OrderStatusEnum model) {
+    switch (model) {
+      case OrderStatusEnum.CREATED:
+        return OrderStatus.CREATED;
+      case OrderStatusEnum.PREPARING:
+        return OrderStatus.PREPARING;
+      case OrderStatusEnum.PAYMENT_FAILED:
+        return OrderStatus.PAYMENT_FAILED;
+      case OrderStatusEnum.PAYMENT_EXPIRED:
+        return OrderStatus.PAYMENT_EXPIRED;
+      case OrderStatusEnum.CANCELED:
+        return OrderStatus.CANCELED;
+      case OrderStatusEnum.READY_FOR_PICKUP:
+        return OrderStatus.READY_FOR_PICKUP;
+      case OrderStatusEnum.SHIPPING:
+        return OrderStatus.SHIPPING;
+      case OrderStatusEnum.DELIVERED:
+        return OrderStatus.DELIVERED;
+      case OrderStatusEnum.RECEIVED:
+        return OrderStatus.RECEIVED;
+      case OrderStatusEnum.COMPLETED:
+        return OrderStatus.COMPLETED;
     }
   }
   static OrderDto toDto(OrderModel model) {
     return OrderDto(
       orderId: model.orderId,
-      accountId: model.accountId,
+      account: AccountMapper.toDto(model.account ?? AccountModel()),
+      orderDetails: model.orderDetails!.map((e) => OrderDetailMapper.toDto(e)).toList(),
+      orderStatusHistories: model.orderStatusHistories!.map((e) => OrderStatusHistoryMapper.toDto(e)).toList(),
+      transaction: TransactionMapper.toDto(model.transaction ?? TransactionModel()),
       shippingInfo: model.shippingInfo != null
           ? ShippingInfoMapper.toDto(model.shippingInfo!)
           : null,
       voucher: model.voucher != null
           ? VoucherMapper.toDto(model.voucher!)
           : null,
-      orderDetails: model.orderDetails.map((e) => OrderDetailMapper.toDto(e)).toList(),
-      orderStatusHistories: model.orderStatusHistories!.map((e) => OrderStatusHistoryMapper.toDto(e)).toList(),
+
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
-      originalPrice: model.originalPrice,
-      checkoutPrice: model.checkoutPrice,
+      subTotal: model.subTotal,
+      finalTotal: model.finalTotal
     );
   }
 
-  static OrderStatusHistoryDtoStateEnum toOrderStatusHistoryEnumDto(OrderStatusHistoryEnum model) {
-    switch (model) {
-      case OrderStatusHistoryEnum.CREATED:
-        return OrderStatusHistoryDtoStateEnum.CREATED;
-      case OrderStatusHistoryEnum.COURIER_ACCEPTED:
-        return OrderStatusHistoryDtoStateEnum.COURIER_ACCEPTED;
-      case OrderStatusHistoryEnum.SHIPPING:
-        return OrderStatusHistoryDtoStateEnum.SHIPPING;
-      case OrderStatusHistoryEnum.DELIVERED:
-        return OrderStatusHistoryDtoStateEnum.DELIVERED;
-      case OrderStatusHistoryEnum.RECEIVED:
-        return OrderStatusHistoryDtoStateEnum.RECEIVED;
-      case OrderStatusHistoryEnum.COMPLETED:
-        return OrderStatusHistoryDtoStateEnum.COMPLETED;
-      default:
-        throw Exception('Unknown order status: $model');
-    }
+
+  static OrderResponseModel toOrderResponseModel(PlaceOrder200Response dto) {
+    return OrderResponseModel(
+      order: dto.order != null ? toModel(dto.order!) : null,
+      paymentRedirectUrl: dto.paymentRedirectUrl,
+    );
   }
 }

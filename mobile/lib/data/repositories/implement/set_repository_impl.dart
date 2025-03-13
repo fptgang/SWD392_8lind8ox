@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/set_mapper.dart';
+import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/set_model.dart';
 import 'package:mobile/data/models/sets_response_model.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
@@ -25,19 +27,16 @@ class SetRepositoryImpl implements SetRepository {
   }
 
   @override
-  Future<SetResponseModel> getSets(
-      Pageable pageable, String filter, String search) async {
-    try {
-      GetSets200Response? response = await _apiService.getSets(
-          pageable: pageable, filter: filter, search: search);
-      if (response == null) {
-        throw Exception("Failed to get sets");
+  Future<PaginationResponseGeneric<SetModel>> getSets(Pageable pageable, String filter, String search) async {
+    try{
+      GetSets200Response? response = await _apiService.getSets(pageable: pageable, filter: filter, search: search);
+      if(response == null){
+        throw Exception('Cannot get sku information');
       }
-      SetResponseModel setResponseModel = SetMapper.toModels(response);
-      return setResponseModel;
-    } catch (e) {
-      debugPrint('[SetRepositoryImpl] getSets: $e');
-      throw Exception("Failed to get sets");
+      PaginationResponseGeneric<SetModel>? toyModels = PaginationResponseMapper.toModel(dto: response, fromDTO: (data) => SetMapper.toModel(data));
+      return toyModels;
+    }catch(e){
+      throw Exception('Cannot get sku information');
     }
   }
 }

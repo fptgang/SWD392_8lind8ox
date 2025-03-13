@@ -1,37 +1,44 @@
+import 'package:mobile/data/models/promotional_campaign_model.dart';
+import 'package:mobile/data/models/sku_model.dart';
+import 'package:mobile/data/models/slot_model.dart';
+
 class OrderDetailModel {
   final int orderDetailId;
   final int orderId;
-  final int skuId;
-  final double originalPrice;
-  final double? checkoutPrice;
-  final int? slotId;
-  final int? promotionalCampaignId;
-  final double? originalProductPrice;
-  final DateTime createdAt;
+  final StockKeepingUnitModel? sku;
+  final int? quantity;
+  final PromotionModel? promotionalCampaign;
+  final double? unitPrice;
+  final double? subTotal;
+  final double? finalTotal;
+  final SlotModel? slot;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
 
   OrderDetailModel({
     required this.orderDetailId,
     required this.orderId,
-    required this.skuId,
-    required this.originalPrice,
-    this.checkoutPrice,
-    this.slotId,
-    this.promotionalCampaignId,
-    this.originalProductPrice,
-    required this.createdAt,
+    this.sku,
+    this.quantity,
+    this.promotionalCampaign,
+    this.unitPrice,
+    this.subTotal,
+    this.finalTotal,
+    this.slot,
+    this.createdAt,
     this.updatedAt,
   });
 
   List<Object?> get props => [
     orderDetailId,
     orderId,
-    skuId,
-    originalPrice,
-    checkoutPrice,
-    slotId,
-    promotionalCampaignId,
-    originalProductPrice,
+    sku,
+    quantity,
+    promotionalCampaign,
+    unitPrice,
+    subTotal,
+    finalTotal,
+    slot,
     createdAt,
     updatedAt,
   ];

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,11 +15,14 @@ import 'package:mobile/blocs/set/set_bloc.dart';
 import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/splash/view/splash_sreen.dart';
 import 'package:mobile/ui/account/account_screen.dart';
+import 'package:mobile/ui/account/order_history_screen.dart';
+import 'package:mobile/ui/account/order_tracking_screen.dart';
 import 'package:mobile/ui/account/profile_detail_screen.dart';
-import 'package:mobile/ui/blind_box_detail/widget/blind_box_detail_screen.dart';
+import 'package:mobile/ui/blind_box_detail/blind_box_detail_screen.dart';
 import 'package:mobile/ui/cart/cart_screen.dart';
 import 'package:mobile/ui/checkout/checkout_screen.dart';
 import 'package:mobile/ui/common/bottom_navigation_bar.dart';
+import 'package:mobile/ui/core/storage_keys_helper.dart';
 import 'package:mobile/ui/homepage/homepage_screen.dart';
 import 'package:mobile/ui/login/login_screen.dart';
 import 'package:mobile/ui/new_release/new_release_screen.dart';
@@ -28,6 +30,7 @@ import 'package:mobile/ui/register/register_screen.dart';
 import 'package:mobile/ui/reset_password/forgot_password_screen.dart';
 import 'package:mobile/ui/reset_password/new_password_screen.dart';
 import 'package:mobile/ui/search/search_screen.dart';
+import 'package:mobile/ui/shopping/shopping_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'blocs/authentication/authentication_bloc.dart';
@@ -52,11 +55,23 @@ StreamSubscription<Uri>? _linkSubscription;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp();
+  unawaited(SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]));
+
   await initDeepLinks();
   await dotenv.load(fileName: ".env");
+  // await SharedPreferencesHelper.instance.init();
   await Hive.initFlutter();
   await Hive.openBox("authentication");
-  configureDependencies();
+
+  if (!getIt.isRegistered<LocaleCubit>()) {
+    getIt.registerSingleton<LocaleCubit>(LocaleCubit());
+  }
+  
+  await configureDependencies();
+  
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
@@ -105,53 +120,62 @@ final router = GoRouter(
         return ProductDetailScreen(blindBoxId: blindBoxId);
       },
     ),
+    GoRoute(path: '/shopping', builder: (context, state) => ShoppingScreen()),
     GoRoute(
       path: '/main',
       builder: (context, state) => const MainScreen(),
       routes: [
         GoRoute(
-            path: 'home', builder: (context, state) => const HomePageScreen()),
+            path: '/home', builder: (context, state) => const HomePageScreen()),
         GoRoute(
-            path: 'search', builder: (context, state) => const SearchScreen()),
-        GoRoute(path: 'cart', builder: (context, state) => const CartScreen()),
+            path: '/search', builder: (context, state) => const SearchScreen()),
+        GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
         GoRoute(
-            path: 'new-releases',
+            path: '/new-releases',
             builder: (context, state) => const NewReleasesScreen()),
-        GoRoute(path: 'account', builder: (context, state) => AccountScreen()),
+        GoRoute(path: '/account', builder: (context, state) => AccountScreen()),
       ],
     ),
     GoRoute(path: '/checkout', builder: (context, state) => CheckoutScreen()),
     GoRoute(
         path: '/profile-detail',
         builder: (context, state) => ProfileDetailScreen()),
+    GoRoute(path: '/orders-history', builder: (context, state) => MyOrdersScreen()),
+    GoRoute(path: '/order-history-detail/:id', builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['id'] ?? '', status: OrderStatusEnum.DELIVERED)),
   ],
 );
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final localeCubit = LocaleCubit();
+    
+    final dropdownCubit = DropdownCubit(localeCubit);
+    
+    final authBloc = getIt<AuthenticationBloc>()..add(AuthenticationSubscriptionRequested());
+    
+    debugPrint('Building MyApp - setting up providers...');
+    
     return ScreenUtilInit(
-      designSize: const Size(414, 896),
+      designSize: const Size(390, 844),
+      useInheritedMediaQuery: true,
       minTextAdapt: true,
       splitScreenMode: true,
-      child: MultiProvider(
+      builder: (context, widget) => MultiBlocProvider(
         providers: [
-          Provider<AuthRepository>(
-            create: (_) => getIt<AuthRepository>(),
-          ),
+          BlocProvider.value(value: localeCubit),
           BlocProvider(
             create: (context) => getIt<AuthenticationBloc>()
               ..add(AuthenticationSubscriptionRequested()),
           ),
-          BlocProvider(create: (_) => getIt<LocaleCubit>()),
-          BlocProvider(create: (_) => getIt<DropdownCubit>()),
+          BlocProvider.value(value: dropdownCubit),
           BlocProvider(create: (_) => getIt<CartCubit>()),
           BlocProvider(create: (_) => getIt<BlindBoxesBloc>()),
           BlocProvider(create: (_) => getIt<SetBloc>()),
         ],
-        child: const AppView(),
+        child: AppView(),
       ),
     );
   }
@@ -162,6 +186,8 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Building AppView...');
+    
     return BlocBuilder<LocaleCubit, Locale>(
       builder: (context, locale) {
         return MaterialApp.router(
@@ -181,17 +207,29 @@ class AppView extends StatelessWidget {
           builder: (context, child) {
             return BlocListener<AuthenticationBloc, AuthenticationState>(
               listener: (context, state) {
-                switch (state.status) {
-                  case AuthenticationStatus.authenticated:
-                    context.go('/main');
-                    break;
-                  case AuthenticationStatus.unauthenticated:
-                    context.go('/main');
-                    break;
-                  case AuthenticationStatus.unknown:
-                    context.go('/splash');
-                    break;
-                }
+                debugPrint('Auth state changed: ${state.status}');
+                
+                Future.microtask(() {
+                  try {
+                    final BuildContext routerContext = navigatorKey.currentContext!;
+                    switch (state.status) {
+                      case AuthenticationStatus.authenticated:
+                        debugPrint('Authenticated, navigating to /main');
+                        router.go('/main');
+                        break;
+                      case AuthenticationStatus.unauthenticated:
+                        debugPrint('Unauthenticated, navigating to /login');
+                        router.go('/main');
+                        break;
+                      case AuthenticationStatus.unknown:
+                        debugPrint('Unknown auth state, navigating to /splash');
+                        router.go('/splash');
+                        break;
+                    }
+                  } catch (e) {
+                    debugPrint('Error during navigation: $e');
+                  }
+                });
               },
               child: child ?? const SizedBox.shrink(),
             );

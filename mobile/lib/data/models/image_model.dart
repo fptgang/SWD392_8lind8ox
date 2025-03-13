@@ -1,19 +1,21 @@
 
 
+import 'package:mobile/data/models/account_model.dart';
+
 class ImageModel {
-  final int imageId;
-  final int? uploaderId;
+  final int? imageId;
+  final AccountModel? uploader;
   final int? blindBoxId;
-  final int? packId;
+  final int? toyId;
   final String? imageUrl;
   final bool? isVisible;
   final DateTime? createdAt;
 
   ImageModel({
-    required this.imageId,
-    this.uploaderId,
+    this.imageId,
+    this.uploader,
     this.blindBoxId,
-    this.packId,
+    this.toyId,
     this.imageUrl,
     this.isVisible,
     this.createdAt,
@@ -21,9 +23,9 @@ class ImageModel {
 
   List<Object?> get props => [
     imageId,
-    uploaderId,
+    uploader,
     blindBoxId,
-    packId,
+    toyId,
     imageUrl,
     isVisible,
     createdAt,

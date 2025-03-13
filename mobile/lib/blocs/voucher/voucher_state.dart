@@ -2,42 +2,72 @@ import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/voucher_model.dart';
 import 'package:openapi/api.dart';
 
-class VoucherState {
-  Pageable pageable;
-  final String? filter;
-  final String? search;
-  final bool? isLoading;
-  final PaginationResponseGeneric<GetVouchers200Response>? voucherResponseModel;
-  final VoucherModel? voucher;
+abstract class VoucherState {}
+
+class VoucherPaginationState implements VoucherState {
+  final Pageable pageable;
+  final bool hasReachedEnd;
+
+  const VoucherPaginationState({
+    required this.pageable,
+    this.hasReachedEnd = false,
+  });
+
+  VoucherPaginationState copyWith({
+    Pageable? pageable,
+    bool? hasReachedEnd,
+  }) {
+    return VoucherPaginationState(
+      pageable: pageable ?? this.pageable,
+      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+    );
+  }
+}
+
+class VoucherLoadingState implements VoucherState {
+  final bool isLoading;
   final String? error;
 
-  VoucherState({
-    Pageable? pageable,
-    this.filter,
-    this.search,
-    this.isLoading,
-    this.voucherResponseModel,
-    this.voucher,
+  const VoucherLoadingState({
+    this.isLoading = false,
     this.error,
-  }) : pageable = pageable ?? Pageable(page: 0, size: 10, sort: ['desc']);
+  });
 
-  VoucherState copyWith({
-    Pageable? pageable,
-    String? filter,
-    String? search,
+  VoucherLoadingState copyWith({
     bool? isLoading,
-    final PaginationResponseGeneric<GetVouchers200Response>? voucherResponseModel,
-    VoucherModel? voucher,
     String? error,
   }) {
-    return VoucherState(
-      pageable: pageable ?? this.pageable,
-      filter: filter ?? this.filter,
-      search: search ?? this.search,
+    return VoucherLoadingState(
       isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
+}
+
+class VoucherDataState implements VoucherState {
+  final PaginationResponseGeneric<VoucherModel>? voucherResponseModel;
+  final VoucherModel? voucher;
+  final String? filter;
+  final String? search;
+
+  const VoucherDataState({
+    this.voucherResponseModel,
+    this.voucher,
+    this.filter,
+    this.search,
+  });
+
+  VoucherDataState copyWith({
+    PaginationResponseGeneric<VoucherModel>? voucherResponseModel,
+    VoucherModel? voucher,
+    String? filter,
+    String? search,
+  }) {
+    return VoucherDataState(
       voucherResponseModel: voucherResponseModel ?? this.voucherResponseModel,
       voucher: voucher ?? this.voucher,
-      error: error ?? this.error,
+      filter: filter ?? this.filter,
+      search: search ?? this.search,
     );
   }
 }

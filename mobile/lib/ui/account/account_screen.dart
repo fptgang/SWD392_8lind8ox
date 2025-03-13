@@ -6,7 +6,7 @@ import 'package:mobile/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/blocs/authentication/authentication_state.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
 import 'package:mobile/enum/enum.dart';
-import 'package:mobile/ui/account/widget/setting.dart';
+import 'package:mobile/ui/account/setting_screen.dart';
 import 'package:mobile/ui/core/theme/theme.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../blocs/register/register_bloc.dart';
@@ -25,8 +25,14 @@ class AccountScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: getColorSkin().backgroundColor,
       appBar: AppBar(
-        backgroundColor: getColorSkin().primaryRed650,
+        title: Text("Settings", style: TextStyle(color: getColorSkin().white)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: getColorSkin().white),
+          onPressed: () => Navigator.pop(context),
+        ),
         elevation: 0,
+        backgroundColor: getColorSkin().primaryRed650,
+        foregroundColor: Colors.black,
       ),
       body: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
@@ -39,11 +45,9 @@ class AccountScreen extends StatelessWidget {
             create: (context) => RegisterBloc(authRepository: authRepository),
             child: Center(
               child: SafeArea(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: SettingScreen(),
-                  ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SettingScreen(),
                 ),
               ),
             ),

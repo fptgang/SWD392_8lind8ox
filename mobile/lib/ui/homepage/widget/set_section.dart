@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/blocs/blindbox_list/blindbox_list_state.dart';
 import 'package:mobile/blocs/set/set_bloc.dart';
 import 'package:mobile/blocs/set/set_event.dart';
 import 'package:mobile/blocs/set/set_state.dart';
@@ -21,14 +22,14 @@ class SetSection extends StatelessWidget {
     return BlocBuilder<SetBloc, SetState>(
       bloc: setBloc,
       builder: (context, state) {
-        if (state.isLoading == true) {
-          setBloc.add(GetSets());
+        if (SetLoadingState().isLoading) {
+          setBloc.add(GetSets(1));
           return const Center(child: CircularProgressIndicator());
         }
-        if (state.error != null) {
+        if (SetLoadingState().error != null) {
           return CommonErrorWidget(
-            error: state.error!,
-            onRetry: () => context.read<SetBloc>().add(GetSets()),
+            error: SetLoadingState().error!,
+            onRetry: () => context.read<SetBloc>().add(GetSets(1)),
           );
         }
         return Column(
@@ -48,18 +49,18 @@ class SetSection extends StatelessWidget {
   Widget _buildContent() {
     return BlocBuilder<SetBloc, SetState>(
       builder: (context, state) {
-        if (state.isLoading == true) {
+        if (SetLoadingState().isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (state.error != null) {
+        if (SetLoadingState().error != null) {
           return CommonErrorWidget(
-            error: state.error!,
-            onRetry: () => context.read<SetBloc>().add(GetSets()),
+            error: SetLoadingState().error!,
+            onRetry: () => context.read<SetBloc>().add(GetSets(1)),
           );
         }
 
-        final sets = state.sets?.content;
+        final sets = SetDataState().sets?.content;
         if (sets == null || sets.isEmpty) {
           return buildEmptyIndicator(context);
         }

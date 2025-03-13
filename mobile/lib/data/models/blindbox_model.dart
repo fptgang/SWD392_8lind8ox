@@ -1,45 +1,47 @@
+import 'package:mobile/data/models/blindbox_campaign_model.dart';
+import 'package:mobile/data/models/brand_model.dart';
+import 'package:mobile/data/models/image_model.dart';
+import 'package:mobile/data/models/sku_model.dart';
+import 'package:mobile/data/models/toy_model.dart';
 import 'package:openapi/api.dart';
 
 class BlindBoxModel {
-  final int blindBoxId;
-  final int brandId;
-  final String name;
-  final String description;
-  final bool isVisible;
-  final int? promotionalCampaignId;
-  final List<ImageDto>? images;
-  final List<ToyDto>? toys;
-  final List<StockKeepingUnitDto> skus;
-  final List<int>? setIds;
-  final DateTime createdAt;
+  final int? blindBoxId;
+  final BrandModel? brand;
+  final String? name;
+  final String? description;
+  final List<ImageModel>? images;
+  final List<BlindBoxCampaignModel>? blindBoxCampaigns;
+  final bool? isVisible;
+  final List<ToyModel>? toys;
+  final List<StockKeepingUnitModel>? skus;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
 
   BlindBoxModel({
-    required this.blindBoxId,
-    required this.brandId,
-    required this.name,
-    required this.description,
-    required this.isVisible,
-    this.promotionalCampaignId,
-    this.images = const [],
+    this.blindBoxId,
+    this.brand,
+    this.name,
+    this.description,
+    this.images,
+    this.blindBoxCampaigns = const [],
+    this.isVisible,
     this.toys = const [],
     this.skus = const [],
-    this.setIds = const [],
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   List<Object?> get props => [
     blindBoxId,
-    brandId,
+    brand,
     name,
     description,
-    isVisible,
-    promotionalCampaignId,
     images,
+    blindBoxCampaigns,
+    isVisible,
     toys,
     skus,
-    setIds,
     createdAt,
     updatedAt,
   ];

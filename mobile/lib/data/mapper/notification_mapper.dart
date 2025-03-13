@@ -15,4 +15,15 @@ class NotificationMapper{
     );
   }
 
+  static NotificationDto toDto(NotificationModel model){
+    return NotificationDto(
+      notificationId: model.notificationId,
+      accountId: model.accountId,
+      message: model.message,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+      isRead: model.isRead,
+    );
+  }
+
 }

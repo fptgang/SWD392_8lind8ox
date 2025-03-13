@@ -1,4 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/data/mapper/generic_mapper.dart';
+import 'package:mobile/data/mapper/transaction_mapper.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/transaction_model.dart';
 import 'package:mobile/data/repositories/transaction_repository.dart';
@@ -10,9 +12,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   TransactionRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
   }
 
   @override
@@ -22,23 +22,31 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<TransactionModel> getTransactionById(int id) {
-    // TODO: implement getTransactionById
-    throw UnimplementedError();
+  Future<TransactionModel> getTransactionById(int id) async {
+    try {
+      TransactionDto? transactionDto = await _apiService.getTransactionById(id);
+      if (transactionDto == null) {
+        throw Exception('Cannot get transaction information');
+      }
+      TransactionModel transactionModel = TransactionMapper.toModel(transactionDto);
+      return transactionModel;
+    } catch (e) {
+      throw Exception('Cannot get transaction information');
+    }
   }
 
   @override
-  Future<PaginationResponseGeneric<GetTransactions200Response>> getTransactions(Pageable pageable, String filter, String search) async {
-    // GetTransactions200Response? response = await _apiService.getTransactions(pageable: pageable, filter: filter, search: search);
-    // if (response == null) {
-    //   throw Exception('Failed to load transactions');
-    // }
-    //
-    // return PaginationResponse.fromDTO<TransactionModel, GetTransactions200Response>(
-    //   dto: response,
-    //   fromDTO: (data) => TransactionMapper.toModel(data),
-    // );
-    throw UnimplementedError();
+  Future<PaginationResponseGeneric<TransactionModel>> getTransactions(Pageable pageable, String filter, String search) async {
+    try {
+      GetTransactions200Response? response = await _apiService.getTransactions(pageable: pageable, filter: filter, search: search);
+      if (response == null) {
+        throw Exception('Cannot get transaction information');
+      }
+      PaginationResponseGeneric<TransactionModel>? transactionModels = PaginationResponseMapper.toModel(dto: response, fromDTO: (data) => TransactionMapper.toModel(data));
+      return transactionModels;
+    } catch (e) {
+      throw Exception('Cannot get transaction information');
+    }
   }
 
 }

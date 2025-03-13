@@ -6,7 +6,11 @@ class SelectTransaction extends TransactionEvent {
   SelectTransaction(this.transaction);
 }
 
-class GetTransactions extends TransactionEvent {}
+class GetTransactions extends TransactionEvent {
+  final int pageKey;
+
+  GetTransactions(this.pageKey);
+}
 
 class GetTransactionById extends TransactionEvent {
   final int id;

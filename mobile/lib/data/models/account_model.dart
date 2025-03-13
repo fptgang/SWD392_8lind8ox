@@ -9,6 +9,8 @@ class AccountModel extends Equatable {
   final String? password;
   final String? avatarUrl;
   final double? balance;
+  final DateTime? updateBalanceAt;
+  // AccountDtoRoleEnum? role;
   final bool? isVerified;
   final DateTime? verifiedAt;
   final bool? isVisible;
@@ -23,6 +25,7 @@ class AccountModel extends Equatable {
     this.lastName,
     this.avatarUrl,
     this.balance,
+    this.updateBalanceAt,
     this.isVerified,
     this.verifiedAt,
     this.isVisible,

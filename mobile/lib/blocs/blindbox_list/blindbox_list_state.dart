@@ -1,5 +1,6 @@
-  import 'package:openapi/api.dart';
-  import '../../data/models/blindboxes_response_model.dart';
+  import 'package:mobile/data/models/blindbox_model.dart';
+import 'package:mobile/data/models/generic_response_model.dart';
+import 'package:openapi/api.dart';
 
 
   abstract class BlindBoxesState {}
@@ -49,7 +50,7 @@
   }
 
   class DataState implements BlindBoxesState{
-    final BlindBoxesResponseModel? blindBoxes;
+    final PaginationResponseGeneric<BlindBoxModel>? blindBoxes;
     final String? filter;
 
     const DataState({
@@ -58,7 +59,7 @@
     });
 
     DataState copyWith({
-      BlindBoxesResponseModel? blindBoxes,
+      PaginationResponseGeneric<BlindBoxModel>? blindBoxes,
       String? filter
     }) {
       return DataState(

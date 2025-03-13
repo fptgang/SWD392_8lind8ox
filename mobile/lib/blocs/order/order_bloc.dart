@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/order/order_event.dart';
 import 'package:mobile/blocs/order/order_state.dart';
 import 'package:mobile/data/models/order_detail_model.dart';
@@ -6,13 +9,20 @@ import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
 import 'package:openapi/api.dart';
 
-
+@injectable
+@lazySingleton
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
-  final OrderRepository orderRepository;
+  final OrderRepository _orderRepository;
+  final PagingController<int, OrderModel> pagingController;
 
-  OrderBloc({
-    required this.orderRepository,
-  }) : super(OrderState()) {
+  OrderPaginationState _paginationState;
+  OrderDataState _dataState;
+
+  OrderBloc(this._orderRepository)
+      : _paginationState = OrderPaginationState(pageable: Pageable(page: 1, size: 20)),
+        _dataState = const OrderDataState(),
+        pagingController = PagingController(firstPageKey: 1),
+        super(OrderLoadingState()) {
     on<GetOrders>(_onGetOrders);
     on<GetOrderById>(_onGetOrderById);
     on<UpdateOrder>(_onUpdateOrder);
@@ -27,24 +37,35 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       GetOrders event,
       Emitter<OrderState> emit,
       ) async {
-    try {
-      emit(state.copyWith(isLoading: true));
+    emit(OrderLoadingState(isLoading: true));
 
-      final orders = await orderRepository.getOrders(
-        state.pageable,
-        state.filter ?? '',
-        state.search ?? '',
+    try {
+      final orders = await _orderRepository.getOrders(
+        _paginationState.pageable,
+        _dataState.filter ?? '',
+        _dataState.search ?? '',
       );
 
-      emit(state.copyWith(
-        orders: orders,
-        isLoading: false,
-      ));
+      final isLastPage = orders.content.length < _paginationState.pageable.size;
+
+      if (isLastPage) {
+        pagingController.appendLastPage(orders.content);
+      } else {
+        pagingController.appendPage(
+            orders.content,
+            _paginationState.pageable.page + 1
+        );
+      }
+
+      _paginationState = _paginationState.copyWith(
+        hasReachedEnd: isLastPage,
+      );
+
+      _dataState = _dataState.copyWith(orders: orders);
+      emit(_dataState);
     } catch (error) {
-      emit(state.copyWith(
-        error: error.toString(),
-        isLoading: false,
-      ));
+      pagingController.error = error;
+      emit(OrderLoadingState(error: error.toString(), isLoading: false));
     }
   }
 
@@ -52,20 +73,14 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       GetOrderById event,
       Emitter<OrderState> emit,
       ) async {
+    emit(OrderLoadingState(isLoading: true));
+
     try {
-      emit(state.copyWith(isLoading: true));
-
-      final order = await orderRepository.getOrderById(event.id);
-
-      emit(state.copyWith(
-        order: order,
-        isLoading: false,
-      ));
+      final order = await _orderRepository.getOrderById(event.id);
+      _dataState = _dataState.copyWith(order: order);
+      emit(_dataState);
     } catch (error) {
-      emit(state.copyWith(
-        error: error.toString(),
-        isLoading: false,
-      ));
+      emit(OrderLoadingState(error: error.toString()));
     }
   }
 
@@ -73,7 +88,8 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       UpdateOrder event,
       Emitter<OrderState> emit,
       ) {
-    emit(state.copyWith(order: event.order));
+    _dataState = _dataState.copyWith(order: event.order);
+    emit(_dataState);
 
     // Refresh the orders list to reflect the update
     add(GetOrders());
@@ -83,9 +99,11 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       AddOrderDetail event,
       Emitter<OrderState> emit,
       ) {
-    if (state.order == null) return;
+    if (_dataState.order == null) return;
 
-    final currentDetails = List<OrderDetailModel>.from(state.order!.orderDetails);
+    final currentDetails = _dataState.order!.orderDetails != null
+        ? List<OrderDetailModel>.from(_dataState.order!.orderDetails!)
+        : <OrderDetailModel>[];
 
     final index = currentDetails.indexWhere(
             (detail) => detail.orderDetailId == event.orderDetail.orderDetailId
@@ -98,34 +116,33 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     }
 
     final updatedOrder = OrderModel(
-      orderId: state.order!.orderId,
-      accountId: state.order!.accountId,
+      orderId: _dataState.order!.orderId,
       orderDetails: currentDetails,
-      orderStatusHistories: state.order!.orderStatusHistories,
-      createdAt: state.order!.createdAt,
+      orderStatusHistories: _dataState.order!.orderStatusHistories,
+      createdAt: _dataState.order!.createdAt,
       updatedAt: DateTime.now(),
-      originalPrice: state.order!.originalPrice,
-      checkoutPrice: state.order!.checkoutPrice,
+      subTotal: _dataState.order!.subTotal,
+      finalTotal: _dataState.order!.finalTotal,
     );
 
-    emit(state.copyWith(order: updatedOrder));
+    _dataState = _dataState.copyWith(order: updatedOrder);
+    emit(_dataState);
   }
 
   void _onLoadNextPage(
       LoadNextPage event,
       Emitter<OrderState> emit,
       ) {
-    if (state.isLoading == true) return;
-    if (state.orders?.last == true) return;
+    if (_paginationState.hasReachedEnd) return;
 
-    final nextPage = state.pageable.page + 1;
+    final nextPage = _paginationState.pageable.page + 1;
     final newPageable = Pageable(
       page: nextPage,
-      size: state.pageable.size,
-      sort: state.pageable.sort,
+      size: _paginationState.pageable.size,
+      sort: _paginationState.pageable.sort,
     );
 
-    emit(state.copyWith(pageable: newPageable));
+    _paginationState = _paginationState.copyWith(pageable: newPageable);
     add(GetOrders());
   }
 
@@ -133,13 +150,19 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       RefreshOrders event,
       Emitter<OrderState> emit,
       ) {
+    pagingController.refresh();
+
     final resetPageable = Pageable(
-      page: 0,
-      size: state.pageable.size,
-      sort: state.pageable.sort,
+      page: 1,
+      size: _paginationState.pageable.size,
+      sort: _paginationState.pageable.sort,
     );
 
-    emit(state.copyWith(pageable: resetPageable));
+    _paginationState = _paginationState.copyWith(
+        pageable: resetPageable,
+        hasReachedEnd: false
+    );
+
     add(GetOrders());
   }
 
@@ -147,10 +170,20 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       UpdateFilter event,
       Emitter<OrderState> emit,
       ) {
-    emit(state.copyWith(
-      filter: event.filter,
-      pageable: Pageable(page: 0, size: state.pageable.size, sort: state.pageable.sort),
-    ));
+    pagingController.refresh();
+
+    _dataState = _dataState.copyWith(filter: event.filter);
+
+    _paginationState = _paginationState.copyWith(
+        pageable: Pageable(
+            page: 1,
+            size: _paginationState.pageable.size,
+            sort: _paginationState.pageable.sort
+        ),
+        hasReachedEnd: false
+    );
+
+    emit(_dataState);
     add(GetOrders());
   }
 
@@ -158,10 +191,20 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       UpdateSearch event,
       Emitter<OrderState> emit,
       ) {
-    emit(state.copyWith(
-      search: event.search,
-      pageable: Pageable(page: 0, size: state.pageable.size, sort: state.pageable.sort),
-    ));
+    pagingController.refresh();
+
+    _dataState = _dataState.copyWith(search: event.search);
+
+    _paginationState = _paginationState.copyWith(
+        pageable: Pageable(
+            page: 1,
+            size: _paginationState.pageable.size,
+            sort: _paginationState.pageable.sort
+        ),
+        hasReachedEnd: false
+    );
+
+    emit(_dataState);
     add(GetOrders());
   }
 }

@@ -13,6 +13,8 @@ class LoginScreen extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
+    debugPrint('Building LoginScreen...');
+    
     return BlocProvider<LoginBloc>(
         create: (context) => getIt<LoginBloc>(),
         child: Scaffold(

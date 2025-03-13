@@ -1,8 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:mobile/cubit/cart_cubit/cart_cubit.dart';
 import 'package:mobile/data/models/order_detail_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 
 import '../../data/models/order_model.dart';
+import '../../data/models/cart_model.dart';
+import '../../data/models/promotional_campaign_model.dart';
 
 abstract class CheckoutEvent extends Equatable {
   const CheckoutEvent();
@@ -12,15 +15,14 @@ abstract class CheckoutEvent extends Equatable {
 }
 
 class Checkout extends CheckoutEvent {
-  final OrderModel? orders;
-  final ShippingInfoModel? shippingInfo;
-  final String? paymentMethod;
+  final CartModel? cartModelToCheckout;
 
-
-  const Checkout({this.orders, this.shippingInfo, this.paymentMethod});
+  const Checkout({
+    this.cartModelToCheckout,
+  });
 
   @override
-  List<Object?> get props => [orders, shippingInfo, paymentMethod];
+  List<Object?> get props => [cartModelToCheckout];
 }
 
 class SelectPaymentMethod extends CheckoutEvent {
@@ -30,15 +32,6 @@ class SelectPaymentMethod extends CheckoutEvent {
 
   @override
   List<Object?> get props => [paymentMethod];
-}
-
-class OrderDetailAdded extends CheckoutEvent {
-  final OrderDetailModel orderDetail;
-
-  const OrderDetailAdded(this.orderDetail);
-
-  @override
-  List<Object?> get props => [orderDetail];
 }
 
 class OrderFetched extends CheckoutEvent {
@@ -51,3 +44,30 @@ class OrderFetched extends CheckoutEvent {
 }
 
 class CalculateTotalPrice extends CheckoutEvent {}
+
+class ApplyVoucher extends CheckoutEvent {
+  final int voucherId;
+
+  const ApplyVoucher(this.voucherId);
+  
+  @override
+  List<Object?> get props => [voucherId];
+}
+
+class SetTermsAccepted extends CheckoutEvent {
+  final bool accepted;
+
+  const SetTermsAccepted(this.accepted);
+  
+  @override
+  List<Object?> get props => [accepted];
+}
+
+class UpdateSelectedVoucher extends CheckoutEvent {
+  final PromotionModel? voucher;
+
+  const UpdateSelectedVoucher(this.voucher);
+  
+  @override
+  List<Object?> get props => [voucher];
+}

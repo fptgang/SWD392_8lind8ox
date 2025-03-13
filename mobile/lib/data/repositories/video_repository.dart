@@ -12,5 +12,5 @@ import 'package:http/http.dart';
 abstract class VideoRepository {
   Future<VideoModel> getVideoById(int id);
   Future<VideoModel> uploadVideo(int accountID, int orderDetailId, MultipartFile videoBlob, bool isVisible);
-  Future<PaginationResponseGeneric<GetVideos200Response>> getVideos(Pageable pageable, String filter, String search);
+  Future<PaginationResponseGeneric<VideoModel>> getVideos(Pageable pageable, String filter, String search);
 }

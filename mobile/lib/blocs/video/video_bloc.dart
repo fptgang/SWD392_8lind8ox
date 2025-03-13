@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/blocs/video/video_event.dart';
 import 'package:mobile/blocs/video/video_state.dart';
+import 'package:mobile/data/models/video_model.dart';
 import 'package:mobile/data/repositories/video_repository.dart';
 import 'package:openapi/api.dart';
 
@@ -10,9 +12,16 @@ import 'package:openapi/api.dart';
 @lazySingleton
 class VideoBloc extends Bloc<VideoEvent, VideoState> {
   final VideoRepository _videoRepository;
+  final PagingController<int, VideoModel> pagingController;
+
+  VideoPaginationState _paginationState;
+  VideoDataState _dataState;
 
   VideoBloc(this._videoRepository)
-      : super(VideoState(pageable: Pageable(page: 1, size: 20))) {
+      : _paginationState = VideoPaginationState(pageable: Pageable(page: 1, size: 20)),
+        _dataState = const VideoDataState(),
+        pagingController = PagingController(firstPageKey: 1),
+        super(VideoLoadingState()) {
     on<SelectVideo>(_onSelectVideo);
     on<GetVideos>(_onGetVideos);
     on<GetVideoById>(_onGetVideoById);
@@ -22,33 +31,35 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       SelectVideo event,
       Emitter<VideoState> emit,
       ) {
-    emit(state.copyWith(filter: event.video));
+    _dataState = _dataState.copyWith(filter: event.video);
+    emit(_dataState);
   }
 
   Future<void> _onGetVideos(
       GetVideos event,
       Emitter<VideoState> emit,
       ) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(VideoLoadingState(isLoading: true));
 
     try {
       final videos = await _videoRepository.getVideos(
-          state.pageable,
-          state.filter ?? '',
-          state.search ?? ''
+          _paginationState.pageable,
+          _dataState.filter ?? '',
+          _dataState.search ?? ''
       );
       debugPrint('videos: $videos');
 
-      emit(state.copyWith(
-        videoResponseModel: videos,
-        isLoading: false,
+      _paginationState = _paginationState.copyWith(
         pageable: Pageable(
-          page: state.pageable.page,
+          page: _paginationState.pageable.page + 1,
           size: 20,
         ),
-      ));
+      );
+
+      _dataState = _dataState.copyWith(videoResponseModel: videos);
+      emit(_dataState);
     } catch (e) {
-      emit(state.copyWith(error: e.toString(), isLoading: false));
+      emit(VideoLoadingState(error: e.toString(), isLoading: false));
     }
   }
 
@@ -56,16 +67,14 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       GetVideoById event,
       Emitter<VideoState> emit,
       ) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(VideoLoadingState(isLoading: true));
 
     try {
       final video = await _videoRepository.getVideoById(event.id);
-      emit(state.copyWith(
-          video: video,
-          isLoading: false
-      ));
+      _dataState = _dataState.copyWith(video: video);
+      emit(_dataState);
     } catch (e) {
-      emit(state.copyWith(error: e.toString(), isLoading: false));
+      emit(VideoLoadingState(error: e.toString()));
     }
   }
 }

@@ -7,7 +7,6 @@ import 'image_model.dart';
 class SetModel {
   int setId;
   StockKeepingUnitModel sku;
-  List<ImageModel> images;
   bool? isVisible;
   List<SlotModel> slots;
   BlindBoxModel blindBox;
@@ -17,7 +16,6 @@ class SetModel {
   SetModel({
     required this.setId,
     required this.sku,
-    this.images = const [],
     this.isVisible,
     this.slots = const [],
     required this.blindBox,
@@ -28,7 +26,6 @@ class SetModel {
   List<Object> get props => [
     setId,
     sku,
-    images,
     isVisible!,
     slots,
     blindBox,
