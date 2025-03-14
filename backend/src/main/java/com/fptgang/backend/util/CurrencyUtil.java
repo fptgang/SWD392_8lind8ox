@@ -1,5 +1,6 @@
 package com.fptgang.backend.util;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 public class CurrencyUtil {
@@ -15,5 +16,10 @@ public class CurrencyUtil {
 
     public static String format(Object amount) {
         return DF.format(amount);
+    }
+
+    // Convert USD to VND with a provided exchange rate
+    public static BigDecimal convertUsdToVnd(BigDecimal usdAmount, BigDecimal exchangeRate) {
+        return usdAmount.multiply(exchangeRate);
     }
 }
