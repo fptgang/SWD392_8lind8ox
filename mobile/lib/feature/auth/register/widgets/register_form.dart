@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/base/theme/theme.dart';
@@ -25,6 +26,11 @@ class RegisterForm extends StatelessWidget {
                       Text(AppLocalizations.of(context)!.authenticationFailed)),
             );
         } else if (state.status.isSuccess) {
+          Fluttertoast.showToast(
+            msg: AppLocalizations.of(context)!.registerSuccessfully,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+          );
           context.push('/login');
         }
       },

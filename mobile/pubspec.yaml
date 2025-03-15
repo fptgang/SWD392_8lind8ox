@@ -76,6 +76,7 @@ dependencies:
   dart_jsonwebtoken: ^3.1.1
   timeline_tile: ^2.0.0
   http_interceptor: ^2.0.0
+  fluttertoast: ^8.2.12
 
 
 dev_dependencies:

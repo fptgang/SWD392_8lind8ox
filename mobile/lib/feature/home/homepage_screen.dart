@@ -30,7 +30,7 @@ class HomePageScreen extends StatelessWidget {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            // Add refresh functionality here
+
             await Future.delayed(const Duration(seconds: 1));
             return;
           },
@@ -111,7 +111,7 @@ class HomePageScreen extends StatelessWidget {
             badgeContent: Text(
               itemCount.toString(),
               style: TextStyle(
-                color: getColorSkin().white,
+                color: getColorSkin().primaryRed650,
                 fontSize: 10,
               ),
             ),

@@ -30,8 +30,7 @@ class NewReleaseProducts extends StatelessWidget {
           if (state.error != null && state is! DataState) {
             return CommonErrorWidget(
               error: state.error!,
-              onRetry: () =>
-                  context.read<BlindBoxesListBloc>().add(RefreshBlindBoxes()),
+              onRetry: () => context.read<BlindBoxesListBloc>().add(RefreshBlindBoxes()),
             );
           }
         }
@@ -48,8 +47,7 @@ class NewReleaseProducts extends StatelessWidget {
       height: 200.h,
       child: Center(
         child: CircularProgressIndicator(
-          valueColor:
-              AlwaysStoppedAnimation<Color>(getColorSkin().primaryRed600),
+          valueColor: AlwaysStoppedAnimation<Color>(getColorSkin().primaryRed600),
         ),
       ),
     );

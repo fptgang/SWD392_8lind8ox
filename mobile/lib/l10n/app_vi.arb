@@ -69,5 +69,7 @@
   "noSetAvailable": "Không có sản phẩm nào",
   "error": "Lỗi",
   "sort": "Sắp xếp",
-  "filter": "Lọc"
+  "filter": "Lọc",
+  "loginSuccessfully": "Đăng nhập thành công",
+  "registerSuccessfully": "Đăng ký thành công"
 }

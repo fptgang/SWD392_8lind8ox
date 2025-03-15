@@ -54,11 +54,11 @@ class AuthRepositoryImpl implements AuthRepository {
       debugPrint("dto: $dto");
       debugPrint("AuthMapper.toModel(dto): ${AuthMapper.toModel(dto)}");
       debugPrint("${AuthenticationStatus.authenticated}");
-
+      debugPrint("token: ${box.get('loginToken')}");
       return AuthMapper.toModel(dto);
-    } catch (e) {
+    } catch (e, stackTrace) {
       throw Exception(
-          'Login failed repository, please try again, ${e.toString()}');
+          'Login failed repository, please try again, ${e.toString()}, ${stackTrace.toString()}');
     }
   }
 

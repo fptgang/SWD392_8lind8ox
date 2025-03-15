@@ -29,9 +29,6 @@ class CheckoutScreen extends StatelessWidget {
     final promotionBloc = getIt<PromotionBloc>();
     final shippingInfoBloc = getIt<ShippingInfoBloc>();
 
-    // Load shipping info for current user
-    // final accountId = Hive.box('authentication').get('accountId');
-    // debugPrint('Loading shipping info for accountId: $accountId');
     shippingInfoBloc.add(GetShippingInfos(0));
 
     return MultiBlocProvider(

@@ -166,9 +166,7 @@ void _registerAPI(Box box) {
   if (!getIt.isRegistered<DefaultApi>()) {
     getIt.registerLazySingleton<DefaultApi>(
         () => DefaultApi(ApiClient(basePath: dotenv.env['BASE_URL'] ?? '')
-          ..authentication?.applyToParams([], {
-            "Authorization": "Bearer ${box.get('loginToken')}",
-          })));
+          ));
   }
 }
 

@@ -65,6 +65,11 @@ Future<void> _initializeApp() async {
   // Initialize local storage
   await Hive.initFlutter();
   await Hive.openBox("authentication");
+  // if (box.containsKey("loginToken")) {
+  //   box.delete("loginToken");
+  // }
+
+
 
   // Initialize deep linking
   await _initDeepLinks();
