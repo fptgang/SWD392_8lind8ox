@@ -38,8 +38,20 @@ class _ImageCarouselState extends State<ImageCarousel>
   @override
   void didUpdateWidget(ImageCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update page if the selected image index changed but the page hasn't
-    if (oldWidget.state.selectedImageIndex != widget.state.selectedImageIndex &&
+
+    // If the SKU has changed, we want to always show the first image (which is the SKU image)
+    if (oldWidget.state.sku?.skuId != widget.state.sku?.skuId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.pageController.animateToPage(
+          0, // Always go to first image (the SKU image) when SKU changes
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+    // Otherwise, update page if the selected image index changed but the page hasn't
+    else if (oldWidget.state.selectedImageIndex !=
+            widget.state.selectedImageIndex &&
         widget.pageController.hasClients &&
         widget.pageController.page?.round() !=
             widget.state.selectedImageIndex) {

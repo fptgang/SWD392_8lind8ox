@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/common/widgets/error.dart';
 import 'package:mobile/base/common/widgets/no_data.dart';
 import 'package:mobile/base/theme/theme.dart';
@@ -19,46 +20,54 @@ class RecommendedItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final blindBoxBloc = context.read<BlindBoxesBloc>();
-    return BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
+    final blindBoxBloc = getIt<BlindBoxesListBloc>();
+
+    return BlocBuilder<BlindBoxesListBloc, BlindBoxesState>(
       bloc: blindBoxBloc,
       builder: (context, state) {
         if (state is LoadingState) {
           if (state.isLoading && state is! DataState) {
-            blindBoxBloc.add(GetBlindBoxes(1));
             return const Center(child: CircularProgressIndicator());
           }
 
           if (state.error != null && state is! DataState) {
             return CommonErrorWidget(
               error: state.error!,
-              onRetry: () =>
-                  context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
+              onRetry: () => blindBoxBloc.add(RefreshBlindBoxes()),
             );
           }
         }
-        return Column(
-          children: [
-            SectionHeader(
-                title:
-                    AppLocalizations.of(context)?.recommended ?? "Recommended",
-                onSeeAllPressed: () {
-                  context.push('/blind-boxes');
-                }),
-            _buildGridView(context),
-          ],
-        );
+
+        return _buildContent(context);
       },
     );
   }
 
+  Widget _buildContent(BuildContext context) {
+    return Column(
+      children: [
+        _buildSectionHeader(context),
+        _buildGridView(context),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context) {
+    return SectionHeader(
+      title: AppLocalizations.of(context)?.recommended ?? "Recommended",
+      onSeeAllPressed: () => context.push('/blind-boxes'),
+    );
+  }
+
   Widget _buildGridView(BuildContext context) {
+    final blindBoxBloc = context.read<BlindBoxesListBloc>();
+
     return Container(
       height: 550.h,
       padding: EdgeInsets.symmetric(horizontal: 16.0.w),
       child: PagedGridView<int, BlindBoxModel>(
         physics: const NeverScrollableScrollPhysics(),
-        pagingController: context.read<BlindBoxesBloc>().pagingController,
+        pagingController: blindBoxBloc.pagingController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 0.70,
@@ -70,8 +79,7 @@ class RecommendedItems extends StatelessWidget {
               _buildGridItem(context, blindBox),
           firstPageErrorIndicatorBuilder: (context) => CommonErrorWidget(
             error: 'Error',
-            onRetry: () =>
-                context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
+            onRetry: () => blindBoxBloc.add(RefreshBlindBoxes()),
           ),
           noItemsFoundIndicatorBuilder: (context) =>
               buildEmptyIndicator(context),
@@ -120,15 +128,19 @@ class RecommendedItems extends StatelessWidget {
   }
 
   Widget _buildBlindBoxImage(BlindBoxModel blindBox) {
-    if (blindBox.images?.isNotEmpty ?? false) {
+    final hasValidImages = blindBox.images?.isNotEmpty ?? false;
+    final imageUrl = hasValidImages ? blindBox.images!.first.imageUrl : null;
+
+    if (imageUrl != null && imageUrl.isNotEmpty) {
       return Image.network(
-        blindBox.images![0].imageUrl ?? "",
+        imageUrl,
         height: 120,
         width: double.infinity,
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => _buildFallbackImage(),
       );
     }
+
     return _buildFallbackImage();
   }
 
@@ -147,39 +159,52 @@ class RecommendedItems extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Name
-          Text(
-            blindBox.name ?? "",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: getColorSkin().primaryRed950,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+          _buildProductName(blindBox),
           const SizedBox(height: 4),
-
-          if (blindBox.skus?.isEmpty ?? true)
-            const Text('No SKUs available')
-          else ...[
-            Text(
-              "${blindBox.skus?.first.price?.toStringAsFixed(2) ?? '0.00'}VND",
-              style: TextStyle(
-                color: getColorSkin().primaryRed800,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if ((blindBox.skus?.length ?? 0) > 1)
-              Text(
-                "${blindBox.skus?[1].price?.toStringAsFixed(2) ?? '0.00'}VND - Set",
-                style: TextStyle(
-                  color: getColorSkin().primaryRed500,
-                  fontSize: 14,
-                ),
-              ),
-          ],
+          _buildPriceInfo(blindBox),
         ],
       ),
+    );
+  }
+
+  Widget _buildProductName(BlindBoxModel blindBox) {
+    return Text(
+      blindBox.name ?? "",
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: getColorSkin().primaryRed950,
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildPriceInfo(BlindBoxModel blindBox) {
+    final hasSku = !(blindBox.skus?.isEmpty ?? true);
+
+    if (!hasSku) {
+      return const Text('No SKUs available');
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "${blindBox.skus!.first.price?.toStringAsFixed(2) ?? '0.00'}VND",
+          style: TextStyle(
+            color: getColorSkin().primaryRed800,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        if ((blindBox.skus?.length ?? 0) > 1)
+          Text(
+            "${blindBox.skus![1].price?.toStringAsFixed(2) ?? '0.00'}VND - Set",
+            style: TextStyle(
+              color: getColorSkin().primaryRed500,
+              fontSize: 14,
+            ),
+          ),
+      ],
     );
   }
 }

@@ -1,192 +1,200 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
-import 'package:mobile/feature/cart/cubits/cart_state.dart';
 
 class CartItemWidget extends StatelessWidget {
-  final CartDisplayItem cartItem;
+  final dynamic cartItem;
+  final VoidCallback onRemove;
+  final Function(int) onQuantityChanged;
 
-  const CartItemWidget({super.key, required this.cartItem});
+  const CartItemWidget({
+    super.key,
+    required this.cartItem,
+    required this.onRemove,
+    required this.onQuantityChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CartCubit, CartState>(
-      builder: (context, state) {
-        if (!state.items.any((item) => item.id == cartItem.id)) {
-          return const SizedBox.shrink();
-        }
+    final String imageUrl = cartItem.image ?? '';
+    final String productName = cartItem.productName ?? 'Unknown Product';
+    final double price = cartItem.price ?? 0.0;
+    final int quantity = cartItem.quantity ?? 1;
+    final double total = price * quantity;
 
-        final bool isSelected = state.selectedItemIds.contains(cartItem.id);
-
-        return Dismissible(
-          key: Key(cartItem.id.toString()),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: const Icon(Icons.delete, color: Colors.white),
+    return Container(
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: getColorSkin().white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: getColorSkin().shadowLight,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
-          onDismissed: (direction) {
-            debugPrint('Dismissing item with ID: ${cartItem.id}');
-            context.read<CartCubit>().removeFromCart(cartItem.id);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Item removed from cart'),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: isSelected,
-                  activeColor: getColorSkin().primaryRed800,
-                  onChanged: (bool? value) {
-                    context.read<CartCubit>().toggleItemSelection(cartItem.id);
-                  },
-                ),
-                Image.network(
-                  cartItem.image,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Product Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: SizedBox(
                   width: 80.w,
-                  height: 80.h,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/jpg/blind_box.jpg',
-                      width: 80.w,
-                      height: 80.h,
-                      fit: BoxFit.cover,
-                    );
-                  },
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cartItem.productName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                  height: 80.w,
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: getColorSkin().lightGrey200,
+                              child: const Center(
+                                child: Icon(Icons.image_not_supported),
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          color: getColorSkin().lightGrey200,
+                          child: const Center(
+                            child: Icon(Icons.image_not_supported),
+                          ),
                         ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+
+              // Product details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      productName,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: getColorSkin().darkGrey,
                       ),
-                      SizedBox(height: 8.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: getColorSkin().primaryRed200,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      '\$${price.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: getColorSkin().primaryRed800,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Quantity controls
+                        Row(
+                          children: [
+                            _buildQuantityButton(
+                              icon: Icons.remove,
+                              onPressed: quantity > 1
+                                  ? () => onQuantityChanged(quantity - 1)
+                                  : null,
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              quantity.toString(),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.remove,
-                                    size: 16,
-                                    color: getColorSkin().primaryRed800,
-                                  ),
-                                  onPressed: () {
-                                    if (cartItem.quantity > 1) {
-                                      context.read<CartCubit>().updateQuantity(
-                                            cartItem.id,
-                                            cartItem.quantity - 1,
-                                          );
-                                    } else {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: const Text('Remove Item'),
-                                          content: const Text(
-                                              'Do you want to remove this item from cart?'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
-                                              child: Text(
-                                                'Cancel',
-                                                style: TextStyle(
-                                                    color: getColorSkin().grey),
-                                              ),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                debugPrint(
-                                                    'Removing item from cart with ID: ${cartItem.id}');
-                                                context
-                                                    .read<CartCubit>()
-                                                    .removeFromCart(
-                                                        cartItem.id);
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                        'Item removed from cart'),
-                                                    duration:
-                                                        Duration(seconds: 2),
-                                                  ),
-                                                );
-                                              },
-                                              child: const Text(
-                                                'Remove',
-                                                style: TextStyle(
-                                                    color: Colors.red),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                                Text(
-                                  cartItem.quantity.toString(),
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.add,
-                                    size: 16,
-                                    color: getColorSkin().primaryRed800,
-                                  ),
-                                  onPressed: () {
-                                    context.read<CartCubit>().updateQuantity(
-                                          cartItem.id,
-                                          cartItem.quantity + 1,
-                                        );
-                                  },
-                                ),
-                              ],
+                            SizedBox(width: 8.w),
+                            _buildQuantityButton(
+                              icon: Icons.add,
+                              onPressed: () => onQuantityChanged(quantity + 1),
                             ),
+                          ],
+                        ),
+
+                        // Total
+                        Text(
+                          'Total: \$${total.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: getColorSkin().darkGrey,
                           ),
-                          Text(
-                            "\$${(cartItem.price * cartItem.quantity).toStringAsFixed(2)}",
-                            style: TextStyle(
-                              color: getColorSkin().primaryRed800,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+
+          // Remove button
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: onRemove,
+              icon: Icon(
+                Icons.delete_outline,
+                color: getColorSkin().warningRed,
+                size: 18.sp,
+              ),
+              label: Text(
+                'Remove',
+                style: TextStyle(
+                  color: getColorSkin().warningRed,
+                  fontSize: 12.sp,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
           ),
-        );
-      },
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuantityButton({
+    required IconData icon,
+    required VoidCallback? onPressed,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: onPressed != null
+            ? getColorSkin().lightGrey100
+            : getColorSkin().lightGrey300,
+        borderRadius: BorderRadius.circular(4.r),
+      ),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(4.r),
+        child: Padding(
+          padding: EdgeInsets.all(4.r),
+          child: Icon(
+            icon,
+            size: 16.sp,
+            color: onPressed != null
+                ? getColorSkin().darkGrey
+                : getColorSkin().grey,
+          ),
+        ),
+      ),
     );
   }
 }

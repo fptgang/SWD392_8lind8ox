@@ -4,9 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
+import 'package:mobile/app/blocs/cart/cart_state.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
-import 'package:mobile/feature/cart/cubits/cart_state.dart';
 import 'package:mobile/feature/home/widget/filter_button.dart';
 import 'package:mobile/feature/home/widget/new_release_products.dart';
 import 'package:mobile/feature/home/widget/recommended_item.dart';
@@ -21,6 +22,9 @@ class HomePageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var cartBloc = getIt<CartGlobalBloc>();
+    var cartState = cartBloc.state;
+
     return Scaffold(
       backgroundColor: getColorSkin().backgroundColor,
       body: SafeArea(
@@ -98,7 +102,7 @@ class HomePageScreen extends StatelessWidget {
         ),
         SizedBox(width: 16.w),
         // LanguageDropdown(),
-        BlocBuilder<CartCubit, CartState>(builder: (context, cartState) {
+        BlocBuilder<CartGlobalBloc, CartState>(builder: (context, cartState) {
           final int itemCount =
               cartState.items.fold(0, (sum, item) => sum + item.quantity);
 

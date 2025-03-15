@@ -16,6 +16,7 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get the cart cubit from dependency injection
     final cartCubit = getIt<CartCubit>();
 
     return MultiBlocProvider(
@@ -24,8 +25,9 @@ class ProductDetailScreen extends StatelessWidget {
           create: (context) =>
               getIt<BlindBoxDetailBloc>()..add(FetchBlindBoxDetail(blindBoxId)),
         ),
-        BlocProvider(
-          create: (context) => cartCubit,
+        // Make sure we provide the CartCubit instance here
+        BlocProvider.value(
+          value: cartCubit,
         ),
       ],
       child: const _PageControllerProvider(
@@ -127,6 +129,7 @@ class _ProductDetailView extends StatelessWidget {
         if (state is BlindBoxDataState) {
           return buildBlindBoxDetailLoadedState(context, state, pageController);
         }
+
         return const SizedBox.shrink();
       },
     );

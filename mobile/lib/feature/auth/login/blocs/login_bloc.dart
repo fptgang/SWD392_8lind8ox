@@ -1,3 +1,4 @@
+// login_bloc.dart (updated version)
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
@@ -21,7 +22,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         super(const LoginState()) {
     on<LoginUsernameChanged>(_onUsernameChanged);
     on<LoginPasswordChanged>(_onPasswordChanged);
-    on<LoginSubmitted>(onLoginSubmitted);
+    on<LoginSubmitted>(_onLoginSubmitted);
     on<LoginWithGoogle>(_onLoginWithGoogle);
   }
 
@@ -34,6 +35,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       state.copyWith(
         username: username,
         isValid: Formz.validate([state.password, username]),
+        status: FormzSubmissionStatus.initial,
+        errorMessage: null,
       ),
     );
   }
@@ -47,48 +50,72 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       state.copyWith(
         password: password,
         isValid: Formz.validate([password, state.username]),
+        status: FormzSubmissionStatus.initial,
+        errorMessage: null,
       ),
     );
   }
 
-  void onLoginSubmitted(LoginSubmitted event, Emitter<LoginState> emit) async {
+  Future<void> _onLoginSubmitted(
+      LoginSubmitted event, Emitter<LoginState> emit) async {
+    if (!state.isValid) {
+      return;
+    }
+
+    emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+
     try {
-      debugPrint("username: ${state.username.value}");
       final loginRequestDto = LoginRequestDto(
         email: state.username.value,
         password: state.password.value,
       );
-      debugPrint("loginRequestDto: $loginRequestDto");
+
       final result = await _authRepository.login(loginRequestDto);
-      debugPrint("result: $result.token");
       final box = Hive.box("authentication");
       await box.put("loginToken", result.token);
-      debugPrint("loginToken hehhe: ${result.token}");
-      emit(state.copyWith(status: FormzSubmissionStatus.success));
-    } catch (error, stackTrace) {
-      debugPrint("Error in onLoginSubmitted: $error");
-      debugPrint("StackTrace: $stackTrace");
-      emit(state.copyWith(status: FormzSubmissionStatus.failure));
+
+      emit(state.copyWith(
+        status: FormzSubmissionStatus.success,
+        token: result.token,
+      ));
+    } catch (error) {
+      debugPrint("Login error: $error");
+      emit(state.copyWith(
+        status: FormzSubmissionStatus.failure,
+        errorMessage: error.toString(),
+      ));
     }
   }
 
-  void _onLoginWithGoogle(
+  Future<void> _onLoginWithGoogle(
       LoginWithGoogle event, Emitter<LoginState> emit) async {
+    emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+
     try {
       final String? token = await _authRepository.signInWithGoogle();
-      debugPrint("toke11n: $token");
+
       if (token == null) {
-        emit(state.copyWith(status: FormzSubmissionStatus.failure));
+        emit(state.copyWith(
+          status: FormzSubmissionStatus.failure,
+          errorMessage: 'Google login failed',
+        ));
         return;
       }
+
       final result = await _authRepository.loginWithGoogle(token);
       final box = Hive.box("authentication");
       await box.put("loginToken", result.token);
-      debugPrint("loginToken: ${result.token}");
-      emit(state.copyWith(status: FormzSubmissionStatus.success));
+
+      emit(state.copyWith(
+        status: FormzSubmissionStatus.success,
+        token: result.token,
+      ));
     } catch (error) {
-      debugPrint("Error in _onLoginWithGoogle: $error");
-      emit(state.copyWith(status: FormzSubmissionStatus.failure));
+      debugPrint("Google login error: $error");
+      emit(state.copyWith(
+        status: FormzSubmissionStatus.failure,
+        errorMessage: error.toString(),
+      ));
     }
   }
 }

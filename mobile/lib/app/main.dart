@@ -12,6 +12,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/app/blocs/authentication/authentication_bloc.dart';
+import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/main_screen.dart';
 import 'package:mobile/feature/auth/login/login_screen.dart';
 import 'package:mobile/feature/auth/register/register_screen.dart';
@@ -122,8 +123,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider.value(value: dropdownCubit),
         BlocProvider(create: (_) => getIt<CartCubit>()),
-        BlocProvider(create: (_) => getIt<BlindBoxesBloc>()),
+        BlocProvider(create: (_) => getIt<BlindBoxesListBloc>()),
         BlocProvider(create: (_) => getIt<SetBloc>()),
+        BlocProvider(create: (_) => getIt<CartGlobalBloc>()),
       ],
       child: const AppView(),
     );

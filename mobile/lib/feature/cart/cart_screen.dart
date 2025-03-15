@@ -3,9 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/app/blocs/cart/cart_event.dart';
+import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
+import 'package:mobile/app/blocs/cart/cart_state.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
-import 'package:mobile/feature/cart/cubits/cart_state.dart';
 import 'package:mobile/feature/cart/widget/cart_item.dart';
 
 import '../../app/cubits/bottom_navigation_cubit.dart';
@@ -26,7 +27,12 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<CartCubit>(),
+      create: (context) {
+        final bloc = getIt<CartGlobalBloc>();
+        // Ensure cart is loaded when the screen is opened
+        bloc.add(LoadCart());
+        return bloc;
+      },
       child: Scaffold(
         extendBody: !isFromBottomNav,
         extendBodyBehindAppBar: false,
@@ -52,9 +58,20 @@ class CartScreen extends StatelessWidget {
               }
             },
           ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.delete_outline, color: getColorSkin().white),
+              onPressed: () {
+                final state = context.read<CartGlobalBloc>().state;
+                if (state.items.isNotEmpty) {
+                  _showClearCartConfirmation(context);
+                }
+              },
+            ),
+          ],
         ),
         body: SafeArea(
-          child: BlocBuilder<CartCubit, CartState>(
+          child: BlocBuilder<CartGlobalBloc, CartState>(
             builder: (context, state) {
               if (state.isLoading) {
                 return const Center(child: CircularProgressIndicator());
@@ -62,11 +79,23 @@ class CartScreen extends StatelessWidget {
 
               if (state.error != null) {
                 return Center(
-                  child: SelectableText.rich(
-                    TextSpan(
-                      text: state.error!,
-                      style: TextStyle(color: Colors.red),
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SelectableText.rich(
+                        TextSpan(
+                          text: state.error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<CartGlobalBloc>().add(LoadCart());
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
                 );
               }
@@ -88,7 +117,17 @@ class CartScreen extends StatelessWidget {
                       ),
                       itemBuilder: (context, index) {
                         final item = state.items[index];
-                        return CartItemWidget(cartItem: item);
+                        return CartItemWidget(
+                          cartItem: item,
+                          onRemove: () {
+                            _removeItem(context, item);
+                          },
+                          onQuantityChanged: (newQuantity) {
+                            debugPrint(
+                                'Quantity changed for ${item.skuId} to $newQuantity');
+                            _updateItemQuantity(context, item, newQuantity);
+                          },
+                        );
                       },
                     ),
                   ),
@@ -126,9 +165,9 @@ class CartScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                final cartCubit = context.read<CartCubit>();
-                if (!cartCubit.isClosed) {
-                  cartCubit.clearCart();
+                final cartBloc = context.read<CartGlobalBloc>();
+                if (!cartBloc.isClosed) {
+                  cartBloc.add(ClearCart());
                 }
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -138,7 +177,7 @@ class CartScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: Text(
+              child: const Text(
                 'Clear',
                 style: TextStyle(color: Colors.red),
               ),
@@ -149,37 +188,53 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectAllRow(BuildContext context, CartState state) {
-    final bool allSelected =
-        state.items.length == state.selectedItemIds.length &&
-            state.items.isNotEmpty;
-    final int selectedCount = state.selectedItemIds.length;
+  void _removeItem(BuildContext context, dynamic item) {
+    final cartBloc = context.read<CartGlobalBloc>();
+    if (!cartBloc.isClosed) {
+      cartBloc.add(RemoveItemFromCart(
+        skuId: item.skuId,
+        slotId: item.slotId,
+      ));
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Item removed from cart'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: getColorSkin().primaryRed650,
+        ),
+      );
+    }
+  }
+
+  void _updateItemQuantity(
+      BuildContext context, dynamic item, int newQuantity) {
+    final cartBloc = context.read<CartGlobalBloc>();
+    if (!cartBloc.isClosed) {
+      cartBloc.add(UpdateItemQuantity(
+        skuId: item.skuId,
+        quantity: newQuantity,
+        slotId: item.slotId,
+      ));
+    }
+  }
+
+  Widget _buildSelectAllRow(BuildContext context, CartState state) {
     return Container(
       color: getColorSkin().white,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
         children: [
-          Checkbox(
-            value: allSelected,
-            activeColor: getColorSkin().primaryRed650,
-            onChanged: (bool? value) {
-              final cartCubit = context.read<CartCubit>();
-              if (!cartCubit.isClosed) {
-                cartCubit.toggleSelectAll();
-              }
-            },
-          ),
           Text(
-            'Select All',
+            'Items in Cart',
             style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: getColorSkin().primaryRed800,
             ),
           ),
           const Spacer(),
           Text(
-            '$selectedCount item(s) selected',
+            '${state.items.length} item(s)',
             style: TextStyle(
               fontSize: 14.sp,
               color: getColorSkin().grey,
@@ -213,7 +268,13 @@ class CartScreen extends StatelessWidget {
           SizedBox(
             width: 200.w,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (isFromBottomNav) {
+                  context.read<BottomNavigationCubit>().changeTab(0);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: getColorSkin().primaryRed650,
                 foregroundColor: getColorSkin().white,
@@ -222,7 +283,7 @@ class CartScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Continue Shopping',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -236,22 +297,18 @@ class CartScreen extends StatelessWidget {
   }
 
   Widget _buildCartSummary(BuildContext context, CartState state) {
-    final selectedItems = state.items
-        .where((item) => state.selectedItemIds.contains(item.id))
-        .toList();
-    final totalItems =
-        selectedItems.fold(0, (sum, item) => sum + item.quantity);
-    final subtotal = selectedItems.fold(
-        0.0, (sum, item) => sum + (item.price * item.quantity));
+    final totalItems = state.itemCount;
+    final subtotal = state.total;
+    final discount = state.voucherDiscount;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       decoration: BoxDecoration(
-        color: getColorSkin().backgroundColor,
+        color: getColorSkin().white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         boxShadow: [
           BoxShadow(
-            color: getColorSkin().lightGrey300,
+            color: getColorSkin().shadowLight,
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -269,16 +326,58 @@ class CartScreen extends StatelessWidget {
               Text(
                 "\$${subtotal.toStringAsFixed(2)}",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: getColorSkin().primaryRed800,
                 ),
               ),
             ],
           ),
+          if (discount > 0) ...[
+            SizedBox(height: 8.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Discount',
+                  style: TextStyle(color: getColorSkin().green),
+                ),
+                Text(
+                  "-\$${discount.toStringAsFixed(2)}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: getColorSkin().green,
+                  ),
+                ),
+              ],
+            ),
+          ],
           SizedBox(height: 12.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Total',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: getColorSkin().primaryRed950,
+                ),
+              ),
+              Text(
+                "\$${state.finalTotal.toStringAsFixed(2)}",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: getColorSkin().primaryRed950,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
           ElevatedButton(
-            onPressed: state.selectedItemIds.isNotEmpty
+            onPressed: state.items.isNotEmpty
                 ? () => _proceedToCheckout(context)
                 : null,
             style: ElevatedButton.styleFrom(
@@ -289,7 +388,7 @@ class CartScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12)),
             ),
             child: Text(
-              '${AppLocalizations.of(context)!.checkout} (${state.selectedItemIds.length})',
+              '${AppLocalizations.of(context)!.checkout} ($totalItems)',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

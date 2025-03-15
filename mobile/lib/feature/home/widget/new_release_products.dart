@@ -19,8 +19,8 @@ class NewReleaseProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final blindBoxBloc = context.read<BlindBoxesBloc>();
-    return BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
+    final blindBoxBloc = context.read<BlindBoxesListBloc>();
+    return BlocBuilder<BlindBoxesListBloc, BlindBoxesState>(
       bloc: blindBoxBloc,
       builder: (context, state) {
         if (state is LoadingState) {
@@ -31,7 +31,7 @@ class NewReleaseProducts extends StatelessWidget {
             return CommonErrorWidget(
               error: state.error!,
               onRetry: () =>
-                  context.read<BlindBoxesBloc>().add(RefreshBlindBoxes()),
+                  context.read<BlindBoxesListBloc>().add(RefreshBlindBoxes()),
             );
           }
         }
