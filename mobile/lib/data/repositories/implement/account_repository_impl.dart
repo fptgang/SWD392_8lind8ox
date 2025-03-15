@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/mapper/account_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
-import 'package:mobile/di/injection.dart';
 import 'package:openapi/api.dart';
 
 class AccountRepositoryImpl extends AccountRepository {
@@ -18,16 +18,17 @@ class AccountRepositoryImpl extends AccountRepository {
 
   @override
   Future<AccountModel> getUser() async {
-   try{
+    try {
       debugPrint('token from account repo impl: ${box.get('loginToken')}');
-        AccountDto? userDto = await _apiService.getCurrentUser();
-        if(userDto == null){
-          throw Exception('Cannot get user information');
-        }
-       AccountModel user = AccountMapper.toModel(userDto);
-        return user;
-   } catch(e, stackTrace){
-     throw Exception('Cannot get user information: $e, stackTrace: $stackTrace');
-   }
+      AccountDto? userDto = await _apiService.getCurrentUser();
+      if (userDto == null) {
+        throw Exception('Cannot get user information');
+      }
+      AccountModel user = AccountMapper.toModel(userDto);
+      return user;
+    } catch (e, stackTrace) {
+      throw Exception(
+          'Cannot get user information: $e, stackTrace: $stackTrace');
+    }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:mobile/data/models/toy_model.dart';
 import 'package:mobile/data/models/video_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 
 class SlotModel {
   int? slotId;
@@ -28,15 +28,15 @@ class SlotModel {
   });
 
   List<Object?> get props => [
-    slotId,
-    position,
-    state,
-    isVisible,
-    openedAt,
-    toy,
-    setId,
-    createdAt,
-    updatedAt,
-    video,
-  ];
+        slotId,
+        position,
+        state,
+        isVisible,
+        openedAt,
+        toy,
+        setId,
+        createdAt,
+        updatedAt,
+        video,
+      ];
 }

@@ -1,23 +1,22 @@
 import 'package:mobile/data/mapper/account_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/transaction_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 import 'package:openapi/api.dart';
 
 class TransactionMapper {
   static TransactionModel toModel(TransactionDto dto) {
     return TransactionModel(
-      transactionId: dto.transactionId!,
-      account: AccountMapper.toModel(dto.account ?? AccountDto()),
-      type: _mapDtoType(dto.type!),
-      paymentMethod: _mapDtoPaymentMethod(dto.paymentMethod!),
-      createdAt: dto.createdAt!,
-      amount: dto.amount!,
-      oldBalance: dto.oldBalance!,
-      newBalance: dto.newBalance!,
-      orderId: dto.orderId!,
-      status: _mapDtoStatus(dto.status ?? TransactionDtoStatusEnum.PENDING)
-    );
+        transactionId: dto.transactionId!,
+        account: AccountMapper.toModel(dto.account ?? AccountDto()),
+        type: _mapDtoType(dto.type!),
+        paymentMethod: _mapDtoPaymentMethod(dto.paymentMethod!),
+        createdAt: dto.createdAt!,
+        amount: dto.amount!,
+        oldBalance: dto.oldBalance!,
+        newBalance: dto.newBalance!,
+        orderId: dto.orderId!,
+        status: _mapDtoStatus(dto.status ?? TransactionDtoStatusEnum.PENDING));
   }
 
   static TransactionType _mapDtoType(TransactionDtoTypeEnum dtoType) {
@@ -30,7 +29,6 @@ class TransactionMapper {
         throw Exception('Unknown transaction type: $dtoType');
     }
   }
-
 
   static PaymentMethod _mapDtoPaymentMethod(
       TransactionDtoPaymentMethodEnum dtoMethod) {
@@ -59,17 +57,16 @@ class TransactionMapper {
 
   static TransactionDto toDto(TransactionModel model) {
     return TransactionDto(
-      transactionId: model.transactionId!,
-      account: AccountMapper.toDto(model.account ?? AccountModel()),
-      type: _mapModelType(model.type!),
-      paymentMethod: _mapModelPaymentMethod(model.paymentMethod!),
-      createdAt: model.createdAt!,
-      amount: model.amount!,
-      oldBalance: model.oldBalance!,
-      newBalance: model.newBalance!,
-      orderId: model.orderId!,
-      status: _mapModelStatus(model.status ?? TransactionStatusEnum.PENDING)
-    );
+        transactionId: model.transactionId!,
+        account: AccountMapper.toDto(model.account ?? AccountModel()),
+        type: _mapModelType(model.type!),
+        paymentMethod: _mapModelPaymentMethod(model.paymentMethod!),
+        createdAt: model.createdAt!,
+        amount: model.amount!,
+        oldBalance: model.oldBalance!,
+        newBalance: model.newBalance!,
+        orderId: model.orderId!,
+        status: _mapModelStatus(model.status ?? TransactionStatusEnum.PENDING));
   }
 
   static TransactionDtoTypeEnum _mapModelType(TransactionType dtoType) {
@@ -78,7 +75,7 @@ class TransactionMapper {
         return TransactionDtoTypeEnum.DEPOSIT;
       case TransactionType.ORDER:
         return TransactionDtoTypeEnum.ORDER;
-      }
+    }
   }
 
   static TransactionDtoPaymentMethodEnum _mapModelPaymentMethod(
@@ -88,7 +85,7 @@ class TransactionMapper {
         return TransactionDtoPaymentMethodEnum.PAYPAL;
       case PaymentMethod.VNPAY:
         return TransactionDtoPaymentMethodEnum.VNPAY;
-      }
+    }
   }
 
   static TransactionDtoStatusEnum _mapModelStatus(TransactionStatusEnum dto) {

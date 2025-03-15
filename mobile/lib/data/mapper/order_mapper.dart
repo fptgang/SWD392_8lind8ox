@@ -1,5 +1,3 @@
-
-
 import 'package:mobile/data/mapper/account_mapper.dart';
 import 'package:mobile/data/mapper/order_detail_mapper.dart';
 import 'package:mobile/data/mapper/order_status_history_mapper.dart';
@@ -9,7 +7,7 @@ import 'package:mobile/data/mapper/voucher_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/order_response_model.dart';
 import 'package:mobile/data/models/transaction_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 import 'package:openapi/api.dart';
 
 import '../models/order_model.dart';
@@ -19,11 +17,18 @@ class OrderMapper {
     return OrderModel(
       orderId: dto.orderId!,
       account: AccountMapper.toModel(dto.account ?? AccountDto()),
-      orderStatusHistories: dto.orderStatusHistories.map((e) => OrderStatusHistoryMapper.toOrderStatusHistoryModel(e)).toList(),
-      latestStatus: toLatestOrderStatusModel(dto.latestStatus ?? OrderStatus.CREATED),
-      orderDetails: dto.orderDetails.map((e) => OrderDetailMapper.toModel(e)).toList(),
-      transaction: TransactionMapper.toModel(dto.transaction ?? TransactionDto()),
-      shippingInfo: dto.shippingInfo != null ? ShippingInfoMapper.toModel(dto.shippingInfo!): null,
+      orderStatusHistories: dto.orderStatusHistories
+          .map((e) => OrderStatusHistoryMapper.toOrderStatusHistoryModel(e))
+          .toList(),
+      latestStatus:
+          toLatestOrderStatusModel(dto.latestStatus ?? OrderStatus.CREATED),
+      orderDetails:
+          dto.orderDetails.map((e) => OrderDetailMapper.toModel(e)).toList(),
+      transaction:
+          TransactionMapper.toModel(dto.transaction ?? TransactionDto()),
+      shippingInfo: dto.shippingInfo != null
+          ? ShippingInfoMapper.toModel(dto.shippingInfo!)
+          : null,
       voucher: dto.voucher != null ? VoucherMapper.toModel(dto.voucher!) : null,
       createdAt: dto.createdAt!,
       updatedAt: dto.updatedAt,
@@ -83,27 +88,28 @@ class OrderMapper {
         return OrderStatus.COMPLETED;
     }
   }
+
   static OrderDto toDto(OrderModel model) {
     return OrderDto(
-      orderId: model.orderId,
-      account: AccountMapper.toDto(model.account ?? AccountModel()),
-      orderDetails: model.orderDetails!.map((e) => OrderDetailMapper.toDto(e)).toList(),
-      orderStatusHistories: model.orderStatusHistories!.map((e) => OrderStatusHistoryMapper.toDto(e)).toList(),
-      transaction: TransactionMapper.toDto(model.transaction ?? TransactionModel()),
-      shippingInfo: model.shippingInfo != null
-          ? ShippingInfoMapper.toDto(model.shippingInfo!)
-          : null,
-      voucher: model.voucher != null
-          ? VoucherMapper.toDto(model.voucher!)
-          : null,
-
-      createdAt: model.createdAt,
-      updatedAt: model.updatedAt,
-      subTotal: model.subTotal,
-      finalTotal: model.finalTotal
-    );
+        orderId: model.orderId,
+        account: AccountMapper.toDto(model.account ?? AccountModel()),
+        orderDetails:
+            model.orderDetails!.map((e) => OrderDetailMapper.toDto(e)).toList(),
+        orderStatusHistories: model.orderStatusHistories!
+            .map((e) => OrderStatusHistoryMapper.toDto(e))
+            .toList(),
+        transaction:
+            TransactionMapper.toDto(model.transaction ?? TransactionModel()),
+        shippingInfo: model.shippingInfo != null
+            ? ShippingInfoMapper.toDto(model.shippingInfo!)
+            : null,
+        voucher:
+            model.voucher != null ? VoucherMapper.toDto(model.voucher!) : null,
+        createdAt: model.createdAt,
+        updatedAt: model.updatedAt,
+        subTotal: model.subTotal,
+        finalTotal: model.finalTotal);
   }
-
 
   static OrderResponseModel toOrderResponseModel(PlaceOrder200Response dto) {
     return OrderResponseModel(

@@ -1,12 +1,10 @@
-
-
 import 'package:mobile/data/mapper/image_mapper.dart';
 import 'package:mobile/data/models/toy_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 import 'package:openapi/api.dart';
 
-class ToyMapper{
-  static ToyModel toModel(ToyDto dto){
+class ToyMapper {
+  static ToyModel toModel(ToyDto dto) {
     return ToyModel(
       toyId: dto.toyId!,
       name: dto.name!,
@@ -20,7 +18,7 @@ class ToyMapper{
     );
   }
 
-  static ToyDto toDto(ToyModel model){
+  static ToyDto toDto(ToyModel model) {
     return ToyDto(
       toyId: model.toyId ?? 1,
       name: model.name ?? '',
@@ -51,6 +49,6 @@ class ToyMapper{
         return ToyDtoRarityEnum.REGULAR;
       case ToyRarityEnum.SECRET:
         return ToyDtoRarityEnum.SECRET;
-      }
+    }
   }
 }

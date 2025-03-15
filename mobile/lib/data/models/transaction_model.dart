@@ -1,9 +1,7 @@
-
-
 import 'package:mobile/data/models/account_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 
-class TransactionModel{
+class TransactionModel {
   final int? transactionId;
   final AccountModel? account;
   final TransactionType? type;
@@ -29,15 +27,15 @@ class TransactionModel{
   });
 
   List<Object?> get props => [
-    transactionId,
-    account,
-    type,
-    paymentMethod,
-    createdAt,
-    amount,
-    oldBalance,
-    newBalance,
-    orderId,
-    status,
-  ];
+        transactionId,
+        account,
+        type,
+        paymentMethod,
+        createdAt,
+        amount,
+        oldBalance,
+        newBalance,
+        orderId,
+        status,
+      ];
 }
