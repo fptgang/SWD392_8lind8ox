@@ -6,7 +6,7 @@ import 'package:mobile/data/models/create_shipping_info_model.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
-import 'package:mobile/main.dart';
+import 'package:mobile/app/main.dart';
 import 'package:openapi/api.dart';
 
 class ShippingInfoRepositoryImpl implements ShippingInfoRepository {

@@ -2,7 +2,8 @@ import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/models/transaction_model.dart';
 import 'package:mobile/data/models/voucher_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
+
 import 'order_detail_model.dart';
 import 'order_status_history_model.dart';
 

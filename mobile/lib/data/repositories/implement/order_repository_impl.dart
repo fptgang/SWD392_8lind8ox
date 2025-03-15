@@ -10,44 +10,49 @@ import 'package:mobile/data/models/order_response_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
 import 'package:openapi/api.dart';
 
-import '../../../di/injection.dart';
+import '../../../app/di/injection.dart';
 
 class OrderRepositoryImpl implements OrderRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
-  OrderRepositoryImpl(){
-    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+  OrderRepositoryImpl() {
+    _apiService.apiClient
+        .addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
   }
 
   @override
   Future<OrderModel> getOrderById(int orderId) async {
-    try{
+    try {
       OrderDto? orderDto = await _apiService.getOrderById(orderId);
-      if(orderDto == null){
+      if (orderDto == null) {
         debugPrint('Cannot get order information: , orderDto: $orderDto');
         throw Exception('Cannot get order information');
       }
       OrderModel orderModel = OrderMapper.toModel(orderDto);
       return orderModel;
-    } catch(e){
+    } catch (e) {
       debugPrint('Cannot get order information: $e');
       throw Exception('Cannot get order information');
     }
   }
 
   @override
-  Future<PaginationResponseGeneric<OrderModel>> getOrders(Pageable pageable, String filter, String search) async {
-    try{
-      GetOrders200Response? response = await _apiService.getOrders(pageable: pageable, filter: filter, search: search);
-      if(response == null){
+  Future<PaginationResponseGeneric<OrderModel>> getOrders(
+      Pageable pageable, String filter, String search) async {
+    try {
+      GetOrders200Response? response = await _apiService.getOrders(
+          pageable: pageable, filter: filter, search: search);
+      if (response == null) {
         debugPrint('Cannot get order information: , response: $response');
         throw Exception('Cannot get order information');
       }
       debugPrint('token from order repo: ${box.get('loginToken')}');
-      PaginationResponseGeneric<OrderModel>? orderModels = PaginationResponseMapper.toModel(dto: response, fromDTO: (data) => OrderMapper.toModel(data));
+      PaginationResponseGeneric<OrderModel>? orderModels =
+          PaginationResponseMapper.toModel(
+              dto: response, fromDTO: (data) => OrderMapper.toModel(data));
       return orderModels;
-    } catch(e){
+    } catch (e) {
       debugPrint('Cannot get order information: $e');
       throw Exception('Cannot get order information');
     }
@@ -56,15 +61,16 @@ class OrderRepositoryImpl implements OrderRepository {
   @override
   Future<OrderResponseModel> createOrder(CartModel cartModel) async {
     try {
-
       final cartDto = CartMapper.toDto(cartModel);
-      
+
       debugPrint('Making placeOrder request with:');
       debugPrint('- CartDto payment method: ${cartDto.paymentMethod}');
       debugPrint('- CartDto shipping info ID: ${cartDto.shippingInfoId}');
       debugPrint('- CartDto items count: ${cartDto.items.length}');
-      debugPrint('- CartDto first item skuId: ${cartDto.items.isNotEmpty ? cartDto.items.first.skuId : "N/A"}');
-      debugPrint('- CartDto first item quantity: ${cartDto.items.isNotEmpty ? cartDto.items.first.quantity : "N/A"}');
+      debugPrint(
+          '- CartDto first item skuId: ${cartDto.items.isNotEmpty ? cartDto.items.first.skuId : "N/A"}');
+      debugPrint(
+          '- CartDto first item quantity: ${cartDto.items.isNotEmpty ? cartDto.items.first.quantity : "N/A"}');
       debugPrint('token from order repo create: ${box.get('loginToken')}');
       debugPrint('Calling API placeOrder endpoint...');
       final response = await _apiService.placeOrder(cartDto);
@@ -74,16 +80,16 @@ class OrderRepositoryImpl implements OrderRepository {
       if (response == null) {
         throw Exception('Failed to create order: null response');
       }
-      
+
       final orderId = CartMapper.extractOrderId(response);
-      
+
       if (orderId == null) {
         throw Exception('Failed to extract order ID from response');
       }
-      
+
       debugPrint('Successfully extracted orderId: $orderId');
       final orderModel = await getOrderById(orderId);
-      
+
       return OrderResponseModel(
         order: orderModel,
         paymentRedirectUrl: _extractPaymentUrl(response),
@@ -97,15 +103,16 @@ class OrderRepositoryImpl implements OrderRepository {
         debugPrint('- Response: ${apiError.toString()}');
         // Check if there are specific error codes that indicate auth issues
         if (apiError.code == 401) {
-          debugPrint('Authentication failure - token may be expired or invalid');
+          debugPrint(
+              'Authentication failure - token may be expired or invalid');
         }
       }
-      
+
       debugPrint('F ailed to create order: $e');
       throw Exception('Failed to create order: $e');
     }
   }
-  
+
   /// Extract payment URL from the response
   String? _extractPaymentUrl(PlaceOrder200Response response) {
     try {

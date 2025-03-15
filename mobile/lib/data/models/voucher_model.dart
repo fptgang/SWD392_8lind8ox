@@ -1,9 +1,7 @@
-
-
 import 'package:mobile/data/models/account_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 
-class VoucherModel{
+class VoucherModel {
   final int? voucherId;
   final int? orderId;
   final AccountModel? account;
@@ -29,15 +27,15 @@ class VoucherModel{
   });
 
   List<Object?> get props => [
-    voucherId,
-    orderId,
-    account,
-    code,
-    discountRate,
-    limitAmount,
-    status,
-    createdAt,
-    updatedAt,
-    expiredAt,
-  ];
+        voucherId,
+        orderId,
+        account,
+        code,
+        discountRate,
+        limitAmount,
+        status,
+        createdAt,
+        updatedAt,
+        expiredAt,
+      ];
 }

@@ -1,4 +1,4 @@
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 
 class OrderStatusHistoryModel {
   final int? id;
@@ -14,9 +14,9 @@ class OrderStatusHistoryModel {
   });
 
   List<Object?> get props => [
-    id,
-    orderId,
-    orderStatusHistoryEnum,
-    createdAt,
-  ];
+        id,
+        orderId,
+        orderStatusHistoryEnum,
+        createdAt,
+      ];
 }

@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/mapper/auth_response_mapper.dart';
 import 'package:mobile/data/mapper/jwt_response_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/auth_response_model.dart';
 import 'package:mobile/data/models/jwt_response_model.dart';
-import 'package:mobile/di/injection.dart';
 import 'package:openapi/api.dart';
 
-import '../../../enum/enum.dart';
+import '../../../utils/enum/enum.dart';
 import '../auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -47,7 +47,10 @@ class AuthRepositoryImpl implements AuthRepository {
       if (dto == null) {
         throw Exception('Login failed, please try again');
       }
-      _controller.add(AuthenticationStatus.authenticated);
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+        () => _controller.add(AuthenticationStatus.authenticated),
+      );
       debugPrint("dto: $dto");
       debugPrint("AuthMapper.toModel(dto): ${AuthMapper.toModel(dto)}");
       debugPrint("${AuthenticationStatus.authenticated}");

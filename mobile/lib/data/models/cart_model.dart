@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:mobile/enum/enum.dart';
-
+import 'package:mobile/utils/enum/enum.dart';
 
 ///this for checkout
 class CartModel extends Equatable {
@@ -54,7 +53,8 @@ class CartItemModel extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, productName, price, image, quantity, skuId, slotId];
+  List<Object?> get props =>
+      [id, productName, price, image, quantity, skuId, slotId];
 
   CartItemModel copyWith({
     int? id,
@@ -172,7 +172,7 @@ class CartDisplayItem {
       "slotId": slotId,
     };
   }
-  
+
   // Convert CartDisplayItem to CartItemModel for checkout
   CartItemModel toCartItemModel() {
     return CartItemModel(

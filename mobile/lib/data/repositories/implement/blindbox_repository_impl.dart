@@ -3,7 +3,8 @@ import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:openapi/api.dart';
-import '../../../di/injection.dart';
+
+import '../../../app/di/injection.dart';
 import '../../mapper/blindbox_mapper.dart';
 import '../blindbox_repository.dart';
 
@@ -27,20 +28,25 @@ class BlindBoxRepositoryImpl implements BlindBoxRepository {
   }
 
   @override
-  Future<PaginationResponseGeneric<BlindBoxModel>> getBlindBoxes(Pageable pageable, String filter, String search) async {
+  Future<PaginationResponseGeneric<BlindBoxModel>> getBlindBoxes(
+      Pageable pageable, String filter, String search) async {
     try {
-      GetBlindBoxes200Response? blindBoxes = await _apiService.getBlindBoxes(pageable: pageable, filter: filter, search: search);
+      GetBlindBoxes200Response? blindBoxes = await _apiService.getBlindBoxes(
+          pageable: pageable, filter: filter, search: search);
       if (blindBoxes == null) {
         throw Exception("Cannot get blind boxes");
       }
-      PaginationResponseGeneric<BlindBoxModel> blindBoxModels = PaginationResponseMapper.toModel(
+      PaginationResponseGeneric<BlindBoxModel> blindBoxModels =
+          PaginationResponseMapper.toModel(
         dto: blindBoxes,
         fromDTO: (data) => BlindBoxMapper.toModel(data),
       );
-      debugPrint('[BlindBox Repository Impl]: get blind boxes: ${blindBoxModels.content}');
+      debugPrint(
+          '[BlindBox Repository Impl]: get blind boxes: ${blindBoxModels.content}');
       return blindBoxModels;
     } catch (e, stackTrace) {
-      debugPrint('[BlindBox Repository Impl]: error from get blind boxes: $e, $stackTrace');
+      debugPrint(
+          '[BlindBox Repository Impl]: error from get blind boxes: $e, $stackTrace');
       throw Exception('Cannot get blind boxes');
     }
   }

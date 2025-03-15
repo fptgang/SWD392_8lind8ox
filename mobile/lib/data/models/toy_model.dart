@@ -1,7 +1,5 @@
-
-
 import 'package:mobile/data/models/image_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 
 class ToyModel {
   final int? toyId;
@@ -27,14 +25,14 @@ class ToyModel {
   });
 
   List<Object?> get props => [
-    toyId,
-    name,
-    description,
-    weight,
-    rarity,
-    isVisible,
-    createdAt,
-    updatedAt,
-    images,
-  ];
+        toyId,
+        name,
+        description,
+        weight,
+        rarity,
+        isVisible,
+        createdAt,
+        updatedAt,
+        images,
+      ];
 }

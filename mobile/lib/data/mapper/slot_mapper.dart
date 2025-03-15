@@ -1,7 +1,7 @@
 import 'package:mobile/data/mapper/toy_mapper.dart';
 import 'package:mobile/data/mapper/video_mapper.dart';
 import 'package:mobile/data/models/slot_model.dart';
-import 'package:mobile/enum/enum.dart';
+import 'package:mobile/utils/enum/enum.dart';
 import 'package:openapi/api.dart';
 
 class SlotMapper {
