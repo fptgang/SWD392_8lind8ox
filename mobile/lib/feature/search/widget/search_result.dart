@@ -11,7 +11,7 @@ class SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BlindBoxesBloc, BlindBoxesState>(
+    return BlocBuilder<BlindBoxesListBloc, BlindBoxesState>(
       builder: (context, state) {
         if (state is LoadingState && state.isLoading) {
           return const Center(

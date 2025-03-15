@@ -16,9 +16,10 @@ class ThumbnailsGallery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final blindBox = state.blindBox;
+    // Use the combined images list from the state
+    final images = state.images;
 
-    if (blindBox.images == null || blindBox.images!.isEmpty) {
+    if (images == null || images.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -27,11 +28,16 @@ class ThumbnailsGallery extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: blindBox.images?.length ?? 0,
+        itemCount: images.length,
         separatorBuilder: (context, index) => SizedBox(width: 8.w),
         itemBuilder: (context, index) {
-          final imageUrl = blindBox.images?[index].imageUrl ?? '';
+          final imageUrl = images[index];
           final isSelected = index == state.selectedImageIndex;
+
+          // Highlight the selected image (first one should be SKU image)
+          final bool isSkuImage = index == 0 &&
+              state.skuImages != null &&
+              state.skuImages!.isNotEmpty;
 
           return GestureDetector(
             onTap: () {
@@ -51,7 +57,10 @@ class ThumbnailsGallery extends StatelessWidget {
               padding: isSelected ? const EdgeInsets.all(2) : EdgeInsets.zero,
               child: CircleAvatar(
                 radius: 30,
-                backgroundColor: getColorSkin().lightGrey200,
+                backgroundColor: isSkuImage && isSelected
+                    ? getColorSkin()
+                        .primaryRed100 // Special highlight for selected SKU image
+                    : getColorSkin().lightGrey200,
                 child: (imageUrl.isNotEmpty)
                     ? ClipOval(
                         child: Image.network(

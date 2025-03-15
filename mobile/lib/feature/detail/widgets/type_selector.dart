@@ -73,6 +73,22 @@ class TypeSelector extends StatelessWidget {
           child: Row(
             children: typeOptions.map((type) {
               final isSelected = type['specCount'] == selectedSkuSpecCount;
+              final List<StockKeepingUnitModel> skusOfType = type['skus'];
+
+              // Find the first SKU with an image in this type group
+              StockKeepingUnitModel? skuWithImage;
+              for (var sku in skusOfType) {
+                if (sku.image != null &&
+                    sku.image!.imageUrl != null &&
+                    sku.image!.imageUrl!.isNotEmpty) {
+                  skuWithImage = sku;
+                  break;
+                }
+              }
+
+              // If no SKU with image found, use the first SKU in the group
+              final StockKeepingUnitModel skuToSelect =
+                  skuWithImage ?? skusOfType.first;
 
               return Padding(
                 padding: const EdgeInsets.only(right: 12.0),
@@ -80,13 +96,9 @@ class TypeSelector extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        // Select the first SKU with this specCount
-                        final List<StockKeepingUnitModel> skusOfType =
-                            type['skus'];
                         if (skusOfType.isNotEmpty) {
-                          final firstSkuOfType = skusOfType.first;
                           context.read<BlindBoxDetailBloc>().add(
-                                SelectSku(skuId: firstSkuOfType.skuId!),
+                                SelectSku(skuId: skuToSelect.skuId!),
                               );
                         }
                       },
@@ -119,8 +131,7 @@ class TypeSelector extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               color: isSelected
-                                  ? Colors
-                                      .white // Change stock color to white when selected
+                                  ? Colors.white
                                   : (type['stock'] > 0
                                       ? getColorSkin().primaryRed800
                                       : Colors.red),

@@ -17,18 +17,22 @@ class LoginForm extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint("Localization: ${AppLocalizations.of(context)}");
     return BlocListener<LoginBloc, LoginState>(
+      listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
         if (state.status.isFailure) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
-                  content:
-                      Text(AppLocalizations.of(context)!.authenticationFailed)),
+                content: Text(state.errorMessage ??
+                    AppLocalizations.of(context)!.authenticationFailed),
+              ),
             );
         } else if (state.status.isSuccess) {
-          debugPrint(
-              'Login success in form listener - letting the LoginButton handle authentication');
+          // Notify the AuthenticationBloc about successful login
+          context.read<AuthenticationBloc>().add(
+                AuthenticationLoggedIn(token: state.token),
+              );
         }
       },
       child: Card(

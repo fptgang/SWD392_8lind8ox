@@ -2,9 +2,9 @@ import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
+import 'package:mobile/app/blocs/cart/cart_state.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
-import 'package:mobile/feature/cart/cubits/cart_state.dart';
 import 'package:mobile/feature/detail/blocs/blindbox_detail_state.dart';
 import 'package:mobile/feature/detail/widgets/bottom_action_bar.dart';
 import 'package:mobile/feature/detail/widgets/image_carousel.dart';
@@ -23,7 +23,7 @@ Scaffold buildBlindBoxDetailLoadedState(BuildContext context,
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
-        BlocBuilder<CartCubit, CartState>(builder: (context, cartState) {
+        BlocBuilder<CartGlobalBloc, CartState>(builder: (context, cartState) {
           final int itemCount =
               cartState.items.fold(0, (sum, item) => sum + item.quantity);
 

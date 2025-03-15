@@ -55,24 +55,24 @@ class BlindBoxDetailBloc
               : null;
 
       final combinedImageUrls = <String>[];
-
-      // Add blindbox images
-      if (blindBox.images != null) {
-        combinedImageUrls.addAll(
-          blindBox.images!
-              .map((img) => img.imageUrl ?? '')
-              .where((url) => url.isNotEmpty),
-        );
-      }
-
-      // Add sku image if available
       final skuImageList = <ImageModel>[];
+
+      // First add the SKU image if available (make it appear first)
       if (selectedSku?.image != null && selectedSku!.image!.imageUrl != null) {
         skuImageList.add(selectedSku.image!);
         final skuImageUrl = selectedSku.image!.imageUrl!;
         if (skuImageUrl.isNotEmpty) {
           combinedImageUrls.add(skuImageUrl);
         }
+      }
+
+      // Then add blindbox images
+      if (blindBox.images != null) {
+        combinedImageUrls.addAll(
+          blindBox.images!
+              .map((img) => img.imageUrl ?? '')
+              .where((url) => url.isNotEmpty),
+        );
       }
 
       emit(
@@ -177,26 +177,26 @@ class BlindBoxDetailBloc
       orElse: () => blindBox.skus!.first,
     );
 
-    // Update images
+    // Update images - put SKU image first
     final combinedImageUrls = <String>[];
     final skuImageList = <ImageModel>[];
 
-    // First add blind box images
-    if (blindBox.images != null) {
-      combinedImageUrls.addAll(
-        blindBox.images!
-            .map((img) => img.imageUrl ?? '')
-            .where((url) => url.isNotEmpty),
-      );
-    }
-
-    // Then add the SKU image if available
+    // First add the SKU image if available (make it appear first)
     if (selectedSku.image != null && selectedSku.image!.imageUrl != null) {
       skuImageList.add(selectedSku.image!);
       final imageUrl = selectedSku.image!.imageUrl!;
       if (imageUrl.isNotEmpty) {
         combinedImageUrls.add(imageUrl);
       }
+    }
+
+    // Then add blind box images
+    if (blindBox.images != null) {
+      combinedImageUrls.addAll(
+        blindBox.images!
+            .map((img) => img.imageUrl ?? '')
+            .where((url) => url.isNotEmpty),
+      );
     }
 
     debugPrint(

@@ -11,7 +11,7 @@ import 'package:openapi/api.dart';
 
 @injectable
 @lazySingleton
-class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
+class BlindBoxesListBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
   final BlindBoxRepository _blindBoxRepository;
   Timer? _debounceTimer;
   final PagingController<int, BlindBoxModel> pagingController;
@@ -19,7 +19,7 @@ class BlindBoxesBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
   PaginationState _paginationState;
   DataState _dataState;
 
-  BlindBoxesBloc(
+  BlindBoxesListBloc(
     this._blindBoxRepository,
   )   : _paginationState =
             PaginationState(pageable: Pageable(page: 1, size: 20)),

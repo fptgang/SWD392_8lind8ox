@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/blocs/authentication/authentication_bloc.dart';
+import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/cubits/locale_cubit.dart';
 import 'package:mobile/app/di/injection.config.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
@@ -190,15 +191,19 @@ void _registerBlocs() {
           imageRepository: getIt<ImageRepository>(),
         ));
   }
+  if (!getIt.isRegistered<CartGlobalBloc>()) {
+    getIt.registerLazySingleton<CartGlobalBloc>(
+        () => CartGlobalBloc(getIt<OrderRepository>(), getIt<SkuRepository>()));
+  }
 
   if (!getIt.isRegistered<PromotionBloc>()) {
     getIt.registerLazySingleton<PromotionBloc>(
         () => PromotionBloc(getIt<PromotionRepository>()));
   }
 
-  if (!getIt.isRegistered<BlindBoxesBloc>()) {
-    getIt.registerLazySingleton<BlindBoxesBloc>(
-        () => BlindBoxesBloc(getIt<BlindBoxRepository>()));
+  if (!getIt.isRegistered<BlindBoxesListBloc>()) {
+    getIt.registerLazySingleton<BlindBoxesListBloc>(
+        () => BlindBoxesListBloc(getIt<BlindBoxRepository>()));
   }
 
   if (!getIt.isRegistered<OrderDetailBloc>()) {

@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/app/blocs/cart/cart_event.dart';
+import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/feature/cart/cart_screen.dart';
 
@@ -38,7 +41,6 @@ class BottomActionBar extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
                   ),
-                  // minimumSize: Size(0, 50.h),
                 ),
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
@@ -57,7 +59,10 @@ class BottomActionBar extends StatelessWidget {
             SizedBox(width: 16.w),
             Expanded(
               child: ElevatedButton(
-                onPressed: () => context.push('/checkout'),
+                onPressed: () {
+                  _addToCart(context, appLocalizations,
+                      navigateToCheckout: true);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: getColorSkin().primaryRed650,
                   padding:
@@ -87,19 +92,37 @@ class BottomActionBar extends StatelessWidget {
 
   void _addToCart(
     BuildContext context,
-    AppLocalizations appLocalizations,
-  ) {
+    AppLocalizations appLocalizations, {
+    bool navigateToCheckout = false,
+  }) {
     final blindBox = state.blindBox;
     final quantity = state.quantity;
     final selectedSku = state.sku;
 
+    // Skip if no SKU is selected or if SKU is out of stock
+    if (selectedSku == null ||
+        (selectedSku.stock != null && selectedSku.stock! <= 0)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'This item is out of stock',
+            style: TextStyle(color: getColorSkin().white),
+          ),
+          backgroundColor: getColorSkin().warningRed,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     final bool isSet =
-        selectedSku?.specCount != null && selectedSku!.specCount! > 1;
+        selectedSku.specCount != null && selectedSku.specCount! > 1;
 
     final skus = blindBox.skus ?? [];
     final price =
-        selectedSku?.price ?? (skus.isNotEmpty ? skus.first.price : 0) ?? 0.0;
+        selectedSku.price ?? (skus.isNotEmpty ? skus.first.price : 0) ?? 0.0;
 
+    // Get the primary image for the cart - prioritize the SKU image
     final String imageUrl;
     if (state.skuImages?.isNotEmpty == true) {
       imageUrl = state.skuImages!.first.imageUrl ?? '';
@@ -118,40 +141,107 @@ class BottomActionBar extends StatelessWidget {
       productName = blindBox.name ?? '';
     }
 
-    final int itemId = selectedSku?.skuId ?? state.id;
+    final int itemId = selectedSku.skuId ?? state.id;
 
-    final product = CartDisplayItem(
-      id: itemId,
-      productName: productName,
-      price: price,
-      image: imageUrl,
-      quantity: quantity,
-      skuId: selectedSku?.skuId,
-    );
+    // Create a cart item that works with both CartCubit and CartGlobalBloc
+    try {
+      // First try using CartCubit, which should be more stable
+      final cartCubit = context.read<CartGlobalBloc>();
 
-    context.read<CartCubit>().addToCart(product);
+      final displayItem = CartItemModel(
+        id: itemId,
+        productName: productName,
+        price: price,
+        image: imageUrl,
+        quantity: quantity,
+        skuId: selectedSku.skuId,
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${isSet ? "Set" : "Item"} ${appLocalizations.addToCart}',
-          style: TextStyle(color: getColorSkin().white),
-        ),
-        action: SnackBarAction(
-          label: appLocalizations.cart,
-          textColor: getColorSkin().white,
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const CartScreen(isFromBottomNav: false),
+      cartCubit.add(AddItemToCart(displayItem));
+
+      _showFeedbackAndNavigate(
+          context, appLocalizations, isSet, navigateToCheckout);
+    } catch (e) {
+      // If CartCubit fails, try with CartGlobalBloc as fallback
+      try {
+        // Safe way to get CartGlobalBloc using getIt instead of context
+        final cartBloc = getIt<CartGlobalBloc>();
+
+        // Make sure it's not closed before using it
+        if (!cartBloc.isClosed) {
+          final cartItem = CartItemModel(
+            id: itemId,
+            productName: productName,
+            price: price,
+            image: imageUrl,
+            quantity: quantity,
+            skuId: selectedSku.skuId,
+          );
+
+          cartBloc.add(AddItemToCart(cartItem));
+
+          _showFeedbackAndNavigate(
+              context, appLocalizations, isSet, navigateToCheckout);
+        } else {
+          // Show error when the bloc is closed
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Unable to add to cart at this time',
+                style: TextStyle(color: getColorSkin().white),
               ),
-            );
-          },
+              backgroundColor: getColorSkin().warningRed,
+            ),
+          );
+        }
+      } catch (innerError) {
+        // If both approaches fail, show an error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to add to cart: $innerError',
+              style: TextStyle(color: getColorSkin().white),
+            ),
+            backgroundColor: getColorSkin().warningRed,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showFeedbackAndNavigate(
+    BuildContext context,
+    AppLocalizations appLocalizations,
+    bool isSet,
+    bool navigateToCheckout,
+  ) {
+    // Navigate or show confirmation
+    if (navigateToCheckout) {
+      context.push('/checkout');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${isSet ? "Set" : "Item"} ${appLocalizations.addToCart}',
+            style: TextStyle(color: getColorSkin().white),
+          ),
+          action: SnackBarAction(
+            label: appLocalizations.cart,
+            textColor: getColorSkin().white,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const CartScreen(isFromBottomNav: false),
+                ),
+              );
+            },
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: getColorSkin().primaryRed650,
+          duration: const Duration(seconds: 2),
         ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: getColorSkin().primaryRed650,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+      );
+    }
   }
 }
