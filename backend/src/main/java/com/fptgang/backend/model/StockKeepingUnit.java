@@ -3,10 +3,7 @@ package com.fptgang.backend.model;
 
 import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -48,9 +45,11 @@ public class StockKeepingUnit {
     private BlindBox blindBox;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stockKeepingUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<OrderDetail> orderDetail;
 
     @OneToMany(mappedBy = "sku", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Set> sets;
 
     @CreationTimestamp

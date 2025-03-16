@@ -5,14 +5,14 @@ import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.RefreshToken;
 import com.fptgang.backend.service.JwtService;
 import com.fptgang.backend.service.RefreshTokenService;
-import jakarta.validation.constraints.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;

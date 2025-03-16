@@ -1,10 +1,7 @@
 package com.fptgang.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -44,7 +41,8 @@ public class ShippingInfo {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "shippingInfo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "shippingInfo", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Order> orders;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")

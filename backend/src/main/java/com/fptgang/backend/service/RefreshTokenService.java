@@ -5,7 +5,7 @@ import com.fptgang.backend.util.Fingerprint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface RefreshTokenService {
     RefreshToken createRefreshToken(String email, Fingerprint fingerprint);

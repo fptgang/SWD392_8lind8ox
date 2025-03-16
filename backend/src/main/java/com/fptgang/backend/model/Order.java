@@ -1,10 +1,7 @@
 package com.fptgang.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,7 +24,11 @@ public class Order {
     @JoinColumn(nullable = false, name = "account_id")
     private Account account;
 
+    @Column(name = "account_id", insertable = false, updatable = false)
+    private Long accountId;
+
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<OrderStatusHistory> orderStatusHistories; // OrderStatusHistory>
 
     @Enumerated(EnumType.STRING)
@@ -35,12 +36,13 @@ public class Order {
     private OrderStatusHistory.State latestStatus;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<OrderDetail> orderDetails;
 
     @OneToOne(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Transaction transaction;
 
-    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Voucher voucher;
 
     @ManyToOne(fetch = FetchType.LAZY)

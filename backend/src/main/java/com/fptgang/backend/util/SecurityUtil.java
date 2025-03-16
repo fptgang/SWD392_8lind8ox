@@ -1,9 +1,10 @@
 package com.fptgang.backend.util;
 
-import com.fptgang.backend.model.Account;
+import com.fptgang.backend.model.Account.Role;
 import com.fptgang.backend.security.AppUser;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.security.access.AccessDeniedException;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,8 +14,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 public class SecurityUtil {
 
@@ -26,11 +26,10 @@ public class SecurityUtil {
         return !isAuthenticated();
     }
 
-    @NotNull
     public static long requireCurrentUserId() {
         var userId = getCurrentUserId();
         if (userId == null)
-            throw new AccessDeniedException("User is not authenticated");
+            throw new InsufficientAuthenticationException("User is not authenticated");
         return userId;
     }
 
@@ -44,7 +43,7 @@ public class SecurityUtil {
             if (auth.getPrincipal() instanceof AppUser appUser) {
                 return appUser.getAccountId();
             } else {
-                throw new RuntimeException("Unable to obtain AppUser");
+                throw new InsufficientAuthenticationException("Unable to obtain AppUser");
             }
         }
 
@@ -55,7 +54,7 @@ public class SecurityUtil {
     public static String requireCurrentUserEmail() {
         var email = getCurrentUserEmail();
         if (email == null)
-            throw new AccessDeniedException("User is not authenticated");
+            throw new InsufficientAuthenticationException("User is not authenticated");
         return email;
     }
 
@@ -73,16 +72,14 @@ public class SecurityUtil {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    @NotNull
-    public static boolean hasPermission(Account.Role role) {
+    public static boolean hasPermission(Role role) {
         var currentUserRole = getCurrentUserRole();
         return currentUserRole != null && currentUserRole.hasPermission(role);
     }
 
-    @NotNull
-    public static boolean hasRole(Account.Role... roles) {
-        Account.Role currentUserRole = getCurrentUserRole();
-        for (Account.Role role : roles) {
+    public static boolean hasRole(Role... roles) {
+        Role currentUserRole = getCurrentUserRole();
+        for (Role role : roles) {
             if (role == currentUserRole) {
                 return true;
             }
@@ -91,15 +88,15 @@ public class SecurityUtil {
     }
 
     @NotNull
-    public static Account.Role requireCurrentUserRole() {
+    public static Role requireCurrentUserRole() {
         var role = getCurrentUserRole();
         if (role == null)
-            throw new AccessDeniedException("User is not authenticated");
+            throw new InsufficientAuthenticationException("User is not authenticated");
         return role;
     }
 
     @Nullable
-    public static Account.Role getCurrentUserRole() {
+    public static Role getCurrentUserRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication instanceof JwtAuthenticationToken auth) {
@@ -111,7 +108,7 @@ public class SecurityUtil {
                 role = role.substring(5);
             }
 
-            return Account.Role.valueOf(role);
+            return Role.valueOf(role);
         }
 
         return null;
@@ -130,18 +127,16 @@ public class SecurityUtil {
 
     @NotNull
     public static String getEmailFromJwt(Jwt jwt) {
-        return Objects.requireNonNull(jwt.getSubject());
+        return jwt.getSubject();
     }
 
-    @Nullable
-    public static Account.Role getRoleFromJwt(Jwt jwt) {
+    @NotNull
+    public static Role getRoleFromJwt(Jwt jwt) {
         String role = jwt.getClaimAsString("scope");
-        if (role == null)
-            return null;
         try {
-            return Account.Role.valueOf(role);
+            return Role.valueOf(role);
         } catch (IllegalArgumentException e) {
-            throw new AccessDeniedException("JWT containing invalid role");
+            throw new BadCredentialsException("JWT containing invalid role");
         }
     }
 
@@ -152,7 +147,7 @@ public class SecurityUtil {
         try {
             return Long.parseLong(accountId);
         } catch (NumberFormatException e) {
-            throw new AccessDeniedException("JWT containing invalid id");
+            throw new BadCredentialsException("JWT containing invalid id");
         }
     }
 
