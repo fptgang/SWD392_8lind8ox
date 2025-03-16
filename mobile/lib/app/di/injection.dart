@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
@@ -7,6 +8,7 @@ import 'package:mobile/app/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/cubits/locale_cubit.dart';
 import 'package:mobile/app/di/injection.config.dart';
+import 'package:mobile/data/network/dio_client.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
 import 'package:mobile/data/repositories/brand_repository.dart';
 import 'package:mobile/data/repositories/implement/account_repository_impl.dart';
@@ -21,13 +23,18 @@ import 'package:mobile/data/repositories/implement/voucher_repository_impl.dart'
 import 'package:mobile/data/repositories/order_detail_repository.dart';
 import 'package:mobile/data/repositories/promotion_repository.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
+import 'package:mobile/data/repositories/transaction_repository.dart';
+import 'package:mobile/data/services/token_refresh_service.dart';
+import 'package:mobile/data/services/token_service.dart';
 import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_bloc.dart';
-import 'package:mobile/feature/checkout/blocs/shipping_info/shipping_info_bloc.dart';
+import 'package:mobile/feature/checkout/blocs/voucher/voucher_bloc.dart';
 import 'package:mobile/feature/detail/blocs/blindbox_detail_bloc.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/feature/home/blocs/promotion/promotion_bloc.dart';
 import 'package:mobile/feature/home/blocs/set/set_bloc.dart';
+import 'package:mobile/feature/shipping_address/bloc/shipping_info_bloc.dart';
+import 'package:mobile/feature/wallet/bloc/wallet_bloc.dart';
 import 'package:openapi/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -162,11 +169,57 @@ void _registerDataSources(SharedPrefManager sharedPrefManager) {
 }
 
 void _registerAPI(Box box) {
-  // API client
+  // Register dependencies in correct order to avoid circular dependencies
+
+  // 1. Register TokenService first (no dependencies)
+  if (!getIt.isRegistered<TokenService>()) {
+    getIt.registerLazySingleton<TokenService>(
+      () {
+        final service = TokenService(box: box);
+        
+        // Clear any invalid tokens on startup
+        final accessToken = service.getAccessToken();
+        if (accessToken != null && accessToken.isNotEmpty) {
+          // Verify token is a valid JWT format (should have 3 dot-separated parts)
+          final parts = accessToken.split('.');
+          if (parts.length != 3) {
+            debugPrint('⚠️ Invalid token found on startup, clearing tokens');
+            service.clearTokens();
+          }
+        }
+
+        return service;
+      },
+    );
+  }
+
+  // 2. Register Dio client (using the TokenService)
+  if (!getIt.isRegistered<Dio>()) {
+    getIt.registerLazySingleton<Dio>(() => DioClient.createDio());
+  }
+
   if (!getIt.isRegistered<DefaultApi>()) {
     getIt.registerLazySingleton<DefaultApi>(
-        () => DefaultApi(ApiClient(basePath: dotenv.env['BASE_URL'] ?? '')
-          ));
+          () => DefaultApi(),
+    );
+  }
+
+  // 4. Register AuthRepository (depends on DefaultApi and TokenService)
+  if (!getIt.isRegistered<AuthRepository>()) {
+    getIt.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+      ),
+    );
+  }
+  
+  // 5. Register TokenRefreshService (depends on TokenService)
+  if (!getIt.isRegistered<TokenRefreshService>()) {
+    getIt.registerLazySingleton<TokenRefreshService>(
+      () => TokenRefreshService(
+        tokenService: getIt<TokenService>(),
+        dio: getIt<Dio>(),
+      ),
+    );
   }
 }
 
@@ -194,10 +247,21 @@ void _registerBlocs() {
         () => CartGlobalBloc(getIt<OrderRepository>(), getIt<SkuRepository>()));
   }
 
+  if (!getIt.isRegistered<WalletBloc>()) {
+    getIt.registerLazySingleton<WalletBloc>(
+            () => WalletBloc(getIt<TransactionRepository>(), getIt<AccountRepository>()));
+  }
+
   if (!getIt.isRegistered<PromotionBloc>()) {
     getIt.registerLazySingleton<PromotionBloc>(
         () => PromotionBloc(getIt<PromotionRepository>()));
   }
+
+  if (!getIt.isRegistered<VoucherBloc>()) {
+    getIt.registerLazySingleton<VoucherBloc>(
+            () => VoucherBloc(getIt<VoucherRepository>()));
+  }
+
 
   if (!getIt.isRegistered<BlindBoxesListBloc>()) {
     getIt.registerLazySingleton<BlindBoxesListBloc>(

@@ -28,15 +28,9 @@ class AuthRepositoryImpl implements AuthRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   AuthRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
-  }
-
-  @override
-  Future<AccountModel> getCurrentUserInformation() {
-    // TODO: implement getCurrentUserInformation
-    throw UnimplementedError();
+    if(box.get('loginToken').isNotEmpty) {
+      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    }
   }
 
   @override

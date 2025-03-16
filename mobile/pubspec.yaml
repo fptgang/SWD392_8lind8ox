@@ -62,7 +62,7 @@ dependencies:
   go_router: ^14.7.2
   app_links: ^6.3.3
   flutter_dotenv: ^5.2.1
-  intl: any
+  intl: ^0.20.2
   flutter_localizations:
     sdk: flutter
   shared_preferences: ^2.5.1
@@ -77,6 +77,9 @@ dependencies:
   timeline_tile: ^2.0.0
   http_interceptor: ^2.0.0
   fluttertoast: ^8.2.12
+  pretty_dio_logger: ^1.4.0
+  timelines: ^0.1.0
+  webview_flutter: ^4.10.0
 
 
 dev_dependencies:

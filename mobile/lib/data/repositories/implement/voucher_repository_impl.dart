@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/voucher_mapper.dart';
@@ -8,15 +9,17 @@ import 'package:openapi/api.dart';
 
 import '../../mapper/generic_mapper.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class VoucherRepositoryImpl implements VoucherRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   VoucherRepositoryImpl() {
-    _apiService.apiClient
-        .addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    if(box.get('loginToken').isNotEmpty) {
+      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    }
   }
-
   @override
   Future<VoucherModel> getVoucherById(int id) async {
     try {

@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
@@ -7,14 +8,16 @@ import 'package:mobile/data/models/sku_model.dart';
 import 'package:mobile/data/repositories/sku_repository.dart';
 import 'package:openapi/api.dart';
 
+
+String token = dotenv.env['TOKEN'] ?? '';
 class SkuRepositoryImpl implements SkuRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   SkuRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    if(box.get('loginToken').isNotEmpty) {
+      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    }
   }
   @override
   Future<StockKeepingUnitModel> getStockKeepingUnitById(int id) async {

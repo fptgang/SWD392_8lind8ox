@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
@@ -8,8 +10,17 @@ import '../../../app/di/injection.dart';
 import '../../mapper/blindbox_mapper.dart';
 import '../blindbox_repository.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class BlindBoxRepositoryImpl implements BlindBoxRepository {
+  var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
+
+  BlindBoxRepositoryImpl() {
+    if(box.get('loginToken').isNotEmpty) {
+      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    }
+  }
 
   @override
   Future<BlindBoxModel> getBlindBoxById(int id) async {

@@ -1,5 +1,4 @@
 import 'package:mobile/data/models/generic_response_model.dart';
-import 'package:openapi/api.dart';
 
 class PaginationResponseMapper {
   static PaginationResponseGeneric<T> toModel<T, D>({

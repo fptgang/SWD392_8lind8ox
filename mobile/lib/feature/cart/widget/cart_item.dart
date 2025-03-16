@@ -6,12 +6,16 @@ class CartItemWidget extends StatelessWidget {
   final dynamic cartItem;
   final VoidCallback onRemove;
   final Function(int) onQuantityChanged;
+  final bool isSelected;
+  final Function(bool?) onSelectionChanged;
 
   const CartItemWidget({
     super.key,
     required this.cartItem,
     required this.onRemove,
     required this.onQuantityChanged,
+    required this.isSelected,
+    required this.onSelectionChanged,
   });
 
   @override
@@ -41,6 +45,23 @@ class CartItemWidget extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Selection checkbox
+              Padding(
+                padding: EdgeInsets.only(top: 8.r, right: 8.r),
+                child: SizedBox(
+                  width: 24.w,
+                  height: 24.w,
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: onSelectionChanged,
+                    activeColor: getColorSkin().primaryRed650,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                  ),
+                ),
+              ),
+              
               // Product Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.r),

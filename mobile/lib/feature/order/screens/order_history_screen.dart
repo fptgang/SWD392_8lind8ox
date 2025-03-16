@@ -1,256 +1,167 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/di/injection.dart';
+import 'package:mobile/base/common/widgets/common_loading.dart';
+import 'package:mobile/base/common/widgets/error.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/order/screens/order_tracking_screen.dart';
-import 'package:mobile/utils/enum/enum.dart';
+import 'package:mobile/feature/order/blocs/order/order_bloc.dart';
+import 'package:mobile/feature/order/blocs/order/order_event.dart';
+import 'package:mobile/feature/order/blocs/order/order_state.dart';
+import 'package:mobile/feature/order/widgets/order_history/order_list_item.dart';
 
-class MyOrdersScreen extends StatelessWidget {
-  const MyOrdersScreen({super.key});
 
-  static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const MyOrdersScreen());
+class MyOrdersScreen extends StatefulWidget {
+  final String? highlightOrderId;
+  
+  const MyOrdersScreen({
+    super.key,
+    this.highlightOrderId,
+  });
+
+  static Route<void> route({String? highlightOrderId}) {
+    return MaterialPageRoute<void>(
+      builder: (_) => MyOrdersScreen(
+        highlightOrderId: highlightOrderId,
+      ),
+    );
+  }
+
+  @override
+  State<MyOrdersScreen> createState() => _MyOrdersScreenState();
+}
+
+class _MyOrdersScreenState extends State<MyOrdersScreen> {
+  String? _highlightedOrderId;
+  
+  @override
+  void initState() {
+    super.initState();
+    _highlightedOrderId = widget.highlightOrderId;
+    
+    // Clear the highlight after 3 seconds
+    if (_highlightedOrderId != null) {
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _highlightedOrderId = null;
+          });
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: getColorSkin().primaryRed650,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'My Orders',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.black),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: Container(
-        margin: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ListView(
-          padding: const EdgeInsets.all(0),
-          children: [
-            _buildOrderItem(
-              context,
-              orderId: "999012",
-              date: "20-Dec-2019, 3:00 PM",
-              status: OrderStatusEnum.PAYMENT_EXPIRED,
-              estimatedDelivery: "31 Dec",
-              productEmoji: "🥑",
-              rating: 5,
-              hasRated: false,
-            ),
-            const Divider(height: 1),
-            _buildOrderItem(
-              context,
-              orderId: "660212",
-              date: "18-Dec-2019, 1:00 PM",
-              status: OrderStatusEnum.DELIVERED,
-              deliveredDate: "18 Dec",
-              productEmoji: "🍎",
-              rating: 4,
-              hasRated: true,
-            ),
-            const Divider(height: 1),
-            _buildOrderItem(
-              context,
-              orderId: "551221",
-              date: "16-Dec-2019, 3:00 PM",
-              status: OrderStatusEnum.DELIVERED,
-              deliveredDate: "17 Dec",
-              productEmoji: "🍓",
-              rating: 2,
-              hasRated: true,
-            ),
-            const Divider(height: 1),
-            _buildOrderItem(
-              context,
-              orderId: "448202",
-              date: "12-Dec-2019, 3:00 PM",
-              status: OrderStatusEnum.COMPLETED,
-              deliveredDate: "13 Dec",
-              productEmoji: "🥝",
-              rating: 4,
-              hasRated: true,
-            ),
-            const Divider(height: 1),
-            _buildOrderItem(
-              context,
-              orderId: "425253",
-              date: "10-Dec-2019, 3:00 PM",
-              status: OrderStatusEnum.READY_FOR_PICKUP,
-              deliveredDate: "11 Dec",
-              productEmoji: "🥑",
-              rating: 5,
-              hasRated: true,
-            ),
-            const Divider(height: 1),
-            _buildOrderItem(
-              context,
-              orderId: "335242",
-              date: "08-Dec-2019, 2:00 PM",
-              status: OrderStatusEnum.CANCELED,
-              deliveredDate: "09 Dec",
-              productEmoji: "🥑",
-              rating: 4,
-              hasRated: true,
-            ),
-          ],
-        ),
+    return BlocProvider(
+      create: (context) {
+        final bloc = getIt<OrderBloc>();
+        bloc.add(GetOrders());
+        return bloc;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: _buildAppBar(context),
+        body: _buildBody(context),
       ),
     );
   }
 
-  Widget _buildOrderItem(
-    BuildContext context, {
-    required String orderId,
-    required String date,
-    required OrderStatusEnum status,
-    String? estimatedDelivery,
-    String? deliveredDate,
-    required String productEmoji,
-    required int rating,
-    required bool hasRated,
-  }) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OrderDetailScreen(
-              orderId: orderId,
-              status: status,
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: getColorSkin().primaryRed650,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: const Text(
+        'My Orders',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh, color: Colors.white),
+          onPressed: () => context.read<OrderBloc>().add(RefreshOrders()),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return BlocBuilder<OrderBloc, OrderState>(
+      builder: (context, state) {
+        if (state is OrderLoadingState && state.isLoading) {
+          return buildLoadingIndicator();
+        }
+
+        if (state is OrderLoadingState && state.error != null) {
+          return CommonErrorWidget(
+            error: state.error!,
+            onRetry: () => context.read<OrderBloc>().add(RefreshOrders()),
+          );
+        }
+
+        if (state is OrderDataState && state.orders != null) {
+          final orders = state.orders!.content;
+
+          if (orders.isEmpty) {
+            return Center(
+              child: Text(
+                'No orders found',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: getColorSkin().grey,
+                ),
+              ),
+            );
+          }
+
+          return Container(
+            margin: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: ListView.separated(
+              padding: const EdgeInsets.all(0),
+              itemCount: orders.length,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                final bool isHighlighted = order.orderId == _highlightedOrderId;
+                
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  color: isHighlighted 
+                    ? getColorSkin().primaryRed100.withOpacity(0.3)
+                    : Colors.transparent,
+                  child: OrderListItem(order: order),
+                );
+              },
+            ),
+          );
+        }
+
+        return Center(
+          child: Text(
+            'No orders available',
+            style: TextStyle(
+              fontSize: 16,
+              color: getColorSkin().grey,
             ),
           ),
         );
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Order#: $orderId",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    date,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (status == OrderStatusEnum.PREPARING)
-                    Text(
-                      "Estimated Delivery on $estimatedDelivery",
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    )
-                  else
-                    Text(
-                      "Delivered on $deliveredDate",
-                      style: const TextStyle(
-                        color: Colors.orange,
-                        fontSize: 12,
-                      ),
-                    ),
-                  if (hasRated)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "You Rated: ",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          _buildRatingStars(rating),
-                        ],
-                      ),
-                    )
-                  else if (status == OrderStatusEnum.PREPARING)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Rating: ",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          _buildRatingStars(rating, isInteractive: true),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              productEmoji,
-              style: const TextStyle(
-                fontSize: 24,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRatingStars(int rating, {bool isInteractive = false}) {
-    return Row(
-      children: List.generate(5, (index) {
-        return Icon(
-          index < rating ? Icons.star : Icons.star_border,
-          color: Colors.amber,
-          size: 14,
-        );
-      }),
     );
   }
 }

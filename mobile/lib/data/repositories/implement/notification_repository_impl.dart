@@ -12,9 +12,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   NotificationRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    if(box.get('loginToken').isNotEmpty) {
+      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    }
   }
 
   @override

@@ -47,8 +47,7 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
     try {
       final pageable = Pageable(page: event.pageKey, size: 20, sort: ['desc']);
 
-      final shippingInfos = await _shippingInfoRepository.getShippingInfos(
-          pageable, _dataState.filter ?? '', _dataState.search ?? '');
+      final shippingInfos = await _shippingInfoRepository.getShippingInfos();
       debugPrint('shippingInfos: $shippingInfos');
 
       final isLastPage = shippingInfos.content.length < pageable.size;

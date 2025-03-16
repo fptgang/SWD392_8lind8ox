@@ -24,6 +24,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
   final String _cartKey = 'cart_items';
   final String _voucherKey = 'cart_voucher';
   final String _shippingInfoKey = 'cart_shipping_info';
+  final String _selectedItemsKey = 'cart_selected_items';
 
   CartGlobalBloc(OrderRepository orderRepository, SkuRepository skuRepository)
       : _orderRepository = orderRepository,
@@ -38,6 +39,10 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
     on<SetShippingInfo>(_onSetShippingInfo);
     on<SetVoucher>(_onSetVoucher);
     on<PlaceOrder>(_onPlaceOrder);
+    on<ToggleItemSelection>(_onToggleItemSelection);
+    on<SelectAllItems>(_onSelectAllItems);
+    on<DeselectAllItems>(_onDeselectAllItems);
+    on<RemoveSelectedItems>(_onRemoveSelectedItems);
 
     _initPrefs();
   }
@@ -62,6 +67,20 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
         final List<dynamic> decoded = jsonDecode(cartJson);
         cartItems =
             decoded.map((item) => CartItemModel.fromJson(item)).toList();
+      }
+
+      // Load selected items
+      final selectedItemsJson = _prefs?.getString(_selectedItemsKey);
+      Set<int> selectedItemIds = {};
+      
+      if (selectedItemsJson != null && selectedItemsJson.isNotEmpty) {
+        final List<dynamic> decoded = jsonDecode(selectedItemsJson);
+        selectedItemIds = decoded.map<int>((id) => id as int).toSet();
+        
+        // Validate selected IDs against current cart items
+        selectedItemIds = selectedItemIds
+            .where((id) => cartItems.any((item) => item.id == id))
+            .toSet();
       }
 
       // Load voucher
@@ -100,6 +119,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
 
       emit(state.copyWith(
         items: cartItems,
+        selectedItemIds: selectedItemIds,
         originalTotal: originalTotal,
         total: total,
         voucher: voucher,
@@ -387,17 +407,29 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
       final cartModel = CartModel(
         shippingInfoId: state.shippingInfo!.shippingInfoId,
         voucherId: state.voucher?.voucherId,
-        items: state.items
-            .map((item) => CartItemModel(
-                  id: item.id,
-                  productName: item.productName,
-                  price: item.price,
-                  image: item.image,
-                  quantity: item.quantity,
-                  skuId: item.skuId,
-                  slotId: item.slotId,
-                ))
-            .toList(),
+        items: state.hasSelectedItems
+            ? state.selectedItems
+                .map((item) => CartItemModel(
+                      id: item.id,
+                      productName: item.productName,
+                      price: item.price,
+                      image: item.image,
+                      quantity: item.quantity,
+                      skuId: item.skuId,
+                      slotId: item.slotId,
+                    ))
+                .toList()
+            : state.items
+                .map((item) => CartItemModel(
+                      id: item.id,
+                      productName: item.productName,
+                      price: item.price,
+                      image: item.image,
+                      quantity: item.quantity,
+                      skuId: item.skuId,
+                      slotId: item.slotId,
+                    ))
+                .toList(),
         paymentMethod: _mapPaymentMethod(event.paymentMethod),
       );
 
@@ -424,6 +456,133 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
       emit(state.copyWith(
         isLoading: false,
         error: 'Failed to place order: $e',
+      ));
+    }
+  }
+
+  void _onToggleItemSelection(
+    ToggleItemSelection event,
+    Emitter<CartState> emit,
+  ) {
+    try {
+      final currentSelectedIds = Set<int>.from(state.selectedItemIds);
+      
+      // Toggle selection
+      if (currentSelectedIds.contains(event.itemId)) {
+        currentSelectedIds.remove(event.itemId);
+      } else {
+        currentSelectedIds.add(event.itemId);
+      }
+      
+      // Save to SharedPreferences
+      _saveSelectedItems(currentSelectedIds);
+      
+      emit(state.copyWith(
+        selectedItemIds: currentSelectedIds,
+        clearError: true,
+      ));
+    } catch (e) {
+      debugPrint('Error toggling item selection: $e');
+      emit(state.copyWith(
+        error: 'Failed to toggle item selection: $e',
+      ));
+    }
+  }
+  
+  void _onSelectAllItems(
+    SelectAllItems event,
+    Emitter<CartState> emit,
+  ) {
+    try {
+      // Get all item IDs from the cart
+      final allItemIds = state.items.map((item) => item.id).toSet();
+      
+      // Save to SharedPreferences
+      _saveSelectedItems(allItemIds);
+      
+      emit(state.copyWith(
+        selectedItemIds: allItemIds,
+        clearError: true,
+      ));
+    } catch (e) {
+      debugPrint('Error selecting all items: $e');
+      emit(state.copyWith(
+        error: 'Failed to select all items: $e',
+      ));
+    }
+  }
+  
+  void _onDeselectAllItems(
+    DeselectAllItems event,
+    Emitter<CartState> emit,
+  ) {
+    try {
+      // Clear selected items
+      _saveSelectedItems({});
+      
+      emit(state.copyWith(
+        clearSelectedItems: true,
+        clearError: true,
+      ));
+    } catch (e) {
+      debugPrint('Error deselecting all items: $e');
+      emit(state.copyWith(
+        error: 'Failed to deselect all items: $e',
+      ));
+    }
+  }
+  
+  Future<void> _saveSelectedItems(Set<int> selectedIds) async {
+    try {
+      final jsonString = jsonEncode(selectedIds.toList());
+      await _prefs?.setString(_selectedItemsKey, jsonString);
+    } catch (e) {
+      debugPrint('Error saving selected items: $e');
+    }
+  }
+
+  Future<void> _onRemoveSelectedItems(
+    RemoveSelectedItems event,
+    Emitter<CartState> emit,
+  ) async {
+    try {
+      if (!state.hasSelectedItems) {
+        return; // Nothing to remove
+      }
+      
+      // Filter out selected items
+      final remainingItems = state.items
+          .where((item) => !state.selectedItemIds.contains(item.id))
+          .toList();
+          
+      // Calculate totals
+      final originalTotal = _calculateOriginalTotal(remainingItems);
+      final total = _calculateTotal(remainingItems);
+      
+      // Save to SharedPreferences
+      await _saveCartItems(remainingItems);
+      
+      // Clear selected items
+      await _saveSelectedItems({});
+      
+      emit(state.copyWith(
+        items: remainingItems,
+        originalTotal: originalTotal,
+        total: total,
+        clearSelectedItems: true,
+        clearError: true,
+      ));
+      
+      if (remainingItems.isEmpty) {
+        // Clear voucher if cart is empty
+        emit(state.copyWith(
+          clearVoucher: true,
+        ));
+      }
+    } catch (e) {
+      debugPrint('Error removing selected items: $e');
+      emit(state.copyWith(
+        error: 'Failed to remove selected items: $e',
       ));
     }
   }

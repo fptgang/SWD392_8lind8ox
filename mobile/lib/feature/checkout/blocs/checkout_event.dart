@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
-
-import '../../../data/models/cart_model.dart';
-import '../../../data/models/promotional_campaign_model.dart';
+import 'package:mobile/data/models/cart_model.dart';
+import 'package:mobile/data/models/promotional_campaign_model.dart';
+import 'package:mobile/data/models/voucher_model.dart';
 
 abstract class CheckoutEvent extends Equatable {
   const CheckoutEvent();
@@ -11,11 +10,33 @@ abstract class CheckoutEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class InitializeCheckout extends CheckoutEvent {
+  final List<CartItemModel> selectedItems;
+
+  const InitializeCheckout({required this.selectedItems});
+
+  @override
+  List<Object?> get props => [selectedItems];
+}
+
+class ValidateAndPlaceOrder extends CheckoutEvent {
+  final List<CartItemModel> cartItems;
+  final int? shippingInfoId;
+
+  const ValidateAndPlaceOrder({
+    required this.cartItems,
+    required this.shippingInfoId,
+  });
+
+  @override
+  List<Object?> get props => [cartItems, shippingInfoId];
+}
+
 class Checkout extends CheckoutEvent {
-  final CartModel? cartModelToCheckout;
+  final CartModel cartModelToCheckout;
 
   const Checkout({
-    this.cartModelToCheckout,
+    required this.cartModelToCheckout,
   });
 
   @override
@@ -61,10 +82,12 @@ class SetTermsAccepted extends CheckoutEvent {
 }
 
 class UpdateSelectedVoucher extends CheckoutEvent {
-  final PromotionModel? voucher;
+  final VoucherModel? voucher;
 
   const UpdateSelectedVoucher(this.voucher);
 
   @override
   List<Object?> get props => [voucher];
 }
+
+class ClearCheckoutError extends CheckoutEvent {}

@@ -14,6 +14,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/app/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/main_screen.dart';
+import 'package:mobile/data/repositories/auth_repository.dart';
 import 'package:mobile/feature/auth/login/login_screen.dart';
 import 'package:mobile/feature/auth/register/register_screen.dart';
 import 'package:mobile/feature/auth/reset_password/forgot_password_screen.dart';
@@ -26,11 +27,15 @@ import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart'
 import 'package:mobile/feature/home/blocs/set/set_bloc.dart';
 import 'package:mobile/feature/home/homepage_screen.dart';
 import 'package:mobile/feature/order/screens/order_history_screen.dart';
-import 'package:mobile/feature/order/screens/order_tracking_screen.dart';
+import 'package:mobile/feature/order/screens/order_detail_screen.dart';
 import 'package:mobile/feature/profile/profile_screen.dart';
 import 'package:mobile/feature/search/search_screen.dart';
-import 'package:mobile/feature/sets/set_screen.dart';
+import 'package:mobile/feature/shipping_address/bloc/shipping_info_bloc.dart';
+import 'package:mobile/feature/shipping_address/bloc/shipping_info_event.dart';
+import 'package:mobile/feature/shipping_address/shipping_address_screen.dart';
 import 'package:mobile/feature/splash/view/splash_sreen.dart';
+import 'package:mobile/feature/toys/toy_screen.dart';
+import 'package:mobile/feature/wallet/wallet_screen.dart';
 
 import '../feature/profile/cubits/dropdown_cubit.dart';
 import '../utils/enum/enum.dart';
@@ -62,25 +67,28 @@ Future<void> _initializeApp() async {
   // Initialize environment variables
   await dotenv.load(fileName: ".env");
 
-  // Initialize local storage
   await Hive.initFlutter();
+  await Hive.deleteBoxFromDisk('authentication');
   await Hive.openBox("authentication");
-  // if (box.containsKey("loginToken")) {
-  //   box.delete("loginToken");
-  // }
 
-
-
-  // Initialize deep linking
   await _initDeepLinks();
 
-  // Initialize dependency injection
   await _initDependencyInjection();
 }
 
 Future<void> _initDeepLinks() async {
   _appLinks = AppLinks();
   _linkSubscription = _appLinks.uriLinkStream.listen(_handleDeepLink);
+}
+
+void setupAuthListener() {
+  final authRepository = getIt<AuthRepository>();
+
+  authRepository.status.listen((status) {
+    if (status == AuthenticationStatus.unauthenticated) {
+      navigatorKey.currentContext?.go('/main');
+    }
+  });
 }
 
 void _handleDeepLink(Uri uri) {
@@ -259,7 +267,7 @@ class AppRouter {
           ),
           GoRoute(
             path: '/new-releases',
-            builder: (context, state) => const SetScreen(),
+            builder: (context, state) => const ToyScreen(),
           ),
           GoRoute(
             path: '/account',
@@ -272,8 +280,36 @@ class AppRouter {
         builder: (context, state) => CheckoutScreen(),
       ),
       GoRoute(
+        path: '/shipping-address',
+        builder: (context, state) => BlocProvider(
+          create: (context) =>
+              getIt<ShippingInfoBloc>()..add(GetShippingInfos()),
+          child: const ShippingAddressScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/shipping-address',
+        builder: (context, state) {
+          final Map<String, dynamic> extras =
+              state.extra as Map<String, dynamic>? ?? {};
+
+          return BlocProvider(
+            create: (context) =>
+                getIt<ShippingInfoBloc>()..add(GetShippingInfos()),
+            child: ShippingAddressScreen(
+              isSelectionMode: extras['isSelectionMode'] ?? false,
+              onAddressSelected: extras['addressCallback'],
+            ),
+          );
+        },
+      ),
+      GoRoute(
         path: '/orders-history',
         builder: (context, state) => MyOrdersScreen(),
+      ),
+      GoRoute(
+        path: '/my-wallet',
+        builder: (context, state) => WalletScreen(),
       ),
       GoRoute(
         path: '/order-history-detail/:id',

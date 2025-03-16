@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/cubits/bottom_navigation_cubit.dart';
 import 'package:mobile/feature/cart/cart_screen.dart';
 import 'package:mobile/feature/search/search_screen.dart';
-import 'package:mobile/feature/sets/set_screen.dart';
+import 'package:mobile/feature/toys/toy_screen.dart';
 
 import '../feature/home/homepage_screen.dart';
 import '../feature/profile/profile_screen.dart';
@@ -59,7 +59,7 @@ class MainScreen extends StatelessWidget {
         HomePageScreen(),
         SearchScreen(),
         CartScreen(isFromBottomNav: true),
-        SetScreen(),
+        ToyScreen(),
         ProfileScreen(),
       ],
     );

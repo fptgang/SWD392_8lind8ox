@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
@@ -10,14 +11,16 @@ import 'package:openapi/api.dart';
 
 import '../promotion_repository.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class PromotionRepositoryImpl implements PromotionRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   PromotionRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    if(box.get('loginToken').isNotEmpty) {
+      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    }
   }
 
   @override

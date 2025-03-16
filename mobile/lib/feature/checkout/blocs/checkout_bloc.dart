@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/di/injection.dart';
+import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/data/repositories/order_repository.dart';
 import 'package:mobile/data/repositories/voucher_repository.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_event.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_state.dart';
 import 'package:mobile/utils/enum/enum.dart';
 import 'package:openapi/api.dart';
-
 @injectable
 @lazySingleton
 class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   final OrderRepository orderRepository;
-  final VoucherRepository? _voucherRepository;
+  final VoucherRepository? voucherRepository;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   CheckoutBloc(
-    this._voucherRepository, {
-    required this.orderRepository,
-  }) : super(const CheckoutState()) {
+      this.voucherRepository, {
+        required this.orderRepository,
+      }) : super(const CheckoutState()) {
+    on<InitializeCheckout>(_onInitializeCheckout);
     on<Checkout>(_onCheckout);
     on<SelectPaymentMethod>(_onSelectPaymentMethod);
     on<OrderFetched>(_onOrderFetched);
@@ -29,40 +30,59 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<ApplyVoucher>(_onApplyVoucher);
     on<SetTermsAccepted>(_onSetTermsAccepted);
     on<UpdateSelectedVoucher>(_onUpdateSelectedVoucher);
+    on<ValidateAndPlaceOrder>(_onValidateAndPlaceOrder);
+    on<ClearCheckoutError>(_onClearCheckoutError);
+  }
+
+  void _onInitializeCheckout(
+      InitializeCheckout event,
+      Emitter<CheckoutState> emit,
+      ) {
+    // Initialize the checkout screen with default values
+    emit(CheckoutState(
+      loading: false,
+      error: null,
+      selectedPaymentMethod: null,
+      selectedVoucher: null,
+      termsAccepted: false,
+      isOrderCreated: false,
+    ));
+  }
+
+  void _onClearCheckoutError(
+      ClearCheckoutError event,
+      Emitter<CheckoutState> emit,
+      ) {
+    emit(state.copyWith(error: null));
   }
 
   void _onSetTermsAccepted(
-    SetTermsAccepted event,
-    Emitter<CheckoutState> emit,
-  ) {
+      SetTermsAccepted event,
+      Emitter<CheckoutState> emit,
+      ) {
     emit(state.copyWith(termsAccepted: event.accepted));
   }
 
   void _onUpdateSelectedVoucher(
-    UpdateSelectedVoucher event,
-    Emitter<CheckoutState> emit,
-  ) {
+      UpdateSelectedVoucher event,
+      Emitter<CheckoutState> emit,
+      ) {
     emit(state.copyWith(selectedVoucher: event.voucher));
   }
 
   Future<void> _onOrderFetched(
-    OrderFetched event,
-    Emitter<CheckoutState> emit,
-  ) async {
+      OrderFetched event,
+      Emitter<CheckoutState> emit,
+      ) async {
     try {
-      emit(state.copyWith(isLoading: true));
+      emit(state.copyWith(isLoading: true, error: null));
 
-      // Fetch the order details from the repository - just for viewing
+      // Fetch the order details from the repository
       final order = await orderRepository.getOrderById(event.orderId);
-
-      // Since we're just viewing, we don't need to convert to CartModel
-      // Implementation will depend on how you want to display order details
-      // For now we'll leave the state as is with updated loading flag
 
       emit(state.copyWith(
         isLoading: false,
         // You might want to store the order in another state property
-        // or pass it directly to the UI
       ));
     } catch (error) {
       emit(state.copyWith(
@@ -73,21 +93,20 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   }
 
   void _onCalculateTotalPrice(
-    CalculateTotalPrice event,
-    Emitter<CheckoutState> emit,
-  ) {
+      CalculateTotalPrice event,
+      Emitter<CheckoutState> emit,
+      ) {
     if (state.cartModelToCheckout == null) return;
 
     // Here you would calculate the total price for all items in the cart
     // For now, we'll just ensure the state is consistent
-
     emit(state.copyWith(cartModelToCheckout: state.cartModelToCheckout));
   }
 
   void _onSelectPaymentMethod(
-    SelectPaymentMethod event,
-    Emitter<CheckoutState> emit,
-  ) {
+      SelectPaymentMethod event,
+      Emitter<CheckoutState> emit,
+      ) {
     final paymentMethod = _stringToPaymentMethod(event.paymentMethod);
     emit(state.copyWith(selectedPaymentMethod: paymentMethod));
 
@@ -101,10 +120,58 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     }
   }
 
+  void _onValidateAndPlaceOrder(
+      ValidateAndPlaceOrder event,
+      Emitter<CheckoutState> emit,
+      ) {
+    try {
+      // Reset any previous errors
+      emit(state.copyWith(error: null));
+
+      // Validate shipping info
+      if (event.shippingInfoId == null) {
+        emit(state.copyWith(error: 'Please select a shipping address'));
+        return;
+      }
+
+      // Validate payment method
+      if (state.selectedPaymentMethod == null) {
+        emit(state.copyWith(error: 'Please select a payment method'));
+        return;
+      }
+
+      // Validate terms acceptance
+      if (!state.termsAccepted) {
+        emit(state.copyWith(error: 'Please accept the terms and conditions'));
+        return;
+      }
+
+      // Validate cart items
+      if (!_validateCartItems(event.cartItems)) {
+        emit(state.copyWith(error: 'Invalid cart items. Please check your cart.'));
+        return;
+      }
+
+      // Create the cart model for checkout
+      final cartModel = CartModel(
+        items: event.cartItems,
+        paymentMethod: mapPaymentMethodToEnum(state.selectedPaymentMethod),
+        voucherId: state.selectedVoucher?.voucherId,
+        shippingInfoId: event.shippingInfoId,
+      );
+
+      // Dispatch checkout event
+      add(Checkout(cartModelToCheckout: cartModel));
+    } catch (e) {
+      debugPrint('Error in ValidateAndPlaceOrder: $e');
+      emit(state.copyWith(error: 'An error occurred: ${e.toString()}'));
+    }
+  }
+
   Future<void> _onCheckout(
-    Checkout event,
-    Emitter<CheckoutState> emit,
-  ) async {
+      Checkout event,
+      Emitter<CheckoutState> emit,
+      ) async {
     try {
       emit(state.copyWith(isLoading: true, error: null));
 
@@ -112,21 +179,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       final loginToken = authBox.get('loginToken');
       debugPrint('- LoginToken exists: ${loginToken != null}');
 
-      // Use the provided cart model if available, otherwise use the current state
-      final cartToCheckout =
-          event.cartModelToCheckout ?? state.cartModelToCheckout;
-
-      if (cartToCheckout == null) {
-        throw Exception('No items in cart');
-      }
-
-      if (cartToCheckout.shippingInfoId == null) {
-        throw Exception('Shipping information is required');
-      }
-
-      if (cartToCheckout.paymentMethod == null) {
-        throw Exception('Payment method is required');
-      }
+      final cartToCheckout = event.cartModelToCheckout;
 
       debugPrint('Creating order with cart model: $cartToCheckout');
 
@@ -134,10 +187,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         final orderResponse = await orderRepository.createOrder(cartToCheckout);
         debugPrint('Order created successfully: $orderResponse');
 
+        // Extract payment redirect URL if available
+        final redirectUrl = orderResponse.paymentRedirectUrl;
+
         emit(state.copyWith(
           cartModelToCheckout: cartToCheckout,
           isLoading: false,
           isOrderCreated: true,
+          redirectUrl: redirectUrl,
         ));
       } catch (orderError) {
         debugPrint('Error creating order: $orderError');
@@ -145,44 +202,57 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       }
     } catch (error) {
       debugPrint('Error during checkout: $error');
+      String errorMessage = _formatErrorMessage(error.toString());
+
       emit(state.copyWith(
-        error: error.toString(),
+        error: errorMessage,
         isLoading: false,
         isOrderCreated: false,
       ));
     }
   }
 
-  void _onApplyVoucher(ApplyVoucher event, Emitter<CheckoutState> emit) async {
+  Future<void> _onApplyVoucher(
+      ApplyVoucher event,
+      Emitter<CheckoutState> emit
+      ) async {
     try {
-      if (state.cartModelToCheckout == null) return;
+      emit(state.copyWith(isLoading: true, error: null));
 
-      // Get the voucher by code from repository
-      final voucher = await _voucherRepository?.getVoucherById(event.voucherId);
+      final voucher = await voucherRepository?.getVoucherById(event.voucherId);
 
       if (voucher != null) {
-        // Update the cart with the voucher ID
-        final updatedCart = state.cartModelToCheckout!.copyWith(
-          voucherId: voucher.voucherId,
-        );
-
+        // Update the selected voucher
         emit(state.copyWith(
-          cartModelToCheckout: updatedCart,
+          selectedVoucher: voucher,
+          isLoading: false,
         ));
       } else {
-        emit(state.copyWith(error: 'Invalid voucher code'));
+        emit(state.copyWith(
+          error: 'Invalid voucher code',
+          isLoading: false,
+        ));
       }
     } catch (e) {
-      emit(state.copyWith(error: 'Error applying voucher: ${e.toString()}'));
+      emit(state.copyWith(
+        error: 'Error applying voucher: ${e.toString()}',
+        isLoading: false,
+      ));
     }
   }
 
-  bool isCheckoutValid() {
-    return state.cartModelToCheckout != null &&
-        state.cartModelToCheckout!.items?.isNotEmpty == true &&
-        state.cartModelToCheckout!.shippingInfoId != null &&
-        state.cartModelToCheckout!.paymentMethod != null &&
-        state.termsAccepted;
+  // Helper Methods
+
+  bool _validateCartItems(List<CartItemModel> items) {
+    if (items.isEmpty) {
+      return false;
+    }
+
+    if (items.any((item) => item.skuId == null)) {
+      return false;
+    }
+
+    return true;
   }
 
   PaymentMethod? _stringToPaymentMethod(String paymentMethod) {
@@ -194,6 +264,25 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       default:
         return null;
     }
+  }
+
+  String _formatErrorMessage(String error) {
+    // Convert technical errors to user-friendly messages
+    if (error.contains('Shipping information is required') ||
+        error.contains('shippingInfoId')) {
+      return 'Please add a shipping address';
+    } else if (error.contains('Payment method is required')) {
+      return 'Please select a payment method';
+    } else if (error.contains('No items in cart')) {
+      return 'Your cart is empty. Please add items to your cart';
+    } else if (error.contains('ShippingInfo does not belong to account')) {
+      return 'The shipping address does not belong to your account. Please add a new shipping address.';
+    } else if (error.contains('401') || error.contains('Unauthorized')) {
+      return 'Your session has expired. Please log in again';
+    }
+
+    // Return original error if no matching patterns
+    return error;
   }
 
   CartPaymentMethodEnum? mapPaymentMethodToEnum(PaymentMethod? method) {

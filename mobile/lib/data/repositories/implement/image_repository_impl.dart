@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/image_mapper.dart';
@@ -12,10 +13,10 @@ class ImageRepositoryImpl implements ImageRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   ImageRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
-  }
+    if(box.get('loginToken').isNotEmpty) {
+      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    }
+    }
 
   @override
   Future<ImageModel> getImageById(int id) async {

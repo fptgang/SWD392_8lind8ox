@@ -80,3 +80,19 @@ class PlaceOrder extends CartEvent {
   @override
   List<Object?> get props => [paymentMethod];
 }
+
+// New events for item selection
+class ToggleItemSelection extends CartEvent {
+  final int itemId;
+
+  const ToggleItemSelection(this.itemId);
+
+  @override
+  List<Object?> get props => [itemId];
+}
+
+class SelectAllItems extends CartEvent {}
+
+class DeselectAllItems extends CartEvent {}
+
+class RemoveSelectedItems extends CartEvent {}

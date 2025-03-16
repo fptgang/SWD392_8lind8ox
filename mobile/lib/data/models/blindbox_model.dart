@@ -3,7 +3,6 @@ import 'package:mobile/data/models/brand_model.dart';
 import 'package:mobile/data/models/image_model.dart';
 import 'package:mobile/data/models/sku_model.dart';
 import 'package:mobile/data/models/toy_model.dart';
-import 'package:openapi/api.dart';
 
 class BlindBoxModel {
   final int? blindBoxId;

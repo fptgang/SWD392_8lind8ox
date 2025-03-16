@@ -111,7 +111,7 @@ class HomePageScreen extends StatelessWidget {
             badgeContent: Text(
               itemCount.toString(),
               style: TextStyle(
-                color: getColorSkin().primaryRed650,
+                color: getColorSkin().white,
                 fontSize: 10,
               ),
             ),
