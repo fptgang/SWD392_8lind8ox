@@ -70,6 +70,11 @@ public class Account {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "default_shipping_info_id", nullable = true)
+    @Nullable
+    private ShippingInfo defaultShippingInfo;
+
     public enum Role {
         ADMIN,
         STAFF,
