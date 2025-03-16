@@ -55,6 +55,7 @@ export const BlindBoxesList: React.FC = () => {
     resource: "brands",
     optionLabel: "name",
     optionValue: "brandId",
+    pagination: { pageSize: 100 },
   });
 
   const formatCurrency = (amount: number) => {
@@ -117,16 +118,6 @@ export const BlindBoxesList: React.FC = () => {
           title="Name"
           sorter
           render={(value: string) => <Text strong>{value}</Text>}
-        />
-
-        <Table.Column
-          dataIndex="description"
-          title="Description"
-          render={(value: string) => (
-            <Tooltip title={value}>
-              <Text className="text-gray-600">{value.slice(0, 60)}...</Text>
-            </Tooltip>
-          )}
         />
 
         <Table.Column

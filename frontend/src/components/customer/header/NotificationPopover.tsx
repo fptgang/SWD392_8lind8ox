@@ -32,6 +32,7 @@ import {
   useSubscription,
   useUpdate,
 } from "@refinedev/core";
+import { store } from "../../../store";
 
 const { Text, Title } = Typography;
 
@@ -188,8 +189,8 @@ export const NotificationPopover: React.FC = () => {
 
   const [pageSize, setPageSize] = React.useState(10);
 
-  const email = useGetIdentity()?.data?.email;
-
+  const user = store.getState().auth.account;
+  const email = user?.email;
   const { data, isLoading, isError, refetch } = useList<NotificationDto>({
     resource: "notifications",
     pagination: {
@@ -263,6 +264,9 @@ export const NotificationPopover: React.FC = () => {
       )}
     </div>
   );
+  if (!user) {
+    return null;
+  }
 
   return (
     <Popover

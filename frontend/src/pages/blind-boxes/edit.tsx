@@ -23,6 +23,7 @@ import {
 } from "@ant-design/icons";
 import { BlindBoxDto, ImageDto } from "../../../generated";
 import api from "../../config/openapi-config";
+import WysiwygQuill from "./components/wysiwyg";
 
 const { Title } = Typography;
 
@@ -33,10 +34,14 @@ export const BlindBoxesEdit = () => {
   const [loading, setLoading] = useState(false);
 
   const blindBoxData = queryResult?.data?.data;
+  const [description, setDescription] = useState<string>(
+    blindBoxData?.description || ""
+  );
 
   useEffect(() => {
     if (blindBoxData?.images) {
       setBlindBoxImages(blindBoxData.images);
+      setDescription(blindBoxData.description || "");
     }
   }, [blindBoxData]);
 
@@ -45,6 +50,7 @@ export const BlindBoxesEdit = () => {
     optionLabel: "name",
     optionValue: "brandId",
     defaultValue: blindBoxData?.brand?.brandId,
+    pagination: { pageSize: 100 },
   });
 
   const handleImageUpload = async () => {
@@ -151,12 +157,9 @@ export const BlindBoxesEdit = () => {
               name="description"
               rules={[{ required: true }]}
             >
-              <Input.TextArea
-                rows={4}
-                placeholder="Detailed description..."
-                showCount
-                maxLength={500}
-                className="resize-none"
+              <WysiwygQuill
+                onChange={setDescription}
+                initialValue={description}
               />
             </Form.Item>
 

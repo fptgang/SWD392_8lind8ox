@@ -4,6 +4,7 @@ import com.fptgang.backend.api.controller.PromotionalCampaignsApi;
 import com.fptgang.backend.api.model.GetPromotionalCampaigns200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.api.model.PromotionalCampaignDto;
+import com.fptgang.backend.api.model.PromotionalCampaignRequestDto;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.PromotionalCampaignMapper;
 import com.fptgang.backend.model.Account;
@@ -37,14 +38,15 @@ public class CampaignController implements PromotionalCampaignsApi {
     }
 
     @Override
-    public ResponseEntity<PromotionalCampaignDto> createPromotionalCampaign(PromotionalCampaignDto promotionalCampaignDto) {
+    public ResponseEntity<PromotionalCampaignDto> createPromotionalCampaign(PromotionalCampaignRequestDto promotionalCampaignRequestDto) {
         log.info("Creating promotional campaign");
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can create promotional campaigns.");
         }
         return new ResponseEntity<>(
                 promotionCampaignMapper.toDTO(
-                        promotionCampaignService.create(promotionCampaignMapper.toEntity(promotionalCampaignDto)),
+                        promotionCampaignService.create(promotionCampaignMapper.toEntity(
+                                promotionCampaignMapper.toDTO(promotionalCampaignRequestDto))),
                         DetailLevel.FULL
                 ),
                 HttpStatus.CREATED
@@ -94,16 +96,18 @@ public class CampaignController implements PromotionalCampaignsApi {
     }
 
     @Override
-    public ResponseEntity<PromotionalCampaignDto> updatePromotionalCampaign(Long campaignId, PromotionalCampaignDto promotionalCampaignDto) {
+    public ResponseEntity<PromotionalCampaignDto> updatePromotionalCampaign(Long campaignId, PromotionalCampaignRequestDto promotionalCampaignRequestDto) {
         if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             throw new AccessDeniedException("Only staff and admins can update promotional campaigns.");
         }
-        promotionalCampaignDto.setCampaignId(campaignId); // Override campaignId
+        promotionalCampaignRequestDto.setCampaignId(campaignId); // Override campaignId
 
         log.info("Updating promotional campaign " + campaignId);
         return ResponseEntity.ok(
                 promotionCampaignMapper.toDTO(
-                        promotionCampaignService.update(promotionCampaignMapper.toEntity(promotionalCampaignDto)),
+                        promotionCampaignService.update(promotionCampaignMapper.toEntity(
+                                promotionCampaignMapper.toDTO(promotionalCampaignRequestDto)
+                        )),
                         DetailLevel.FULL
                 )
         );

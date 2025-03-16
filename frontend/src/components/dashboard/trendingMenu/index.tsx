@@ -12,7 +12,7 @@ import type { ReactNode } from "react";
 
 export const TrendingMenu: React.FC = () => {
   const { listProps } = useSimpleList<ITrendingProducts>({
-    resource: "trendingProducts",
+    resource: "sales/trending-products",
     pagination: { pageSize: 5, current: 1 },
     syncWithLocation: false,
   });
