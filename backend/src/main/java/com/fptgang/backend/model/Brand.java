@@ -2,10 +2,7 @@ package com.fptgang.backend.model;
 
 import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -42,6 +39,7 @@ public class Brand {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<BlindBox> blindBoxes;
 
 }

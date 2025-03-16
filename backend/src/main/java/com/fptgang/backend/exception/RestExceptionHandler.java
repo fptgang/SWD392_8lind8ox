@@ -27,13 +27,18 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
 
         if (ex instanceof org.springframework.security.access.AccessDeniedException) {
+            status = HttpStatus.FORBIDDEN;
+        } else if (ex instanceof org.springframework.security.authentication.BadCredentialsException ||
+                ex instanceof org.springframework.security.authentication.InsufficientAuthenticationException ||
+                ex instanceof org.springframework.security.authentication.AuthenticationCredentialsNotFoundException) {
             status = HttpStatus.UNAUTHORIZED;
         } else if (ex instanceof org.springframework.web.server.ResponseStatusException) {
             status = ((org.springframework.web.server.ResponseStatusException) ex).getStatusCode();
         } else if (ex instanceof org.springframework.web.bind.MissingServletRequestParameterException) {
             status = HttpStatus.BAD_REQUEST;
         } else if (ex instanceof InvalidInputException ||
-                ex instanceof IllegalArgumentException) {
+                ex instanceof IllegalArgumentException ||
+                ex instanceof IllegalStateException) {
             status = HttpStatus.BAD_REQUEST;
         }
 

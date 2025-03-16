@@ -4,10 +4,7 @@ import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -47,9 +44,11 @@ public class PromotionalCampaign {
     private BigDecimal discountRate;
 
     @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<BlindBoxCampaign> blindBoxCampaigns;
 
     @OneToMany(mappedBy = "promotionalCampaign", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<OrderDetail> orderDetails;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
