@@ -176,7 +176,7 @@ public class OrderController implements OrdersApi {
 
         // Restrict customers to their own orders
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
-            if (!order.getAccountId().equals(SecurityUtil.requireCurrentUserId())) {
+            if (!order.getAccount().getAccountId().equals(SecurityUtil.requireCurrentUserId())) {
                 throw new AccessDeniedException("You can only cancel your own orders.");
             }
         }

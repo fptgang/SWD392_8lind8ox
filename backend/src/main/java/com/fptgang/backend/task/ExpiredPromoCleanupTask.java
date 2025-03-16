@@ -27,8 +27,7 @@ public class ExpiredPromoCleanupTask {
                 .setFilter("endDate", "lt", LocalDateTime.now())
                 .includeInvisible(false)
                 .build())) {
-            p.setIsVisible(false);
-            promotionalCampaignService.update(p);
+            promotionalCampaignService.deleteById(p.getCampaignId());
             count++;
         }
         log.info("Cleaned up {} expired promotional campaigns", count);
