@@ -39,7 +39,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: '../model/promotional-campaign.yml#/PromotionalCampaignDto'
+          $ref: '../model/request/promotional-campaign-request.yml#/PromotionalCampaignRequestDto'
   responses:
     '200':
       description: The operation was successful

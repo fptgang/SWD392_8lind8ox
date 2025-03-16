@@ -64,7 +64,10 @@ export const BlindBoxesShow = () => {
           </Row>
 
           <DetailItem label="Description">
-            <Text type="secondary">{record?.description}</Text>
+            <div
+              // type="secondary"
+              dangerouslySetInnerHTML={{ __html: record?.description || "" }}
+            ></div>
           </DetailItem>
 
           <DetailItem label="Visibility">

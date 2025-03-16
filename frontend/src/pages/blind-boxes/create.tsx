@@ -25,6 +25,7 @@ import {
 import { BlindBoxDto, BrandDto } from "../../../generated";
 import axios from "axios";
 import api from "../../config/openapi-config";
+import WysiwygQuill from "./components/wysiwyg";
 
 const { Title } = Typography;
 
@@ -33,7 +34,7 @@ export const BlindBoxesCreate = () => {
   const [skuImages, setSkuImages] = useState<{ [key: number]: UploadFile }>({});
   const [loading, setLoading] = useState(false);
 
-  const { formProps, saveButtonProps, onFinish } = useForm<BlindBoxDto>({
+  const { formProps, saveButtonProps, onFinish, form } = useForm<BlindBoxDto>({
     onMutationSuccess: async (data) => {
       const blindBox = data.data;
       try {
@@ -41,29 +42,26 @@ export const BlindBoxesCreate = () => {
 
         // Upload blind box images
         if (blindBoxImages.length > 0) {
-          await Promise.all(
-            blindBoxImages.map(async (file) => {
-              await api.uploadImage({
-                blindBoxId: blindBox.blindBoxId,
-                imageBlob: file.originFileObj,
-              });
-            })
-          );
+          blindBoxImages.map(async (file) => {
+            await api.uploadImage({
+              blindBoxId: blindBox.blindBoxId,
+              imageBlob: file.originFileObj,
+            });
+          });
         }
 
         // Upload SKU images
         if (blindBox.skus) {
-          await Promise.all(
-            blindBox.skus.map(async (sku, index) => {
-              const skuFile = skuImages[index];
-              if (skuFile) {
-                await api.uploadImage({
-                  skuId: sku.skuId,
-                  imageBlob: skuFile.originFileObj,
-                });
-              }
-            })
-          );
+          console.log("Uploading SKU images...", blindBox.skus);
+          blindBox.skus.map(async (sku, index) => {
+            const skuFile = skuImages[index];
+            if (skuFile) {
+              await api.uploadImage({
+                skuId: sku.skuId,
+                imageBlob: skuFile.originFileObj,
+              });
+            }
+          });
         }
 
         notification?.success({
@@ -85,6 +83,7 @@ export const BlindBoxesCreate = () => {
     optionLabel: "name",
     optionValue: "brandId",
     debounce: 300,
+    pagination: { pageSize: 100 },
   });
 
   //   const handleBlindBoxImageUpload = (fileList: File[]) => {
@@ -158,13 +157,14 @@ export const BlindBoxesCreate = () => {
               name="description"
               rules={[{ required: true }]}
             >
-              <Input.TextArea
+              {/* <Input.TextArea
                 rows={4}
                 placeholder="Detailed description..."
                 showCount
                 maxLength={500}
                 className="resize-none"
-              />
+              /> */}
+              <WysiwygQuill />
             </Form.Item>
 
             <Form.Item
