@@ -29,8 +29,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
     selectPlace
   } = useMap({
     apiKey,
-    defaultLocation: { lat: 21.027763, lng: 105.834160 }, // Hanoi center
-    defaultRadius: 50
+    defaultLocation: { lat: 10.776530, lng: 106.700760 },
+        defaultRadius: 50
   });
   
   useEffect(() => {
