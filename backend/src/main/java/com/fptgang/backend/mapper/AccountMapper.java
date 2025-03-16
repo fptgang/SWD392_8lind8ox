@@ -2,11 +2,20 @@ package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.AccountDto;
 import com.fptgang.backend.model.Account;
+import com.fptgang.backend.repository.ShippingInfoRepos;
 import com.fptgang.backend.util.DateTimeUtil;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccountMapper extends BaseMapper<AccountDto, Account> {
+
+    private final ShippingInfoMapper shippingInfoMapper;
+    private final ShippingInfoRepos shippingInfoRepos;
+
+    public AccountMapper(ShippingInfoMapper shippingInfoMapper, ShippingInfoRepos shippingInfoRepos) {
+        this.shippingInfoMapper = shippingInfoMapper;
+        this.shippingInfoRepos = shippingInfoRepos;
+    }
 
     @Override
     public Account toEntity(AccountDto dto) {
@@ -29,6 +38,8 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
                 .isVisible(dto.getIsVisible())
                 .createdAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()))
                 .updatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()))
+                .defaultShippingInfo(dto.getDefaultShippingInfo() == null ? null :
+                        shippingInfoRepos.getReferenceById(dto.getDefaultShippingInfo().getShippingInfoId()))
                 .build();
     }
 
@@ -58,6 +69,9 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
         dto.setVerifiedAt(DateTimeUtil.fromLocalToOffset(entity.getVerifiedAt()));
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+        if (entity.getDefaultShippingInfo() != null) {
+            dto.setDefaultShippingInfo(shippingInfoMapper.toDTO(entity.getDefaultShippingInfo(), DetailLevel.FULL));
+        }
 
         return dto;
     }
