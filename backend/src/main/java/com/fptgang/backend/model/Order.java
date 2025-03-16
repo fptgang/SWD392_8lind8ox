@@ -24,9 +24,6 @@ public class Order {
     @JoinColumn(nullable = false, name = "account_id")
     private Account account;
 
-    @Column(name = "account_id", insertable = false, updatable = false)
-    private Long accountId;
-
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<OrderStatusHistory> orderStatusHistories; // OrderStatusHistory>

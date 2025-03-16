@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -28,6 +29,12 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
     @Override
     public PromotionalCampaign create(PromotionalCampaign promotionalCampaign) {
         promotionalCampaign.setCampaignId(null);
+        if (promotionalCampaign.getDiscountRate().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Discount rate must be non-negative");
+        }
+        if (promotionalCampaign.getDiscountRate().compareTo(BigDecimal.ONE) > 0) {
+            throw new IllegalArgumentException("Discount rate must be less than 1");
+        }
         if(promotionalCampaign.getStartDate().isBefore(LocalDateTime.now())){
             throw new IllegalArgumentException("Start date must be in the future");
         }
@@ -53,29 +60,37 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
     }
 
     @Override
-    public PromotionalCampaign update(PromotionalCampaign promotionalCampaign) {
-        PromotionalCampaign existing = promotionalCampaignRepos.findById(promotionalCampaign.getCampaignId())
+    public PromotionalCampaign update(PromotionalCampaign campaign) {
+        PromotionalCampaign existing = promotionalCampaignRepos.findById(campaign.getCampaignId())
                 .orElseThrow(() -> new IllegalArgumentException("PromotionalCampaign does not exist"));
-        if(promotionalCampaign.getStartDate().isBefore(LocalDateTime.now())){
-            throw new IllegalArgumentException("Start date must be in the future");
+        if (campaign.getDiscountRate().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Discount rate must be non-negative");
         }
-        if(promotionalCampaign.getStartDate().isAfter(promotionalCampaign.getEndDate())){
+        if (campaign.getDiscountRate().compareTo(BigDecimal.ONE) > 0) {
+            throw new IllegalArgumentException("Discount rate must be less than 1");
+        }
+        if(campaign.getStartDate() != null &&
+                campaign.getStartDate().isBefore(existing.getStartDate())){
+            throw new IllegalArgumentException("Cannot shrink start date");
+        }
+        if(campaign.getStartDate() != null &&
+                campaign.getStartDate().isAfter(campaign.getEndDate())){
             throw new IllegalArgumentException("Start date must be before end date");
         }
-        if (promotionalCampaign.getBlindBoxCampaigns() != null) {
-            log.info("Updating blind box campaigns {}", promotionalCampaign.getBlindBoxCampaigns().size());
+        if (campaign.getBlindBoxCampaigns() != null) {
+            log.info("Updating blind box campaigns {}", campaign.getBlindBoxCampaigns().size());
             existing.getBlindBoxCampaigns().forEach(blindBoxCampaign ->
             {
-                if (promotionalCampaign.getBlindBoxCampaigns().stream().noneMatch(b -> Objects.equals(b.getBlindBox().getBlindBoxId(), blindBoxCampaign.getBlindBox().getBlindBoxId()))) {
+                if (campaign.getBlindBoxCampaigns().stream().noneMatch(b -> Objects.equals(b.getBlindBox().getBlindBoxId(), blindBoxCampaign.getBlindBox().getBlindBoxId()))) {
                     blindBoxCampaign.setIsVisible(false);
                     log.info("Deleted blind box campaign {}", blindBoxCampaign.getBlindBox().getBlindBoxId());
                 }
             });
-            promotionalCampaign.getBlindBoxCampaigns().forEach(blindBoxCampaign ->
+            campaign.getBlindBoxCampaigns().forEach(blindBoxCampaign ->
             {
                 if (existing.getBlindBoxCampaigns().stream().noneMatch(b -> Objects.equals(b.getBlindBox().getBlindBoxId(), blindBoxCampaign.getBlindBox().getBlindBoxId()))) {
                     blindBoxCampaign.setId(
-                            new BlindBoxCampaignId( blindBoxCampaign.getBlindBox().getBlindBoxId(),promotionalCampaign.getCampaignId())
+                            new BlindBoxCampaignId( blindBoxCampaign.getBlindBox().getBlindBoxId(),campaign.getCampaignId())
                     );
                     blindBoxCampaign.setPromotionalCampaign(existing);
                     existing.getBlindBoxCampaigns().add(blindBoxCampaign);
@@ -84,7 +99,7 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
             });
             log.info("Updated blind box campaigns {}", existing.getBlindBoxCampaigns().size());
         }
-        EntityUtil.merge(existing, promotionalCampaign);
+        EntityUtil.merge(existing, campaign);
         return promotionalCampaignRepos.save(existing);
     }
 
@@ -92,7 +107,7 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
     public PromotionalCampaign deleteById(long id) {
         PromotionalCampaign promotionalCampaign = promotionalCampaignRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("PromotionalCampaign does not exist"));
-//        promotionalCampaign.setIsVisible(false);
+        promotionalCampaign.setIsVisible(false);
         return promotionalCampaignRepos.save(promotionalCampaign);
     }
 
