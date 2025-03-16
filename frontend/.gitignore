@@ -24,3 +24,5 @@ _.njsproj
 _.sln
 \*.sw?
 /generated/
+
+.env
