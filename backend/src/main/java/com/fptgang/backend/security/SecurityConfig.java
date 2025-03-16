@@ -59,10 +59,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JWTAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests((authorize) -> {
-                    if (disableAuthorization) {
-                        authorize.anyRequest().permitAll();
-                    } else {
+                    //if (disableAuthorization) {
+                    //    authorize.anyRequest().permitAll();
+                    //} else {
                         authorize
                                 .requestMatchers(
 //                                        "/api/v1/auth/**",
@@ -80,7 +81,7 @@ public class SecurityConfig {
 //
 //                                ).permitAll()
                                 .anyRequest().authenticated();
-                    }
+                   // }
                 })
                 .csrf(AbstractHttpConfigurer::disable)
                 .authenticationProvider(daoAuthenticationProvider())
