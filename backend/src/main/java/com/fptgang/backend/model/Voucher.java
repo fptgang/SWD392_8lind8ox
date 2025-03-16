@@ -50,7 +50,7 @@ public class Voucher {
     private State state = State.AVAILABLE;
 
     public enum State {
-        USED, AVAILABLE, RESERVED
+        USED, AVAILABLE, RESERVED, EXPIRED
     }
 
     @CreationTimestamp

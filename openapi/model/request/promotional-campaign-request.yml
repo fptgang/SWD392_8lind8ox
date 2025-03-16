@@ -1,4 +1,4 @@
-PromotionalCampaignDto:
+PromotionalCampaignRequestDto:
   type: object
   properties:
     campaignId:
@@ -19,13 +19,8 @@ PromotionalCampaignDto:
       format: double
     isVisible:
       type: boolean
-    blindBoxCampaigns:
+    blindBoxIds:
         type: array
         items:
-            $ref: "blindbox-campaign.yml#/BlindBoxCampaignDto"
-    createdAt:
-      type: string
-      format: date-time
-    updatedAt:
-      type: string
-      format: date-time
+            type: integer
+            format: int64

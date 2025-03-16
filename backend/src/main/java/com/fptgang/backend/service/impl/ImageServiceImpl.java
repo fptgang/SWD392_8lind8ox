@@ -42,6 +42,9 @@ public class ImageServiceImpl implements ImageService {
 
             String uploadedUrl = azureBlobService.upload(file);
             image.setImageUrl(uploadedUrl);
+            if(image.getSku() != null) {
+                image.getSku().setImage(image);
+            }
 
             log.info("File uploaded successfully. URL: {}", uploadedUrl);
 

@@ -19,7 +19,7 @@ VoucherDto:
       format: double
     state:
       type: string
-      enum: [USED, AVAILABLE, RESERVED]
+      enum: [USED, AVAILABLE, RESERVED, EXPIRED]
     createdAt:
       type: string
       format: date-time

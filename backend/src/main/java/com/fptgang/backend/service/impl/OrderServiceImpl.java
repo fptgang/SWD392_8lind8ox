@@ -144,9 +144,10 @@ public class OrderServiceImpl implements OrderService {
                 throw new InvalidInputException("Voucher is already used");
             if (voucher.getState() == Voucher.State.RESERVED)
                 throw new InvalidInputException("Voucher has been reserved");
-            if (voucher.getExpiredAt()
+            if (voucher.getState() == Voucher.State.EXPIRED || voucher.getExpiredAt()
                     .isBefore(LocalDateTime.now()))
                 throw new InvalidInputException("Voucher is expired");
+
 
             BigDecimal discount = totalCheckoutPrice.multiply(voucher.getDiscountRate());
             discount = discount.min(voucher.getLimitAmount());
@@ -159,8 +160,10 @@ public class OrderServiceImpl implements OrderService {
 
         // Validate shipping info
         ShippingInfo shippingInfo = shippingInfoService.findById(cart.getShippingInfoId());
-        if (shippingInfo == null)
+
+        if (shippingInfo == null|| !shippingInfo.getIsVisible())
             throw new InvalidInputException("ShippingInfo not found");
+
         if (!Objects.equals(shippingInfo.getAccount()
                         .getAccountId(),
                 cart.getAccountId()))

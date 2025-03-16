@@ -20,6 +20,7 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { PromotionCampaignDto } from "../../../generated";
 
 const { Text } = Typography;
 
@@ -45,7 +46,7 @@ export const PromotionalCampaignsList: React.FC = () => {
           field: "search",
           operator: "contains",
           value: undefined,
-        }
+        },
       ],
     },
   });
@@ -59,18 +60,25 @@ export const PromotionalCampaignsList: React.FC = () => {
           allowClear
           onSearch={(value) => {
             setFilters([
-              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              ...(tableProps.filters?.filter(
+                (filter) => filter.field !== "search"
+              ) || []),
               {
                 field: "search",
                 operator: "contains",
                 value: value || undefined,
-              }
+              },
             ]);
           }}
         />
       </div>
 
-      <Table {...tableProps} rowKey="id" className="overflow-x-auto" scroll={{ x: true }}>
+      <Table
+        {...tableProps}
+        rowKey="id"
+        className="overflow-x-auto"
+        scroll={{ x: true }}
+      >
         <Table.Column
           dataIndex="title"
           title={
@@ -132,18 +140,8 @@ export const PromotionalCampaignsList: React.FC = () => {
           title="Discount"
           render={(value: number) => (
             <Text strong className="text-green-600">
-              {value}%
+              {Math.round(value * 100)}%
             </Text>
-          )}
-        />
-
-        <Table.Column
-          dataIndex="promoCode"
-          title="Code"
-          render={(value: string) => (
-            <Tag color="blue" className="font-mono">
-              {value}
-            </Tag>
           )}
         />
 
@@ -157,13 +155,13 @@ export const PromotionalCampaignsList: React.FC = () => {
               </Space>
             </Tooltip>
           }
-          render={(value: boolean) => (
+          render={(value: boolean) =>
             value ? (
               <Badge status="success" text="Active" />
             ) : (
               <Badge status="error" text="Hidden" />
             )
-          )}
+          }
           filters={[
             { text: "Active", value: true },
             { text: "Hidden", value: false },
@@ -202,13 +200,13 @@ export const PromotionalCampaignsList: React.FC = () => {
         <Table.Column
           title="Actions"
           fixed="right"
-          render={(_, record: BaseRecord) => (
+          render={(_, record: PromotionCampaignDto) => (
             <Space size="middle">
               <Tooltip title="Edit Promotion">
                 <EditButton
                   hideText
                   size="small"
-                  recordItemId={record.id}
+                  recordItemId={record.campaignId}
                   icon={<EditOutlined className="text-blue-600" />}
                   className="hover:text-blue-700"
                 />
@@ -217,7 +215,7 @@ export const PromotionalCampaignsList: React.FC = () => {
                 <ShowButton
                   hideText
                   size="small"
-                  recordItemId={record.id}
+                  recordItemId={record.campaignId}
                   className="text-green-600 hover:text-green-700"
                 />
               </Tooltip>
@@ -225,7 +223,7 @@ export const PromotionalCampaignsList: React.FC = () => {
                 <DeleteButton
                   hideText
                   size="small"
-                  recordItemId={record.id}
+                  recordItemId={record.campaignId}
                   icon={<DeleteOutlined className="text-red-600" />}
                   className="hover:text-red-700"
                   confirmTitle="Delete Promotion"
