@@ -41,7 +41,10 @@ public class VoucherServiceImpl implements VoucherService {
     public Voucher deleteById(long id) {
         Voucher voucher = voucherRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Voucher does not exist"));
-//        voucher.voucherVisible(false);
+        if (voucher.getState() != Voucher.State.AVAILABLE) {
+            throw new IllegalStateException("Voucher is not in AVAILABLE state");
+        }
+        voucher.setState(Voucher.State.EXPIRED);
         return voucherRepos.save(voucher);
     }
 

@@ -2,10 +2,7 @@ package com.fptgang.backend.model;
 
 import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -55,9 +52,11 @@ public class Toy {
 
 
     @OneToMany(mappedBy = "toy", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Slot> slots;
 
     @OneToMany(mappedBy = "toy", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Image> images;
 
     @ManyToOne(fetch = FetchType.LAZY)

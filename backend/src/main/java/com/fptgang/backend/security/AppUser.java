@@ -1,8 +1,8 @@
 package com.fptgang.backend.security;
 
 import com.fptgang.backend.model.Account;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -20,7 +20,8 @@ public class AppUser extends User {
             throw new IllegalArgumentException("Authorities cannot be empty");
 
         this.accountId = accountId;
-        role = Account.Role.valueOf(getAuthorities().iterator().next().getAuthority());
+        String authority = getAuthorities().iterator().next().getAuthority();
+        role = Account.Role.valueOf(authority.startsWith("ROLE_") ? authority.substring("ROLE_".length()) : authority);
     }
 
     @NotNull

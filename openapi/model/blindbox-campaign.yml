@@ -4,8 +4,10 @@ BlindBoxCampaignDto:
     blindBoxId:
       type: integer
       format: int64
-    promotionalCampaign:
-      $ref: "promotional-campaign.yml#/PromotionalCampaignDto"
+    promotionalCampaignId:
+#      $ref: "promotional-campaign.yml#/PromotionalCampaignDto"
+      type: integer
+      format: int64
     createdAt:
       type: string
       format: date-time

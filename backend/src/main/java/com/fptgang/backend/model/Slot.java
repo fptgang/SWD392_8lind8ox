@@ -2,10 +2,7 @@ package com.fptgang.backend.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -51,6 +48,7 @@ public class Slot {
     private Set set;
 
     @OneToMany(mappedBy = "slot")
+    @ToString.Exclude
     private List<OrderDetail> orderDetails;
 
     @OneToOne

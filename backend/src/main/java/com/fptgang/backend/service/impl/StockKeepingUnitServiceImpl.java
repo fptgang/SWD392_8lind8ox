@@ -23,6 +23,10 @@ public class StockKeepingUnitServiceImpl implements StockKeepingUnitService {
 
     @Override
     public StockKeepingUnit create(StockKeepingUnit sku) {
+        sku.setSkuId(null);
+        if(sku.getIsVisible() == null) {
+            sku.setIsVisible(false);
+        }
         return skuRepos.save(sku);
     }
 

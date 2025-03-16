@@ -3,7 +3,6 @@ package com.fptgang.backend.model;
 import com.fptgang.backend.util.Searchable;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -71,12 +70,16 @@ public class Account {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "default_shipping_info_id", nullable = true)
+    @Nullable
+    private ShippingInfo defaultShippingInfo;
+
     public enum Role {
         ADMIN,
         STAFF,
         CUSTOMER;
 
-        @NotNull
         public boolean hasPermission(Role perm) {
             return switch (this) {
                 case ADMIN -> true;

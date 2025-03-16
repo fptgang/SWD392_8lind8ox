@@ -36,3 +36,5 @@ AccountDto:
     updatedAt:
       type: string
       format: date-time
+    defaultShippingInfo:
+      $ref: "shipping-info.yml#/ShippingInfoDto"

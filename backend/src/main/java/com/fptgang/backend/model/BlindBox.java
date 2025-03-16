@@ -2,10 +2,7 @@ package com.fptgang.backend.model;
 
 import com.fptgang.backend.util.Searchable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -37,9 +34,11 @@ public class BlindBox {
     private String description;
 
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Image> images;
 
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<BlindBoxCampaign> blindBoxCampaigns;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
@@ -47,12 +46,15 @@ public class BlindBox {
     private Boolean isVisible = true;
 
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Toy> toys;
 
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<StockKeepingUnit> skus;
 
     @OneToMany(mappedBy = "blindBox", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Set> sets;
 
     @CreationTimestamp
