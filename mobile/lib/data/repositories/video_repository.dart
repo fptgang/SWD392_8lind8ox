@@ -13,4 +13,5 @@ abstract class VideoRepository {
   Future<VideoModel> getVideoById(int id);
   Future<VideoModel> uploadVideo(int accountID, int orderDetailId, MultipartFile videoBlob, bool isVisible);
   Future<PaginationResponseGeneric<VideoModel>> getVideos(Pageable pageable, String filter, String search);
+  Future<void> deleteVideo(int id);
 }

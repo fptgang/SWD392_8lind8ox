@@ -169,18 +169,14 @@ void _registerDataSources(SharedPrefManager sharedPrefManager) {
 }
 
 void _registerAPI(Box box) {
-  // Register dependencies in correct order to avoid circular dependencies
 
-  // 1. Register TokenService first (no dependencies)
   if (!getIt.isRegistered<TokenService>()) {
     getIt.registerLazySingleton<TokenService>(
       () {
         final service = TokenService(box: box);
         
-        // Clear any invalid tokens on startup
         final accessToken = service.getAccessToken();
         if (accessToken != null && accessToken.isNotEmpty) {
-          // Verify token is a valid JWT format (should have 3 dot-separated parts)
           final parts = accessToken.split('.');
           if (parts.length != 3) {
             debugPrint('⚠️ Invalid token found on startup, clearing tokens');
@@ -193,18 +189,16 @@ void _registerAPI(Box box) {
     );
   }
 
-  // 2. Register Dio client (using the TokenService)
-  if (!getIt.isRegistered<Dio>()) {
-    getIt.registerLazySingleton<Dio>(() => DioClient.createDio());
-  }
-
   if (!getIt.isRegistered<DefaultApi>()) {
-    getIt.registerLazySingleton<DefaultApi>(
-          () => DefaultApi(),
-    );
+    getIt.registerLazySingleton<DefaultApi>(() {
+      final apiClient = ApiClient(basePath: dotenv.env['BASE_URL'] ?? '');
+      final token = box.get('loginToken');
+      if (token != null && token.isNotEmpty) {
+        apiClient.addDefaultHeader("Authorization", token);
+      }
+      return DefaultApi(apiClient);
+    });
   }
-
-  // 4. Register AuthRepository (depends on DefaultApi and TokenService)
   if (!getIt.isRegistered<AuthRepository>()) {
     getIt.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(
@@ -212,7 +206,6 @@ void _registerAPI(Box box) {
     );
   }
   
-  // 5. Register TokenRefreshService (depends on TokenService)
   if (!getIt.isRegistered<TokenRefreshService>()) {
     getIt.registerLazySingleton<TokenRefreshService>(
       () => TokenRefreshService(
@@ -224,7 +217,6 @@ void _registerAPI(Box box) {
 }
 
 void _registerBlocs() {
-  // Cubits (stateful singleton components)
   if (!getIt.isRegistered<CartCubit>()) {
     getIt.registerLazySingleton<CartCubit>(() => CartCubit());
   }
@@ -234,7 +226,6 @@ void _registerBlocs() {
         () => DropdownCubit(getIt<LocaleCubit>()));
   }
 
-  // Singleton Blocs (long-lived Blocs)
   if (!getIt.isRegistered<SetBloc>()) {
     getIt.registerLazySingleton<SetBloc>(() => SetBloc(
           getIt<SetRepository>(),

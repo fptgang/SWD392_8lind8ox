@@ -1,5 +1,8 @@
+import 'package:mobile/data/mapper/shipping_info_mapper.dart';
 import 'package:mobile/data/models/account_model.dart';
 import 'package:openapi/api.dart';
+
+import '../models/shipping_info_model.dart';
 
 /// Maps between AccountDto (API data) and AccountModel (app domain model)
 class AccountMapper {
@@ -18,6 +21,7 @@ class AccountMapper {
       isVisible: dto.isVisible ?? true,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
+      defaultShippingInfo: ShippingInfoMapper.toModel(dto.defaultShippingInfo ?? ShippingInfoDto()),
     );
   }
 
@@ -36,6 +40,7 @@ class AccountMapper {
       isVisible: model.isVisible,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
+      defaultShippingInfo: ShippingInfoMapper.toDto(model.defaultShippingInfo ?? ShippingInfoModel()),
     );
   }
 }

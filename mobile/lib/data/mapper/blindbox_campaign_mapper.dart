@@ -8,7 +8,7 @@ class BlindBoxCampaignMapper{
   static BlindBoxCampaignModel toModel(BlindBoxCampaignDto dto){
     return BlindBoxCampaignModel(
       blindBoxId: dto.blindBoxId ?? 0,
-      promotionalCampaign: PromotionMapper.toModel(dto.promotionalCampaign ?? PromotionalCampaignDto()),
+      promotionalCampaignId: dto.promotionalCampaignId,
       createdAt: dto.createdAt ?? DateTime.now(),
       updatedAt: dto.updatedAt,
       isVisible: dto.isVisible ?? false,
@@ -17,7 +17,7 @@ class BlindBoxCampaignMapper{
   static BlindBoxCampaignDto toDto(BlindBoxCampaignModel model) {
     return BlindBoxCampaignDto(
       blindBoxId: model.blindBoxId,
-      promotionalCampaign: PromotionMapper.toDto(model.promotionalCampaign ?? PromotionModel()),
+      promotionalCampaignId: model.promotionalCampaignId,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       isVisible: model.isVisible,

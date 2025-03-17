@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/src/multipart_file.dart';
@@ -58,5 +59,15 @@ class VideoRepositoryImpl implements VideoRepository {
       MultipartFile videoBlob, bool isVisible) {
     // TODO: implement uploadVideo
     throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteVideo(int id) async {
+    try {
+      await _apiService.deleteVideo(id);
+    } catch (e, stackTrace) {
+      debugPrint('Error: $e, stackTrace: $stackTrace');
+      throw Exception('Cannot delete video');
+    }
   }
 }

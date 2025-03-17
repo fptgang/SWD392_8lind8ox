@@ -7,12 +7,14 @@ import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/feature/order/blocs/order/order_bloc.dart';
 import 'package:mobile/feature/order/blocs/order/order_event.dart';
 import 'package:mobile/feature/order/blocs/order/order_state.dart';
+import 'package:mobile/feature/order/blocs/video/video_bloc.dart';
 import 'package:mobile/feature/order/widgets/order_detail/action_button.dart';
 import 'package:mobile/feature/order/widgets/order_detail/delivery_information_card.dart';
 import 'package:mobile/feature/order/widgets/order_detail/item_section.dart';
 import 'package:mobile/feature/order/widgets/order_detail/payment_information_card.dart';
 import 'package:mobile/feature/order/widgets/order_detail/summary_card.dart';
 import 'package:mobile/feature/order/widgets/order_detail/timeline.dart';
+import 'package:mobile/feature/order/widgets/video/video_upload_section.dart';
 import 'package:mobile/utils/enum/enum.dart';
 
 class OrderDetailScreen extends StatelessWidget {
@@ -32,12 +34,19 @@ class OrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = getIt<OrderBloc>();
-        bloc.add(GetOrderById(int.parse(orderId)));
-        return bloc;
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) {
+            final bloc = getIt<OrderBloc>();
+            bloc.add(GetOrderById(int.parse(orderId)));
+            return bloc;
+          },
+        ),
+        BlocProvider(
+          create: (context) => getIt<VideoBloc>(),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
         appBar: AppBar(
@@ -81,6 +90,12 @@ class OrderDetailScreen extends StatelessWidget {
                       DeliveryInformationCard(order: order),
                       const SizedBox(height: 24),
                       PaymentInformationCard(order: order),
+                      const SizedBox(height: 24),
+                      // Add the new video upload section
+                      VideoUploadSection(
+                        accountId: order.account?.accountId,
+                        slotId: order.orderDetails?.first.slot?.slotId ?? 1,
+                      ),
                       const SizedBox(height: 32),
                       ActionButtons(
                         status: order.latestStatus ?? status,

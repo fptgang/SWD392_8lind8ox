@@ -309,7 +309,16 @@ class _CheckoutFormContent extends StatelessWidget {
         } else if (state is ShippingInfoLoadingState && state.error != null) {
           return _buildErrorAddressSection(context, state.error!);
         } else if (state is ShippingInfoDataState) {
-          return buildAddressSection();
+          if (state.selectedShippingInfo != null) {
+            // Show the selected shipping address
+            return buildAddressSection();
+          } else if (state.shippingInfos.isNotEmpty) {
+            // If no address is selected but addresses exist, show the address section
+            return buildAddressSection();
+          } else {
+            // No shipping addresses available
+            return _buildEmptyAddressSection(context);
+          }
         } else {
           return _buildEmptyAddressSection(context);
         }

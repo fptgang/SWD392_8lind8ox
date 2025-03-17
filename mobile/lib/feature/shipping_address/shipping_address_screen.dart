@@ -38,6 +38,18 @@ class ShippingAddressScreen extends StatelessWidget {
             !(shippingInfoBloc.state as ShippingInfoDataState)
                 .hasShippingInfos)) {
       shippingInfoBloc.add(GetShippingInfos());
+    } else if (isSelectionMode && 
+              shippingInfoBloc.state is ShippingInfoDataState &&
+              (shippingInfoBloc.state as ShippingInfoDataState).selectedShippingInfo == null &&
+              (shippingInfoBloc.state as ShippingInfoDataState).hasShippingInfos) {
+      final dataState = shippingInfoBloc.state as ShippingInfoDataState;
+      
+      final defaultAddress = dataState.shippingInfos.firstWhere(
+        (info) => info.isVisible == true,
+        orElse: () => dataState.shippingInfos.first,
+      );
+      
+      shippingInfoBloc.add(SelectShippingInfo(defaultAddress));
     }
 
     return Scaffold(

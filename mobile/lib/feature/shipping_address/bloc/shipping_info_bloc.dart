@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mobile/app/di/injection.dart';
+import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
+import 'package:mobile/data/repositories/account_repository.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
 import 'package:mobile/feature/shipping_address/bloc/shipping_info_event.dart';
 import 'package:mobile/feature/shipping_address/bloc/shipping_info_state.dart';
@@ -11,18 +14,21 @@ import 'package:openapi/api.dart';
 @lazySingleton
 class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
   final ShippingInfoRepository _shippingInfoRepository;
+  final AccountRepository _accountRepository;
   ShippingInfoDataState _dataState;
 
   ShippingInfoBloc(this._shippingInfoRepository)
-      : _dataState = const ShippingInfoDataState(),
+      : _accountRepository = getIt<AccountRepository>(),
+        _dataState = const ShippingInfoDataState(),
         super(ShippingInfoLoadingState()) {
     on<GetShippingInfos>(_onGetShippingInfos);
     on<GetShippingInfoById>(_onGetShippingInfoById);
     on<CreateShippingInfo>(_onCreateShippingInfo);
     on<SelectShippingInfo>(_onSelectShippingInfo);
-    // on<UpdateShippingInfo>(_onUpdateShippingInfo);
-    // on<DeleteShippingInfo>(_onDeleteShippingInfo);
-    // on<SetDefaultShippingInfo>(_onSetDefaultShippingInfo);
+    on<UpdateShippingInfo>(_onUpdateShippingInfo);
+    on<DeleteShippingInfo>(_onDeleteShippingInfo);
+    on<SetDefaultShippingInfo>(_onSetDefaultShippingInfo);
+    on<RefreshShippingInfos>(_onRefreshShippingInfos);
   }
 
   void _onSelectShippingInfo(
@@ -44,11 +50,32 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
       final shippingInfos = await _shippingInfoRepository.getShippingInfos();
       debugPrint('Fetched shipping infos: $shippingInfos');
 
-      // Set the first shipping info as selected by default
+      // Try to get the user's account with default shipping info
+      ShippingInfoModel? defaultShippingInfo;
+      try {
+        final account = await _accountRepository.getUser();
+        defaultShippingInfo = account.defaultShippingInfo;
+        debugPrint('Default shipping info: ${defaultShippingInfo?.toString()}');
+      } catch (e) {
+        debugPrint('Error fetching user account: $e');
+      }
+
+      // Set the shipping info as selected
       ShippingInfoModel? selectedShippingInfo;
-      if (shippingInfos.content.isNotEmpty) {
+      
+      if (defaultShippingInfo != null && shippingInfos.content.isNotEmpty) {
+        // Try to match the default shipping info from account
         selectedShippingInfo = shippingInfos.content.firstWhere(
-              (info) => info.isVisible == true,
+          (info) => info.shippingInfoId == defaultShippingInfo?.shippingInfoId,
+          orElse: () => shippingInfos.content.firstWhere(
+            (info) => info.isVisible == true,
+            orElse: () => shippingInfos.content.first,
+          ),
+        );
+      } else if (shippingInfos.content.isNotEmpty) {
+        // Fallback to the existing logic
+        selectedShippingInfo = shippingInfos.content.firstWhere(
+          (info) => info.isVisible == true,
           orElse: () => shippingInfos.content.first,
         );
       }
@@ -101,61 +128,46 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
           error: 'Failed to create shipping address: ${e.toString()}'));
     }
   }
-  //
-  // Future<void> _onUpdateShippingInfo(
-  //     UpdateShippingInfo event, Emitter<ShippingInfoState> emit) async {
-  //   emit(ShippingInfoLoadingState(isLoading: true));
-  //
-  //   try {
-  //     // Update shipping info
-  //     await _shippingInfoRepository.updateShippingInfo(
-  //       event.id,
-  //       event.updateShippingInfoModel,
-  //     );
-  //
-  //     // Refresh the list
-  //     add(GetShippingInfos());
-  //
-  //     emit(_dataState);
-  //   } catch (e) {
-  //     emit(ShippingInfoLoadingState(
-  //         error: 'Failed to update shipping address: ${e.toString()}'));
-  //   }
-  // }
 
-  // Future<void> _onDeleteShippingInfo(
-  //     DeleteShippingInfo event, Emitter<ShippingInfoState> emit) async {
-  //   emit(ShippingInfoLoadingState(isLoading: true));
-  //
-  //   try {
-  //     // Delete shipping info
-  //     await _shippingInfoRepository.deleteShippingInfo(event.id);
-  //
-  //     // Refresh the list
-  //     add(GetShippingInfos());
-  //
-  //     emit(_dataState);
-  //   } catch (e) {
-  //     emit(ShippingInfoLoadingState(
-  //         error: 'Failed to delete shipping address: ${e.toString()}'));
-  //   }
-  // }
-  //
-  // Future<void> _onSetDefaultShippingInfo(
-  //     SetDefaultShippingInfo event, Emitter<ShippingInfoState> emit) async {
-  //   emit(ShippingInfoLoadingState(isLoading: true));
-  //
-  //   try {
-  //     // Set default shipping info
-  //     await _shippingInfoRepository.setDefaultShippingInfo(event.id);
-  //
-  //     // Refresh the list
-  //     add(GetShippingInfos());
-  //
-  //     emit(_dataState);
-  //   } catch (e) {
-  //     emit(ShippingInfoLoadingState(
-  //         error: 'Failed to set default shipping address: ${e.toString()}'));
-  //   }
-  // }
+  Future<void> _onUpdateShippingInfo(
+    UpdateShippingInfo event,
+    Emitter<ShippingInfoState> emit,
+  ) async {
+    // Implement update logic
+  }
+
+  Future<void> _onDeleteShippingInfo(
+    DeleteShippingInfo event,
+    Emitter<ShippingInfoState> emit,
+  ) async {
+    // Implement delete logic
+  }
+
+  Future<void> _onSetDefaultShippingInfo(
+    SetDefaultShippingInfo event,
+    Emitter<ShippingInfoState> emit,
+  ) async {
+    try {
+      if (state is ShippingInfoDataState) {
+        final currentState = state as ShippingInfoDataState;
+        emit(ShippingInfoLoadingState(isLoading: true));
+        
+        // Set this address as default (implementation depends on your API)
+        // await _shippingInfoRepository.setDefaultShippingInfo(event.shippingInfo.shippingInfoId);
+        
+        // After setting default, refresh the list
+        add(RefreshShippingInfos());
+      }
+    } catch (e) {
+      debugPrint('Error setting default shipping info: $e');
+      emit(ShippingInfoLoadingState(error: e.toString()));
+    }
+  }
+
+  Future<void> _onRefreshShippingInfos(
+    RefreshShippingInfos event,
+    Emitter<ShippingInfoState> emit,
+  ) async {
+    add(GetShippingInfos());
+  }
 }

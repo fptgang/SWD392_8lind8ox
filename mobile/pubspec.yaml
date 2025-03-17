@@ -80,6 +80,7 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   timelines: ^0.1.0
   webview_flutter: ^4.10.0
+  image_picker: ^1.1.2
 
 
 dev_dependencies:
