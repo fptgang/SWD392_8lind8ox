@@ -15,20 +15,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/stats")
 public class StatController implements StatsApi {
 
     private final StatService statService;
     private final StringBigDecimalDatapointMapper stringBigDecimalDatapointMapper;
     private final StringIntegerDatapointMapper stringIntegerDatapointMapper;
 
-    public StatController(StatService statService, StringBigDecimalDatapointMapper stringBigDecimalDatapointMapper,StringIntegerDatapointMapper stringIntegerDatapointMapper) {
+    public StatController(StatService statService, StringBigDecimalDatapointMapper stringBigDecimalDatapointMapper, StringIntegerDatapointMapper stringIntegerDatapointMapper) {
         this.statService = statService;
         this.stringBigDecimalDatapointMapper = stringBigDecimalDatapointMapper;
         this.stringIntegerDatapointMapper = stringIntegerDatapointMapper;
@@ -39,17 +38,19 @@ public class StatController implements StatsApi {
      * @return List of time-series data [{x: date, y: orderCount}]
      */
     @Override
-
+    @GetMapping("/daily-order")
     public ResponseEntity<List<StringIntegerDatapointDto>> getDailyOrders() {
         var data = statService.getDailyOrders();
         var result = data.stream().map(d -> stringIntegerDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
         return ResponseEntity.ok(result);
     }
+
     /**
      * Get daily revenue as time-series data
      * @return List of time-series data [{x: date, y: totalRevenue}]
      */
     @Override
+    @GetMapping("/daily-revenue")
     public ResponseEntity<List<StringBigDecimalDatapointDto>> getDailyRevenue() {
         var data = statService.getDailyRevenue();
         var result = data.stream().map(d -> stringBigDecimalDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
@@ -60,40 +61,19 @@ public class StatController implements StatsApi {
      * Get monthly revenue as time-series data
      * @return List of time-series data [{x: yyyy-MM, y: totalRevenue}]
      */
-
     @Override
+    @GetMapping("/monthly-revenue")
     public ResponseEntity<List<StringBigDecimalDatapointDto>> getMonthlyRevenue() {
         var data = statService.getMonthlyRevenue();
         var result = data.stream().map(d -> stringBigDecimalDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
         return ResponseEntity.ok(result);
     }
 
-
     @Override
-    public ResponseEntity<List<StringIntegerDatapointDto>> getDailyNewCustomers() {
-        var data = statService.getDailyNewCustomers();
-        var result = data.stream().map(d -> stringIntegerDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
-        return ResponseEntity.ok(result);
-    }
-
-
-    @Override
-    public ResponseEntity<List<StringIntegerDatapointDto>> getMonthlyNewCustomers() {
-        var data = statService.getMonthlyNewCustomers();
-        var result = data.stream().map(d -> stringIntegerDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
-        return ResponseEntity.ok(result);
-    }
-
-    @Override
-    public ResponseEntity<List<StringIntegerDatapointDto>> getTopBrands(OffsetDateTime startDate, OffsetDateTime endDate, Integer limit) {
-        var data = statService.getTopBrands(DateTimeUtil.fromOffsetToLocal(startDate), DateTimeUtil.fromOffsetToLocal(endDate), limit);
-        var result = data.stream().map(d -> stringIntegerDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
-        return ResponseEntity.ok(result);
-    }
-
-
-    @Override
-    public ResponseEntity<List<StringBigDecimalDatapointDto>> revenueBySku(OffsetDateTime startDate, OffsetDateTime endDate) {
+    @GetMapping("/revenue-by-sku")
+    public ResponseEntity<List<StringBigDecimalDatapointDto>> revenueBySku(
+            @RequestParam("start-date") OffsetDateTime startDate,
+            @RequestParam("end-date") OffsetDateTime endDate) {
         var data = statService.getRevenueBySKU(
                 DateTimeUtil.fromOffsetToLocal(startDate),
                 DateTimeUtil.fromOffsetToLocal(endDate)
@@ -102,29 +82,33 @@ public class StatController implements StatsApi {
                 data.stream().map(d -> stringBigDecimalDatapointMapper.toDTO(d, DetailLevel.FULL)).toList()
         );
     }
+
     @Override
-    public ResponseEntity<List<StringBigDecimalDatapointDto>> getRevenueByBlindBox(OffsetDateTime startDate, OffsetDateTime endDate) {
+    @GetMapping("/revenue-by-blind-box")
+    public ResponseEntity<List<StringBigDecimalDatapointDto>> getRevenueByBlindBox(
+            @RequestParam("start-date") OffsetDateTime startDate,
+            @RequestParam("end-date") OffsetDateTime endDate) {
         var data = statService.getRevenueByBlindBox(DateTimeUtil.fromOffsetToLocal(startDate), DateTimeUtil.fromOffsetToLocal(endDate));
         var result = data.stream().map(d -> stringBigDecimalDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
         return ResponseEntity.ok(result);
     }
 
     @Override
-    public ResponseEntity<List<StringBigDecimalDatapointDto>> getRevenueByBrand(OffsetDateTime startDate, OffsetDateTime endDate) {
+    @GetMapping("/revenue-by-brand")
+    public ResponseEntity<List<StringBigDecimalDatapointDto>> getRevenueByBrand(
+            @RequestParam("start-date") OffsetDateTime startDate,
+            @RequestParam("end-date") OffsetDateTime endDate) {
         var data = statService.getRevenueByBrand(DateTimeUtil.fromOffsetToLocal(startDate), DateTimeUtil.fromOffsetToLocal(endDate));
         var result = data.stream().map(d -> stringBigDecimalDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
         return ResponseEntity.ok(result);
     }
 
     @Override
-    public ResponseEntity<List<StringBigDecimalDatapointDto>> getRevenueTrend(OffsetDateTime startDate, OffsetDateTime endDate, String groupBy) {
-        var data = statService.getRevenueTrend(DateTimeUtil.fromOffsetToLocal(startDate), DateTimeUtil.fromOffsetToLocal(endDate), groupBy);
-        var result = data.stream().map(d -> stringBigDecimalDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
-        return ResponseEntity.ok(result);
-    }
-
-    @Override
-    public ResponseEntity<List<StringIntegerDatapointDto>> getTopSellingSKUs(OffsetDateTime startDate, OffsetDateTime endDate, Integer limit) {
+    @GetMapping("/top-selling-skus")
+    public ResponseEntity<List<StringIntegerDatapointDto>> getTopSellingSKUs(
+            @RequestParam("start-date") OffsetDateTime startDate,
+            @RequestParam("end-date") OffsetDateTime endDate,
+            @RequestParam Integer limit) {
         var data = statService.getTopSellingSKUs(DateTimeUtil.fromOffsetToLocal(startDate), DateTimeUtil.fromOffsetToLocal(endDate), limit);
         var result = data.stream().map(d -> stringIntegerDatapointMapper.toDTO(d, DetailLevel.FULL)).toList();
         return ResponseEntity.ok(result);
