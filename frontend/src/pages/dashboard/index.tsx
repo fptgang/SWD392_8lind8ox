@@ -1,360 +1,321 @@
-import { Row, Col, theme, Dropdown, type MenuProps, Button, Flex } from "antd";
-
-
+import React, { useState } from "react";
 import {
-  ClockCircleOutlined,
-  DollarCircleOutlined,
-  DownOutlined,
-  RiseOutlined,
-  ShoppingOutlined,
-  UserOutlined,
+  Card,
+  Typography,
+  Tabs,
+  Row,
+  Col,
+  Spin,
+  Space,
+  DatePicker,
+} from "antd";
+import {
+  AreaChartOutlined,
+  BarChartOutlined,
+  FireOutlined,
+  LineChartOutlined,
+  PieChartOutlined,
 } from "@ant-design/icons";
-import { useMemo, useState } from "react";
-import { List, NumberField } from "@refinedev/antd";
-import { useApiUrl, useCustom, useTranslate, useTranslation } from "@refinedev/core";
+import { useCustom } from "@refinedev/core";
+import { Line, Column, Pie, Bar } from '@ant-design/plots';
 import dayjs from "dayjs";
-import { CardWithContent, CardWithPlot, DailyOrders, DailyRevenue, NewCustomers, OrderTimeline, RecentOrders, TrendingMenu } from "../../components/dashboard";
-import { TrendDownIcon, TrendUpIcon } from "../../components/icons";
+import { Table } from "antd/lib";
 
-type DateFilter = "lastWeek" | "lastMonth";
+const { Title, Paragraph } = Typography;
+const { RangePicker } = DatePicker;
 
-const DATE_FILTERS: Record<
-  DateFilter,
-  {
-    text: string;
-    value: DateFilter;
-  }
-> = {
-  lastWeek: {
-    text: "lastWeek",
-    value: "lastWeek",
-  },
-  lastMonth: {
-    text: "lastMonth",
-    value: "lastMonth",
-  },
-};
+const DashboardPage: React.FC = () => {
+  const [timeRange, setTimeRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
+    dayjs().subtract(7, "days"),
+    dayjs(),
+  ]);
 
-export const DashboardPage: React.FC = () => {
-  const { token } = theme.useToken();
-  const t = useTranslate();
-  const API_URL = useApiUrl();
+  const API_BASE = "stats"; // API Base URL
 
-  const [selecetedDateFilter, setSelectedDateFilter] = useState<DateFilter>(
-    DATE_FILTERS.lastWeek.value,
-  );
-
-  const dateFilters: MenuProps["items"] = useMemo(() => {
-    const filters = Object.keys(DATE_FILTERS) as DateFilter[];
-
-    return filters.map((filter) => {
-      return {
-        key: DATE_FILTERS[filter].value,
-        label: t(`dashboard.filter.date.${DATE_FILTERS[filter].text}`),
-        onClick: () => {
-          setSelectedDateFilter(DATE_FILTERS[filter].value);
+  // 📡 Fetch Data from API Endpoints
+  const fetchStats = (endpoint: string, additionalParams = {}) =>
+    useCustom({
+      url: `${API_BASE}/${endpoint}`,
+      method: "get",
+      config: {
+        query: {
+          "start-date": timeRange[0].toISOString(),
+          "end-date": timeRange[1].toISOString(),
+          ...additionalParams,
         },
-      };
+      },
     });
-  }, []);
 
-  const dateFilterQuery = useMemo(() => {
-    const now = dayjs();
-    switch (selecetedDateFilter) {
-      case "lastWeek":
-        return {
-          start: now.subtract(6, "days").startOf("day").format(),
-          end: now.endOf("day").format(),
-        };
-      case "lastMonth":
-        return {
-          start: now.subtract(1, "month").startOf("day").format(),
-          end: now.endOf("day").format(),
-        };
-      default:
-        return {
-          start: now.subtract(7, "days").startOf("day").format(),
-          end: now.endOf("day").format(),
-        };
-    }
-  }, [selecetedDateFilter]);
+  const { data: dailyRevenueResponse, isLoading: dailyRevenueLoading } = fetchStats("daily-revenue");
+  const { data: dailyOrdersResponse, isLoading: dailyOrdersLoading } = fetchStats("daily-order");
+  const { data: monthlyRevenueResponse, isLoading: monthlyRevenueLoading } = fetchStats("monthly-revenue");
+  const { data: revenueBySkuResponse, isLoading: revenueBySkuLoading } = fetchStats("revenue-by-sku");
+  const { data: revenueByBrandResponse, isLoading: revenueByBrandLoading } = fetchStats("revenue-by-brand");
+  const { data: revenueByBlindBoxResponse, isLoading: revenueByBlindBoxLoading } = fetchStats("revenue-by-blind-box");
+  const { data: topSellingSkusResponse, isLoading: topSellingSkusLoading } = fetchStats("top-selling-skus", { limit: 10 });
 
-  const { data: dailyRevenueData } = useCustom<{
-    data: ISalesChart[];
-    total: number;
-    trend: number;
-  }>({
-    url: `${API_URL}/dailyRevenue`,
-    method: "get",
-    config: {
-      query: dateFilterQuery,
+  const isLoading =
+    dailyRevenueLoading ||
+    dailyOrdersLoading ||
+    monthlyRevenueLoading ||
+    revenueBySkuLoading ||
+    revenueByBrandLoading ||
+    revenueByBlindBoxLoading ||
+    topSellingSkusLoading;
+
+    
+  // 📊 Transform API Response Data (Simplified)
+  const transformData = (response: any) =>
+    response?.data?.map((item: any) => ({
+      key: item.key || "Unknown",
+      value: item.value ?? 0,
+    })) || [];
+  
+  
+
+  // 📈 Define Chart Configurations
+  const commonConfig = {
+    height: 350,
+    autoFit: true,
+    padding: [30, 30, 50, 50],
+    tooltip: {
+      formatter: (datum: any) => ({
+        name: datum.key || "Unknown",
+        value: `$${Number(datum.value).toLocaleString()}`,
+      }),
     },
-  });
+  };
 
-  const { data: dailyOrdersData } = useCustom<{
-    data: ISalesChart[];
-    total: number;
-    trend: number;
-  }>({
-    url: `${API_URL}/dailyOrders`,
-    method: "get",
-    config: {
-      query: dateFilterQuery,
+  const dailyRevenueConfig = {
+    data: transformData(dailyRevenueResponse),
+    xField: "key",
+    yField: "value",
+    point: {
+      shapeField: 'square',
+      sizeField: 4,
     },
-  });
-
-  const { data: newCustomersData } = useCustom<{
-    data: ISalesChart[];
-    total: number;
-    trend: number;
-  }>({
-    url: `${API_URL}/newCustomers`,
-    method: "get",
-    config: {
-      query: dateFilterQuery,
+    interaction: {
+      tooltip: {
+        marker: false,
+      },
     },
-  });
+    style: {
+      lineWidth: 2,
+    },
+  };
+  const monthlyRevenueConfig = {
+    ...commonConfig,
+    data: transformData(monthlyRevenueResponse),
+    xField: "key",
+    yField: "value",
+    shapeField: 'column25D',
+    style: {
+      fill: 'rgba(126, 212, 236, 0.8)',
+    },
+  };
 
-  const revenue = useMemo(() => {
-    const data = dailyRevenueData?.data?.data;
-    if (!data)
-      return {
-        data: [],
-        trend: 0,
-      };
+  const dailyOrdersConfig = {
+    ...commonConfig,
+    data: transformData(dailyOrdersResponse),
+    xField: "key",
+    yField: "value",
+    smooth: true,
+    point: { shape: "circle", size: 4 },
+    color: "#ff4d4f",
+  };
 
-    const plotData = data.map((revenue) => {
-      const date = dayjs(revenue.date);
-      return {
-        timeUnix: date.unix(),
-        timeText: date.format("DD MMM YYYY"),
-        value: revenue.value,
-        state: "Daily Revenue",
-      };
-    });
+  const revenueBySkuConfig = {
+    ...commonConfig,
+    data: transformData(revenueBySkuResponse),
+    xField: 'key',
+    yField: 'value',
+    sort: {
+      reverse: true,
+    },
+  };
+  
 
-    return {
-      data: plotData,
-      trend: dailyRevenueData?.data?.trend || 0,
-    };
-  }, [dailyRevenueData]);
+  const revenueByBrandConfig = {
+    ...commonConfig,
+    data: transformData(revenueByBrandResponse),
+    angleField: 'value',
+    colorField: 'key',
+    label: {
+      text: 'value',
+      position: 'outside',
+    },
+    legend: {
+      color: {
+        title: false,
+        position: 'right',
+        rowPadding: 5,
+      },
+    },
+  };
 
-  const orders = useMemo(() => {
-    const data = dailyOrdersData?.data?.data;
-    if (!data) return { data: [], trend: 0 };
+  const revenueByBlindBoxConfig = {
+    ...commonConfig,
+    data: transformData(revenueByBlindBoxResponse),
+    angleField: 'value',
+    colorField: 'key',
+    innerRadius: 0.6,
+    label: {
+      text: 'value',
+      style: {
+        fontWeight: 'bold',
+      },
+    },
+    legend: {
+      color: {
+        title: false,
+        position: 'right',
+        rowPadding: 5,
+      },
+    },
+    annotations: [
+      {
+        type: 'text',
+        style: {
+          text: 'Blindbox\nCharts',
+          x: '50%',
+          y: '50%',
+          textAlign: 'center',
+          fontSize: 40,
+          fontStyle: 'bold',
+        },
+      },
+    ],
+  };
 
-    const plotData = data.map((order) => {
-      const date = dayjs(order.date);
-      return {
-        timeUnix: date.unix(),
-        timeText: date.format("DD MMM YYYY"),
-        value: order.value,
-        state: "Daily Orders",
-      };
-    });
+  const topSellingSkusColumns = [
+    {
+      title: "Product Name",
+      dataIndex: "key",
+      key: "key",
+      render: (text: string) => <strong>{text}</strong>,
+    },
+    {
+      title: "Quantity Sold",
+      dataIndex: "value",
+      key: "value",
+      align: "right" as "right",
+      render: (text: number) => text.toLocaleString(),
+    },
+  ];
 
-    return {
-      data: plotData,
-      trend: dailyOrdersData?.data?.trend || 0,
-    };
-  }, [dailyOrdersData]);
-
-  const newCustomers = useMemo(() => {
-    const data = newCustomersData?.data?.data;
-    if (!data) return { data: [], trend: 0 };
-
-    const plotData = data.map((customer) => {
-      const date = dayjs(customer.date);
-      return {
-        timeUnix: date.unix(),
-        timeText: date.format("DD MMM YYYY"),
-        value: customer.value,
-        state: "New Customers",
-      };
-    });
-
-    return {
-      data: plotData,
-      trend: newCustomersData?.data?.trend || 0,
-    };
-  }, [newCustomersData]);
+  const cardHeight = 450  ;
 
   return (
-    <List
-      title={t("dashboard.overview.title")}
-      headerButtons={() => (
-        <Dropdown menu={{ items: dateFilters }}>
-          <Button>
-            {t(
-              `dashboard.filter.date.${DATE_FILTERS[selecetedDateFilter].text}`,
-            )}
-            <DownOutlined />
-          </Button>
-        </Dropdown>
-      )}
-    >
-      <Row gutter={[16, 16]}>
-        <Col md={24}>
-          <Row gutter={[16, 16]}>
-            <Col xl={{ span: 10 }} lg={24} md={24} sm={24} xs={24}>
-              <CardWithPlot
-                icon={
-                  <DollarCircleOutlined
-                    style={{
-                      fontSize: 14,
-                      color: token.colorPrimary,
-                    }}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Title level={2}>Sales & Analytics Dashboard</Title>
+        <Paragraph className="text-gray-500">
+          Comprehensive analytics and statistics about your blind box products
+        </Paragraph>
+
+        {/* 📆 Date Picker */}
+        <Card className="mb-8">
+          <Space>
+            <RangePicker
+              value={timeRange}
+              format="YYYY-MM-DD"
+              onChange={(dates) => {
+                if (dates && dates[0] && dates[1]) {
+                  setTimeRange([dates[0], dates[1]]);
+                }
+              }}
+            />
+          </Space>
+        </Card>
+
+        {/* Show Loading Spinner */}
+        {topSellingSkusLoading ? (
+          <Spin size="large" className="flex justify-center py-8" />
+        ) : (
+          <Tabs
+            defaultActiveKey="1"
+            items={[
+              {
+                key: "1",
+                label: (
+                  <span style={{ fontWeight: "bold", fontSize: "16px", color: "#000" }}>
+                    <LineChartOutlined style={{ marginRight: 5 }} /> Revenue Overview
+                  </span>
+                ),
+                children: (
+                  <Row gutter={[16, 16]}>
+                    <Col span={12}>
+                      <Card title="Daily Revenue" style={{ height: cardHeight }}>
+                        <Line {...dailyRevenueConfig} />
+                      </Card>
+                    </Col>
+                    <Col span={12}>
+                      <Card title="Monthly Revenue" style={{ height: cardHeight }}>
+                        <Column {...monthlyRevenueConfig} />
+                      </Card>
+                    </Col>
+                  </Row>
+                ),
+              },
+              {
+                key: "2",
+                label: (
+                  <span style={{ fontWeight: "bold", fontSize: "16px", color: "#000" }}>
+                    <PieChartOutlined style={{ marginRight: 5 }} /> Revenue Distribution
+                  </span>
+                ),
+                children: (
+                  <Row gutter={[16, 16]}>
+                    <Col span={12}>
+                      <Card title="Revenue by Brand" style={{ height: cardHeight }}>
+                        <Pie {...revenueByBrandConfig} />
+                      </Card>
+                    </Col>
+                    <Col span={12}>
+                      <Card title="Revenue by Blind Box" style={{ height: cardHeight }}>
+                        <Pie {...revenueByBlindBoxConfig} />
+                      </Card>
+                    </Col>
+                  </Row>
+                ),
+              },
+              {
+                key: "3",
+                label: (
+                  <span style={{ fontWeight: "bold", fontSize: "16px", color: "#000" }}>
+                    <BarChartOutlined style={{ marginRight: 5 }} /> Revenue by SKU
+                  </span>
+                ),
+                children: (
+                  <Card title="Revenue by SKU" style={{ height: cardHeight }}>
+                    <Bar {...revenueBySkuConfig} />
+                  </Card>
+                ),
+              },
+              {
+                key: "4",
+                label: (
+                  <span style={{ fontWeight: "bold", fontSize: "16px", color: "#000" }}>
+                    <FireOutlined style={{ marginRight: 5 }} /> Trending
+                  </span>
+                ),
+                children: (
+                  <Table
+                    title={() => <Title level={4}>Top Selling SKUs</Title>}
+                    dataSource={transformData(topSellingSkusResponse)}
+                    columns={topSellingSkusColumns}
+                    pagination={{ pageSize: 5 }}
+                    bordered
                   />
-                }
-                title={t("dashboard.dailyRevenue.title")}
-                rightSlot={
-                  <Flex align="center" gap={8}>
-                    <NumberField
-                      value={revenue.trend}
-                      options={{
-                        style: "currency",
-                        currency: "USD",
-                      }}
-                    />
-                    {revenue.trend > 0 ? <TrendUpIcon /> : <TrendDownIcon />}
-                  </Flex>
-                }
-              >
-                <DailyRevenue height={170} data={revenue.data} />
-              </CardWithPlot>
-            </Col>
-            <Col xl={{ span: 7 }} lg={12} md={24} sm={24} xs={24}>
-              <CardWithPlot
-                icon={
-                  <ShoppingOutlined
-                    style={{
-                      fontSize: 14,
-                      color: token.colorPrimary,
-                    }}
-                  />
-                }
-                rightSlot={
-                  <Flex align="center" gap={8}>
-                    <NumberField value={orders.trend} />
-                    {orders.trend > 0 ? <TrendUpIcon /> : <TrendDownIcon />}
-                  </Flex>
-                }
-                title={t("dashboard.dailyOrders.title")}
-              >
-                <DailyOrders height={170} data={orders.data} />
-              </CardWithPlot>
-            </Col>
-            <Col xl={{ span: 7 }} lg={12} md={24} sm={24} xs={24}>
-              <CardWithPlot
-                icon={
-                  <UserOutlined
-                    style={{
-                      fontSize: 14,
-                      color: token.colorPrimary,
-                    }}
-                  />
-                }
-                title={t("dashboard.newCustomers.title")}
-                rightSlot={
-                  <Flex align="center" gap={8}>
-                    <NumberField
-                      value={newCustomers.trend}
-                      options={{
-                        style: "percent",
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }}
-                    />
-                    {newCustomers.trend > 0 ? (
-                      <TrendUpIcon />
-                    ) : (
-                      <TrendDownIcon />
-                    )}
-                  </Flex>
-                }
-              >
-                <NewCustomers height={170} data={newCustomers.data} />
-              </CardWithPlot>
-            </Col>
-          </Row>
-        </Col>
-        <Col xl={15} lg={15} md={24} sm={24} xs={24}>
-          <CardWithContent
-            bodyStyles={{
-              height: "432px",
-              overflow: "hidden",
-              padding: 0,
-            }}
-            icon={
-              <ClockCircleOutlined
-                style={{
-                  fontSize: 14,
-                  color: token.colorPrimary,
-                }}
-              />
-            }
-            title={t("dashboard.deliveryMap.title")}
-          >
-            {/* <AllOrdersMap /> */}
-          </CardWithContent>
-        </Col>
-        <Col xl={9} lg={9} md={24} sm={24} xs={24}>
-          <CardWithContent
-            bodyStyles={{
-              height: "430px",
-              overflow: "hidden",
-              padding: 0,
-            }}
-            icon={
-              <ClockCircleOutlined
-                style={{
-                  fontSize: 14,
-                  color: token.colorPrimary,
-                }}
-              />
-            }
-            title={t("dashboard.timeline.title")}
-          >
-            <OrderTimeline height={"432px"} />
-          </CardWithContent>
-        </Col>
-        <Col xl={15} lg={15} md={24} sm={24} xs={24}>
-          <CardWithContent
-            bodyStyles={{
-              padding: "1px 0px 0px 0px",
-            }}
-            icon={
-              <ShoppingOutlined
-                style={{
-                  fontSize: 14,
-                  color: token.colorPrimary,
-                }}
-              />
-            }
-            title={t("dashboard.recentOrders.title")}
-          >
-            <RecentOrders />
-          </CardWithContent>
-        </Col>
-        <Col xl={9} lg={9} md={24} sm={24} xs={24}>
-          <CardWithContent
-            bodyStyles={{
-              padding: 0,
-            }}
-            icon={
-              <RiseOutlined
-                style={{
-                  fontSize: 14,
-                  color: token.colorPrimary,
-                }}
-              />
-            }
-            title={t("dashboard.trendingProducts.title")}
-          >
-            <TrendingMenu />
-          </CardWithContent>
-        </Col>
-      </Row>
-    </List>
+                ),
+              },
+            ]}
+          />
+        )}
+      </div>
+    </div>
   );
 };
+
+export { DashboardPage };
+export default DashboardPage;
