@@ -316,6 +316,7 @@ const CheckoutPage: React.FC = () => {
       // Create order payload according to the generated CartDto format
       const orderItems: CartItemDto[] = activeCartItems.map((item) => ({
         skuId: item.skuId,
+        slotId: item.slotId,
         quantity: item.quantity,
       }));
 
