@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   Space,
@@ -9,28 +9,48 @@ import {
   Button,
   Avatar,
   notification,
+  Alert,
+  Tag,
+  Tooltip,
 } from "antd";
-import { ShoppingOutlined } from "@ant-design/icons";
-import { useDelete, useTranslation, useUpdate } from "@refinedev/core";
-import { OrderDto, OrderDetailDto } from "../../../../../generated";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  PlayCircleOutlined,
+  ShoppingOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { useMany, useTranslation } from "@refinedev/core";
+import {
+  OrderDto,
+  OrderDetailDto,
+  SlotDto,
+  VideoDto,
+} from "../../../../../generated";
 import { formatCurrency } from "../../../../utils/currency-formatter";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { OrderTimeline } from "./OrderTimeline";
 import api from "../../../../config/openapi-config";
-import { error } from "console";
+import { VideoUploadModal } from "./UploadVideoModal";
 
 const { Text } = Typography;
 
 interface OrderDetailsModalProps {
   order: OrderDto | null;
   onClose: () => void;
+  refetch: () => void;
 }
 
 export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   order,
   onClose,
+  refetch,
 }) => {
   const { translate } = useTranslation();
+  const [uploadModalVisible, setUploadModalVisible] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<SlotDto | undefined>(
+    undefined
+  );
 
   if (!order) return null;
 
@@ -46,6 +66,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               message: "Order Canceled",
               description: "Order has been canceled successfully.",
             });
+            refetch();
             onClose();
           }
         })
@@ -73,6 +94,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               message: "Order Received",
               description: "Order has been received successfully.",
             });
+            refetch();
             onClose();
           }
         })
@@ -87,6 +109,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       console.error("Error confirming receive:", error);
     }
   };
+
+  const showUploadModal = (slot: SlotDto | undefined) => {
+    setSelectedSlot(slot);
+    setUploadModalVisible(true);
+  };
+
   const actionButton = () => {
     switch (order.latestStatus) {
       case "CREATED":
@@ -147,6 +175,18 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {translate("orders.details.items", "Order Items")}
         </Divider>
 
+        {order.orderDetails?.find((detail) => detail.slot !== null) &&
+          order.latestStatus === "RECEIVED" && (
+            <Alert
+              message={translate(
+                "orders.details.slotAlert",
+                "You can upload a video for slot to get voucher"
+              )}
+              type="warning"
+              showIcon
+            />
+          )}
+
         <div className="space-y-4">
           {order.orderDetails?.map((detail: OrderDetailDto) => (
             <Card key={detail.orderDetailId} size="small" className="shadow-sm">
@@ -164,9 +204,15 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     {translate("orders.fields.subTotal", "Unit Price")}:{" "}
                     {formatCurrency(detail.unitPrice ?? 0)}
                   </Text>
+                  {detail?.slot && (
+                    <Text type="secondary">
+                      {translate("orders.fields.slot", "Slot")}:{" "}
+                      {detail.slot?.position}
+                    </Text>
+                  )}
                 </div>
 
-                <div>
+                <div className="flex flex-col items-end">
                   {(detail.subTotal ?? 0) > (detail.finalTotal ?? 0) && (
                     <Text type="secondary" delete>
                       {formatCurrency(detail.subTotal ?? 0)}
@@ -175,6 +221,42 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <Text strong className="text-lg">
                     {formatCurrency(detail.finalTotal ?? 0)}
                   </Text>
+
+                  {detail?.slot &&
+                    order.latestStatus === "RECEIVED" &&
+                    (detail?.slot?.video ? (
+                      <div className="mt-2 text-center">
+                        <Tooltip title="Watch video">
+                          <Button
+                            type="link"
+                            icon={<PlayCircleOutlined />}
+                            href={detail.slot.video.url}
+                            target="_blank"
+                          >
+                            Watch
+                          </Button>
+                        </Tooltip>
+                        {detail.slot.video.isVerified ? (
+                          <Tag color="success" icon={<CheckCircleOutlined />}>
+                            Verified
+                          </Tag>
+                        ) : (
+                          <Tag color="warning" icon={<CloseCircleOutlined />}>
+                            Pending
+                          </Tag>
+                        )}
+                      </div>
+                    ) : (
+                      <Button
+                        type="primary"
+                        icon={<UploadOutlined />}
+                        size="small"
+                        className="mt-2"
+                        onClick={() => showUploadModal(detail?.slot)}
+                      >
+                        Upload Video
+                      </Button>
+                    ))}
                 </div>
               </div>
             </Card>
@@ -188,6 +270,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         <OrderTimeline histories={order.orderStatusHistories || []} />
       </div>
       {actionButton()}
+
+      <VideoUploadModal
+        visible={uploadModalVisible}
+        onCancel={() => setUploadModalVisible(false)}
+        slot={selectedSlot}
+      />
     </Modal>
   );
 };

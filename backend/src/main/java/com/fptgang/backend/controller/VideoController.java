@@ -7,6 +7,7 @@ import com.fptgang.backend.mapper.VideoMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Video;
 import com.fptgang.backend.service.VideoService;
+import com.fptgang.backend.service.VoucherService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
@@ -27,14 +28,16 @@ import java.util.Optional;
 public class VideoController implements VideosApi {
     private final VideoService videoService;
     private final VideoMapper videoMapper;
+    private final VoucherService voucherService;
 
-    public VideoController(VideoService videoService, VideoMapper videoMapper) {
+    public VideoController(VideoService videoService, VideoMapper videoMapper, VoucherService voucherService) {
         this.videoService = videoService;
         this.videoMapper = videoMapper;
+        this.voucherService = voucherService;
     }
 
     @Override
-    public ResponseEntity<VideoDto> createVideo(Long accountID, Long slotId, MultipartFile videoBlob,Boolean isVisible) {
+    public ResponseEntity<VideoDto> createVideo(Long accountID, Long slotId, MultipartFile videoBlob, Boolean isVisible) {
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             // Not admin, so let's ensure the user matches accountID
             long currentUserId = SecurityUtil.requireCurrentUserId(); // throws AccessDeniedException if unauthenticated
@@ -59,7 +62,7 @@ public class VideoController implements VideosApi {
     public ResponseEntity<Void> deleteVideo(Long videoId) {
         log.info("Deleting video " + videoId);
         // 1) If user is not ADMIN, ensure the current user is the video owner
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)&& !SecurityUtil.hasPermission(Account.Role.STAFF)   ) {
             long currentUserId = SecurityUtil.requireCurrentUserId();
             Video existingVideo = videoService.findById(videoId);
             if (existingVideo.getAccount().getAccountId() != currentUserId) {
@@ -90,12 +93,10 @@ public class VideoController implements VideosApi {
     @Override
     public ResponseEntity<GetVideos200Response> getVideos(Pageable pageable, String filter, String search) {
         log.info("Getting videos");
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)
-                .filter(filter)
-                .includeInvisible(includeInvisible);
+                .filter(filter);
 
         // Customers can only view their own videos
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
@@ -108,24 +109,18 @@ public class VideoController implements VideosApi {
     }
 
     @Override
-    public ResponseEntity<VideoDto> updateVideo(Long videoId,Long accountID, Long slotId, MultipartFile videoBlob,Boolean isVisible) {
+    public ResponseEntity<VideoDto> verifiedVideo(Long videoId) {
         // 1) If user is not ADMIN, ensure the current user is the video owner
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            long currentUserId = SecurityUtil.requireCurrentUserId();
-            Video existingVideo = videoService.findById(videoId);
-            if (existingVideo.getAccount().getAccountId() != currentUserId) {
-                throw new AccessDeniedException("You are not allowed to update this video!");
-            }
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN) && !SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            throw new AccessDeniedException("You are not allowed to update this video!");
         }
-        VideoDto dto = new VideoDto();
-        dto.setVideoId(videoId);
-        dto.setAccount(new AccountDto().accountId(accountID));
-        dto.setSlotId(slotId);
-        dto.setIsVisible(isVisible);
+
+        Video existingVideo = videoService.findById(videoId);
+        voucherService.createForCustomerId(existingVideo.getAccount().getAccountId());
 
         return ResponseEntity.ok(
                 videoMapper.toDTO(
-                        videoService.update(videoMapper.toEntity(dto), videoBlob),
+                        videoService.verified(videoId),
                         DetailLevel.FULL
                 )
         );

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 
 public interface VoucherService {
     Voucher create(Voucher voucher);
-
+    Voucher createForCustomerId(long customerId);
     Voucher findById(long id);
 
     Voucher update(Voucher voucher);

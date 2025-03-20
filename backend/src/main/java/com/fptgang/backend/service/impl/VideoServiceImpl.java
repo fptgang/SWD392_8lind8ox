@@ -2,6 +2,7 @@ package com.fptgang.backend.service.impl;
 
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.Account;
+import com.fptgang.backend.model.Slot;
 import com.fptgang.backend.model.Video;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.VideoRepos;
@@ -43,7 +44,9 @@ public class VideoServiceImpl implements VideoService {
             // Upload video to Azure
             String videoUrl = azureBlobService.upload(file);
             video.setUrl(videoUrl);
-
+            video.setDescription("Unboxing video by " + account.getFirstName() + " " + account.getLastName());
+            video.setIsVerified(false);
+            video.getSlot().setVideo(video);
             // Save video details in DB
             Video savedVideo = videoRepos.save(video);
 
@@ -91,6 +94,14 @@ public class VideoServiceImpl implements VideoService {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+    @Override
+    public Video verified(long id) {
+        Video video = videoRepos.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Video does not exist"));
+        video.setIsVerified(true);
+        video.getSlot().setState(Slot.State.OPENED);
+        return videoRepos.save(video);
     }
 
     @Override

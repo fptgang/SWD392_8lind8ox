@@ -1,26 +1,53 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Voucher;
+import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.VoucherRepos;
 import com.fptgang.backend.service.VoucherService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.EntityUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class VoucherServiceImpl implements VoucherService {
 
     private final VoucherRepos voucherRepos;
+    private final AccountRepos accountRepos;
 
     @Autowired
-    public VoucherServiceImpl(VoucherRepos voucherRepos) {
+    public VoucherServiceImpl(VoucherRepos voucherRepos, AccountRepos accountRepos) {
         this.voucherRepos = voucherRepos;
+        this.accountRepos = accountRepos;
     }
 
     @Override
     public Voucher create(Voucher voucher) {
+        return voucherRepos.save(voucher);
+    }
+
+    @Override
+    public Voucher createForCustomerId(long customerId) {
+        Account account = accountRepos.findByAccountId(customerId).orElseThrow(
+                () -> new RuntimeException("Account not found")
+        );
+        if(!account.getRole().hasPermission(Account.Role.CUSTOMER)){
+            throw new RuntimeException("Account is not a customer");
+        }
+        Voucher voucher = new Voucher();
+
+        voucher.setState(Voucher.State.AVAILABLE);
+        voucher.setAccount(account);
+        voucher.setCode(RandomStringUtils.randomAlphanumeric(10));
+        voucher.setDiscountRate(BigDecimal.valueOf(0.1));
+        voucher.setLimitAmount(BigDecimal.valueOf(100));
+        voucher.setExpiredAt(LocalDateTime.now().plusMonths(1));
         return voucherRepos.save(voucher);
     }
 

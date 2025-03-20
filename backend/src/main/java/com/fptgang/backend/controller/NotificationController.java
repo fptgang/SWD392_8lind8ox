@@ -51,12 +51,10 @@ public class NotificationController implements NotificationsApi {
     @Override
     public ResponseEntity<GetNotifications200Response> getNotifications(Pageable pageable, String filter, String search) {
         log.info("Getting notifications");
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)
-                .filter(filter)
-                .includeInvisible(includeInvisible);
+                .filter(filter);
 
         // Staff and Customers can only view their own notifications
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {

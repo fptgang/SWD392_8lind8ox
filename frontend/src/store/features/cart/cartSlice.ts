@@ -13,6 +13,7 @@ export interface CartItem {
   imageUrl: string;
   blindBoxId?: number;
   promotionalCampaignId?: number;
+  setId?: number;
 }
 
 export interface ShippingInfo {
@@ -89,8 +90,9 @@ const cartSlice = createSlice({
     addItem: (state, action: PayloadAction<Omit<CartItem, "quantity">>) => {
       // Update this finder to include slotId in uniqueness check
       const existingItemIndex = state.items.findIndex(
-        (item) => item.skuId === action.payload.skuId && 
-                  item.slotId === action.payload.slotId
+        (item) =>
+          item.skuId === action.payload.skuId &&
+          item.slotId === action.payload.slotId
       );
 
       if (existingItemIndex > -1) {
@@ -111,7 +113,11 @@ const cartSlice = createSlice({
 
     updateQuantity: (
       state,
-      action: PayloadAction<{ skuId: number; slotId?: number; quantity: number }>
+      action: PayloadAction<{
+        skuId: number;
+        slotId?: number;
+        quantity: number;
+      }>
     ) => {
       const { skuId, slotId, quantity } = action.payload;
       if (quantity < 1) return;
@@ -120,7 +126,7 @@ const cartSlice = createSlice({
       const itemIndex = state.items.findIndex(
         (item) => item.skuId === skuId && item.slotId === slotId
       );
-      
+
       if (itemIndex > -1) {
         const item = state.items[itemIndex];
         if (quantity <= item.stock) {
@@ -134,13 +140,16 @@ const cartSlice = createSlice({
     },
 
     removeItem: (
-      state, 
+      state,
       action: PayloadAction<{ skuId: number; slotId?: number }>
     ) => {
       // Update to remove only items with matching skuId AND slotId
       state.items = state.items.filter(
-        (item) => !(item.skuId === action.payload.skuId && 
-                  item.slotId === action.payload.slotId)
+        (item) =>
+          !(
+            item.skuId === action.payload.skuId &&
+            item.slotId === action.payload.slotId
+          )
       );
       const totals = calculateTotals(state.items);
       state.total = totals.total;
@@ -159,7 +168,9 @@ const cartSlice = createSlice({
     },
 
     cleanInvalidItems: (state) => {
-      state.items = state.items.filter(item => item.skuId && typeof item.skuId === 'number');
+      state.items = state.items.filter(
+        (item) => item.skuId && typeof item.skuId === "number"
+      );
       const totals = calculateTotals(state.items);
       state.total = totals.total;
       state.originalTotal = totals.originalTotal;

@@ -54,12 +54,7 @@ import {
   BlindBoxesList,
   BlindBoxesShow,
 } from "./pages/blind-boxes";
-import {
-  OrdersCreate,
-  OrdersEdit,
-  OrdersList,
-  OrdersShow,
-} from "./pages/orders";
+import { OrdersList, OrdersShow } from "./pages/orders";
 
 import {
   PromotionalCampaignsCreate,
@@ -94,6 +89,7 @@ import { liveProvider } from "./providers/live-provider";
 import { stompClient } from "./utils/stompClient";
 import CustomerCasesPage from "./pages/customer/case/CustomerCasesPage";
 import SetDetailPage from "./pages/customer/case/SetDetailPage";
+import { VideosList, VideosShow } from "./pages/videos";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -279,9 +275,12 @@ function App() {
 
                         <Route path="orders">
                           <Route index element={<OrdersList />} />
-                          <Route path="create" element={<OrdersCreate />} />
-                          <Route path="edit/:id" element={<OrdersEdit />} />
                           <Route path="show/:id" element={<OrdersShow />} />
+                        </Route>
+
+                        <Route path="videos">
+                          <Route index element={<VideosList />} />
+                          <Route path="show/:id" element={<VideosShow />} />
                         </Route>
 
                         <Route path="promotional-campaigns">
