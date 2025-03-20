@@ -10,5 +10,6 @@ public interface VideoService {
     Video findById(long id);
     Video update(Video video, MultipartFile file);
     Video deleteById(long id);
+    Video verified(long id);
     Page<Video> getAll(ListParams params);
 }

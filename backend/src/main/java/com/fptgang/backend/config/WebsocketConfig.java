@@ -90,11 +90,13 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
                 if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+                    String destination = accessor.getDestination();
+                    if(destination.startsWith("resources/"))
+                        return message;
                     // Get JWT token from headers
                     List<String> authorization = accessor.getNativeHeader("Authorization");
                     String token = authorization != null && !authorization.isEmpty() ? authorization.get(0).split(" ")[1] : null;
                     // Get destination (channel) being subscribed to
-                    String destination = accessor.getDestination();
                     String email = SecurityUtil.getEmailFromJwt(jwtService.parseToken(token));
                     try {
                         if(destination.startsWith("noti/")) {

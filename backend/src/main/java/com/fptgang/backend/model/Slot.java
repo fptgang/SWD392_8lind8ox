@@ -22,7 +22,7 @@ public class Slot {
     private Long slotId;
 
     @Column(nullable = false)
-    private int position;
+    private Integer position;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

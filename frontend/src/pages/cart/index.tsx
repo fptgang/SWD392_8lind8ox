@@ -35,9 +35,9 @@ const { Title, Text } = Typography;
 
 // Format number with thousands separator and fixed decimal places
 const formatCurrency = (amount: number, decimals = 2) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(amount);
@@ -57,13 +57,15 @@ const CartPage: React.FC = () => {
   const [disabledItems, setDisabledItems] = useState<Record<number, boolean>>(
     {}
   );
-  
+
   // Count of disabled items for display
   const [disabledItemsCount, setDisabledItemsCount] = useState<number>(0);
-  
+
   // Update disabled items count whenever disabledItems changes
   useEffect(() => {
-    const count = Object.values(disabledItems).filter(value => value === true).length;
+    const count = Object.values(disabledItems).filter(
+      (value) => value === true
+    ).length;
     setDisabledItemsCount(count);
   }, [disabledItems]);
 
@@ -92,10 +94,14 @@ const CartPage: React.FC = () => {
   };
 
   // Update item quantity - only allow integer values
-  const handleQuantityChange = (skuId: number, quantity: number, slotId?: number) => {
+  const handleQuantityChange = (
+    skuId: number,
+    quantity: number,
+    slotId?: number
+  ) => {
     // Ensure quantity is an integer
     const intQuantity = Math.floor(quantity);
-    
+
     if (intQuantity > 0) {
       dispatch(updateQuantity({ skuId, slotId, quantity: intQuantity }));
     } else {
@@ -109,14 +115,14 @@ const CartPage: React.FC = () => {
     try {
       // Correctly pass the object with skuId and optionally slotId
       dispatch(removeItem({ skuId, slotId }));
-      
+
       // Also remove from disabled items if present
       if (disabledItems[skuId]) {
         const newDisabled = { ...disabledItems };
         delete newDisabled[skuId];
         setDisabledItems(newDisabled);
       }
-      
+
       notification.success({
         message: "Item removed",
         description: "The item has been removed from your cart",
@@ -136,12 +142,12 @@ const CartPage: React.FC = () => {
     setDisabledItems((prev) => {
       const newState = { ...prev };
       newState[skuId] = !prev[skuId];
-      
+
       // Remove false values to keep the state clean
       if (!newState[skuId]) {
         delete newState[skuId];
       }
-      
+
       return newState;
     });
   };
@@ -180,9 +186,9 @@ const CartPage: React.FC = () => {
       if (item.blindBoxId) {
         // Navigate to product/blindbox detail
         navigate(`/products/${item.blindBoxId}`);
-      } else if (item.skuId) {
+      } else if (item.setId) {
         // Navigate to set detail
-        navigate(`/case/${item.skuId}`);
+        navigate(`/case/${item.setId}`);
       } else {
         notification.warning({
           message: "Invalid item",
@@ -265,7 +271,7 @@ const CartPage: React.FC = () => {
 
                 return (
                   <List.Item
-                    key={`${item.skuId}-${item.slotId || '0'}`}
+                    key={`${item.skuId}-${item.slotId || "0"}`}
                     className={`${
                       isDisabled ? "opacity-60" : ""
                     } rounded-lg p-2 mb-2 transition-all`}
@@ -274,7 +280,9 @@ const CartPage: React.FC = () => {
                         key="delete"
                         danger
                         icon={<DeleteOutlined />}
-                        onClick={() => handleRemoveItem(item.skuId, item.slotId)}
+                        onClick={() =>
+                          handleRemoveItem(item.skuId, item.slotId)
+                        }
                       />,
                     ]}
                   >
@@ -298,7 +306,8 @@ const CartPage: React.FC = () => {
                           aria-label={`View ${item.name} details`}
                           tabIndex={0}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') navigateToProductDetail(item);
+                            if (e.key === "Enter")
+                              navigateToProductDetail(item);
                           }}
                         />
                       </div>
@@ -306,18 +315,21 @@ const CartPage: React.FC = () => {
                       {/* Product Details */}
                       <div className="flex-grow">
                         <div className="flex justify-between">
-                          <Title 
-                            level={5} 
+                          <Title
+                            level={5}
                             className="mb-1 cursor-pointer hover:text-blue-600 transition-colors"
                             onClick={() => navigateToProductDetail(item)}
                           >
                             {item.name}
-                            
+
                             {/* Add slot position badge if applicable */}
                             {item.slotId && (
-                              <Badge 
-                                count={`Slot #${item.slotId}`} 
-                                style={{ backgroundColor: '#1677ff', marginLeft: '8px' }} 
+                              <Badge
+                                count={`Slot #${item.slotId}`}
+                                style={{
+                                  backgroundColor: "#1677ff",
+                                  marginLeft: "8px",
+                                }}
                               />
                             )}
                           </Title>

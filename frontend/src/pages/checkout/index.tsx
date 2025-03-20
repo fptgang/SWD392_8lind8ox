@@ -28,9 +28,15 @@ import {
   CartDto,
   CartItemDto,
   VoucherDto,
+  StockKeepingUnitDto,
 } from "../../../generated";
 import { useForm } from "antd/lib/form/Form";
-import { useList, useCreate, useCustomMutation } from "@refinedev/core";
+import {
+  useList,
+  useCreate,
+  useCustomMutation,
+  useMany,
+} from "@refinedev/core";
 import {
   PlusOutlined,
   CheckCircleFilled,
@@ -67,22 +73,26 @@ const CheckoutPage: React.FC = () => {
   // Local state
   const [addressModalVisible, setAddressModalVisible] = useState(false);
   const [voucherModalVisible, setVoucherModalVisible] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState<VoucherDto | null>(
+    null
+  );
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
   );
-  const [selectedVoucherId, setSelectedVoucherId] = useState<number | null>(
-    null
-  );
-  const [selectedVoucherCode, setSelectedVoucherCode] = useState<string>("");
-  const [selectedVoucherDiscount, setSelectedVoucherDiscount] =
-    useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>("VNPAY");
   const [createNewAddress, setCreateNewAddress] = useState(false);
   const [orderProcessing, setOrderProcessing] = useState(false);
   const [walletTopupVisible, setWalletTopupVisible] = useState(false);
   const [topupAmount, setTopupAmount] = useState<number>(0);
   const [topupProcessing, setTopupProcessing] = useState(false);
-
+  const { data: skusData } = useMany<StockKeepingUnitDto>({
+    resource: "skus",
+    ids: cartItems.map((item) => item.skuId),
+    queryOptions: {
+      enabled: cartItems.length > 0,
+    },
+  });
+  const skus = skusData?.data || [];
   // Form instance
   const [form] = useForm();
 
@@ -126,7 +136,7 @@ const CheckoutPage: React.FC = () => {
       {
         field: "state",
         operator: "eq",
-        value: "AVAIABLE",
+        value: "AVAILABLE",
       },
     ],
   });
@@ -167,10 +177,10 @@ const CheckoutPage: React.FC = () => {
 
     // Calculate voucher discount
     let voucherDiscount = 0;
-    if (selectedVoucherId && selectedVoucherDiscount) {
+    if (selectedVoucher) {
       voucherDiscount = Math.min(
-        subtotal * (selectedVoucherDiscount / 100),
-        subtotal
+        subtotal * (selectedVoucher?.discountRate || 0),
+        selectedVoucher?.limitAmount || 0
       );
     }
 
@@ -223,12 +233,12 @@ const CheckoutPage: React.FC = () => {
   // Handle voucher selection
   const handleSelectVoucher = (voucher: VoucherDto) => {
     if (voucher.voucherId && voucher.code && voucher.discountRate) {
-      setSelectedVoucherId(voucher.voucherId);
-      setSelectedVoucherCode(voucher.code);
-      setSelectedVoucherDiscount(voucher.discountRate);
+      setSelectedVoucher(voucher);
       notification.success({
         message: "Voucher Applied",
-        description: `Voucher "${voucher.code}" applied with ${voucher.discountRate}% discount`,
+        description: `Voucher "${voucher.code}" applied with ${Math.round(
+          voucher.discountRate * 100
+        )}% discount`,
       });
       setVoucherModalVisible(false);
     }
@@ -236,9 +246,7 @@ const CheckoutPage: React.FC = () => {
 
   // Handle removing voucher
   const handleRemoveVoucher = () => {
-    setSelectedVoucherId(null);
-    setSelectedVoucherCode("");
-    setSelectedVoucherDiscount(0);
+    setSelectedVoucher(null);
     notification.info({
       message: "Voucher Removed",
     });
@@ -312,6 +320,15 @@ const CheckoutPage: React.FC = () => {
 
     setOrderProcessing(true);
 
+    const { data: skusData } = useMany<StockKeepingUnitDto>({
+      resource: "skus",
+      ids: activeCartItems.map((item) => item.skuId),
+      queryOptions: {
+        enabled: activeCartItems.length > 0,
+      },
+    });
+    const skus = skusData?.data || [];
+
     try {
       // Create order payload according to the generated CartDto format
       const orderItems: CartItemDto[] = activeCartItems.map((item) => ({
@@ -323,7 +340,7 @@ const CheckoutPage: React.FC = () => {
       const cartPayload: CartDto = {
         items: orderItems,
         shippingInfoId: selectedAddressId,
-        voucherId: selectedVoucherId || undefined,
+        voucherId: selectedVoucher?.voucherId || undefined,
         paymentMethod: paymentMethod as any, // Type casting since enum is expected
       };
 
@@ -425,7 +442,8 @@ const CheckoutPage: React.FC = () => {
                     avatar={
                       <img
                         src={
-                          item.skuImageUrl ||
+                          skus?.find((sku) => sku.skuId === item.skuId)?.image
+                            ?.imageUrl ||
                           item.imageUrl ||
                           "https://placehold.co/60"
                         }
@@ -437,9 +455,14 @@ const CheckoutPage: React.FC = () => {
                     title={
                       <div>
                         <div>{item.name}</div>
-                        {item.skuName && (
+                        {skus?.find((sku) => sku.skuId === item.skuId)
+                          ?.name && (
                           <div className="text-xs text-gray-500">
-                            Variant: {item.skuName}
+                            Variant:{" "}
+                            {
+                              skus?.find((sku) => sku.skuId === item.skuId)
+                                ?.name
+                            }
                           </div>
                         )}
                       </div>
@@ -475,18 +498,18 @@ const CheckoutPage: React.FC = () => {
 
           {/* Voucher Section */}
           <Card title="Voucher" className="mb-4">
-            {selectedVoucherId ? (
+            {selectedVoucher ? (
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center">
                     <Tag color="green" className="mr-2">
                       <CheckOutlined /> Applied
                     </Tag>
-                    <Text strong>{selectedVoucherCode}</Text>
+                    <Text strong>{selectedVoucher.code}</Text>
                   </div>
                   <Text type="success">
-                    {selectedVoucherDiscount}% discount saved $
-                    {summary.voucherDiscount.toFixed(2)}
+                    {Math.round((selectedVoucher.discountRate || 0) * 100)}%
+                    discount ${summary.voucherDiscount.toFixed(2)}
                   </Text>
                 </div>
                 <Button danger onClick={handleRemoveVoucher}>
@@ -770,15 +793,15 @@ const CheckoutPage: React.FC = () => {
               // Calculate potential discount
               const discountAmount = voucher.discountRate
                 ? Math.min(
-                    summary.subtotal * (voucher.discountRate / 100),
-                    voucher.limitAmount || summary.subtotal
+                    summary.subtotal * voucher.discountRate,
+                    voucher.limitAmount || 0
                   )
                 : 0;
 
               return (
                 <List.Item
                   className={`cursor-pointer rounded-lg transition-all hover:bg-gray-50 ${
-                    selectedVoucherId === voucher.voucherId
+                    selectedVoucher?.voucherId === voucher.voucherId
                       ? "bg-green-50 border-green-200"
                       : ""
                   }`}
@@ -808,9 +831,11 @@ const CheckoutPage: React.FC = () => {
                             {voucher.code}
                           </Title>
                           <Text type="secondary">
-                            {voucher.description ||
-                              `${voucher.discountRate}% discount up to $${
-                                voucher.limitAmount?.toFixed(2) || "unlimited"
+                            {voucher?.discountRate &&
+                              `${Math.round(
+                                voucher?.discountRate * 100
+                              )}% discount up to $${
+                                voucher?.limitAmount?.toFixed(2) || "unlimited"
                               }`}
                           </Text>
                         </div>
@@ -824,11 +849,11 @@ const CheckoutPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {voucher.expiresAt && (
+                      {voucher.expiredAt && (
                         <div className="mt-2">
                           <Text type="secondary">
                             Expires:{" "}
-                            {new Date(voucher.expiresAt).toLocaleDateString()}
+                            {new Date(voucher.expiredAt).toLocaleDateString()}
                           </Text>
                         </div>
                       )}

@@ -31,7 +31,7 @@ export const generateFilterQuery = (filters: LogicalFilter[]): string => {
   let search = "";
 
   for (const filter of filters) {
-    if(filter.field === "search"){
+    if (filter.field === "search") {
       search = filter.value;
       continue;
     }
@@ -41,14 +41,24 @@ export const generateFilterQuery = (filters: LogicalFilter[]): string => {
   }
 
   if (multiFilters.length == 0) {
-    return  "search=" + encodeURIComponent(search);
+    return "search=" + encodeURIComponent(search);
   }
 
   if (multiFilters.length == 1) {
-    return "filter=" + encodeURIComponent(multiFilters[0] + "&search=" + encodeURIComponent(search));
+    return (
+      "filter=" +
+      encodeURIComponent(
+        multiFilters[0] +
+          `${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`
+      )
+    );
   }
 
-  return "filter=" + encodeURIComponent(JSON.stringify(multiFilters)) + "&search=" + encodeURIComponent(search);
+  return (
+    "filter=" +
+    encodeURIComponent(JSON.stringify(multiFilters)) +
+    `${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`
+  );
 };
 
 function generateFilterField(filter: LogicalFilter): string {

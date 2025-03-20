@@ -76,12 +76,10 @@ public class VoucherController implements VouchersApi {
                                                               String search
     ) {
         log.info("Getting vouchers");
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
                                .pageable(OpenApiHelper.toPageable(pageable))
                                .search(search)
-                               .filter(filter)
-                               .includeInvisible(includeInvisible);
+                               .filter(filter);
 
         // Customers can only sview their own vouchers
         if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {

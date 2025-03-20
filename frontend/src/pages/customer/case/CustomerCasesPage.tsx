@@ -1,29 +1,29 @@
 import { useList } from "@refinedev/core";
 import { SetDto } from "../../../../generated";
 import { useState } from "react";
-import { 
-  Card, 
-  Typography, 
-  Spin, 
-  Tag, 
-  Divider, 
-  Row, 
-  Col, 
-  Empty, 
+import {
+  Card,
+  Typography,
+  Spin,
+  Tag,
+  Divider,
+  Row,
+  Col,
+  Empty,
   Select,
   Input,
   Space,
   Button,
-  Tooltip
+  Tooltip,
 } from "antd";
 import { useNavigate } from "react-router";
-import { 
-  SortAscendingOutlined, 
+import {
+  SortAscendingOutlined,
   SortDescendingOutlined,
   SearchOutlined,
   FilterOutlined,
-  ReloadOutlined
-} from '@ant-design/icons';
+  ReloadOutlined,
+} from "@ant-design/icons";
 
 const { Title, Paragraph, Text } = Typography;
 const { Meta } = Card;
@@ -32,12 +32,12 @@ const { Search } = Input;
 
 // Define sort options
 const SORT_OPTIONS = [
-  { label: 'Name (A-Z)', value: 'name:asc' },
-  { label: 'Name (Z-A)', value: 'name:desc' },
-  { label: 'Price (Low to High)', value: 'price:asc' },
-  { label: 'Price (High to Low)', value: 'price:desc' },
-  { label: 'Newest First', value: 'createdAt:desc' },
-  { label: 'Oldest First', value: 'createdAt:asc' },
+  { label: "Name (A-Z)", value: "name:asc" },
+  { label: "Name (Z-A)", value: "name:desc" },
+  { label: "Price (Low to High)", value: "price:asc" },
+  { label: "Price (High to Low)", value: "price:desc" },
+  { label: "Newest First", value: "createdAt:desc" },
+  { label: "Oldest First", value: "createdAt:asc" },
 ];
 
 const CustomerCasesPage = () => {
@@ -48,17 +48,21 @@ const CustomerCasesPage = () => {
   const navigate = useNavigate();
 
   // Parse sort option
-  const [sortField, sortOrder] = sortBy.split(':');
+  const [sortField, sortOrder] = sortBy.split(":");
 
-  const { data: sets, isLoading, refetch } = useList<SetDto>({
+  const {
+    data: sets,
+    isLoading,
+    refetch,
+  } = useList<SetDto>({
     resource: "sets",
     config: {
       pagination: {
         pageSize: 12,
-        current: currentPage
+        current: currentPage,
       },
-     
-    }
+    },
+    liveMode: "auto",
   });
 
   // Extract unique categories for filtering
@@ -101,7 +105,7 @@ const CustomerCasesPage = () => {
         <Title level={2} className="font-bold m-0">
           Browse Our Collections
         </Title>
-        <Button 
+        <Button
           icon={<ReloadOutlined />}
           onClick={handleReset}
           title="Reset all filters"
@@ -130,9 +134,15 @@ const CustomerCasesPage = () => {
               onChange={handleSortChange}
               className="w-full md:w-64"
               placeholder="Sort by..."
-              suffixIcon={sortOrder === 'asc' ? <SortAscendingOutlined /> : <SortDescendingOutlined />}
+              suffixIcon={
+                sortOrder === "asc" ? (
+                  <SortAscendingOutlined />
+                ) : (
+                  <SortDescendingOutlined />
+                )
+              }
             >
-              {SORT_OPTIONS.map(option => (
+              {SORT_OPTIONS.map((option) => (
                 <Option key={option.value} value={option.value}>
                   {option.label}
                 </Option>
@@ -176,7 +186,9 @@ const CustomerCasesPage = () => {
           description={
             <div>
               <p>No sets found.</p>
-              <Button type="primary" onClick={handleReset}>Clear Filters</Button>
+              <Button type="primary" onClick={handleReset}>
+                Clear Filters
+              </Button>
             </div>
           }
           className="py-12"
@@ -191,13 +203,18 @@ const CustomerCasesPage = () => {
                   <div className="relative">
                     <img
                       alt={set.sku?.name}
-                      src={set.sku?.image?.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
+                      src={
+                        set.sku?.image?.imageUrl ||
+                        "https://via.placeholder.com/300x200?text=No+Image"
+                      }
                       className="h-48 w-full object-cover"
                     />
                     {/* Status Badge */}
                     {set.sku?.status && (
-                      <Tag 
-                        color={set.sku.status === 'AVAILABLE' ? 'success' : 'error'}
+                      <Tag
+                        color={
+                          set.sku.status === "AVAILABLE" ? "success" : "error"
+                        }
                         className="absolute top-2 right-2"
                       >
                         {set.sku.status}
@@ -223,7 +240,7 @@ const CustomerCasesPage = () => {
                         {set.sku?.specCount || 0} specs
                       </Text>
                     </div>
-                  </Tooltip>
+                  </Tooltip>,
                 ]}
               >
                 <Meta
@@ -248,7 +265,10 @@ const CustomerCasesPage = () => {
                         {/* Brand Info */}
                         {set.blindBox?.brand && (
                           <div className="flex items-center gap-2">
-                            <Tag color="blue" className="truncate max-w-[120px]">
+                            <Tag
+                              color="blue"
+                              className="truncate max-w-[120px]"
+                            >
                               {set.blindBox.brand.name}
                             </Tag>
                             {set.blindBox.brand.country && (
@@ -258,13 +278,15 @@ const CustomerCasesPage = () => {
                             )}
                           </div>
                         )}
-                        
+
                         {/* SKU Metadata */}
                         <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
                           {set.sku?.code && (
                             <Tooltip title="SKU Code">
                               <div className="truncate">
-                                <Text type="secondary">Code: {set.sku.code}</Text>
+                                <Text type="secondary">
+                                  Code: {set.sku.code}
+                                </Text>
                               </div>
                             </Tooltip>
                           )}
@@ -282,20 +304,23 @@ const CustomerCasesPage = () => {
                           ellipsis={{ rows: 2 }}
                           className="text-gray-500 text-sm"
                         >
-                          {set.sku?.description || `Contains ${set.sku?.specCount || 0} specifications`}
+                          {set.sku?.description ||
+                            `Contains ${
+                              set.sku?.specCount || 0
+                            } specifications`}
                         </Paragraph>
-
-                        
                       </div>
 
                       {/* Availability Status */}
                       <div className="flex justify-between items-center mt-2">
                         <div className="flex items-center gap-1">
-                          <div className={`w-2 h-2 rounded-full ${
-                            set.sku?.stock > 0 ? 'bg-green-500' : 'bg-red-500'
-                          }`} />
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              set.sku?.stock > 0 ? "bg-green-500" : "bg-red-500"
+                            }`}
+                          />
                           <Text type="secondary" className="text-xs">
-                            {set.sku?.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                            {set.sku?.stock > 0 ? "In Stock" : "Out of Stock"}
                           </Text>
                         </div>
                         {set.sku?.stock && (
