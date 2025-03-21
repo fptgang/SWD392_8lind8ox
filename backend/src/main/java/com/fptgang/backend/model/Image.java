@@ -1,10 +1,7 @@
 package com.fptgang.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -22,18 +19,26 @@ public class Image {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uploader_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Account uploader;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blind_box_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private BlindBox blindBox;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "toy_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Toy toy;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sku_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private StockKeepingUnit sku;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")

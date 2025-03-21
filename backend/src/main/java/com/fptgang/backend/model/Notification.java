@@ -31,7 +31,8 @@ public class Notification {
     private String message;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean isRead;
+    @Builder.Default
+    private Boolean isRead = false;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
