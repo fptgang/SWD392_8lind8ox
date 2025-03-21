@@ -55,7 +55,7 @@ public class Account {
     private Role role;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean isVerified;
+    private Boolean isVerified;
 
     @Nullable
     private LocalDateTime verifiedAt;

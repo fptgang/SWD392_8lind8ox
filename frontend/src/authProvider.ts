@@ -10,7 +10,7 @@ import api from "./config/openapi-config";
 import {store} from "./store";
 import {clearAuth, setAccessToken, setAuthenticatedAccount} from "./store/auth";
 
-export const REFRESH_TOKEN_KEY = "refine-refresh-token";
+export const REFRESH_TOKEN_KEY = "refine-refresh-token-swd";
 
 export const authProvider: AuthProvider = {
   login: async ({ username, email, password, googleToken }) => {

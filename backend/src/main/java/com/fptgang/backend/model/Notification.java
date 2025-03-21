@@ -31,7 +31,7 @@ public class Notification {
     private String message;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean isRead;
+    private Boolean isRead;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

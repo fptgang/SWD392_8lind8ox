@@ -1,12 +1,78 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useOne, useUpdate } from '@refinedev/core';
-import { Card, Col, Row, Typography, Space, Button, Form, Input, Avatar, message } from 'antd';
-import { UserOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
+import { Card, Col, Row, Typography, Space, Button, Form, Input, message, Upload, Modal } from 'antd';
+import {
+  EditOutlined,
+  SaveOutlined,
+  PlusOutlined
+} from '@ant-design/icons';
 import { AccountDto } from '../../../../generated';
+import type { RcFile, UploadProps } from "antd/es/upload";
+import type { UploadFile } from "antd/es/upload/interface";
+import ImgCrop from "antd-img-crop";
+import {useNotification} from "@refinedev/core";
+import {store} from "../../../store";
+import {API_URL} from "../../../utils/constants";
+
+const apiUrl = API_URL;
 
 const { Title, Text } = Typography;
 
 const CustomerProfile: React.FC = () => {
+  const user = store.getState().auth.account;
+  const token = store.getState().auth.accessToken;
+  const { open } = useNotification();
+
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  // Initialize fileList when component mounts and user is available
+  React.useEffect(() => {
+    if (user?.avatarUrl) {
+      setFileList([{
+        uid: '-1',
+        name: 'avatar',
+        status: 'done',
+        url: user.avatarUrl,
+      }]);
+    }
+  }, [user?.avatarUrl]);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+
+  const getBase64 = (file: RcFile): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
+    }
+
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+    setPreviewTitle(
+      file.name || file.url!.substring(file.url!.lastIndexOf("/") + 1)
+    );
+  };
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    console.log(newFileList);
+    setFileList(newFileList);
+  };
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -50,15 +116,33 @@ const CustomerProfile: React.FC = () => {
         </Text>
       </div>
 
+      <Modal
+        open={previewOpen}
+        title={previewTitle}
+        footer={null}
+        onCancel={() => setPreviewOpen(false)}
+      >
+        <img alt="Preview" style={{ width: "100%" }} src={previewImage} />
+      </Modal>
+
       <Row gutter={[24, 24]}>
         <Col xs={24} md={8}>
           <Card>
             <div className="text-center">
-              <Avatar
-                size={120}
-                icon={<UserOutlined />}
-                className="mb-4"
-              />
+              <ImgCrop rotationSlider aspectSlider showReset>
+                <Upload
+                  action={apiUrl + "/accounts/" + user?.accountId + "/upload-avatar"}
+                  method="post"
+                  name="blob"
+                  headers={{ Authorization: `Bearer ${token}` }}
+                  listType="picture-circle"
+                  fileList={fileList}
+                  onPreview={handlePreview}
+                  onChange={handleChange}
+                >
+                  {fileList.length >= 1 ? null : uploadButton}
+                </Upload>
+              </ImgCrop>
               <Title level={4}>
                 {data?.data?.firstName} {data?.data?.lastName}
               </Title>

@@ -20,6 +20,7 @@
     "@uiw/react-md-editor": "^3.19.5",
     "antd": "^5.17.0",
     "antd-style": "^3.7.1",
+    "antd-img-crop": "^4.24.0",
     "axios": "^1.6.2",
     "buffer": "^6.0.3",
     "canvas-confetti": "^1.9.3",
