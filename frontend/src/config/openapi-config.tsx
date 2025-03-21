@@ -1,14 +1,19 @@
+
 import { API_URL } from "../utils/constants";
 import {
   Configuration,
   DefaultApi,
   Middleware,
   ResponseContext,
-  RequestContext, JwtResponseDto,
+  RequestContext,
+  JwtResponseDto,
+  AuthResponseDtoFromJSON,
+  ErrorResponseFromJSON,
 } from "../../generated";
 import {store} from "../store";
 import {clearAuth, setAccessToken} from "../store/auth";
 import {REFRESH_TOKEN_KEY} from "../authProvider";
+import * as runtime from "../../generated/runtime";
 
 class TokenRefreshMiddleware implements Middleware {
   private refreshInProgress: Promise<string | undefined> | null = null;
@@ -22,6 +27,7 @@ class TokenRefreshMiddleware implements Middleware {
 
       try {
         const newAccessToken = await this.refreshInProgress;
+        console.log('newAccessToken ', newAccessToken)
         const newHeaders = new Headers(context.init.headers);
         newHeaders.set('Authorization', `Bearer ${newAccessToken}`);
 
@@ -32,13 +38,19 @@ class TokenRefreshMiddleware implements Middleware {
 
         return fetch(context.url, retriedInit);
       } catch (refreshError) {
+        console.error(refreshError);
         localStorage.removeItem(REFRESH_TOKEN_KEY);
         store.dispatch(clearAuth());
-        //  window.location.href = '/login';
         throw refreshError;
       } finally {
         this.refreshInProgress = null;
       }
+    }
+
+    if (context.response.status < 200 || context.response.status >= 300) {
+      const dto = await (new runtime.JSONApiResponse(context.response,
+        (jsonValue) => ErrorResponseFromJSON(jsonValue))).value();
+      throw new Error(dto.error);
     }
 
     return context.response;
@@ -48,6 +60,7 @@ class TokenRefreshMiddleware implements Middleware {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
 
     if (!refreshToken) {
+      window.location.href = '/login';
       throw new Error('No refresh token available');
     }
 

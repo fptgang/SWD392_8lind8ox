@@ -3,18 +3,15 @@ package com.fptgang.backend.service.impl;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.fptgang.backend.service.AzureBlobService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 
@@ -34,10 +31,9 @@ public class AzureBlobServiceImpl implements AzureBlobService {
 
 
     public String upload(MultipartFile file) throws IOException {
-        String blobName = file.getOriginalFilename(); // Lấy tên file từ MultipartFile
-        if (blobName == null || blobName.isEmpty()) {
-            throw new IllegalArgumentException("File name cannot be empty");
-        }
+        String blobName = UUID.randomUUID() + "/" + file.getOriginalFilename();
+        log.info("Cooking file '{}' blob name '{}' container name '{}'",
+                file.getOriginalFilename(), blobName, containerName);
 
         BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
         BlobClient blobClient = containerClient.getBlobClient(blobName);
@@ -46,7 +42,9 @@ public class AzureBlobServiceImpl implements AzureBlobService {
             blobClient.upload(dataStream, file.getSize(), true);
         }
 
-        return blobClient.getBlobUrl();
+        var url = blobClient.getBlobUrl();
+        log.info("File cooked URL {}", url);
+        return url;
     }
 
 }
