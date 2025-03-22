@@ -74,6 +74,8 @@ paths:
     $ref: "path/account.yml"
   /accounts/{accountId}:
     $ref: "path/account-accountId.yml"
+  /accounts/{accountId}/upload-avatar:
+    $ref: "path/account-accountId-upload-avatar.yml"
   /blind-boxes:
     $ref: "path/blindbox.yml"
   /blind-boxes/{blindBoxId}:

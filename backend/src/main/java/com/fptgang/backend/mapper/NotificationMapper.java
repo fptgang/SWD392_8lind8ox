@@ -26,7 +26,7 @@ public class NotificationMapper extends BaseMapper<NotificationDto, Notification
         entity.setMessage(dto.getMessage());
         entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
         entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
-        entity.setRead(dto.getIsRead());
+        entity.setIsRead(dto.getIsRead());
         return entity;
     }
 
@@ -41,7 +41,7 @@ public class NotificationMapper extends BaseMapper<NotificationDto, Notification
         dto.setMessage(entity.getMessage());
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
-        dto.setIsRead(entity.isRead());
+        dto.setIsRead(entity.getIsRead());
         dto.setAccountId(entity.getAccount() != null ? entity.getAccount().getAccountId() : null);
         return dto;
     }

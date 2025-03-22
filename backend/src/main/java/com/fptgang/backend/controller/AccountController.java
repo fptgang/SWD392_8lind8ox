@@ -8,6 +8,7 @@ import com.fptgang.backend.mapper.AccountMapper;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.AccountService;
+import com.fptgang.backend.service.AzureBlobService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
@@ -18,6 +19,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -25,10 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController implements AccountsApi {
     private final AccountService accountService;
     private final AccountMapper accountMapper;
+    private final AzureBlobService azureBlobService;
 
-    public AccountController(AccountService accountService, AccountMapper accountMapper) {
+    public AccountController(AccountService accountService,
+                             AccountMapper accountMapper,
+                             AzureBlobService azureBlobService) {
         this.accountService = accountService;
         this.accountMapper = accountMapper;
+        this.azureBlobService = azureBlobService;
     }
 
     @Override
@@ -113,5 +121,30 @@ public class AccountController implements AccountsApi {
                         DetailLevel.FULL
                 )
         );
+    }
+
+    /**
+     * Can access: Any
+     */
+    @Override
+    public ResponseEntity<AccountDto> updateAccountAvatar(Long accountId, MultipartFile blob) {
+        log.info("Updating account avatar");
+
+        if (!SecurityUtil.hasRole(Account.Role.STAFF))
+            accountId = SecurityUtil.requireCurrentUserId();
+
+        try {
+            String fileUrl = azureBlobService.upload(blob);
+            Account account = accountService.update(
+                    Account.builder()
+                            .accountId(accountId)
+                            .avatarUrl(fileUrl)
+                            .build()
+            );
+            return new ResponseEntity<>(accountMapper.toDTO(account, DetailLevel.FULL), HttpStatus.OK);
+        } catch (IOException e) {
+            log.error("Error updating account avatar", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

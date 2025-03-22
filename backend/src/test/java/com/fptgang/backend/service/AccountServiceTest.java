@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +43,7 @@ class AccountServiceTest {
         account.setPassword("password");
         account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
-        account.setVerified(false);
+        account.setIsVerified(false);
         account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
@@ -57,7 +56,7 @@ class AccountServiceTest {
         account.setPassword("password");
         account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
-        account.setVerified(false);
+        account.setIsVerified(false);
         account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
@@ -133,7 +132,7 @@ class AccountServiceTest {
         account.setPassword("password");
         account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
-        account.setVerified(false);
+        account.setIsVerified(false);
         account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
@@ -185,7 +184,7 @@ class AccountServiceTest {
         account4.setPassword("password");
         account4.setIsVisible(true);
         account4.setBalance(BigDecimal.valueOf(0));
-        account4.setVerified(false);
+        account4.setIsVerified(false);
         account4.setRole(Account.Role.CUSTOMER);
         account4.setFirstName("John");
         account4.setLastName("Doe");

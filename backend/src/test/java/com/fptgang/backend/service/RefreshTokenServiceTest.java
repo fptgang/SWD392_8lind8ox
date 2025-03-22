@@ -61,7 +61,7 @@ public class RefreshTokenServiceTest {
         testAccount.setRole(Account.Role.ADMIN);
         testAccount.setIsVisible(true);
         testAccount.setBalance(BigDecimal.valueOf(0));
-        testAccount.setVerified(false);
+        testAccount.setIsVerified(false);
         testAccount.setFirstName("John");
         testAccount.setLastName("Doe");
         accountService.create(testAccount);
