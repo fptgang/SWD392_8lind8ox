@@ -3,10 +3,7 @@ package com.fptgang.backend.model;
 import com.fptgang.backend.util.Searchable;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -55,7 +52,8 @@ public class Account {
     private Role role;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean isVerified;
+    @Builder.Default
+    private Boolean isVerified = false;
 
     @Nullable
     private LocalDateTime verifiedAt;
@@ -72,6 +70,8 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "default_shipping_info_id", nullable = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @Nullable
     private ShippingInfo defaultShippingInfo;
 

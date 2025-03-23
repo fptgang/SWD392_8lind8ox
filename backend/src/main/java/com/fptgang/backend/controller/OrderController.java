@@ -64,7 +64,7 @@ public class OrderController implements OrdersApi {
         Order order = orderService.findById(orderId);
 
         // Restrict customers to their own orders
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+        if (!SecurityUtil.hasPermission(Account.Role.ADMIN) && !SecurityUtil.hasPermission(Account.Role.STAFF)) {
             String currentEmail = SecurityUtil.requireCurrentUserEmail();
             if (!order.getAccount().getEmail().equalsIgnoreCase(currentEmail)) {
                 throw new AccessDeniedException("You can only view your own orders.");

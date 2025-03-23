@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
-import { Card, Typography, Result, Spin, Space, Button, notification } from "antd";
+import {
+  Card,
+  Typography,
+  Result,
+  Spin,
+  Space,
+  Button,
+  notification,
+} from "antd";
 import { useGetIdentity } from "@refinedev/core";
 import { AccountDto } from "../../../generated";
 import { formatCurrency } from "../../utils/currency-formatter";
-import { 
-  LoadingOutlined, 
-  InfoCircleOutlined, 
-  CheckCircleOutlined, 
-  CloseCircleOutlined, 
+import {
+  LoadingOutlined,
+  InfoCircleOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   WarningOutlined,
-  ExclamationCircleOutlined 
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 
 const { Text, Paragraph, Title } = Typography;
@@ -34,15 +42,20 @@ export const VNPayReturnHandler: React.FC = () => {
   const location = useLocation();
   const { data: me } = useGetIdentity<AccountDto>();
   const [isProcessing, setIsProcessing] = useState(true);
-  const [paymentResponse, setPaymentResponse] = useState<VNPayResponse | null>(null);
+  const [paymentResponse, setPaymentResponse] = useState<VNPayResponse | null>(
+    null
+  );
   const [isValidSignature, setIsValidSignature] = useState<boolean>(true);
 
   // Validate the response from VNPay - This would be implemented on the server side
   // Here we're just simulating it and assuming the signature is valid
-  const validateSignature = (params: Record<string, string>, secureHash: string) => {
+  const validateSignature = (
+    params: Record<string, string>,
+    secureHash: string
+  ) => {
     // In a real implementation, this would perform an actual signature validation
     // against the VNPay secret key on the server
-    
+
     // For demo purposes, we're assuming the signature is valid
     return true;
   };
@@ -50,31 +63,32 @@ export const VNPayReturnHandler: React.FC = () => {
   useEffect(() => {
     // Parse query parameters
     const searchParams = new URLSearchParams(location.search);
-    
+
     const params: Record<string, string> = {};
     for (const [key, value] of searchParams.entries()) {
-      if (key.startsWith('vnp_')) {
+      if (key.startsWith("vnp_")) {
         params[key] = value;
       }
     }
-    
-    const secureHash = params['vnp_SecureHash'] || '';
+
+    const secureHash = params["vnp_SecureHash"] || "";
     // Remove secureHash from params for validation
-    delete params['vnp_SecureHash'];
-    delete params['vnp_SecureHashType'];
-    
+    delete params["vnp_SecureHash"];
+    delete params["vnp_SecureHashType"];
+
     // In a real app, you would validate the signature here
     const signatureValid = validateSignature(params, secureHash);
     setIsValidSignature(signatureValid);
-    
+
     if (!signatureValid) {
       notification.error({
-        message: 'Security Error',
-        description: 'The payment data signature is invalid. This could indicate data tampering.',
+        message: "Security Error",
+        description:
+          "The payment data signature is invalid. This could indicate data tampering.",
         duration: 0,
       });
     }
-    
+
     const response: VNPayResponse = {
       amount: parseInt(searchParams.get("vnp_Amount") || "0") / 100, // Convert amount from smaller units
       bankCode: searchParams.get("vnp_BankCode") || "",
@@ -88,15 +102,15 @@ export const VNPayReturnHandler: React.FC = () => {
       payDate: searchParams.get("vnp_PayDate") || "",
       bankTranNo: searchParams.get("vnp_BankTranNo") || "",
     };
-    
+
     setPaymentResponse(response);
-    
+
     // Simulate a brief delay for user to see the result
     setTimeout(() => {
       setIsProcessing(false);
     }, 1500);
   }, [location.search]);
-  
+
   // Get detailed response message based on VNPay response code
   const getResponseMessage = (code: string) => {
     switch (code) {
@@ -128,7 +142,7 @@ export const VNPayReturnHandler: React.FC = () => {
         return "Transaction failed due to other reasons.";
     }
   };
-  
+
   // Get transaction status message based on VNPay transaction status
   const getTransactionStatusMessage = (status: string) => {
     switch (status) {
@@ -152,23 +166,23 @@ export const VNPayReturnHandler: React.FC = () => {
         return "Unknown status";
     }
   };
-  
+
   // Function to format date from VNPay format (yyyyMMddHHmmss) to human-readable format
   const formatPayDate = (payDate: string | undefined) => {
     if (!payDate || payDate.length !== 14) {
       return "";
     }
-    
+
     const year = payDate.substring(0, 4);
     const month = payDate.substring(4, 6);
     const day = payDate.substring(6, 8);
     const hour = payDate.substring(8, 10);
     const minute = payDate.substring(10, 12);
     const second = payDate.substring(12, 14);
-    
+
     return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
   };
-  
+
   // Function to render appropriate results based on response code
   const renderResult = () => {
     if (!isValidSignature) {
@@ -181,7 +195,7 @@ export const VNPayReturnHandler: React.FC = () => {
         />
       );
     }
-    
+
     if (!paymentResponse) {
       return (
         <Result
@@ -191,12 +205,24 @@ export const VNPayReturnHandler: React.FC = () => {
         />
       );
     }
-    
-    const { responseCode, amount, transactionNo, bankCode, cardType, txnRef, payDate, bankTranNo } = paymentResponse;
-    
+
+    const {
+      responseCode,
+      amount,
+      transactionNo,
+      bankCode,
+      cardType,
+      txnRef,
+      payDate,
+      bankTranNo,
+    } = paymentResponse;
+
     // Add extra transaction details to display
     const transactionDetails = (
-      <div className="transaction-details" style={{ marginTop: 24, textAlign: 'left' }}>
+      <div
+        className="transaction-details"
+        style={{ marginTop: 24, textAlign: "left" }}
+      >
         <Title level={5}>Transaction Details:</Title>
         <Paragraph>
           <Text strong>Order ID: </Text> {txnRef}
@@ -225,7 +251,7 @@ export const VNPayReturnHandler: React.FC = () => {
         )}
       </div>
     );
-    
+
     switch (responseCode) {
       case "00":
         return (
@@ -233,16 +259,18 @@ export const VNPayReturnHandler: React.FC = () => {
             status="success"
             icon={<CheckCircleOutlined />}
             title="Payment Successful"
-            subTitle={`Your payment of ${formatCurrency(amount)} VND has been processed successfully!`}
+            subTitle={`Your payment of ${formatCurrency(
+              amount
+            )} VND has been processed successfully!`}
             extra={[
               <Paragraph key="info">
                 The funds have been added to your wallet balance.
               </Paragraph>,
-              transactionDetails
+              transactionDetails,
             ]}
           />
         );
-        
+
       case "24":
         return (
           <Result
@@ -253,72 +281,80 @@ export const VNPayReturnHandler: React.FC = () => {
               <Paragraph key="info">
                 No charges have been made to your account.
               </Paragraph>,
-              transactionDetails
+              transactionDetails,
             ]}
           />
         );
-        
+
       case "07":
         return (
           <Result
             icon={<WarningOutlined style={{ color: "#faad14" }} />}
             title="Transaction Under Review"
-            subTitle={`Your payment of ${formatCurrency(amount)} VND has been recorded but requires additional verification.`}
+            subTitle={`Your payment of ${formatCurrency(
+              amount
+            )} VND has been recorded but requires additional verification.`}
             extra={[
               <Paragraph key="info">
-                Your transaction has been received but has been flagged for additional checks. 
-                Your account will be updated once the verification process is complete.
+                Your transaction has been received but has been flagged for
+                additional checks. Your account will be updated once the
+                verification process is complete.
               </Paragraph>,
               <Paragraph key="warning" type="warning">
-                Response code: {responseCode} - {getResponseMessage(responseCode)}
+                Response code: {responseCode} -{" "}
+                {getResponseMessage(responseCode)}
               </Paragraph>,
-              transactionDetails
+              transactionDetails,
             ]}
           />
         );
-        
+
       default:
         return (
           <Result
             status="error"
             title="Payment Failed"
-            subTitle={`There was an issue processing your payment of ${formatCurrency(amount)} VND.`}
+            subTitle={`There was an issue processing your payment of ${formatCurrency(
+              amount
+            )} VND.`}
             extra={[
               <Paragraph key="code" type="danger">
                 Error Code: {responseCode} - {getResponseMessage(responseCode)}
               </Paragraph>,
               <Paragraph key="transaction" type="warning">
-                Transaction Status: {paymentResponse.transactionStatus} - {getTransactionStatusMessage(paymentResponse.transactionStatus)}
+                Transaction Status: {paymentResponse.transactionStatus} -{" "}
+                {getTransactionStatusMessage(paymentResponse.transactionStatus)}
               </Paragraph>,
               <Paragraph key="info">
-                Please try again or contact customer support if the issue persists.
+                Please try again or contact customer support if the issue
+                persists.
               </Paragraph>,
-              transactionDetails
+              transactionDetails,
             ]}
           />
         );
     }
   };
-  
+
   // Auto-redirect to wallet after 10 seconds
   useEffect(() => {
     if (!isProcessing) {
       const timer = setTimeout(() => {
         navigate("/account/wallet");
       }, 10000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isProcessing, navigate]);
-  
+
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 16px" }}>
       <Card>
         {isProcessing ? (
           <div style={{ textAlign: "center", padding: "40px 0" }}>
-            <Spin 
-              indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} 
-              tip="Processing your payment..." 
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />}
+              tip="Processing your payment..."
               size="large"
             />
           </div>
@@ -327,15 +363,18 @@ export const VNPayReturnHandler: React.FC = () => {
             {renderResult()}
             <div style={{ textAlign: "center", marginTop: 24 }}>
               <Space>
-                <Button type="primary" onClick={() => navigate("/account/wallet")}>
+                <Button
+                  type="primary"
+                  onClick={() => navigate("/account/wallet")}
+                >
                   Return to Wallet
                 </Button>
-                <Button onClick={() => navigate("/")}>
-                  Go to Homepage
-                </Button>
+                <Button onClick={() => navigate("/")}>Go to Homepage</Button>
               </Space>
               <Paragraph style={{ marginTop: 16 }}>
-                <Text type="secondary">You'll be automatically redirected in 10 seconds...</Text>
+                <Text type="secondary">
+                  You'll be automatically redirected in 10 seconds...
+                </Text>
               </Paragraph>
             </div>
           </>

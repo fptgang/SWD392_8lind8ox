@@ -32,7 +32,7 @@ public class Video {
     @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     private String url;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     @Searchable
     private String description;
 

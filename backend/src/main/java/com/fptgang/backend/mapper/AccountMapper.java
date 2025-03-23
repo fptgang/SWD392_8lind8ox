@@ -65,7 +65,7 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
         //dto.setPassword(entity.getPassword()); // DO NOT RETURN PASSWORD
         dto.setUpdateBalanceAt(DateTimeUtil.fromLocalToOffset(entity.getUpdateBalanceAt()));
         dto.setRole(mapRoleAccountDto(entity.getRole()));
-        dto.setIsVerified(entity.isVerified());
+        dto.setIsVerified(entity.getIsVerified());
         dto.setVerifiedAt(DateTimeUtil.fromLocalToOffset(entity.getVerifiedAt()));
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));

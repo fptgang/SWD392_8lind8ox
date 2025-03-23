@@ -101,7 +101,8 @@ public class OrderServiceImpl implements OrderService {
                 BigDecimal discount = subTotal.multiply(campaign.getDiscountRate());
                 finalTotal = finalTotal.subtract(discount);
             }
-
+            assert slot != null;
+            slot.setState(Slot.State.RESERVED);
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setSlot(slot);
             orderDetail.setQuantity(item.getQuantity());
@@ -110,6 +111,8 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setUnitPrice(sku.getPrice());
             orderDetail.setSubTotal(subTotal);
             orderDetail.setFinalTotal(finalTotal);
+            assert slot != null;
+            slot.getOrderDetails().add(orderDetail);
             orderDetails.add(orderDetail);
 
             log.info("OrderDetail SkuId={}, SlotId={}, Quantity={}, OriginalPrice={}, CheckoutPrice={}",

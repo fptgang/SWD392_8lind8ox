@@ -1,5 +1,15 @@
 import { IResourceItem, useTranslate } from "@refinedev/core";
-import { UserOutlined, ShopOutlined, GiftOutlined, ShoppingCartOutlined, RobotOutlined, TagsOutlined, InboxOutlined, AppstoreOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  ShopOutlined,
+  GiftOutlined,
+  ShoppingCartOutlined,
+  RobotOutlined,
+  TagsOutlined,
+  InboxOutlined,
+  AppstoreOutlined,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
 
 export const getResources = (): IResourceItem[] => {
   return [
@@ -22,7 +32,7 @@ export const getResources = (): IResourceItem[] => {
         label: "Accounts",
         canDelete: true,
         icon: <UserOutlined />,
-        parent: "user-management"
+        parent: "user-management",
       },
     },
     {
@@ -34,7 +44,7 @@ export const getResources = (): IResourceItem[] => {
       meta: {
         label: "Brands",
         icon: <ShopOutlined />,
-        parent: "catalog"
+        parent: "catalog",
       },
     },
     {
@@ -46,7 +56,7 @@ export const getResources = (): IResourceItem[] => {
       meta: {
         label: "Orders",
         icon: <ShoppingCartOutlined />,
-        parent: "sales"
+        parent: "sales",
       },
     },
     {
@@ -58,7 +68,17 @@ export const getResources = (): IResourceItem[] => {
       meta: {
         label: "Promotions",
         icon: <TagsOutlined />,
-        parent: "marketing"
+        parent: "marketing",
+      },
+    },
+    {
+      name: "videos",
+      list: "/admin/videos",
+      show: "/admin/videos/show/:id",
+      meta: {
+        label: "Videos",
+        icon: <PlayCircleOutlined />,
+        parent: "sales",
       },
     },
     {
@@ -70,7 +90,7 @@ export const getResources = (): IResourceItem[] => {
       meta: {
         label: "Blind Boxes",
         icon: <InboxOutlined />,
-        parent: "catalog"
+        parent: "catalog",
       },
     },
     {
@@ -96,11 +116,13 @@ export const useResourceItems = (): IResourceItem[] => {
   const t = useTranslate();
   const resources = getResources();
 
-  return resources.map(resource => ({
+  return resources.map((resource) => ({
     ...resource,
     meta: {
       ...resource.meta,
-      label: resource.meta?.label ? t(`resources.${resource.name}.label`) : resource.name
-    }
+      label: resource.meta?.label
+        ? t(`resources.${resource.name}.label`)
+        : resource.name,
+    },
   }));
 };

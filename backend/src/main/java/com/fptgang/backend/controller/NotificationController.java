@@ -1,7 +1,9 @@
 package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.NotificationsApi;
-import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.api.model.GetNotifications200Response;
+import com.fptgang.backend.api.model.NotificationDto;
+import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.NotificationMapper;
 import com.fptgang.backend.model.Account;
@@ -14,13 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
-
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -51,16 +49,14 @@ public class NotificationController implements NotificationsApi {
     @Override
     public ResponseEntity<GetNotifications200Response> getNotifications(Pageable pageable, String filter, String search) {
         log.info("Getting notifications");
-        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)
-                .filter(filter)
-                .includeInvisible(includeInvisible);
+                .filter(filter);
 
         // Staff and Customers can only view their own notifications
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
+            params.setFilter("account.accountId", "eq", SecurityUtil.requireCurrentUserId());
         }
 
         var res = notificationService.getAll(params.build())
@@ -72,7 +68,7 @@ public class NotificationController implements NotificationsApi {
     public ResponseEntity<NotificationDto> updateNotification(Long notificationId, NotificationDto notificationDto) {
         notificationDto.setNotificationId(notificationId); // Override notificationId
         if(notificationDto.getAccountId() == null) {
-            notificationDto.setAccountId(SecurityUtil.getCurrentUserId()); // Override accountId
+            notificationDto.setAccountId(SecurityUtil.requireCurrentUserId()); // Override accountId
         }
         log.info("Updating notification " + notificationId);
         return ResponseEntity.ok(

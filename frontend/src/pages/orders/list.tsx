@@ -18,21 +18,28 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { AccountDto, OrderDto } from "../../../generated";
+import { AccountDto, OrderDto, OrderStatus } from "../../../generated";
 
 const { Text } = Typography;
 
 const STATUS_COLOR_MAP: Record<
-  string,
+  OrderStatus,
   "success" | "warning" | "error" | "default" | "processing"
 > = {
+  CREATED: "default",
+  PREPARING: "processing",
   COMPLETED: "success",
-  PENDING: "warning",
+  PAYMENT_EXPIRED: "error",
+  PAYMENT_FAILED: "error",
   CANCELED: "error",
+  READY_FOR_PICKUP: "processing",
+  SHIPPING: "processing",
+  DELIVERED: "processing",
+  RECEIVED: "processing",
 };
 
 export const OrdersList: React.FC = () => {
-  const { tableProps, searchFormProps,setFilters } = useTable<OrderDto>({
+  const { tableProps, searchFormProps, setFilters } = useTable<OrderDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -53,18 +60,6 @@ export const OrdersList: React.FC = () => {
     },
   });
 
-  const { data: accountData, isLoading: accountIsLoading } =
-    useMany<AccountDto>({
-      resource: "accounts",
-      ids:
-        tableProps?.dataSource
-          ?.map((item) => item?.accountId)
-          .filter((id): id is number => id !== undefined) ?? [],
-      queryOptions: {
-        enabled: !!tableProps?.dataSource,
-      },
-    });
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -76,7 +71,7 @@ export const OrdersList: React.FC = () => {
     return (
       <Badge
         status={STATUS_COLOR_MAP[status] || "default"}
-        text={status.charAt(0) + status.slice(1).toLowerCase()}
+        text={status?.charAt(0) + status?.slice(1).toLowerCase()}
       />
     );
   };
@@ -90,12 +85,14 @@ export const OrdersList: React.FC = () => {
           allowClear
           onSearch={(value) => {
             setFilters([
-              ...(tableProps.filters?.filter(filter => filter.field !== "search") || []),
+              ...(tableProps.filters?.filter(
+                (filter) => filter.field !== "search"
+              ) || []),
               {
                 field: "search",
                 operator: "contains",
                 value: value || undefined,
-              }
+              },
             ]);
           }}
         />
@@ -121,7 +118,7 @@ export const OrdersList: React.FC = () => {
         />
 
         <Table.Column
-          dataIndex="accountId"
+          dataIndex="account"
           title={
             <Tooltip title="Ordering account">
               <Space>
@@ -130,29 +127,59 @@ export const OrdersList: React.FC = () => {
               </Space>
             </Tooltip>
           }
-          render={(value: string) => {
-            if (accountIsLoading)
-              return <Text type="secondary">Loading...</Text>;
-            const account = accountData?.data?.find(
-              (item) => item?.accountId === value
-            );
-            return account ? (
+          render={(value: AccountDto) => {
+            return (
               <Text>
-                {account.firstName} {account.lastName}
+                {value.firstName} {value.lastName}
               </Text>
-            ) : (
-              <Text type="secondary">Unknown Account</Text>
             );
           }}
         />
 
         <Table.Column
-          dataIndex="status"
+          dataIndex="latestStatus"
           title="Status"
           filters={[
-            { text: "Completed", value: "COMPLETED" },
-            { text: "Pending", value: "PENDING" },
-            { text: "Canceled", value: "CANCELED" },
+            {
+              text: "Created",
+              value: "CREATED",
+            },
+            {
+              text: "Preparing",
+              value: "PREPARING",
+            },
+            {
+              text: "Payment Failed",
+              value: "PAYMENT_FAILED",
+            },
+            {
+              text: "Payment Expired",
+              value: "PAYMENT_EXPIRED",
+            },
+            {
+              text: "Canceled",
+              value: "CANCELED",
+            },
+            {
+              text: "Ready for Pickup",
+              value: "READY_FOR_PICKUP",
+            },
+            {
+              text: "Shipping",
+              value: "SHIPPING",
+            },
+            {
+              text: "Delivered",
+              value: "DELIVERED",
+            },
+            {
+              text: "Received",
+              value: "RECEIVED",
+            },
+            {
+              text: "Completed",
+              value: "COMPLETED",
+            },
           ]}
           render={(value: keyof typeof STATUS_COLOR_MAP) =>
             getStatusBadge(value)
@@ -161,12 +188,12 @@ export const OrdersList: React.FC = () => {
         />
 
         <Table.Column
-          dataIndex="totalPrice"
+          dataIndex="subTotal"
           title={
-            <Tooltip title="Total order amount">
+            <Tooltip title="Total order amount before applying discounts">
               <Space>
                 <DollarOutlined />
-                <span>Total</span>
+                <span>Sub Total</span>
               </Space>
             </Tooltip>
           }
@@ -177,7 +204,23 @@ export const OrdersList: React.FC = () => {
           )}
           sorter
         />
-
+        <Table.Column
+          dataIndex="finalTotal"
+          title={
+            <Tooltip title="Total order amount after applying discounts">
+              <Space>
+                <DollarOutlined />
+                <span>Final Total</span>
+              </Space>
+            </Tooltip>
+          }
+          render={(value: number) => (
+            <Text strong className="text-green-600">
+              {formatCurrency(value)}
+            </Text>
+          )}
+          sorter
+        />
         <Table.Column
           dataIndex="createdAt"
           title={
@@ -211,33 +254,12 @@ export const OrdersList: React.FC = () => {
           fixed="right"
           render={(_, record: BaseRecord) => (
             <Space size="middle">
-              <Tooltip title="Edit Order">
-                <EditButton
-                  hideText
-                  size="small"
-                  recordItemId={record.orderId}
-                  icon={<EditOutlined className="text-blue-600" />}
-                  className="hover:text-blue-700"
-                />
-              </Tooltip>
               <Tooltip title="View Details">
                 <ShowButton
                   hideText
                   size="small"
                   recordItemId={record.orderId}
                   className="text-green-600 hover:text-green-700"
-                />
-              </Tooltip>
-              <Tooltip title="Delete Order">
-                <DeleteButton
-                  hideText
-                  size="small"
-                  recordItemId={record.orderId}
-                  icon={<DeleteOutlined className="text-red-600" />}
-                  className="hover:text-red-700"
-                  confirmTitle="Delete Order"
-                  confirmOkText="Delete"
-                  confirmCancelText="Cancel"
                 />
               </Tooltip>
             </Space>

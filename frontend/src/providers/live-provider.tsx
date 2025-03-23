@@ -10,7 +10,7 @@ export const liveProvider = (client: Client): LiveProvider => ({
   subscribe: ({ callback, channel, types, params }) => {
     var id = channel;
     const token = store?.getState().auth.accessToken;
-    client.subscribe(
+    client?.subscribe(
       channel,
       (message) => {
         console.log("message", message);
@@ -35,7 +35,7 @@ export const liveProvider = (client: Client): LiveProvider => ({
     });
   },
   unsubscribe: ({ channel, types, params }) => {
-    client.unsubscribe(channel);
+    client?.unsubscribe(channel);
     console.log("unsubscribe", {
       channel,
       types,
@@ -45,7 +45,7 @@ export const liveProvider = (client: Client): LiveProvider => ({
   publish: ({ channel, type, date, payload }) => {
     const token = store?.getState().auth.accessToken;
 
-    client.publish({
+    client?.publish({
       destination: channel,
       body: JSON.stringify(payload),
       headers: {

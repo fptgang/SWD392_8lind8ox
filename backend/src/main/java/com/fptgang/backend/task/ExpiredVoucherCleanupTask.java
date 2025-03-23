@@ -24,8 +24,7 @@ public class ExpiredVoucherCleanupTask {
         int count = 0;
         for (Voucher v : voucherService.getAll(ListParams.builder()
                 .pageable(Pageable.ofSize(20))
-                .setFilter("endDate", "lt", LocalDateTime.now())
-                .includeInvisible(false)
+                .setFilter("expiredAt", "lt", LocalDateTime.now())
                 .build())) {
             v.setState(Voucher.State.EXPIRED);
             voucherService.update(v);

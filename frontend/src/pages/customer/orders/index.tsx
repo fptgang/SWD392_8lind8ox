@@ -1,47 +1,65 @@
-import React from 'react';
-import { useList } from '@refinedev/core';
-import { Card, Col, Row, Typography, Space, Input, Tag, Pagination, Select, DatePicker } from 'antd';
-import { SearchOutlined, ShoppingOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { OrderDto } from '../../../../generated';
-import { formatCurrency } from '../../../utils/currency-formatter';
+import React from "react";
+import { useList } from "@refinedev/core";
+import {
+  Card,
+  Col,
+  Row,
+  Typography,
+  Space,
+  Input,
+  Tag,
+  Pagination,
+  Select,
+  DatePicker,
+} from "antd";
+import {
+  SearchOutlined,
+  ShoppingOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
+import { OrderDto } from "../../../../generated";
+import { formatCurrency } from "../../../utils/currency-formatter";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const CustomerOrders: React.FC = () => {
-  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [status, setStatus] = React.useState<string | null>(null);
-  const [dateRange, setDateRange] = React.useState<[Date | null, Date | null]>([null, null]);
+  const [dateRange, setDateRange] = React.useState<[Date | null, Date | null]>([
+    null,
+    null,
+  ]);
 
   const { data, isLoading } = useList<OrderDto>({
-    resource: 'orders',
+    resource: "orders",
     pagination: {
       current: currentPage,
       pageSize: 10,
     },
     filters: [
       {
-        field: 'status',
-        operator: 'eq',
+        field: "status",
+        operator: "eq",
         value: status,
       },
       {
-        field: 'createdAt',
-        operator: 'gte',
+        field: "createdAt",
+        operator: "gte",
         value: dateRange[0]?.toISOString(),
       },
       {
-        field: 'createdAt',
-        operator: 'lte',
+        field: "createdAt",
+        operator: "lte",
         value: dateRange[1]?.toISOString(),
       },
     ],
     sorters: [
       {
-        field: 'createdAt',
-        order: 'desc',
+        field: "createdAt",
+        order: "desc",
       },
     ],
   });
@@ -67,19 +85,19 @@ const CustomerOrders: React.FC = () => {
 
   const getStatusTag = (status: string) => {
     const statusConfig: Record<string, { color: string; text: string }> = {
-      PENDING: { color: 'gold', text: 'Pending' },
-      COMPLETED: { color: 'green', text: 'Completed' },
-      CANCELED: { color: 'red', text: 'Canceled' },
+      PENDING: { color: "gold", text: "Pending" },
+      COMPLETED: { color: "green", text: "Completed" },
+      CANCELED: { color: "red", text: "Canceled" },
     };
 
-    const config = statusConfig[status] || { color: 'default', text: status };
+    const config = statusConfig[status] || { color: "default", text: status };
     return <Tag color={config.color}>{config.text}</Tag>;
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -106,7 +124,7 @@ const CustomerOrders: React.FC = () => {
           <Col xs={24} md={8}>
             <Select
               placeholder="Filter by Status"
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               allowClear
               onChange={handleStatusChange}
               size="large"
@@ -118,7 +136,7 @@ const CustomerOrders: React.FC = () => {
           </Col>
           <Col xs={24} md={8}>
             <RangePicker
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               size="large"
               onChange={handleDateRangeChange}
             />
@@ -135,7 +153,7 @@ const CustomerOrders: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <ShoppingOutlined className="text-lg" />
                     <Text strong>Order #{order.orderId}</Text>
-                    {getStatusTag(order.status)}
+                    {getStatusTag(order.latestStatus)}
                   </div>
                   <div className="flex items-center space-x-2">
                     <ClockCircleOutlined className="text-gray-400" />

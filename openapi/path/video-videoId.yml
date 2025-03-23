@@ -25,8 +25,8 @@ get:
             $ref: '../component/error.yml#/ErrorResponse'
 
 put:
-  summary: Update an existing video
-  operationId: updateVideo
+  summary: Verified Video
+  operationId: verifiedVideo
   security:
     - bearerAuth: []
   parameters:
@@ -36,13 +36,6 @@ put:
       schema:
         type: integer
         format: int64  # Updated to int64 for consistency with the model
-  requestBody:
-    description: Video to update
-    required: true
-    content:
-      multipart/form-data:
-        schema:
-          $ref: '../model/video-blob.yml#/VideoBlobDto'
   responses:
     '200':
       description: The operation was successful

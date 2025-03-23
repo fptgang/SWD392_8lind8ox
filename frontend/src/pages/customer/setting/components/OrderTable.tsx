@@ -18,7 +18,10 @@ export const OrderTable: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<OrderDto | null>(null);
   const { translate } = useTranslation();
 
-  const { tableProps } = useTable<OrderDto>({
+  const {
+    tableProps,
+    tableQuery: { refetch },
+  } = useTable<OrderDto>({
     resource: "orders",
     syncWithLocation: true,
     sorters: {
@@ -94,6 +97,7 @@ export const OrderTable: React.FC = () => {
       </Table>
 
       <OrderDetailsModal
+        refetch={refetch}
         order={selectedOrder}
         onClose={() => setSelectedOrder(null)}
       />

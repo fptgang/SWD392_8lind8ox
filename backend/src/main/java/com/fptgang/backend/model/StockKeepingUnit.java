@@ -50,6 +50,7 @@ public class StockKeepingUnit {
 
     @OneToMany(mappedBy = "sku", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Set> sets;
 
     @CreationTimestamp
