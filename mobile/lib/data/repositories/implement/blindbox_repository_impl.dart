@@ -17,8 +17,8 @@ class BlindBoxRepositoryImpl implements BlindBoxRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   BlindBoxRepositoryImpl() {
-    if(box.get('loginToken').isNotEmpty) {
-      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
     }
   }
 

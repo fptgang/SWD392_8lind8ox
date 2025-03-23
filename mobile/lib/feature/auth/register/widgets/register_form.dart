@@ -302,7 +302,7 @@ class _RegisterButton extends StatelessWidget {
       child: ElevatedButton(
         key: const Key('registerForm_continue_raisedButton'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: getColorSkin().accentColor,
+          backgroundColor: getColorSkin().primaryRed650,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

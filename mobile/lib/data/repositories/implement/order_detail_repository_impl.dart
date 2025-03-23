@@ -14,8 +14,8 @@ class OrderDetailRepositoryImpl implements OrderDetailRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   OrderDetailRepositoryImpl() {
-    if(box.get('loginToken').isNotEmpty) {
-      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
     }
   }
 

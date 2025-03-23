@@ -165,24 +165,12 @@ class CartItemWidget extends StatelessWidget {
           // Remove button
           Align(
             alignment: Alignment.centerRight,
-            child: TextButton.icon(
+            child: IconButton(
               onPressed: onRemove,
               icon: Icon(
                 Icons.delete_outline,
                 color: getColorSkin().warningRed,
                 size: 18.sp,
-              ),
-              label: Text(
-                'Remove',
-                style: TextStyle(
-                  color: getColorSkin().warningRed,
-                  fontSize: 12.sp,
-                ),
-              ),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
           ),

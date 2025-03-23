@@ -106,8 +106,8 @@ void _showVoucherSelectionDialog({
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (context) {
-      return BlocProvider.value(
-        value: voucherBloc,
+      return BlocProvider(
+        create: (context) => voucherBloc,
         child: DraggableScrollableSheet(
           initialChildSize: 0.7,
           maxChildSize: 0.9,
@@ -169,7 +169,7 @@ void _showVoucherSelectionDialog({
                           style: ElevatedButton.styleFrom(
                             backgroundColor: getColorSkin().primaryRed650,
                           ),
-                          child: const Text('Retry'),
+                          child: Text('Retry', style: TextStyle(color: getColorSkin().white)),
                         ),
                         const SizedBox(height: 16),
                         TextButton(
@@ -246,20 +246,18 @@ void _showVoucherSelectionDialog({
                                   style: TextStyle(color: Colors.grey[600]),
                                 ),
                               ),
-                              if (!(state is VoucherLoadingState))
+                              if (state is! VoucherLoadingState)
                                 const SizedBox(height: 24),
-                              if (!(state is VoucherLoadingState))
+                              if (state is! VoucherLoadingState)
                                 ElevatedButton(
                                   onPressed: () {
-                                    context
-                                        .read<VoucherBloc>()
-                                        .add(GetVouchers(1));
+                                    context.read<VoucherBloc>().add(GetVouchers(1));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                     getColorSkin().primaryRed650,
                                   ),
-                                  child: const Text('Refresh'),
+                                  child: Text('Refresh', style: TextStyle(color: getColorSkin().white),),
                                 ),
                             ],
                           ),
@@ -271,9 +269,9 @@ void _showVoucherSelectionDialog({
                         child: ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: getColorSkin().primaryRed650,
                           ),
-                          child: const Text('Close'),
+                          child: Text('Close',style: TextStyle(color: getColorSkin().white),),
                         ),
                       ),
                     ],

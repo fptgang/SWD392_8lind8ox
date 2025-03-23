@@ -6,9 +6,9 @@ class EmptyAddressView extends StatelessWidget {
   final VoidCallback onAddNew;
 
   const EmptyAddressView({
-    Key? key,
+    super.key,
     required this.onAddNew,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
@@ -10,17 +12,18 @@ import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_bloc.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_event.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_state.dart';
-import 'package:mobile/feature/checkout/widget/address_section.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_event.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_state.dart';
+import 'package:mobile/feature/shipping/widgets/address_section.dart';
 import 'package:mobile/feature/checkout/widget/payment_option.dart';
 import 'package:mobile/feature/checkout/widget/promotion_section.dart';
 import 'package:mobile/feature/home/blocs/promotion/promotion_bloc.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_bloc.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_event.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_state.dart';
-import 'package:mobile/feature/shipping_address/shipping_address_screen.dart';
-import 'package:mobile/utils/enum/enum.dart';
-import 'package:mobile/feature/payment/vnpay_webview_screen.dart';
 import 'package:mobile/feature/order/screens/order_history_screen.dart';
+import 'package:mobile/feature/payment/vnpay_webview_screen.dart';
+import 'package:mobile/utils/enum/enum.dart';
+
+import '../../app/main.dart';
 
 /// Main checkout screen
 class CheckoutScreen extends StatelessWidget {
@@ -37,13 +40,12 @@ class CheckoutScreen extends StatelessWidget {
     final promotionBloc = getIt<PromotionBloc>();
     final shippingInfoBloc = getIt<ShippingInfoBloc>();
 
-    checkoutBloc.add(InitializeCheckout(selectedItems: const []));
-    shippingInfoBloc.add(GetShippingInfos());
-
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: cartGlobalBloc),
-        BlocProvider.value(value: checkoutBloc),
+        BlocProvider(
+          create: (context) => checkoutBloc..add(InitializeCheckout(selectedItems: const [])),
+        ),
         BlocProvider.value(value: promotionBloc),
         BlocProvider.value(value: shippingInfoBloc),
       ],
@@ -209,8 +211,7 @@ class _CheckoutScreenContent extends StatelessWidget {
     }
   }
 
-  void _handleShippingInfoStateChanges(
-      BuildContext context, ShippingInfoState state) {
+  void _handleShippingInfoStateChanges(BuildContext context, ShippingInfoState state) {
     if (state is ShippingInfoLoadingState && state.isLoading) {
     } else if (state is ShippingInfoLoadingState && state.error != null) {
       debugPrint("handleshipping info state changes: ${state.error}");
@@ -288,7 +289,7 @@ class _CheckoutFormContent extends StatelessWidget {
       key: checkoutBloc.formKey,
       child: ListView(
         children: [
-          _buildAddressSection(context),
+          _buildAddressSection(context, shippingInfoBloc),
           _buildProductSection(context),
           _buildPromotionalSection(context),
           _buildPaymentMethods(context),
@@ -300,27 +301,21 @@ class _CheckoutFormContent extends StatelessWidget {
     );
   }
 
-  Widget _buildAddressSection(BuildContext context) {
+  Widget _buildAddressSection(BuildContext context, ShippingInfoBloc shippingInfoBloc) {
     return BlocBuilder<ShippingInfoBloc, ShippingInfoState>(
       bloc: shippingInfoBloc,
-      builder: (context, state) {
-        if (state is ShippingInfoLoadingState && state.isLoading) {
+      builder: (context, shippingState) {
+        if (shippingState is ShippingInfoLoadingState &&
+            shippingState.isLoading) {
           return _buildLoadingAddressSection();
-        } else if (state is ShippingInfoLoadingState && state.error != null) {
-          return _buildErrorAddressSection(context, state.error!);
-        } else if (state is ShippingInfoDataState) {
-          if (state.selectedShippingInfo != null) {
-            // Show the selected shipping address
-            return buildAddressSection();
-          } else if (state.shippingInfos.isNotEmpty) {
-            // If no address is selected but addresses exist, show the address section
-            return buildAddressSection();
-          } else {
-            // No shipping addresses available
-            return _buildEmptyAddressSection(context);
-          }
+        } else if (shippingState is ShippingInfoLoadingState &&
+            shippingState.error != null) {
+          return _buildErrorAddressSection(context, shippingState.error!);
+        } else if (shippingState is ShippingInfoDataState) {
+          return buildAddressSection(
+              shippingState.shippingInfo ?? ShippingInfoModel());
         } else {
-          return _buildEmptyAddressSection(context);
+          return buildAddAddressButton(shippingInfoBloc);
         }
       },
     );
@@ -367,22 +362,7 @@ class _CheckoutFormContent extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: shippingInfoBloc,
-                      child: ShippingAddressScreen(
-                        isSelectionMode: true,
-                        onAddressSelected: (ShippingInfoModel address) {
-                          if (context.mounted) {
-                            (context as Element).markNeedsBuild();
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                );
+                _selectShippingAddress(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: getColorSkin().white,
@@ -396,86 +376,6 @@ class _CheckoutFormContent extends StatelessWidget {
                 noShippingInfo ? 'Add Shipping Address' : 'Add New Address',
                 style: TextStyle(fontSize: 16, color: getColorSkin().black),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyAddressSection(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Shipping Address',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.orange),
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.orange[50],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.orange[800]),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'No shipping address found',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.deepOrange,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BlocProvider.value(
-                          value: shippingInfoBloc,
-                          child: ShippingAddressScreen(
-                            isSelectionMode: true,
-                            onAddressSelected: (ShippingInfoModel address) {
-                              if (context.mounted) {
-                                (context as Element).markNeedsBuild();
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: getColorSkin().white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: Colors.white),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: Text(
-                    'Add Shipping Address',
-                    style: TextStyle(fontSize: 16, color: getColorSkin().black),
-                  ),
-                ),
-              ],
             ),
           ),
         ],
@@ -497,6 +397,7 @@ class _CheckoutFormContent extends StatelessWidget {
       },
     );
   }
+
   Widget _buildPaymentMethods(BuildContext context) {
     return BlocBuilder<CheckoutBloc, CheckoutState>(
       bloc: checkoutBloc,
@@ -732,8 +633,9 @@ class _CheckoutFormContent extends StatelessWidget {
                 int? shippingInfoId;
 
                 if (shippingInfoState is ShippingInfoDataState) {
-                  shippingInfoId = shippingInfoState.selectedShippingInfo?.shippingInfoId
-                      ?? shippingInfoState.shippingInfo?.shippingInfoId;
+                  shippingInfoId =
+                      shippingInfoState.selectedShippingInfo?.shippingInfoId
+                          ?? shippingInfoState.shippingInfo?.shippingInfoId;
                 }
 
                 checkoutBloc.add(
@@ -846,5 +748,34 @@ class _CheckoutFormContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _selectShippingAddress(BuildContext context) {
+    final shippingInfoBloc = context.read<ShippingInfoBloc>();
+
+    if (shippingInfoBloc.state is! ShippingInfoDataState) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Loading addresses...'),
+            duration: Duration(seconds: 1)),
+      );
+      shippingInfoBloc.add(GetShippingInfos());
+      return;
+    }
+
+    final completer = Completer<ShippingInfoModel?>();
+
+    AppRouter.router.go('/shipping-address', extra: {
+      'isSelectionMode': true,
+      'addressCallback': (ShippingInfoModel address) {
+        completer.complete(address);
+        AppRouter.router.pop();
+      },
+    });
+
+    completer.future.then((result) {
+      if (result != null) {
+        shippingInfoBloc.add(SelectShippingInfo(result));
+      }
+    });
   }
 }

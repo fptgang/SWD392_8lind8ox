@@ -1,5 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/voucher_mapper.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
@@ -16,8 +17,8 @@ class VoucherRepositoryImpl implements VoucherRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   VoucherRepositoryImpl() {
-    if(box.get('loginToken').isNotEmpty) {
-      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
     }
   }
   @override

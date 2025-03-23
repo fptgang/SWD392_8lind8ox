@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/shipping_info_mapper.dart';
 import 'package:mobile/data/models/create_shipping_info_model.dart';
@@ -19,9 +20,11 @@ class ShippingInfoRepositoryImpl implements ShippingInfoRepository {
 
   ShippingInfoRepositoryImpl() {
     debugPrint('Shipping info created token: ${box.get('loginToken')}');
-    if(box.get('loginToken').isNotEmpty) {
-      _apiService.apiClient.addDefaultHeader("Authorization", box.get('loginToken'));
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
     }
+    debugPrint('huhuh: ${_apiService.apiClient.authentication}');
+    debugPrint('Shipping info created token:1 ${box.get('loginToken')}');
   }
 
   @override

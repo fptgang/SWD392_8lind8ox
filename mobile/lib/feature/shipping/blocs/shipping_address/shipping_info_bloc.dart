@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobile/app/di/injection.dart';
-import 'package:mobile/data/models/account_model.dart';
-import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_event.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_state.dart';
-import 'package:openapi/api.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_event.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_state.dart';
 
 @injectable
 @lazySingleton
@@ -22,7 +19,7 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
         _dataState = const ShippingInfoDataState(),
         super(ShippingInfoLoadingState()) {
     on<GetShippingInfos>(_onGetShippingInfos);
-    on<GetShippingInfoById>(_onGetShippingInfoById);
+    on<GetShippingInfoById>(_onGetDefaultShippingInfo);
     on<CreateShippingInfo>(_onCreateShippingInfo);
     on<SelectShippingInfo>(_onSelectShippingInfo);
     on<UpdateShippingInfo>(_onUpdateShippingInfo);
@@ -48,57 +45,27 @@ class ShippingInfoBloc extends Bloc<ShippingInfoEvent, ShippingInfoState> {
     try {
       debugPrint('Fetching all shipping infos...');
       final shippingInfos = await _shippingInfoRepository.getShippingInfos();
-      debugPrint('Fetched shipping infos: $shippingInfos');
+      debugPrint('Fetched shipping infos hehe: $shippingInfos');
 
-      // Try to get the user's account with default shipping info
-      ShippingInfoModel? defaultShippingInfo;
-      try {
-        final account = await _accountRepository.getUser();
-        defaultShippingInfo = account.defaultShippingInfo;
-        debugPrint('Default shipping info: ${defaultShippingInfo?.toString()}');
-      } catch (e) {
-        debugPrint('Error fetching user account: $e');
-      }
 
-      // Set the shipping info as selected
-      ShippingInfoModel? selectedShippingInfo;
-      
-      if (defaultShippingInfo != null && shippingInfos.content.isNotEmpty) {
-        // Try to match the default shipping info from account
-        selectedShippingInfo = shippingInfos.content.firstWhere(
-          (info) => info.shippingInfoId == defaultShippingInfo?.shippingInfoId,
-          orElse: () => shippingInfos.content.firstWhere(
-            (info) => info.isVisible == true,
-            orElse: () => shippingInfos.content.first,
-          ),
-        );
-      } else if (shippingInfos.content.isNotEmpty) {
-        // Fallback to the existing logic
-        selectedShippingInfo = shippingInfos.content.firstWhere(
-          (info) => info.isVisible == true,
-          orElse: () => shippingInfos.content.first,
-        );
-      }
 
       _dataState = _dataState.copyWith(
         shippingInfoResponseModel: shippingInfos,
-        selectedShippingInfo: selectedShippingInfo,
       );
-
+      emit(ShippingInfoLoadingState(isLoading: false));
       emit(_dataState);
     } catch (error) {
       emit(ShippingInfoLoadingState(error: error.toString(), isLoading: false));
     }
   }
 
-  Future<void> _onGetShippingInfoById(
+  Future<void> _onGetDefaultShippingInfo(
       GetShippingInfoById event, Emitter<ShippingInfoState> emit) async {
     emit(ShippingInfoLoadingState(isLoading: true));
 
     try {
-      final shippingInfo =
-      await _shippingInfoRepository.getShippingInfoById(event.id);
-      _dataState = _dataState.copyWith(shippingInfo: shippingInfo);
+      final shippingInfo = await _accountRepository.getUser();
+      _dataState = _dataState.copyWith(shippingInfo: shippingInfo.defaultShippingInfo);
       emit(_dataState);
     } catch (e) {
       emit(ShippingInfoLoadingState(error: e.toString()));

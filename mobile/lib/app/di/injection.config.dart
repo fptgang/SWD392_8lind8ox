@@ -38,7 +38,7 @@ import '../../data/services/token_service.dart' as _i315;
 import '../../feature/auth/login/blocs/login_bloc.dart' as _i112;
 import '../../feature/cart/cubits/cart_cubit.dart' as _i1002;
 import '../../feature/checkout/blocs/checkout_bloc.dart' as _i219;
-import '../../feature/checkout/blocs/shipping_info/shipping_info_bloc.dart'
+import '../../feature/shipping/blocs/shipping_address/shipping_info_bloc.dart'
     as _i225;
 import '../../feature/checkout/blocs/voucher/voucher_bloc.dart' as _i456;
 import '../../feature/detail/blocs/blindbox_detail_bloc.dart' as _i267;
@@ -49,7 +49,6 @@ import '../../feature/home/blocs/set/set_bloc.dart' as _i183;
 import '../../feature/order/blocs/order/order_bloc.dart' as _i1070;
 import '../../feature/order/blocs/order_detail/order_detail_bloc.dart' as _i337;
 import '../../feature/search/blocs/search_bloc.dart' as _i362;
-import '../../feature/shipping_address/bloc/shipping_info_bloc.dart' as _i933;
 import '../blocs/authentication/authentication_bloc.dart' as _i598;
 import '../blocs/cart/cart_global_bloc.dart' as _i801;
 import '../cubits/locale_cubit.dart' as _i867;
@@ -77,8 +76,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i112.LoginBloc(authRepository: gh<_i481.AuthRepository>()));
     gh.factory<_i225.ShippingInfoBloc>(
         () => _i225.ShippingInfoBloc(gh<_i365.ShippingInfoRepository>()));
-    gh.factory<_i933.ShippingInfoBloc>(
-        () => _i933.ShippingInfoBloc(gh<_i365.ShippingInfoRepository>()));
     gh.factory<_i456.VoucherBloc>(
         () => _i456.VoucherBloc(gh<_i5.VoucherRepository>()));
     gh.factory<_i267.BlindBoxDetailBloc>(() => _i267.BlindBoxDetailBloc(

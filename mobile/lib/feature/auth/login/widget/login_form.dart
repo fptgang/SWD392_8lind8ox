@@ -252,7 +252,6 @@ class _LoginButton extends StatelessWidget {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, loginState) {
         if (loginState.status == FormzSubmissionStatus.success) {
-          // StorageHelper.instance.write(SecureKey.TOKEN, loginState.token);
           context.read<AuthenticationBloc>().add(
                 AuthenticationLoggedIn(token: loginState.token),
               );
@@ -261,7 +260,7 @@ class _LoginButton extends StatelessWidget {
       child: ElevatedButton(
         key: const Key('loginForm_continue_raisedButton'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: getColorSkin().accentColor,
+          backgroundColor: getColorSkin().primaryRed650,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

@@ -11,16 +11,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:mobile/app/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/main_screen.dart';
+import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/auth_repository.dart';
+import 'package:mobile/data/repositories/map_repository.dart';
 import 'package:mobile/feature/auth/login/login_screen.dart';
 import 'package:mobile/feature/auth/register/register_screen.dart';
 import 'package:mobile/feature/auth/reset_password/forgot_password_screen.dart';
 import 'package:mobile/feature/auth/reset_password/new_password_screen.dart';
 import 'package:mobile/feature/cart/cart_screen.dart';
 import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
+import 'package:mobile/feature/shipping/blocs/map/map_bloc.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_event.dart';
 import 'package:mobile/feature/checkout/checkout_screen.dart';
 import 'package:mobile/feature/detail/blind_box_detail_screen.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
@@ -30,21 +36,19 @@ import 'package:mobile/feature/order/screens/order_history_screen.dart';
 import 'package:mobile/feature/order/screens/order_detail_screen.dart';
 import 'package:mobile/feature/profile/profile_screen.dart';
 import 'package:mobile/feature/search/search_screen.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_bloc.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_event.dart';
-import 'package:mobile/feature/shipping_address/shipping_address_screen.dart';
+import 'package:mobile/feature/shipping/shipping_address_form_screen.dart';
+import 'package:mobile/feature/shipping/shipping_address_screen.dart';
 import 'package:mobile/feature/splash/view/splash_sreen.dart';
 import 'package:mobile/feature/toys/toy_screen.dart';
 import 'package:mobile/feature/wallet/wallet_screen.dart';
-
+import 'package:mobile/utils/enum/enum.dart';
 import '../feature/profile/cubits/dropdown_cubit.dart';
-import '../utils/enum/enum.dart';
 import 'blocs/authentication/authentication_state.dart';
 import 'cubits/locale_cubit.dart';
 import 'di/injection.dart';
 
-// Global instances
-final GetIt getIt = GetIt.instance;
+// // Global instances
+// final GetIt getIt = GetIt.instance;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 late AppLinks _appLinks;
 StreamSubscription<Uri>? _linkSubscription;
@@ -63,12 +67,12 @@ Future<void> _initializeApp() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
+  String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
+  MapboxOptions.setAccessToken(ACCESS_TOKEN);
   // Initialize environment variables
   await dotenv.load(fileName: ".env");
 
   await Hive.initFlutter();
-  await Hive.deleteBoxFromDisk('authentication');
   await Hive.openBox("authentication");
 
   await _initDeepLinks();
@@ -115,7 +119,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(390, 844),
+      // designSize: const Size(390, 844),
       useInheritedMediaQuery: true,
       minTextAdapt: true,
       splitScreenMode: true,
@@ -153,6 +157,9 @@ class AppView extends StatelessWidget {
     return BlocBuilder<LocaleCubit, Locale>(
       builder: (context, locale) {
         return MaterialApp.router(
+          theme: ThemeData(
+            scaffoldBackgroundColor: Colors.white,
+          ),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -281,9 +288,8 @@ class AppRouter {
       ),
       GoRoute(
         path: '/shipping-address',
-        builder: (context, state) => BlocProvider(
-          create: (context) =>
-              getIt<ShippingInfoBloc>()..add(GetShippingInfos()),
+        builder: (context, state) => BlocProvider.value(
+          value: getIt<ShippingInfoBloc>(),
           child: const ShippingAddressScreen(),
         ),
       ),
@@ -299,6 +305,28 @@ class AppRouter {
             child: ShippingAddressScreen(
               isSelectionMode: extras['isSelectionMode'] ?? false,
               onAddressSelected: extras['addressCallback'],
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/shipping-address-form',
+        builder: (context, state) {
+          final address = state.extra is ShippingInfoModel 
+              ? state.extra as ShippingInfoModel 
+              : null;
+              
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: getIt<ShippingInfoBloc>(),
+              ),
+              BlocProvider(
+                create: (context) => MapBloc(mapRepository: getIt<MapRepository>()),
+              ),
+            ],
+            child: ShippingAddressFormScreen(
+              address: address,
             ),
           );
         },

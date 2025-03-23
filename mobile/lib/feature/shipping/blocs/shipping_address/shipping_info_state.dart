@@ -75,7 +75,6 @@ class ShippingInfoDataState implements ShippingInfoState {
     );
   }
 
-  // Helper getters for UI
   List<ShippingInfoModel> get shippingInfos =>
       shippingInfoResponseModel?.content ?? [];
 

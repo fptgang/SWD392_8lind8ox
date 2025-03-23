@@ -8,18 +8,19 @@ import 'package:mobile/app/blocs/authentication/authentication_bloc.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/cubits/locale_cubit.dart';
 import 'package:mobile/app/di/injection.config.dart';
-import 'package:mobile/data/network/dio_client.dart';
 import 'package:mobile/data/repositories/account_repository.dart';
 import 'package:mobile/data/repositories/brand_repository.dart';
 import 'package:mobile/data/repositories/implement/account_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/blindbox_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/brand_repository_impl.dart';
+import 'package:mobile/data/repositories/implement/map_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/order_detail_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/order_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/promotion_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/set_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/shipping_info_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/voucher_repository_impl.dart';
+import 'package:mobile/data/repositories/map_repository.dart';
 import 'package:mobile/data/repositories/order_detail_repository.dart';
 import 'package:mobile/data/repositories/promotion_repository.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
@@ -28,12 +29,13 @@ import 'package:mobile/data/services/token_refresh_service.dart';
 import 'package:mobile/data/services/token_service.dart';
 import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_bloc.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
 import 'package:mobile/feature/checkout/blocs/voucher/voucher_bloc.dart';
 import 'package:mobile/feature/detail/blocs/blindbox_detail_bloc.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/feature/home/blocs/promotion/promotion_bloc.dart';
 import 'package:mobile/feature/home/blocs/set/set_bloc.dart';
-import 'package:mobile/feature/shipping_address/bloc/shipping_info_bloc.dart';
+import 'package:mobile/feature/order/blocs/order/order_bloc.dart';
 import 'package:mobile/feature/wallet/bloc/wallet_bloc.dart';
 import 'package:openapi/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,6 +56,7 @@ import '../../data/repositories/voucher_repository.dart';
 import '../../feature/auth/login/blocs/login_bloc.dart';
 import '../../feature/order/blocs/order_detail/order_detail_bloc.dart';
 import '../../feature/profile/cubits/dropdown_cubit.dart';
+import '../../feature/profile/blocs/account/account_bloc.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -109,6 +112,10 @@ void _registerRepositories() {
     getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
   }
 
+  if (!getIt.isRegistered<MapRepository>()) {
+    getIt.registerLazySingleton<MapRepository>(() => MapRepositoryImpl());
+  }
+
   if (!getIt.isRegistered<AccountRepository>()) {
     getIt.registerLazySingleton<AccountRepository>(
         () => AccountRepositoryImpl());
@@ -142,6 +149,11 @@ void _registerRepositories() {
   if (!getIt.isRegistered<OrderDetailRepository>()) {
     getIt.registerLazySingleton<OrderDetailRepository>(
         () => OrderDetailRepositoryImpl());
+  }
+
+  if (!getIt.isRegistered<OrderRepository>()) {
+    getIt.registerLazySingleton<OrderRepository>(
+            () => OrderRepositoryImpl());
   }
 
   if (!getIt.isRegistered<PromotionRepository>()) {
@@ -194,7 +206,7 @@ void _registerAPI(Box box) {
       final apiClient = ApiClient(basePath: dotenv.env['BASE_URL'] ?? '');
       final token = box.get('loginToken');
       if (token != null && token.isNotEmpty) {
-        apiClient.addDefaultHeader("Authorization", token);
+        apiClient.addDefaultHeader("Authorization", "Bearer $token");
       }
       return DefaultApi(apiClient);
     });
@@ -264,6 +276,11 @@ void _registerBlocs() {
           orderDetailRepository: getIt<OrderDetailRepository>(),
         ));
   }
+  if (!getIt.isRegistered<OrderBloc>()) {
+    getIt.registerLazySingleton<OrderBloc>(() => OrderBloc(
+      getIt<OrderRepository>(),
+    ));
+  }
 
   if (!getIt.isRegistered<ShippingInfoBloc>()) {
     getIt.registerLazySingleton<ShippingInfoBloc>(
@@ -292,4 +309,9 @@ void _registerBlocs() {
         skuRepository: getIt<SkuRepository>(),
         imageRepository: getIt<ImageRepository>(),
       ));
+
+  if (!getIt.isRegistered<AccountBloc>()) {
+    getIt.registerLazySingleton<AccountBloc>(
+        () => AccountBloc(getIt<AccountRepository>()));
+  }
 }
