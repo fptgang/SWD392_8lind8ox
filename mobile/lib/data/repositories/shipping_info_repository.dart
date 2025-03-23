@@ -11,5 +11,5 @@ import 'package:openapi/api.dart';
 abstract class ShippingInfoRepository {
   Future<ShippingInfoModel> getShippingInfoById(int id);
   Future<ShippingInfoModel> createShippingInfo(CreateShippingInfoModel shippingInfo);
-  Future<PaginationResponseGeneric<ShippingInfoModel>> getShippingInfos(Pageable pageable, String filter, String search);
+  Future<PaginationResponseGeneric<ShippingInfoModel>> getShippingInfos();
 }

@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/src/multipart_file.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/video_mapper.dart';
@@ -8,13 +11,16 @@ import 'package:mobile/data/models/video_model.dart';
 import 'package:mobile/data/repositories/video_repository.dart';
 import 'package:openapi/api.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class VideoRepositoryImpl implements VideoRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   VideoRepositoryImpl() {
-    _apiService.apiClient
-        .addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
   }
 
   @override
@@ -54,5 +60,15 @@ class VideoRepositoryImpl implements VideoRepository {
       MultipartFile videoBlob, bool isVisible) {
     // TODO: implement uploadVideo
     throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteVideo(int id) async {
+    try {
+      await _apiService.deleteVideo(id);
+    } catch (e, stackTrace) {
+      debugPrint('Error: $e, stackTrace: $stackTrace');
+      throw Exception('Cannot delete video');
+    }
   }
 }

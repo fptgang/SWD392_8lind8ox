@@ -66,7 +66,7 @@ class RecommendedItems extends StatelessWidget {
       height: 550.h,
       padding: EdgeInsets.symmetric(horizontal: 16.0.w),
       child: PagedGridView<int, BlindBoxModel>(
-        physics: const NeverScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         pagingController: blindBoxBloc.pagingController,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,

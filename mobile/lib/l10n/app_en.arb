@@ -70,5 +70,7 @@
   "noSetAvailable": "No sets available",
     "error": "Error",
   "sort": "Sort by",
-  "filterBy": "Filter"
+  "filterBy": "Filter",
+  "loginSuccessfully": "Login successfully",
+  "registerSuccessfully": "Register successfully"
 }

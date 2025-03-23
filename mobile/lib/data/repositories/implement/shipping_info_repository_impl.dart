@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/shipping_info_mapper.dart';
 import 'package:mobile/data/models/create_shipping_info_model.dart';
@@ -9,15 +11,20 @@ import 'package:mobile/data/repositories/shipping_info_repository.dart';
 import 'package:mobile/app/main.dart';
 import 'package:openapi/api.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class ShippingInfoRepositoryImpl implements ShippingInfoRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
+
   ShippingInfoRepositoryImpl() {
     debugPrint('Shipping info created token: ${box.get('loginToken')}');
-
-    _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
-    debugPrint('authorization header: ' + _apiService.apiClient.authentication.toString());
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
+    debugPrint('huhuh: ${_apiService.apiClient.authentication}');
+    debugPrint('Shipping info created token:1 ${box.get('loginToken')}');
   }
 
   @override
@@ -48,21 +55,24 @@ class ShippingInfoRepositoryImpl implements ShippingInfoRepository {
       ShippingInfoModel shippingInfoModel =  ShippingInfoMapper.toModel(shippingInfoDto);
       return shippingInfoModel;
     } catch(e){
-      throw Exception('Cannot get shipping info information, ${e}', );
+      throw Exception('Cannot get shipping info information, $e', );
     }
   }
 
   @override
-  Future<PaginationResponseGeneric<ShippingInfoModel>> getShippingInfos(Pageable pageable, String filter, String search) async {
+  Future<PaginationResponseGeneric<ShippingInfoModel>> getShippingInfos() async {
    try{
-      GetShippingInfos200Response? response = await _apiService.getShippingInfos(pageable: pageable, filter: filter, search: search);
+     debugPrint("authorization hehe: ${_apiService.apiClient.authentication}");
+      GetShippingInfos200Response? response = await _apiService.getShippingInfos();
+      debugPrint('Shipping info response: $response');
+      debugPrint("authorization: ${_apiService.apiClient.authentication}");
       if(response == null){
         throw Exception('Cannot get shipping info information');
       }
       PaginationResponseGeneric<ShippingInfoModel>? shippingInfoModels = PaginationResponseMapper.toModel(dto: response, fromDTO: (data) => ShippingInfoMapper.toModel(data));
       return shippingInfoModels;
-    }catch(e){
-      throw Exception('Cannot get shipping info information');
+    }catch(e,stackTrace){
+      throw Exception('Cannot get shipping info information, $e, stackTrace: $stackTrace', );
    }
   }
 

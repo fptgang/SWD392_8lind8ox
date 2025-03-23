@@ -1,7 +1,7 @@
 
 class ShippingInfoModel{
   final int? shippingInfoId;
-  final String? address;
+    final String? address;
   final String? ward;
   final String? district;
   final String? city;

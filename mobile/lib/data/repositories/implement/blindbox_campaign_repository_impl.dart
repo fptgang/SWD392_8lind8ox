@@ -1,4 +1,6 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/blindbox_campaign_mapper.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
@@ -8,14 +10,16 @@ import 'package:openapi/api.dart';
 
 import '../../models/blindbox_campaign_model.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class BlindBoxCampaignRepositoryImpl implements BlindBoxCampaignRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   BlindBoxCampaignRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
   }
 
   @override

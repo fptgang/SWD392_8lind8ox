@@ -71,9 +71,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
 
       final result = await _authRepository.login(loginRequestDto);
-      final box = Hive.box("authentication");
-      await box.put("loginToken", result.token);
-
       emit(state.copyWith(
         status: FormzSubmissionStatus.success,
         token: result.token,
@@ -104,7 +101,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       final result = await _authRepository.loginWithGoogle(token);
       final box = Hive.box("authentication");
-      await box.put("loginToken", result.token);
+      await box.put("loginGoogleToken", result.token);
 
       emit(state.copyWith(
         status: FormzSubmissionStatus.success,

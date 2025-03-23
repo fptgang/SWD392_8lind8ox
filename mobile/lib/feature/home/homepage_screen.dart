@@ -30,7 +30,7 @@ class HomePageScreen extends StatelessWidget {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            // Add refresh functionality here
+
             await Future.delayed(const Duration(seconds: 1));
             return;
           },

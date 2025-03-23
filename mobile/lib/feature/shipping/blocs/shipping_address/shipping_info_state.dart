@@ -47,12 +47,14 @@ class ShippingInfoLoadingState implements ShippingInfoState {
 class ShippingInfoDataState implements ShippingInfoState {
   final PaginationResponseGeneric<ShippingInfoModel>? shippingInfoResponseModel;
   final ShippingInfoModel? shippingInfo;
+  final ShippingInfoModel? selectedShippingInfo;
   final String? filter;
   final String? search;
 
   const ShippingInfoDataState({
     this.shippingInfoResponseModel,
     this.shippingInfo,
+    this.selectedShippingInfo,
     this.filter,
     this.search,
   });
@@ -60,14 +62,22 @@ class ShippingInfoDataState implements ShippingInfoState {
   ShippingInfoDataState copyWith({
     PaginationResponseGeneric<ShippingInfoModel>? shippingInfoResponseModel,
     ShippingInfoModel? shippingInfo,
+    ShippingInfoModel? selectedShippingInfo,
     String? filter,
     String? search,
   }) {
     return ShippingInfoDataState(
       shippingInfoResponseModel: shippingInfoResponseModel ?? this.shippingInfoResponseModel,
       shippingInfo: shippingInfo ?? this.shippingInfo,
+      selectedShippingInfo: selectedShippingInfo ?? this.selectedShippingInfo,
       filter: filter ?? this.filter,
       search: search ?? this.search,
     );
   }
+
+  List<ShippingInfoModel> get shippingInfos =>
+      shippingInfoResponseModel?.content ?? [];
+
+  bool get hasShippingInfos =>
+      shippingInfoResponseModel != null && shippingInfoResponseModel!.content.isNotEmpty;
 }

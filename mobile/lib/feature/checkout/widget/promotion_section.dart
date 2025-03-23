@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/data/models/promotional_campaign_model.dart';
-import 'package:mobile/feature/home/blocs/promotion/promotion_bloc.dart';
-import 'package:mobile/feature/home/blocs/promotion/promotion_event.dart';
-import 'package:mobile/feature/home/blocs/promotion/promotion_state.dart';
+import 'package:mobile/data/models/voucher_model.dart';
+import 'package:mobile/feature/checkout/blocs/voucher/voucher_bloc.dart';
+import 'package:mobile/feature/checkout/blocs/voucher/voucher_event.dart';
+import 'package:mobile/feature/checkout/blocs/voucher/voucher_state.dart';
+import 'package:mobile/utils/enum/enum.dart';
 
 Widget buildPromotionalSection({
   required BuildContext context,
-  PromotionModel? selectedVoucher,
-  required Function(PromotionModel?) onVoucherSelected,
+  VoucherModel? selectedVoucher,
+  required Function(VoucherModel?) onVoucherSelected,
 }) {
   return Container(
     color: Colors.white,
@@ -28,19 +29,19 @@ Widget buildPromotionalSection({
           onTap: () {
             try {
               // Get the bloc directly from the dependency injection
-              final promotionBloc = getIt<PromotionBloc>();
-              // Trigger fetching promotions before showing the dialog
-              promotionBloc.add(GetPromotions(1));
+              final voucherBloc = getIt<VoucherBloc>();
+              // Trigger fetching vouchers before showing the dialog
+              voucherBloc.add(GetVouchers(1));
               _showVoucherSelectionDialog(
                 context: context,
                 selectedVoucher: selectedVoucher,
                 onVoucherSelected: onVoucherSelected,
-                promotionBloc: promotionBloc, // Pass the bloc instance
+                voucherBloc: voucherBloc,
               );
             } catch (e) {
-              debugPrint('Error loading promotions: $e');
+              debugPrint('Error loading vouchers: $e');
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Failed to load vouchers. Please try again.'),
                   backgroundColor: Colors.red,
                 ),
@@ -54,14 +55,14 @@ Widget buildPromotionalSection({
               Expanded(
                 child: Text(
                   selectedVoucher != null
-                      ? '${selectedVoucher.title} (${(selectedVoucher.discountRate ?? 0) * 100}% off)'
+                      ? '${selectedVoucher.code} (${(selectedVoucher.discountRate ?? 0) * 100}% off)'
                       : 'Select Voucher',
                 ),
               ),
               if (selectedVoucher != null)
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: getColorSkin().white,
                     border: Border.all(color: Colors.green),
@@ -85,7 +86,7 @@ Widget buildPromotionalSection({
 }
 
 // Helper to calculate discount amount based on rate
-double calculateDiscount(PromotionModel voucher) {
+double calculateDiscount(VoucherModel voucher) {
   // In a real app, this would be calculated based on the order total
   // For simplicity, we'll assume a fixed discount amount
   return (voucher.discountRate ?? 0) * 100; // Just an example value
@@ -93,9 +94,9 @@ double calculateDiscount(PromotionModel voucher) {
 
 void _showVoucherSelectionDialog({
   required BuildContext context,
-  required PromotionModel? selectedVoucher,
-  required Function(PromotionModel?) onVoucherSelected,
-  required PromotionBloc promotionBloc, // Add this parameter
+  required VoucherModel? selectedVoucher,
+  required Function(VoucherModel?) onVoucherSelected,
+  required VoucherBloc voucherBloc,
 }) {
   showModalBottomSheet(
     backgroundColor: Colors.white,
@@ -105,34 +106,34 @@ void _showVoucherSelectionDialog({
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (context) {
-      return BlocProvider.value(
-        value: promotionBloc,
+      return BlocProvider(
+        create: (context) => voucherBloc,
         child: DraggableScrollableSheet(
           initialChildSize: 0.7,
           maxChildSize: 0.9,
           minChildSize: 0.5,
           expand: false,
           builder: (context, scrollController) {
-            return BlocBuilder<PromotionBloc, PromotionState>(
+            return BlocBuilder<VoucherBloc, VoucherState>(
               builder: (context, state) {
-                if (state is PromotionLoadingState && state.isLoading) {
+                if (state is VoucherLoadingState && state.isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (state is PromotionLoadingState && state.error != null) {
-                  debugPrint('Promotion loading error: ${state.error}');
+                if (state is VoucherLoadingState && state.error != null) {
+                  debugPrint('Voucher loading error: ${state.error}');
                   String errorMessage = 'Unable to load vouchers';
 
                   // Try to extract a more user-friendly error message
                   if (state.error!
-                      .contains('Cannot get promotion information')) {
-                    errorMessage = 'Cannot retrieve promotion information';
+                      .contains('Cannot get voucher information')) {
+                    errorMessage = 'Cannot retrieve voucher information';
                   } else if (state.error!
                       .contains('Failed to map API response')) {
-                    errorMessage = 'Error processing promotion data';
+                    errorMessage = 'Error processing voucher data';
                   } else if (state.error!
                       .contains('DTO must be a valid response type')) {
-                    errorMessage = 'Invalid promotion data format';
+                    errorMessage = 'Invalid voucher data format';
                   }
 
                   return Center(
@@ -163,12 +164,12 @@ void _showVoucherSelectionDialog({
                         const SizedBox(height: 24),
                         ElevatedButton(
                           onPressed: () {
-                            context.read<PromotionBloc>().add(GetPromotions(1));
+                            context.read<VoucherBloc>().add(GetVouchers(1));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: getColorSkin().primaryRed650,
                           ),
-                          child: const Text('Retry'),
+                          child: Text('Retry', style: TextStyle(color: getColorSkin().white)),
                         ),
                         const SizedBox(height: 16),
                         TextButton(
@@ -180,13 +181,13 @@ void _showVoucherSelectionDialog({
                   );
                 }
 
-                // Use actual promotions from API if available, otherwise show empty state
-                List<PromotionModel> vouchers = [];
+                // Use actual vouchers from API if available, otherwise show empty state
+                List<VoucherModel> vouchers = [];
 
-                if (state is PromotionDataState &&
-                    state.promotionResponseModel != null &&
-                    state.promotionResponseModel!.content.isNotEmpty) {
-                  vouchers = state.promotionResponseModel!.content;
+                if (state is VoucherDataState &&
+                    state.voucherResponseModel != null &&
+                    state.voucherResponseModel!.content.isNotEmpty) {
+                  vouchers = state.voucherResponseModel!.content;
                   debugPrint('Loaded ${vouchers.length} vouchers successfully');
                 } else {
                   debugPrint('No vouchers available or empty data state');
@@ -238,27 +239,25 @@ void _showVoucherSelectionDialog({
                               const SizedBox(height: 8),
                               Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 32),
+                                const EdgeInsets.symmetric(horizontal: 32),
                                 child: Text(
-                                  'There are currently no active promotions or vouchers available for your account.',
+                                  'There are currently no active vouchers available for your account.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(color: Colors.grey[600]),
                                 ),
                               ),
-                              if (!(state is PromotionLoadingState))
+                              if (state is! VoucherLoadingState)
                                 const SizedBox(height: 24),
-                              if (!(state is PromotionLoadingState))
+                              if (state is! VoucherLoadingState)
                                 ElevatedButton(
                                   onPressed: () {
-                                    context
-                                        .read<PromotionBloc>()
-                                        .add(GetPromotions(1));
+                                    context.read<VoucherBloc>().add(GetVouchers(1));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
-                                        getColorSkin().primaryRed650,
+                                    getColorSkin().primaryRed650,
                                   ),
-                                  child: const Text('Refresh'),
+                                  child: Text('Refresh', style: TextStyle(color: getColorSkin().white),),
                                 ),
                             ],
                           ),
@@ -270,9 +269,9 @@ void _showVoucherSelectionDialog({
                         child: ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: getColorSkin().primaryRed650,
                           ),
-                          child: const Text('Close'),
+                          child: Text('Close',style: TextStyle(color: getColorSkin().white),),
                         ),
                       ),
                     ],
@@ -307,35 +306,31 @@ void _showVoucherSelectionDialog({
                         controller: scrollController,
                         itemCount: vouchers.length,
                         separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
+                        const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final voucher = vouchers[index];
                           final isSelected =
-                              selectedVoucher?.campaignId == voucher.campaignId;
+                              selectedVoucher?.voucherId == voucher.voucherId;
 
                           return ListTile(
                             leading: Icon(
                               Icons.confirmation_number,
                               color: Colors.red[400],
                             ),
-                            title: Text(voucher.title ?? 'Untitled Voucher'),
+                            title: Text(voucher.code ?? 'Untitled Voucher'),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                     'Save ${(voucher.discountRate ?? 0) * 100}% on your order'),
-                                if (voucher.description != null &&
-                                    voucher.description!.isNotEmpty)
+                                if (voucher.status != null)
                                   Text(
-                                    voucher.description!,
+                                    'Status: ${_getVoucherStatusText(voucher.status)}',
                                     style: const TextStyle(fontSize: 12),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                if (voucher.startDate != null &&
-                                    voucher.endDate != null)
+                                if (voucher.expiredAt != null)
                                   Text(
-                                    'Valid: ${_formatDate(voucher.startDate!)} - ${_formatDate(voucher.endDate!)}',
+                                    'Expires: ${_formatDate(voucher.expiredAt!)}',
                                     style: const TextStyle(
                                         fontSize: 12,
                                         fontStyle: FontStyle.italic),
@@ -344,12 +339,22 @@ void _showVoucherSelectionDialog({
                             ),
                             trailing: isSelected
                                 ? Icon(Icons.check_circle,
-                                    color: Colors.green[600])
+                                color: Colors.green[600])
                                 : null,
                             selected: isSelected,
                             onTap: () {
-                              onVoucherSelected(voucher);
-                              Navigator.pop(context);
+                              // Only allow selection of available vouchers
+                              if (voucher.status == VoucherStatusEnum.AVAILABLE) {
+                                onVoucherSelected(voucher);
+                                Navigator.pop(context);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('This voucher is ${_getVoucherStatusText(voucher.status).toLowerCase()} and cannot be used'),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                              }
                             },
                           );
                         },
@@ -378,6 +383,22 @@ void _showVoucherSelectionDialog({
       );
     },
   );
+}
+
+// Helper function to get a human-readable voucher status
+String _getVoucherStatusText(VoucherStatusEnum? status) {
+  if (status == null) return 'Unknown';
+
+  switch (status) {
+    case VoucherStatusEnum.AVAILABLE:
+      return 'Available';
+    case VoucherStatusEnum.USED:
+      return 'Used';
+    case VoucherStatusEnum.RESERVED:
+      return 'Reserved';
+    default:
+      return status.toString().split('.').last;
+  }
 }
 
 // Helper function to format dates

@@ -13,8 +13,7 @@ class VoucherMapper {
       code: dto.code!,
       discountRate: dto.discountRate ?? 0,
       limitAmount: dto.limitAmount ?? 100000000,
-      status:
-          toVoucherStateEnumModel(dto.state ?? VoucherDtoStateEnum.AVAILABLE),
+      status: toVoucherStateEnumModel(dto.state ?? VoucherDtoStateEnum.AVAILABLE),
       createdAt: dto.createdAt ?? DateTime.now(),
       updatedAt: dto.updatedAt ?? DateTime.now(),
       expiredAt: dto.expiredAt,

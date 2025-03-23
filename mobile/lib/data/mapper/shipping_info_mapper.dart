@@ -43,7 +43,6 @@ class ShippingInfoMapper {
       city: model.city,
       name: model.name,
       phoneNumber: model.phoneNumber,
-      isVisible: model.isVisible ?? true,
     );
   }
 
@@ -55,7 +54,6 @@ class ShippingInfoMapper {
       city: model.city,
       name: model.name,
       phoneNumber: model.phoneNumber,
-      isVisible: model.isVisible ?? true,
     );
   }
 }

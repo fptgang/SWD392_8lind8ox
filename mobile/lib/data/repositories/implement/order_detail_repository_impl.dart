@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/order_detail_model.dart';
@@ -6,14 +7,16 @@ import 'package:openapi/api.dart';
 import '../../../app/di/injection.dart';
 import '../order_detail_repository.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class OrderDetailRepositoryImpl implements OrderDetailRepository {
   var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   OrderDetailRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
   }
 
   @override

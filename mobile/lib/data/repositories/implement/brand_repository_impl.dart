@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/mapper/brand_mapper.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
@@ -8,8 +10,17 @@ import 'package:openapi/api.dart';
 
 import '../brand_repository.dart';
 
+
 class BrandRepositoryImpl implements BrandRepository {
+  var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
+
+  BrandRepositoryImpl() {
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
+  }
+
 
   @override
   Future<BrandModel> getBrandById(int id) async {

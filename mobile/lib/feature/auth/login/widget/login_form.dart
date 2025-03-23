@@ -177,13 +177,18 @@ class _UsernameInput extends StatelessWidget {
     final displayError = context.select(
       (LoginBloc bloc) => bloc.state.username.displayError,
     );
+    final controller = TextEditingController(text: 'duyen@gmail.com');
 
+    // Dispatch the initial value to the bloc when the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LoginBloc>().add(LoginUsernameChanged(controller.text));
+    });
     return TextField(
       key: const Key('loginForm_usernameInput_textField'),
       onChanged: (username) {
         context.read<LoginBloc>().add(LoginUsernameChanged(username));
       },
-      controller: TextEditingController(text: 'acc5@blindbox.com'),
+      controller: controller,
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.email,
         errorText: displayError != null
@@ -204,13 +209,20 @@ class _PasswordInput extends StatelessWidget {
       (LoginBloc bloc) => bloc.state.password.displayError,
     );
 
+
+    final controller = TextEditingController(text: '123');
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LoginBloc>().add(LoginPasswordChanged(controller.text));
+    });
+
     return TextField(
       key: const Key('loginForm_passwordInput_textField'),
       onChanged: (password) {
         context.read<LoginBloc>().add(LoginPasswordChanged(password));
       },
       obscureText: true,
-      controller: TextEditingController(text: '123456'),
+      controller: controller,
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.password,
         errorText: displayError != null
@@ -240,7 +252,6 @@ class _LoginButton extends StatelessWidget {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, loginState) {
         if (loginState.status == FormzSubmissionStatus.success) {
-          // StorageHelper.instance.write(SecureKey.TOKEN, loginState.token);
           context.read<AuthenticationBloc>().add(
                 AuthenticationLoggedIn(token: loginState.token),
               );
@@ -249,7 +260,7 @@ class _LoginButton extends StatelessWidget {
       child: ElevatedButton(
         key: const Key('loginForm_continue_raisedButton'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: getColorSkin().accentColor,
+          backgroundColor: getColorSkin().primaryRed650,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

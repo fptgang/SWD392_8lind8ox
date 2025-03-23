@@ -6,7 +6,6 @@ class CreateShippingInfoModel{
   final String? city;
   final String? name;
   final String? phoneNumber;
-  final bool? isVisible;
 
 
   CreateShippingInfoModel({
@@ -16,7 +15,6 @@ class CreateShippingInfoModel{
     this.city,
     this.name,
     this.phoneNumber,
-    this.isVisible = true,
   });
 
   @override
@@ -32,6 +30,5 @@ class CreateShippingInfoModel{
     city,
     name,
     phoneNumber,
-    isVisible,
   ];
 }

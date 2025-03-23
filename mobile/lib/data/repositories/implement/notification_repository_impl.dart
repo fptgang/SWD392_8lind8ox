@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/notification_mapper.dart';
@@ -12,9 +13,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   NotificationRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
   }
 
   @override

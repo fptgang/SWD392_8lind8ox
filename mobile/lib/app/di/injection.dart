@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
@@ -12,22 +13,30 @@ import 'package:mobile/data/repositories/brand_repository.dart';
 import 'package:mobile/data/repositories/implement/account_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/blindbox_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/brand_repository_impl.dart';
+import 'package:mobile/data/repositories/implement/map_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/order_detail_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/order_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/promotion_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/set_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/shipping_info_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/voucher_repository_impl.dart';
+import 'package:mobile/data/repositories/map_repository.dart';
 import 'package:mobile/data/repositories/order_detail_repository.dart';
 import 'package:mobile/data/repositories/promotion_repository.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
+import 'package:mobile/data/repositories/transaction_repository.dart';
+import 'package:mobile/data/services/token_refresh_service.dart';
+import 'package:mobile/data/services/token_service.dart';
 import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
 import 'package:mobile/feature/checkout/blocs/checkout_bloc.dart';
-import 'package:mobile/feature/checkout/blocs/shipping_info/shipping_info_bloc.dart';
+import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
+import 'package:mobile/feature/checkout/blocs/voucher/voucher_bloc.dart';
 import 'package:mobile/feature/detail/blocs/blindbox_detail_bloc.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/feature/home/blocs/promotion/promotion_bloc.dart';
 import 'package:mobile/feature/home/blocs/set/set_bloc.dart';
+import 'package:mobile/feature/order/blocs/order/order_bloc.dart';
+import 'package:mobile/feature/wallet/bloc/wallet_bloc.dart';
 import 'package:openapi/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,6 +56,7 @@ import '../../data/repositories/voucher_repository.dart';
 import '../../feature/auth/login/blocs/login_bloc.dart';
 import '../../feature/order/blocs/order_detail/order_detail_bloc.dart';
 import '../../feature/profile/cubits/dropdown_cubit.dart';
+import '../../feature/profile/blocs/account/account_bloc.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -102,6 +112,10 @@ void _registerRepositories() {
     getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
   }
 
+  if (!getIt.isRegistered<MapRepository>()) {
+    getIt.registerLazySingleton<MapRepository>(() => MapRepositoryImpl());
+  }
+
   if (!getIt.isRegistered<AccountRepository>()) {
     getIt.registerLazySingleton<AccountRepository>(
         () => AccountRepositoryImpl());
@@ -137,6 +151,11 @@ void _registerRepositories() {
         () => OrderDetailRepositoryImpl());
   }
 
+  if (!getIt.isRegistered<OrderRepository>()) {
+    getIt.registerLazySingleton<OrderRepository>(
+            () => OrderRepositoryImpl());
+  }
+
   if (!getIt.isRegistered<PromotionRepository>()) {
     getIt.registerLazySingleton<PromotionRepository>(
         () => PromotionRepositoryImpl());
@@ -162,18 +181,54 @@ void _registerDataSources(SharedPrefManager sharedPrefManager) {
 }
 
 void _registerAPI(Box box) {
-  // API client
+
+  if (!getIt.isRegistered<TokenService>()) {
+    getIt.registerLazySingleton<TokenService>(
+      () {
+        final service = TokenService(box: box);
+        
+        final accessToken = service.getAccessToken();
+        if (accessToken != null && accessToken.isNotEmpty) {
+          final parts = accessToken.split('.');
+          if (parts.length != 3) {
+            debugPrint('⚠️ Invalid token found on startup, clearing tokens');
+            service.clearTokens();
+          }
+        }
+
+        return service;
+      },
+    );
+  }
+
   if (!getIt.isRegistered<DefaultApi>()) {
-    getIt.registerLazySingleton<DefaultApi>(
-        () => DefaultApi(ApiClient(basePath: dotenv.env['BASE_URL'] ?? '')
-          ..authentication?.applyToParams([], {
-            "Authorization": "Bearer ${box.get('loginToken')}",
-          })));
+    getIt.registerLazySingleton<DefaultApi>(() {
+      final apiClient = ApiClient(basePath: dotenv.env['BASE_URL'] ?? '');
+      final token = box.get('loginToken');
+      if (token != null && token.isNotEmpty) {
+        apiClient.addDefaultHeader("Authorization", "Bearer $token");
+      }
+      return DefaultApi(apiClient);
+    });
+  }
+  if (!getIt.isRegistered<AuthRepository>()) {
+    getIt.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+      ),
+    );
+  }
+  
+  if (!getIt.isRegistered<TokenRefreshService>()) {
+    getIt.registerLazySingleton<TokenRefreshService>(
+      () => TokenRefreshService(
+        tokenService: getIt<TokenService>(),
+        dio: getIt<Dio>(),
+      ),
+    );
   }
 }
 
 void _registerBlocs() {
-  // Cubits (stateful singleton components)
   if (!getIt.isRegistered<CartCubit>()) {
     getIt.registerLazySingleton<CartCubit>(() => CartCubit());
   }
@@ -183,7 +238,6 @@ void _registerBlocs() {
         () => DropdownCubit(getIt<LocaleCubit>()));
   }
 
-  // Singleton Blocs (long-lived Blocs)
   if (!getIt.isRegistered<SetBloc>()) {
     getIt.registerLazySingleton<SetBloc>(() => SetBloc(
           getIt<SetRepository>(),
@@ -196,10 +250,21 @@ void _registerBlocs() {
         () => CartGlobalBloc(getIt<OrderRepository>(), getIt<SkuRepository>()));
   }
 
+  if (!getIt.isRegistered<WalletBloc>()) {
+    getIt.registerLazySingleton<WalletBloc>(
+            () => WalletBloc(getIt<TransactionRepository>(), getIt<AccountRepository>()));
+  }
+
   if (!getIt.isRegistered<PromotionBloc>()) {
     getIt.registerLazySingleton<PromotionBloc>(
         () => PromotionBloc(getIt<PromotionRepository>()));
   }
+
+  if (!getIt.isRegistered<VoucherBloc>()) {
+    getIt.registerLazySingleton<VoucherBloc>(
+            () => VoucherBloc(getIt<VoucherRepository>()));
+  }
+
 
   if (!getIt.isRegistered<BlindBoxesListBloc>()) {
     getIt.registerLazySingleton<BlindBoxesListBloc>(
@@ -210,6 +275,11 @@ void _registerBlocs() {
     getIt.registerLazySingleton<OrderDetailBloc>(() => OrderDetailBloc(
           orderDetailRepository: getIt<OrderDetailRepository>(),
         ));
+  }
+  if (!getIt.isRegistered<OrderBloc>()) {
+    getIt.registerLazySingleton<OrderBloc>(() => OrderBloc(
+      getIt<OrderRepository>(),
+    ));
   }
 
   if (!getIt.isRegistered<ShippingInfoBloc>()) {
@@ -239,4 +309,9 @@ void _registerBlocs() {
         skuRepository: getIt<SkuRepository>(),
         imageRepository: getIt<ImageRepository>(),
       ));
+
+  if (!getIt.isRegistered<AccountBloc>()) {
+    getIt.registerLazySingleton<AccountBloc>(
+        () => AccountBloc(getIt<AccountRepository>()));
+  }
 }

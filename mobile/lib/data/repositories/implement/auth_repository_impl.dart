@@ -5,7 +5,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/mapper/auth_response_mapper.dart';
 import 'package:mobile/data/mapper/jwt_response_mapper.dart';
-import 'package:mobile/data/models/account_model.dart';
 import 'package:mobile/data/models/auth_response_model.dart';
 import 'package:mobile/data/models/jwt_response_model.dart';
 import 'package:openapi/api.dart';
@@ -18,8 +17,26 @@ class AuthRepositoryImpl implements AuthRepository {
   var box = Hive.box('authentication');
 
   Stream<AuthenticationStatus> get status async* {
-    await Future<void>.delayed(const Duration(seconds: 1));
-    yield AuthenticationStatus.unauthenticated;
+    // Check for stored token first
+    final storedToken = box.get('loginToken');
+    if (storedToken != null && storedToken.toString().isNotEmpty) {
+      try {
+        // Make a simple API call to verify token validity
+        debugPrint('Checking token validity...');
+        await _apiService.getCurrentUser();
+        debugPrint('Token is valid, setting authenticated status');
+        _controller.add(AuthenticationStatus.authenticated);
+      } catch (e) {
+        debugPrint('Token validation failed: $e');
+        // Only set to unauthenticated if it's an auth error (401)
+        if (e.toString().contains('401')) {
+          _controller.add(AuthenticationStatus.unauthenticated);
+        }
+      }
+    } else {
+      _controller.add(AuthenticationStatus.unauthenticated);
+    }
+    
     yield* _controller.stream;
   }
 
@@ -28,15 +45,9 @@ class AuthRepositoryImpl implements AuthRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   AuthRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
-  }
-
-  @override
-  Future<AccountModel> getCurrentUserInformation() {
-    // TODO: implement getCurrentUserInformation
-    throw UnimplementedError();
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
   }
 
   @override
@@ -47,18 +58,16 @@ class AuthRepositoryImpl implements AuthRepository {
       if (dto == null) {
         throw Exception('Login failed, please try again');
       }
-      await Future.delayed(
-        const Duration(milliseconds: 300),
-        () => _controller.add(AuthenticationStatus.authenticated),
-      );
+      _controller.add(AuthenticationStatus.authenticated);
+      box.put("loginToken", dto.token);
+      box.put("refreshToken", dto.refreshToken);
       debugPrint("dto: $dto");
       debugPrint("AuthMapper.toModel(dto): ${AuthMapper.toModel(dto)}");
-      debugPrint("${AuthenticationStatus.authenticated}");
-
+      debugPrint("authen status $AuthenticationStatus");
+      debugPrint("token: ${box.get('loginToken')}");
       return AuthMapper.toModel(dto);
-    } catch (e) {
-      throw Exception(
-          'Login failed repository, please try again, ${e.toString()}');
+    } catch (e, stackTrace) {
+      throw Exception('Login failed repository, please try again, ${e.toString()}, ${stackTrace.toString()}');
     }
   }
 

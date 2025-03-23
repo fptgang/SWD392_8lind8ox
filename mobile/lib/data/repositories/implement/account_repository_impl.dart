@@ -11,9 +11,9 @@ class AccountRepositoryImpl extends AccountRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   AccountRepositoryImpl() {
-    _apiService.apiClient.authentication?.applyToParams([], {
-      "Authorization": "Bearer ${box.get('loginToken')}",
-    });
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
   }
 
   @override

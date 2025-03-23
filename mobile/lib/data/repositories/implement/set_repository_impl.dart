@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/mapper/set_mapper.dart';
@@ -7,8 +9,17 @@ import 'package:mobile/data/models/set_model.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
 import 'package:openapi/api.dart';
 
+String token = dotenv.env['TOKEN'] ?? '';
+
 class SetRepositoryImpl implements SetRepository {
+  var box = Hive.box('authentication');
   final DefaultApi _apiService = getIt<DefaultApi>();
+
+  SetRepositoryImpl() {
+    if(box.get('loginToken') != null) {
+      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    }
+  }
 
   @override
   Future<SetModel> getSetById(int id) async {
