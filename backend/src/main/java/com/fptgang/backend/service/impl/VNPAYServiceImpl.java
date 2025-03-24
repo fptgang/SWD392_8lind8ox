@@ -39,11 +39,11 @@ public class VNPAYServiceImpl implements VNPAYService {
         vnp_Params.put("vnp_CreateDate", formatter.format(now));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
-        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_Locale", blindBoxConfig.getVnpayLocale());
         vnp_Params.put("vnp_OrderInfo", orderInfo);
-        vnp_Params.put("vnp_OrderType", "250000");
+        vnp_Params.put("vnp_OrderType", blindBoxConfig.getVnpayOrderType());
         vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
-        vnp_Params.put("vnp_ExpireDate", formatter.format(now.plusMinutes(15)));
+        vnp_Params.put("vnp_ExpireDate", formatter.format(now.plusMinutes(blindBoxConfig.getVnpayExpireMinutes())));
         vnp_Params.put("vnp_TxnRef", txnRef);
 
         // Account account = transaction.getAccount();
