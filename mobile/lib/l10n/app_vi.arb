@@ -71,5 +71,7 @@
   "sort": "Sắp xếp",
   "filter": "Lọc",
   "loginSuccessfully": "Đăng nhập thành công",
-  "registerSuccessfully": "Đăng ký thành công"
+  "registerSuccessfully": "Đăng ký thành công",
+  "myAddress": "Địa chỉ của tôi",
+  "defaultAddress": "Mặc định"
 }

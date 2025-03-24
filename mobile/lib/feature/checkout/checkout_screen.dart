@@ -40,6 +40,9 @@ class CheckoutScreen extends StatelessWidget {
     final promotionBloc = getIt<PromotionBloc>();
     final shippingInfoBloc = getIt<ShippingInfoBloc>();
 
+    // Load shipping addresses when checkout screen initializes
+    shippingInfoBloc.add(GetShippingInfos());
+
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: cartGlobalBloc),
@@ -305,18 +308,121 @@ class _CheckoutFormContent extends StatelessWidget {
     return BlocBuilder<ShippingInfoBloc, ShippingInfoState>(
       bloc: shippingInfoBloc,
       builder: (context, shippingState) {
-        if (shippingState is ShippingInfoLoadingState &&
-            shippingState.isLoading) {
+        if (shippingState is ShippingInfoLoadingState && shippingState.isLoading) {
           return _buildLoadingAddressSection();
-        } else if (shippingState is ShippingInfoLoadingState &&
-            shippingState.error != null) {
-          return _buildErrorAddressSection(context, shippingState.error!);
-        } else if (shippingState is ShippingInfoDataState) {
-          return buildAddressSection(
-              shippingState.shippingInfo ?? ShippingInfoModel());
-        } else {
-          return buildAddAddressButton(shippingInfoBloc);
         }
+
+        if (shippingState is ShippingInfoDataState) {
+          // First try to get the selected address
+          ShippingInfoModel? selectedAddress = shippingState.selectedShippingInfo;
+          
+          // If no selected address, try to get the default (visible) address
+          if (selectedAddress == null && shippingState.shippingInfos.isNotEmpty) {
+            selectedAddress = shippingState.shippingInfos.firstWhere(
+              (info) => info.isVisible == true,
+              orElse: () => shippingState.shippingInfos.first,
+            );
+          }
+          
+          // If we have any address (selected, default, or first), display it
+          if (selectedAddress?.shippingInfoId != null) {
+            return Container(
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.all(16),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Shipping Address',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      TextButton(
+                        onPressed: () => _selectShippingAddress(context),
+                        child: Text(
+                          'Change',
+                          style: TextStyle(
+                            color: getColorSkin().primaryRed650,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    selectedAddress?.name ?? 'No Name',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    selectedAddress?.phoneNumber ?? 'No Phone',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${selectedAddress?.address ?? ''}, ${selectedAddress?.ward ?? ''}, ${selectedAddress?.district ?? ''}, ${selectedAddress?.city ?? ''}'.replaceAll(RegExp(r', ,|,$'), ''),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        }
+
+        // Show add address button if no addresses exist
+        return Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.all(16),
+          color: Colors.white,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Shipping Address',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Please add a shipping address to continue',
+                style: TextStyle(color: Colors.orange),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _selectShippingAddress(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: getColorSkin().primaryRed650,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Add Shipping Address',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
       },
     );
   }
@@ -328,57 +434,6 @@ class _CheckoutFormContent extends StatelessWidget {
       color: Colors.white,
       child: Center(
         child: CircularProgressIndicator(color: getColorSkin().primaryRed950),
-      ),
-    );
-  }
-
-  Widget _buildErrorAddressSection(BuildContext context, String error) {
-    final bool noShippingInfo = error.contains("Cannot get shipping info") ||
-        error.contains("not found");
-
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Shipping Address',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            noShippingInfo
-                ? 'You don\'t have a shipping address yet. Please add one to continue.'
-                : 'Error loading address: $error',
-            style: TextStyle(
-              color: noShippingInfo ? Colors.orange[800] : Colors.red,
-              fontWeight: noShippingInfo ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                _selectShippingAddress(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: getColorSkin().white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: Colors.white),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Text(
-                noShippingInfo ? 'Add Shipping Address' : 'Add New Address',
-                style: TextStyle(fontSize: 16, color: getColorSkin().black),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -628,16 +683,28 @@ class _CheckoutFormContent extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
 
-                // Extract shipping info ID
+                // Extract shipping info ID from the state
                 final shippingInfoState = shippingInfoBloc.state;
                 int? shippingInfoId;
 
                 if (shippingInfoState is ShippingInfoDataState) {
-                  shippingInfoId =
-                      shippingInfoState.selectedShippingInfo?.shippingInfoId
-                          ?? shippingInfoState.shippingInfo?.shippingInfoId;
+                  // First try to get the selected address
+                  ShippingInfoModel? selectedAddress = shippingInfoState.selectedShippingInfo;
+                  
+                  // If no selected address, try to get the default (visible) address
+                  if (selectedAddress == null && shippingInfoState.shippingInfos.isNotEmpty) {
+                    selectedAddress = shippingInfoState.shippingInfos.firstWhere(
+                      (info) => info.isVisible == true,
+                      orElse: () => shippingInfoState.shippingInfos.first,
+                    );
+                  }
+                  
+                  shippingInfoId = selectedAddress?.shippingInfoId;
                 }
 
+                debugPrint('Using shipping info ID: $shippingInfoId');
+
+                // Each item already has its own slotId, no need to handle it separately
                 checkoutBloc.add(
                   ValidateAndPlaceOrder(
                     cartItems: checkoutItems,

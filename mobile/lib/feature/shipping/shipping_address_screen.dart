@@ -171,6 +171,13 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                 itemBuilder: (context, index) {
                   final address = state.shippingInfos[index];
                   return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                      side: BorderSide(
+                        color: getColorSkin().white,
+                        width: 1.w,
+                      ),
+                    ),
                     margin: EdgeInsets.only(bottom: 16.h),
                     child: Padding(
                       padding: EdgeInsets.all(16.w),

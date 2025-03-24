@@ -25,7 +25,7 @@ class ValidateAndPlaceOrder extends CheckoutEvent {
 
   const ValidateAndPlaceOrder({
     required this.cartItems,
-    required this.shippingInfoId,
+    this.shippingInfoId,
   });
 
   @override

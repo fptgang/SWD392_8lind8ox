@@ -3,32 +3,32 @@ import 'package:mobile/utils/enum/enum.dart';
 
 ///this for checkout
 class CartModel extends Equatable {
+  final List<CartItemModel> items;
   final CartPaymentMethodEnum? paymentMethod;
-  final int? shippingInfoId;
   final int? voucherId;
-  final List<CartItemModel>? items;
+  final int? shippingInfoId;
 
   const CartModel({
+    required this.items,
     this.paymentMethod,
-    this.shippingInfoId,
     this.voucherId,
-    this.items,
+    this.shippingInfoId,
   });
 
   @override
-  List<Object?> get props => [paymentMethod, shippingInfoId, voucherId, items];
+  List<Object?> get props => [items, paymentMethod, voucherId, shippingInfoId];
 
   CartModel copyWith({
-    CartPaymentMethodEnum? paymentMethod,
-    int? shippingInfoId,
-    int? voucherId,
     List<CartItemModel>? items,
+    CartPaymentMethodEnum? paymentMethod,
+    int? voucherId,
+    int? shippingInfoId,
   }) {
     return CartModel(
-      paymentMethod: paymentMethod ?? this.paymentMethod,
-      shippingInfoId: shippingInfoId ?? this.shippingInfoId,
-      voucherId: voucherId ?? this.voucherId,
       items: items ?? this.items,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      voucherId: voucherId ?? this.voucherId,
+      shippingInfoId: shippingInfoId ?? this.shippingInfoId,
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/app/blocs/cart/cart_event.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/blocs/cart/cart_state.dart';
+import 'package:mobile/app/main.dart';
 import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/feature/cart/widget/cart_item.dart';
 
@@ -319,7 +320,7 @@ class _CartScreenState extends State<CartScreen> {
                 if (widget.isFromBottomNav) {
                   context.read<BottomNavigationCubit>().changeTab(0);
                 } else {
-                  Navigator.pop(context);
+                  AppRouter.router.go('/main');
                 }
               },
               style: ElevatedButton.styleFrom(
