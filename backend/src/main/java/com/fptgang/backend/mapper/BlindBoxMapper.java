@@ -1,10 +1,13 @@
 package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.BlindBoxDto;
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.BlindBox;
+import com.fptgang.backend.model.StockKeepingUnit;
 import com.fptgang.backend.repository.BrandRepos;
 import com.fptgang.backend.repository.ImageRepos;
 import com.fptgang.backend.util.DateTimeUtil;
+import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -111,9 +114,15 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         dto.setToys(entity.getToys().stream()
                 .map(e -> toyMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
-        dto.setSkus(entity.getSkus().stream()
-                .map(e -> skuConverter.toDTO(e, DetailLevel.REFERENCE))
-                .collect(Collectors.toList()));
+        if (SecurityUtil.hasRole(Account.Role.CUSTOMER)) {
+            dto.setSkus(entity.getSkus().stream().filter(StockKeepingUnit::getIsVisible)
+                    .map(e -> skuConverter.toDTO(e, DetailLevel.REFERENCE))
+                    .collect(Collectors.toList()));
+        } else {
+            dto.setSkus(entity.getSkus().stream()
+                    .map(e -> skuConverter.toDTO(e, DetailLevel.REFERENCE))
+                    .collect(Collectors.toList()));
+        }
         return dto;
     }
 }

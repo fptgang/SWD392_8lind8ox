@@ -320,15 +320,6 @@ const CheckoutPage: React.FC = () => {
 
     setOrderProcessing(true);
 
-    const { data: skusData } = useMany<StockKeepingUnitDto>({
-      resource: "skus",
-      ids: activeCartItems.map((item) => item.skuId),
-      queryOptions: {
-        enabled: activeCartItems.length > 0,
-      },
-    });
-    const skus = skusData?.data || [];
-
     try {
       // Create order payload according to the generated CartDto format
       const orderItems: CartItemDto[] = activeCartItems.map((item) => ({
