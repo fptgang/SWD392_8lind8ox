@@ -77,7 +77,7 @@ public class VideoController implements VideosApi {
     public ResponseEntity<VideoDto> getVideoById(Long videoId) {
         log.info("Getting video by id " + videoId);
         // 1) If user is not ADMIN, ensure the current user is the video owner
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
             long currentUserId = SecurityUtil.requireCurrentUserId();
             Video existingVideo = videoService.findById(videoId);
             if (existingVideo.getAccount().getAccountId() != currentUserId) {
@@ -99,7 +99,7 @@ public class VideoController implements VideosApi {
                 .filter(filter);
 
         // Customers can only view their own videos
-        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+        if (!SecurityUtil.hasRole(Account.Role.STAFF, Account.Role.ADMIN)) {
             params.setFilter("account.accountId", "eq", SecurityUtil.getCurrentUserId());
         }
 

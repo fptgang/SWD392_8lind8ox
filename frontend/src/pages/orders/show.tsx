@@ -110,9 +110,7 @@ export const OrdersShow = () => {
       if (response) {
         setActionSuccess(true);
         message.success(`Order status updated to ${statusAction?.nextStatus}`);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        queryResult.refetch();
       }
     } catch (error) {
       message.error("Failed to update order status");

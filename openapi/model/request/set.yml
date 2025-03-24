@@ -1,0 +1,21 @@
+SetRequestDto:
+  type: object
+  properties:
+    setId:
+      type: integer
+      format: int64
+    sku:
+      $ref: "../stock-keeping-unit.yml#/StockKeepingUnitDto"
+    isVisible:
+      type: boolean
+    numOfItems:
+      type: integer
+      format: int64
+    blindBox:
+      $ref: "../blindbox.yml#/BlindBoxDto"
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
