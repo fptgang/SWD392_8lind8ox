@@ -101,18 +101,17 @@ public class OrderServiceImpl implements OrderService {
                 BigDecimal discount = subTotal.multiply(campaign.getDiscountRate());
                 finalTotal = finalTotal.subtract(discount);
             }
-            assert slot != null;
-            slot.setState(Slot.State.RESERVED);
             OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setSlot(slot);
             orderDetail.setQuantity(item.getQuantity());
             orderDetail.setPromotionalCampaign(campaign);
             orderDetail.setStockKeepingUnit(sku);
             orderDetail.setUnitPrice(sku.getPrice());
             orderDetail.setSubTotal(subTotal);
             orderDetail.setFinalTotal(finalTotal);
-            assert slot != null;
-            slot.getOrderDetails().add(orderDetail);
+            if (slot != null) {
+                slot.setState(Slot.State.RESERVED);
+                orderDetail.setSlot(slot);
+            }
             orderDetails.add(orderDetail);
 
             log.info("OrderDetail SkuId={}, SlotId={}, Quantity={}, OriginalPrice={}, CheckoutPrice={}",
@@ -164,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
         // Validate shipping info
         ShippingInfo shippingInfo = shippingInfoService.findById(cart.getShippingInfoId());
 
-        if (shippingInfo == null|| !shippingInfo.getIsVisible())
+        if (shippingInfo == null || !shippingInfo.getIsVisible())
             throw new InvalidInputException("ShippingInfo not found");
 
         if (!Objects.equals(shippingInfo.getAccount()
@@ -490,7 +489,7 @@ public class OrderServiceImpl implements OrderService {
     public Order update(Order order) {
         Order existing = orderRepos.findById(order.getOrderId())
                 .orElseThrow(() -> new IllegalArgumentException("Order does not exist"));
-        log.info("{} {}",order.getLatestStatus(), existing.getLatestStatus());
+        log.info("{} {}", order.getLatestStatus(), existing.getLatestStatus());
         if (order.getLatestStatus() != null && existing.getLatestStatus() != order.getLatestStatus()) {
             switch (order.getLatestStatus()) {
                 case READY_FOR_PICKUP:
@@ -519,7 +518,7 @@ public class OrderServiceImpl implements OrderService {
                     if (existing.getLatestStatus() != OrderStatusHistory.State.DELIVERED) {
                         throw new IllegalArgumentException("Order is not in delivered state");
                     }
-                    if(!existing.getAccount().getAccountId().equals(order.getAccount().getAccountId())){
+                    if (!existing.getAccount().getAccountId().equals(order.getAccount().getAccountId())) {
                         throw new IllegalArgumentException("You are not this order's owner");
                     }
                     createStatusHistory(existing, OrderStatusHistory.State.RECEIVED);
