@@ -68,10 +68,9 @@
   },
   "scripts": {
     "predev": "npm run generate-api",
-    "prebuild": "npm run generate-api",
     "prestart": "npm run generate-api",
     "dev": "refine dev",
-    "build": "tsc && refine build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 refine build",
     "start": "refine start",
     "refine": "refine",
     "generate-api": "openapi-generator-cli generate -i ../openapi/main.yml -g typescript-fetch -o ./generated"
