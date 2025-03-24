@@ -72,5 +72,7 @@
   "sort": "Sort by",
   "filterBy": "Filter",
   "loginSuccessfully": "Login successfully",
-  "registerSuccessfully": "Register successfully"
+  "registerSuccessfully": "Register successfully",
+  "myAddress": "My Address",
+  "defaultAddress": "Default"
 }

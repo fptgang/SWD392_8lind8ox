@@ -40,6 +40,7 @@ class MapRepositoryImpl implements MapRepository {
   @override
   Future<AddressDetails?> reverseGeocode(double latitude, double longitude) async {
     try {
+      debugPrint('Using API key: ${dotenv.env['GOONG_API_KEY']}');
       return await _mapService.reverseGeocode(latitude, longitude);
     } catch (e, stackTrace) {
       debugPrint('Error in reverse geocoding: $e, $stackTrace');

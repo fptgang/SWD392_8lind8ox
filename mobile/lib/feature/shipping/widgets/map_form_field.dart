@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -8,6 +7,7 @@ import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/feature/shipping/blocs/map/map_bloc.dart';
 import 'package:mobile/feature/shipping/blocs/map/map_event.dart';
 import 'package:mobile/feature/shipping/blocs/map/map_state.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MapFormField extends StatefulWidget {
   final String title;
@@ -28,14 +28,66 @@ class MapFormField extends StatefulWidget {
 }
 
 class _MapFormFieldState extends State<MapFormField> {
-  final MapController _mapController = MapController();
-  LatLng? _markerPosition;
+  MapboxMap? _mapboxMap;
   late MapBloc _mapBloc;
-
+  PointAnnotationManager? _pointAnnotationManager;
+  
   @override
   void initState() {
     super.initState();
     _mapBloc = widget.mapBloc;
+    // Initialize Mapbox with the Goong token
+    MapboxOptions.setAccessToken(dotenv.env['VITE_GOONG_TOKEN_KEY'] ?? '');
+  }
+
+  void _onMapCreated(MapboxMap mapboxMap) async {
+    _mapboxMap = mapboxMap;
+    
+    // Set up the map style from Goong with API key
+    final goongApiKey = dotenv.env['GOONG_API_KEY'] ?? '';
+    await mapboxMap.style.setStyleURI(
+      "https://tiles.goong.io/assets/goong_map_web.json?api_key=$goongApiKey"
+    );
+    
+    // Create point annotation manager
+    _pointAnnotationManager = await mapboxMap.annotations.createPointAnnotationManager();
+  }
+
+  void _updateMarkerAtLocation(double longitude, double latitude) async {
+    if (_pointAnnotationManager == null) return;
+
+    // Remove existing markers
+    await _pointAnnotationManager!.deleteAll();
+    
+    // Create new marker
+    await _pointAnnotationManager!.create(PointAnnotationOptions(
+      geometry: Point.fromJson({
+        "type": "Point",
+        "coordinates": [longitude, latitude]
+      }),
+      iconSize: 1.5,
+      iconImage: "pin",
+    ));
+  }
+
+  void _handleMapTap(MapContentGestureContext context) {
+    final coordinates = context.point.coordinates;
+    if (coordinates != null && coordinates.length >= 2) {
+      final longitude = coordinates[0];
+      final latitude = coordinates[1];
+      
+      if (longitude != null && latitude != null) {
+        _updateMarkerAtLocation(longitude.toDouble(), latitude.toDouble());
+        
+        // Update current location in the bloc
+        _mapBloc.add(UpdateLocation(latitude.toDouble(), longitude.toDouble()));
+
+        // Notify parent
+        if (widget.onLocationSelected != null) {
+          widget.onLocationSelected!(LatLng(latitude.toDouble(), longitude.toDouble()));
+        }
+      }
+    }
   }
 
   @override
@@ -48,37 +100,32 @@ class _MapFormFieldState extends State<MapFormField> {
             previous.currentLocation != current.currentLocation,
         builder: (context, state) {
           // Default position (Ho Chi Minh City)
-          final defaultPosition = LatLng(10.776530, 106.700760);
+          double defaultLongitude = 106.700760;
+          double defaultLatitude = 10.776530;
 
           // Use selected place location if available
-          final position = state.selectedPlace != null
-              ? LatLng(
-                  state.selectedPlace!.location.latitude,
-                  state.selectedPlace!.location.longitude,
-                )
-              : state.currentLocation != null
-                  ? LatLng(
-                      state.currentLocation!.latitude,
-                      state.currentLocation!.longitude,
-                    )
-                  : defaultPosition;
+          double longitude = state.selectedPlace?.location.longitude ?? 
+                           state.currentLocation?.longitude ?? 
+                           defaultLongitude;
+          double latitude = state.selectedPlace?.location.latitude ?? 
+                          state.currentLocation?.latitude ?? 
+                          defaultLatitude;
 
-          // Update marker position
-          if (_markerPosition == null || _markerPosition != position) {
-            _markerPosition = position;
-            // Move the map to the new position
-            Future.microtask(() {
-              try {
-                _mapController.move(position, 15.0);
-              } catch (e) {
-                // Ignore if the map controller is not ready yet
-              }
-            });
-
-            // Notify parent about location selection
-            if (widget.onLocationSelected != null) {
-              widget.onLocationSelected!(position);
-            }
+          // Update marker and camera position
+          if (_mapboxMap != null) {
+            _updateMarkerAtLocation(longitude, latitude);
+            
+            // Move camera to the new position
+            _mapboxMap!.flyTo(
+              CameraOptions(
+                center: Point.fromJson({
+                  "type": "Point",
+                  "coordinates": [longitude, latitude]
+                }),
+                zoom: 15.0,
+              ),
+              MapAnimationOptions(duration: 500),
+            );
           }
 
           return Column(
@@ -103,54 +150,16 @@ class _MapFormFieldState extends State<MapFormField> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.r),
                   child: MapWidget(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter: position,
-                      initialZoom: 15.0,
-                      interactionOptions: const InteractionOptions(
-                        flags: InteractiveFlag.all,
-                      ),
-                      onTap: (tapPosition, latLng) {
-                        // Update marker position
-                        setState(() {
-                          _markerPosition = latLng;
-                        });
-
-                        // Update current location in the bloc
-                        _mapBloc.add(
-                          UpdateLocation(
-                            latLng.latitude,
-                            latLng.longitude,
-                          ),
-                        );
-
-                        // Notify parent
-                        if (widget.onLocationSelected != null) {
-                          widget.onLocationSelected!(latLng);
-                        }
-                      },
+                    key: const ValueKey("mapWidget"),
+                    onMapCreated: _onMapCreated,
+                    onTapListener: _handleMapTap,
+                    cameraOptions: CameraOptions(
+                      center: Point.fromJson({
+                        "type": "Point",
+                        "coordinates": [longitude, latitude]
+                      }),
+                      zoom: 15.0,
                     ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.blindbox.app',
-                      ),
-                      MarkerLayer(
-                        markers: [
-                          if (_markerPosition != null)
-                            Marker(
-                              width: 40.0,
-                              height: 40.0,
-                              point: _markerPosition!,
-                              child: const Icon(
-                                Icons.location_pin,
-                                color: Colors.red,
-                                size: 40,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
                   ),
                 ),
               ),
