@@ -94,6 +94,17 @@ export const getResources = (): IResourceItem[] => {
       },
     },
     {
+      name: "sets",
+      list: "/admin/sets",
+      create: "/admin/sets/create",
+      show: "/admin/sets/show/:id",
+      meta: {
+        label: "Sets",
+        icon: <InboxOutlined />,
+        parent: "catalog",
+      },
+    },
+    {
       name: "catalog",
       icon: <ShopOutlined />,
     },

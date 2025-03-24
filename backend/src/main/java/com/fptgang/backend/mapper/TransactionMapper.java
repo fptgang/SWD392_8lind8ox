@@ -1,5 +1,6 @@
 package com.fptgang.backend.mapper;
 
+import com.fptgang.backend.api.model.DepositDto;
 import com.fptgang.backend.api.model.TransactionDto;
 import com.fptgang.backend.model.Transaction;
 import com.fptgang.backend.repository.AccountRepos;
@@ -63,5 +64,18 @@ public class TransactionMapper extends BaseMapper<TransactionDto, Transaction> {
         dto.setOrderId(entity.getOrder() != null ? entity.getOrder().getOrderId() : null);
         dto.setStatus(entity.getStatus() != null ? TransactionDto.StatusEnum.valueOf(entity.getStatus().toString()) : null);
         return dto;
+    }
+
+    public TransactionDto toDTO(DepositDto dto) {
+        if(dto == null) {
+            return null;
+        }
+        TransactionDto transactionDto = new TransactionDto();
+        transactionDto.setAmount(dto.getAmount());
+        transactionDto.setType(TransactionDto.TypeEnum.DEPOSIT);
+        transactionDto.setPaymentMethod(TransactionDto.PaymentMethodEnum.valueOf(dto.getPaymentMethod().getValue()));
+        transactionDto.setStatus(TransactionDto.StatusEnum.PENDING);
+        transactionDto.setAccount(accountMapper.toDTO(accountRepos.getReferenceById(dto.getAccountId()), DetailLevel.REFERENCE));
+        return transactionDto;
     }
 }

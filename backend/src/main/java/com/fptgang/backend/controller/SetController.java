@@ -4,6 +4,7 @@ import com.fptgang.backend.api.controller.SetsApi;
 import com.fptgang.backend.api.model.GetSets200Response;
 import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.api.model.SetDto;
+import com.fptgang.backend.api.model.SetRequestDto;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.SetMapper;
 import com.fptgang.backend.model.Account;
@@ -36,13 +37,13 @@ public class SetController implements SetsApi {
     }
 
     @Override
-    public ResponseEntity<SetDto> createSet(SetDto setDto) {
+    public ResponseEntity<SetDto> createSet(SetRequestDto setDto) {
         log.info("Creating set");
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
-            throw new AccessDeniedException("Only admin can create sets");
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN, Account.Role.STAFF)) {
+            throw new AccessDeniedException("Only admin or staff can create sets");
         }
         return new ResponseEntity<>(
-                setMapper.toDTO(setService.create(setMapper.toEntity(setDto)), DetailLevel.FULL),
+                setMapper.toDTO(setService.create(setMapper.toEntity(setMapper.toDTO(setDto))), DetailLevel.FULL),
                 HttpStatus.CREATED
         );
     }
@@ -81,14 +82,14 @@ public class SetController implements SetsApi {
     }
 
     @Override
-    public ResponseEntity<SetDto> updateSet(Long setId, SetDto setDto) {
+    public ResponseEntity<SetDto> updateSet(Long setId, SetRequestDto setDto) {
         setDto.setSetId(setId); // Override setId
         if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
             throw new AccessDeniedException("Only admins can update sets.");
         }
         return ResponseEntity.ok(
                 setMapper.toDTO(
-                        setService.update(setMapper.toEntity(setDto)),
+                        setService.update(setMapper.toEntity(setMapper.toDTO(setDto))),
                         DetailLevel.FULL
                 )
         );

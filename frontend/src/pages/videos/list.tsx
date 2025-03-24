@@ -182,11 +182,11 @@ export const VideosList = () => {
             dataIndex="actions"
             render={(_, record: VideoDto) => (
               <Space>
-                {/* <ShowButton
+                <ShowButton
                   hideText
                   size="small"
                   recordItemId={record.videoId}
-                /> */}
+                />
                 {!record.isVerified && (
                   <>
                     <Button

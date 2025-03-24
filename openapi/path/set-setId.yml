@@ -43,7 +43,7 @@ put:
     content:
       application/json:
         schema:
-          $ref: '../model/set.yml#/SetDto'
+          $ref: '../model/request/set.yml#/SetRequestDto'
   responses:
     '200':
       description: The operation was successful

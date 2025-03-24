@@ -23,6 +23,12 @@ public class SetServiceImpl implements SetService {
 
     @Override
     public Set create(Set set) {
+
+        set = setRepos.save(set);
+        Set finalSet = set;
+        set.getSlots().forEach(slot -> {
+            slot.setSet(finalSet);
+        });
         return setRepos.save(set);
     }
 
@@ -43,7 +49,7 @@ public class SetServiceImpl implements SetService {
     public Set deleteById(long id) {
         Set set = setRepos.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Set does not exist"));
-//        set.setIsVisible(false);
+        set.setIsVisible(false);
         return setRepos.save(set);
     }
 
