@@ -1,5 +1,6 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.config.BlindBoxConfig;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Voucher;
 import com.fptgang.backend.repository.AccountRepos;
@@ -9,6 +10,7 @@ import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.EntityUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +20,13 @@ import java.time.LocalDateTime;
 @Service
 public class VoucherServiceImpl implements VoucherService {
 
+    private final BlindBoxConfig blindBoxConfig;
     private final VoucherRepos voucherRepos;
     private final AccountRepos accountRepos;
 
     @Autowired
-    public VoucherServiceImpl(VoucherRepos voucherRepos, AccountRepos accountRepos) {
+    public VoucherServiceImpl(BlindBoxConfig blindBoxConfig, VoucherRepos voucherRepos, AccountRepos accountRepos) {
+        this.blindBoxConfig = blindBoxConfig;
         this.voucherRepos = voucherRepos;
         this.accountRepos = accountRepos;
     }
@@ -44,10 +48,10 @@ public class VoucherServiceImpl implements VoucherService {
 
         voucher.setState(Voucher.State.AVAILABLE);
         voucher.setAccount(account);
-        voucher.setCode(RandomStringUtils.randomAlphanumeric(10));
-        voucher.setDiscountRate(BigDecimal.valueOf(0.1));
-        voucher.setLimitAmount(BigDecimal.valueOf(100));
-        voucher.setExpiredAt(LocalDateTime.now().plusMonths(1));
+        voucher.setCode(RandomStringUtils.randomAlphanumeric(blindBoxConfig.getDefaultCodeLength()));
+        voucher.setDiscountRate(blindBoxConfig.getDefaultDiscountRate());
+        voucher.setLimitAmount(blindBoxConfig.getDefaultLimitAmount());
+        voucher.setExpiredAt(LocalDateTime.now().plusMonths(blindBoxConfig.getDefaultExpiredMonths()));
         return voucherRepos.save(voucher);
     }
 

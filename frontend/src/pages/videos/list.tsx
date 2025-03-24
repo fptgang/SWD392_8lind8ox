@@ -187,7 +187,7 @@ export const VideosList = () => {
                   size="small"
                   recordItemId={record.videoId}
                 />
-                {!record.isVerified && (
+                {!record.isVerified && record.isVisible && (
                   <>
                     <Button
                       type="primary"

@@ -134,7 +134,7 @@ export const OrdersShow = () => {
         onCancel={() => setModalVisible(false)}
         okText="Confirm"
         cancelText="Cancel"
-        okButtonProps={{ loading: actionSuccess }}
+        okButtonProps={{ loading: !actionSuccess }}
       >
         <p>Are you sure you want to update this order to "{actionType}"?</p>
         <p>This action cannot be undone.</p>
