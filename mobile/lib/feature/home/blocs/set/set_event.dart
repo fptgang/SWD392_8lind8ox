@@ -1,56 +1,39 @@
-import 'package:mobile/data/models/set_model.dart';
+import 'package:equatable/equatable.dart';
+import 'package:openapi/api.dart';
 
-abstract class SetEvent {}
+abstract class SetEvent extends Equatable {
+  const SetEvent();
 
-class SelectSetCategory extends SetEvent {
-  final String category;
-
-  SelectSetCategory(this.category);
+  @override
+  List<Object?> get props => [];
 }
 
-class GetSets extends SetEvent {
-  final int pageKey;
+class FetchSets extends SetEvent {
+  final Pageable pageable;
+  final String filter;
+  final String search;
 
-  GetSets(this.pageKey);
+  const FetchSets({
+    required this.pageable,
+    this.filter = '',
+    this.search = '',
+  });
+
+  @override
+  List<Object?> get props => [pageable, filter, search];
 }
 
-class GetSetById extends SetEvent {
-  final int id;
+class RefreshSets extends SetEvent {
+  final Pageable pageable;
+  final String filter;
+  final String search;
 
-  GetSetById(this.id);
-}
+  const RefreshSets({
+    required this.pageable,
+    this.filter = '',
+    this.search = '',
+  });
 
-class GetNewArrivalSets extends SetEvent {
-  final int limit;
-  GetNewArrivalSets({this.limit = 10});
-}
-
-class GetSkuById extends SetEvent {
-  final int id;
-
-  GetSkuById(this.id);
-}
-
-class GetSkusForSet extends SetEvent {
-  final List<int> skuIds;
-
-  GetSkusForSet(this.skuIds);
-}
-
-class SelectSku extends SetEvent {
-  final int skuId;
-
-  SelectSku(this.skuId);
-}
-
-class LoadSetImages extends SetEvent {
-  final List<SetModel>? sets;
-  
-  LoadSetImages(this.sets);
-}
-
-class LoadSetImage extends SetEvent {
-  final SetModel set;
-  
-  LoadSetImage(this.set);
+  @override
+  List<Object?> get props => [pageable, filter, search];
 }

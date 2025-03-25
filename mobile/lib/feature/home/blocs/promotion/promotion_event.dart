@@ -1,19 +1,39 @@
-abstract class PromotionEvent {}
+import 'package:equatable/equatable.dart';
+import 'package:openapi/api.dart';
 
-class GetPromotions extends PromotionEvent {
-  final int pageKey;
+abstract class PromotionEvent extends Equatable {
+  const PromotionEvent();
 
-  GetPromotions(this.pageKey);
+  @override
+  List<Object?> get props => [];
 }
 
-class GetPromotionById extends PromotionEvent {
-  final int id;
+class FetchPromotions extends PromotionEvent {
+  final Pageable pageable;
+  final String filter;
+  final String search;
 
-  GetPromotionById(this.id);
+  const FetchPromotions({
+    required this.pageable,
+    this.filter = '',
+    this.search = '',
+  });
+
+  @override
+  List<Object?> get props => [pageable, filter, search];
 }
 
-class SelectPromotion extends PromotionEvent {
-  final String promotion;
+class RefreshPromotions extends PromotionEvent {
+  final Pageable pageable;
+  final String filter;
+  final String search;
 
-  SelectPromotion(this.promotion);
+  const RefreshPromotions({
+    required this.pageable,
+    this.filter = '',
+    this.search = '',
+  });
+
+  @override
+  List<Object?> get props => [pageable, filter, search];
 }

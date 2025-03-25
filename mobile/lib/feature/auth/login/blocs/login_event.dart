@@ -1,32 +1,19 @@
 abstract class LoginEvent {
   const LoginEvent();
-
-  @override
-  List<Object?> get props => [];
 }
 
-class LoginUsernameChanged extends LoginEvent {
-  const LoginUsernameChanged(this.username);
+class LoginEmailChanged extends LoginEvent {
+  final String email;
 
-  final String username;
-
-  @override
-  List<Object> get props => [username];
+  const LoginEmailChanged(this.email);
 }
 
 class LoginPasswordChanged extends LoginEvent {
-  const LoginPasswordChanged(this.password);
-
   final String password;
 
-  @override
-  List<Object> get props => [password];
+  const LoginPasswordChanged(this.password);
 }
 
 class LoginSubmitted extends LoginEvent {
   const LoginSubmitted();
-}
-
-class LoginWithGoogle extends LoginEvent {
-  const LoginWithGoogle();
 }

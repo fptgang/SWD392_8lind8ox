@@ -61,7 +61,7 @@ class CartItemWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               // Product Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.r),
@@ -120,37 +120,44 @@ class CartItemWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // Quantity controls
-                        Row(
-                          children: [
-                            _buildQuantityButton(
-                              icon: Icons.remove,
-                              onPressed: quantity > 1
-                                  ? () => onQuantityChanged(quantity - 1)
-                                  : null,
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              quantity.toString(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildQuantityButton(
+                                icon: Icons.remove,
+                                onPressed: quantity > 1
+                                    ? () => onQuantityChanged(quantity - 1)
+                                    : null,
                               ),
-                            ),
-                            SizedBox(width: 8.w),
-                            _buildQuantityButton(
-                              icon: Icons.add,
-                              onPressed: () => onQuantityChanged(quantity + 1),
-                            ),
-                          ],
+                              SizedBox(width: 8.w),
+                              Text(
+                                quantity.toString(),
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              _buildQuantityButton(
+                                icon: Icons.add,
+                                onPressed: () =>
+                                    onQuantityChanged(quantity + 1),
+                              ),
+                            ],
+                          ),
                         ),
 
                         // Total
-                        Text(
-                          'Total: \$${total.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: getColorSkin().darkGrey,
+                        Flexible(
+                          child: Text(
+                            'Total: \$${total.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: getColorSkin().darkGrey,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

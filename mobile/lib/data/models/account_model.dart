@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
+import 'package:openapi/api.dart';
 
 class AccountModel extends Equatable {
   static const AccountModel empty = AccountModel();
@@ -11,7 +12,7 @@ class AccountModel extends Equatable {
   final String? avatarUrl;
   final double? balance;
   final DateTime? updateBalanceAt;
-  // AccountDtoRoleEnum? role;
+  final AccountDtoRoleEnum? role;
   final bool? isVerified;
   final DateTime? verifiedAt;
   final bool? isVisible;
@@ -28,6 +29,7 @@ class AccountModel extends Equatable {
     this.avatarUrl,
     this.balance,
     this.updateBalanceAt,
+    this.role,
     this.isVerified,
     this.verifiedAt,
     this.isVisible,
@@ -38,18 +40,20 @@ class AccountModel extends Equatable {
 
   @override
   List<Object?> get props => [
-    accountId,
-    email,
-    password,
-    firstName,
-    lastName,
-    avatarUrl,
-    balance,
-    isVerified,
-    verifiedAt,
-    isVisible,
-    createdAt,
-    updatedAt,
-    defaultShippingInfo,
-  ];
+        accountId,
+        email,
+        password,
+        firstName,
+        lastName,
+        avatarUrl,
+        balance,
+        updateBalanceAt,
+        role,
+        isVerified,
+        verifiedAt,
+        isVisible,
+        createdAt,
+        updatedAt,
+        defaultShippingInfo,
+      ];
 }

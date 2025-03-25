@@ -6,17 +6,28 @@ import 'package:openapi/api.dart';
 
 class SlotMapper {
   static SlotModel toModel(SlotDto dto) {
+    // Handle null DTO case
+    if (dto.slotId == null) {
+      return SlotModel(
+        slotId: 0,
+        position: 0,
+        state: SlotStateEnum.AVAILABLE,
+        isVisible: false,
+        createdAt: DateTime.now(),
+      );
+    }
+
     return SlotModel(
         slotId: dto.slotId!,
-        position: dto.position!,
+        position: dto.position ?? 0,
         state: toSlotStateEnumModel(dto.state ?? SlotDtoStateEnum.AVAILABLE),
         isVisible: dto.isVisible,
         openedAt: dto.openedAt,
-        toy: ToyMapper.toModel(dto.toy ?? ToyDto()),
+        toy: dto.toy != null ? ToyMapper.toModel(dto.toy!) : null,
         setId: dto.setId,
-        createdAt: dto.createdAt!,
+        createdAt: dto.createdAt ?? DateTime.now(),
         updatedAt: dto.updatedAt,
-        video: VideoMapper.toModel(dto.video!));
+        video: dto.video != null ? VideoMapper.toModel(dto.video!) : null);
   }
 
   static SlotStateEnum toSlotStateEnumModel(SlotDtoStateEnum dto) {

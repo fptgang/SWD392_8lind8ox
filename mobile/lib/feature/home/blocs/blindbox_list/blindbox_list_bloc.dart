@@ -1,114 +1,66 @@
-import 'dart:async';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:injectable/injectable.dart';
-import 'package:mobile/data/models/blindbox_model.dart';
+import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/repositories/blindbox_repository.dart';
-import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_state.dart';
-import 'package:mobile/feature/home/blocs/blindbox_list/blindboxes_event.dart';
 import 'package:openapi/api.dart';
 
-@injectable
-@lazySingleton
-class BlindBoxesListBloc extends Bloc<BlindBoxEvent, BlindBoxesState> {
+import 'blindbox_list_event.dart';
+import 'blindbox_list_state.dart';
+
+class BlindBoxesListBloc
+    extends Bloc<BlindBoxesListEvent, BlindBoxesListState> {
   final BlindBoxRepository _blindBoxRepository;
-  Timer? _debounceTimer;
-  final PagingController<int, BlindBoxModel> pagingController;
 
-  PaginationState _paginationState;
-  DataState _dataState;
-
-  BlindBoxesListBloc(
-    this._blindBoxRepository,
-  )   : _paginationState =
-            PaginationState(pageable: Pageable(page: 1, size: 20)),
-        _dataState = const DataState(),
-        pagingController = PagingController(firstPageKey: 1),
-        super(LoadingState()) {
-    pagingController.addPageRequestListener((pageKey) {
-      add(GetBlindBoxes(pageKey));
-    });
-
-    on<GetBlindBoxes>(_onGetBlindBoxes);
-    on<GetNewReleaseBlindBoxes>(_onGetNewReleaseBlindBoxes);
-    on<UpdateFilter>(_onUpdateFilter);
-    on<RefreshBlindBoxes>(_onRefresh);
+  BlindBoxesListBloc(this._blindBoxRepository)
+      : super(const BlindBoxesListState()) {
+    on<FetchBlindBoxes>(_onFetchBlindBoxes);
+    on<RefreshBlindBoxes>(_onRefreshBlindBoxes);
   }
 
-  Future<void> _onGetBlindBoxes(
-    GetBlindBoxes event,
-    Emitter<BlindBoxesState> emit,
+  Future<void> _onFetchBlindBoxes(
+    FetchBlindBoxes event,
+    Emitter<BlindBoxesListState> emit,
   ) async {
-    emit(LoadingState(isLoading: true));
-
-    try {
-      final pageable = Pageable(page: event.pageKey, size: 20, sort: ['desc']);
-
-      final blindBoxes = await _blindBoxRepository.getBlindBoxes(
-          pageable, _dataState.filter ?? '', '');
-
-      final isLastPage = blindBoxes.content.length < pageable.size;
-
-      if (isLastPage) {
-        pagingController.appendLastPage(blindBoxes.content);
-      } else {
-        pagingController.appendPage(blindBoxes.content, event.pageKey + 1);
-      }
-
-      _paginationState = _paginationState.copyWith(
-        pageable: pageable,
-        hasReachedEnd: isLastPage,
-      );
-
-      emit(DataState(blindBoxes: blindBoxes));
-    } catch (error) {
-      pagingController.error = error;
-      emit(LoadingState(error: error.toString()));
-    }
-  }
-
-  Future<void> _onGetNewReleaseBlindBoxes(
-    GetNewReleaseBlindBoxes event,
-    Emitter<BlindBoxesState> emit,
-  ) async {
-    emit(LoadingState(isLoading: true));
-
+    emit(state.copyWith(status: BlindBoxesListStatus.loading));
     try {
       final blindBoxes = await _blindBoxRepository.getBlindBoxes(
-          _paginationState.pageable, _dataState.filter ?? '', '');
-
-      _paginationState = _paginationState.copyWith(
-        pageable: Pageable(
-          page: _paginationState.pageable.page,
-          size: 10,
-          sort: ['createdAt,desc'],
-        ),
+        event.pageable,
+        event.filter,
+        event.search,
       );
-
-      emit(DataState(blindBoxes: blindBoxes));
+      emit(state.copyWith(
+        status: BlindBoxesListStatus.success,
+        blindBoxes: blindBoxes,
+      ));
     } catch (e) {
-      emit(LoadingState(error: e.toString()));
+      debugPrint('Error fetching blind boxes: $e');
+      emit(state.copyWith(
+        status: BlindBoxesListStatus.failure,
+        errorMessage: e.toString(),
+      ));
     }
   }
 
-  void _onUpdateFilter(
-    UpdateFilter event,
-    Emitter<BlindBoxesState> emit,
-  ) {
-    _dataState = _dataState.copyWith(filter: event.filter);
-    _paginationState = _paginationState.copyWith(
-      pageable: Pageable(page: 1, size: 20),
-    );
-    pagingController.refresh();
-  }
-
-  void _onRefresh(
+  Future<void> _onRefreshBlindBoxes(
     RefreshBlindBoxes event,
-    Emitter<BlindBoxesState> emit,
-  ) {
-    pagingController.refresh();
-    _paginationState =
-        PaginationState(pageable: Pageable(page: 0, size: 20, sort: ['desc']));
+    Emitter<BlindBoxesListState> emit,
+  ) async {
+    try {
+      final blindBoxes = await _blindBoxRepository.getBlindBoxes(
+        event.pageable,
+        event.filter,
+        event.search,
+      );
+      emit(state.copyWith(
+        status: BlindBoxesListStatus.success,
+        blindBoxes: blindBoxes,
+      ));
+    } catch (e) {
+      debugPrint('Error refreshing blind boxes: $e');
+      emit(state.copyWith(
+        status: BlindBoxesListStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
   }
 }

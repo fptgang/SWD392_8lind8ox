@@ -27,12 +27,14 @@ class DioClient {
       // Set authorization header if token exists and is not empty
       final authHeader = tokenService.getAuthorizationHeader();
       if (authHeader != null && authHeader.isNotEmpty) {
-        debugPrint('Setting initial Authorization header: ${authHeader.substring(0, min(20, authHeader.length))}...');
+        debugPrint(
+            'Setting initial Authorization header: ${authHeader.substring(0, min(20, authHeader.length))}...');
         dio.options.headers['Authorization'] = authHeader;
       } else {
         // Remove any existing Authorization header if no valid token
         dio.options.headers.remove('Authorization');
-        debugPrint('No valid auth token available, not adding Authorization header');
+        debugPrint(
+            'No valid auth token available, not adding Authorization header');
       }
 
       // Add token refresh interceptor
@@ -46,16 +48,19 @@ class DioClient {
               options.headers['Authorization'] = currentAuthHeader;
             } else {
               options.headers.remove('Authorization');
-              debugPrint('Request to ${options.path}: No valid auth token, removing Authorization header');
+              debugPrint(
+                  'Request to ${options.path}: No valid auth token, removing Authorization header');
             }
             return handler.next(options);
           },
           onError: (error, handler) async {
             if (error.response?.statusCode == 401) {
-              debugPrint('401 error detected on ${error.requestOptions.path}, attempting token refresh');
+              debugPrint(
+                  '401 error detected on ${error.requestOptions.path}, attempting token refresh');
 
               if (error.requestOptions.path.contains('/auth/refresh-token')) {
-                debugPrint('Token refresh endpoint returned 401, clearing tokens and not retrying');
+                debugPrint(
+                    'Token refresh endpoint returned 401, clearing tokens and not retrying');
                 await tokenService.clearTokens();
                 return handler.next(error);
               }
@@ -88,32 +93,32 @@ class DioClient {
                   },
                 );
 
-                debugPrint('Refresh response received. Status: ${response.statusCode}');
+                debugPrint(
+                    'Refresh response received. Status: ${response.statusCode}');
 
                 if (response.statusCode == 200 &&
                     response.data != null &&
                     response.data['accessToken'] != null &&
                     response.data['refreshToken'] != null) {
-
                   final accessToken = response.data['accessToken'] as String;
-                  final newRefreshToken = response.data['refreshToken'] as String;
+                  final newRefreshToken =
+                      response.data['refreshToken'] as String;
 
                   if (accessToken.isEmpty || newRefreshToken.isEmpty) {
-                    debugPrint('🔴 Received empty tokens from refresh endpoint');
+                    debugPrint(
+                        '🔴 Received empty tokens from refresh endpoint');
                     await tokenService.clearTokens();
                     return handler.next(error);
                   }
 
                   debugPrint('Token refresh successful, saving new tokens');
 
-                  await tokenService.saveTokens(
-                      accessToken,
-                      newRefreshToken,
-                      forceWrite: true
-                  );
+                  await tokenService.saveTokens(accessToken, newRefreshToken,
+                      forceWrite: true);
 
                   final newAuthHeader = accessToken;
-                  debugPrint('Setting new authorization header for retry: ${newAuthHeader.substring(0, min(20, newAuthHeader.length))}...');
+                  debugPrint(
+                      'Setting new authorization header for retry: ${newAuthHeader.substring(0, min(20, newAuthHeader.length))}...');
 
                   error.requestOptions.headers['Authorization'] = newAuthHeader;
 
@@ -122,7 +127,8 @@ class DioClient {
                     headers: error.requestOptions.headers,
                   );
 
-                  debugPrint('Retrying original request to: ${error.requestOptions.path}');
+                  debugPrint(
+                      'Retrying original request to: ${error.requestOptions.path}');
                   final cloneReq = await dio.request(
                     error.requestOptions.path,
                     options: opts,
@@ -133,7 +139,8 @@ class DioClient {
                   debugPrint('Retry successful');
                   return handler.resolve(cloneReq);
                 } else {
-                  debugPrint('Token refresh failed. Status: ${response.statusCode}, Data: ${response.data}');
+                  debugPrint(
+                      'Token refresh failed. Status: ${response.statusCode}, Data: ${response.data}');
                   await tokenService.clearTokens();
                 }
               } catch (e) {

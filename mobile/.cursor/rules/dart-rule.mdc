@@ -1,0 +1,139 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Before diving into the best practices, please note that you may need to adapt the globs depending on your project's specific structure and file types.
+
+---
+
+name: flutter-best-practices.mdc
+description: Best practices for Flutter application development
+globs: **/*.{dart}
+
+- Use `const` constructors where possible for better performance
+- Implement proper state management using `Provider` or `Bloc`
+- Use `async/await` for asynchronous operations
+- Follow Flutter's widget lifecycle and dispose resources properly
+- Implement responsive design for various screen sizes
+
+---
+
+name: provider-best-practices.mdc
+description: Best practices for using the Provider state management library
+globs: **/*.{dart}
+
+- Use `ChangeNotifierProvider` for simple state management
+- Implement `Selector` for performance optimization
+- Use `Provider.of(context)` for accessing providers
+- Avoid overusing `Provider` and consider alternatives for complex scenarios
+
+---
+
+name: flutter_bloc-best-practices.mdc
+description: Best practices for using the BLoC pattern with Flutter
+globs: **/*.{dart}
+
+- Separate business logic from UI using Cubits or Blocs
+- Use `BlocProvider` for providing Blocs to widgets
+- Implement proper event handling and state management
+- Use `BlocBuilder` or `BlocConsumer` for rebuilding UI based on state changes
+
+---
+
+name: hive_flutter-best-practices.mdc
+description: Best practices for using Hive for local storage in Flutter
+globs: **/*.{dart}
+
+- Use type-safe boxes with `Hive.registerAdapter()`
+- Implement proper data modeling for efficient storage and retrieval
+- Use lazy loading with `Hive.openBox()` for better performance
+- Implement proper error handling for database operations
+
+---
+
+name: firebase_auth-best-practices.mdc
+description: Best practices for using Firebase Authentication in Flutter
+globs: **/*.{dart}
+
+- Implement proper error handling for authentication operations
+- Use Firebase Authentication's built-in methods for secure user management
+- Implement multi-factor authentication for enhanced security
+- Use Firebase Authentication's state change listener for real-time updates
+
+---
+
+name: go_router-best-practices.mdc
+description: Best practices for using Go Router for navigation in Flutter
+globs: **/*.{dart}
+
+- Use named routes for better maintainability
+- Implement proper route parameters and query parameters
+- Use `GoRouter.of(context).push()` for navigation
+- Implement proper error handling for navigation failures
+
+---
+
+name: dio-best-practices.mdc
+description: Best practices for using Dio for HTTP requests in Flutter
+globs: **/*.{dart}
+
+- Use interceptors for request/response logging and error handling
+- Implement proper timeout settings for requests
+- Use Dio's built-in support for JSON serialization/deserialization
+- Implement proper error handling for network operations
+
+---
+
+name: flutter_svg-best-practices.mdc
+description: Best practices for using Flutter SVG for vector graphics
+globs: **/*.{dart}
+
+- Use `SvgPicture.asset()` for loading SVG assets
+- Implement proper caching for frequently used SVGs
+- Use `SvgPicture.string()` for dynamic SVG content
+- Ensure SVGs are optimized for performance
+
+---
+
+name: google_fonts-best-practices.mdc
+description: Best practices for using Google Fonts in Flutter
+globs: **/*.{dart}
+
+- Use `GoogleFonts` to load fonts asynchronously
+- Implement proper font fallback mechanisms
+- Use `GoogleFonts.textTheme()` for consistent typography across the app
+- Consider using a subset of fonts for better performance
+
+---
+
+name: flutter_screenutil-best-practices.mdc
+description: Best practices for using Flutter ScreenUtil for responsive design
+globs: **/*.{dart}
+
+- Initialize `ScreenUtilInit` at the root of your app
+- Use `ScreenUtil().setWidth()` and `ScreenUtil().setHeight()` for responsive sizing
+- Implement proper font scaling with `ScreenUtil().scaleText()`
+- Test your app on various screen sizes and orientations
+
+---
+
+name: image_picker-best-practices.mdc
+description: Best practices for using Image Picker in Flutter
+globs: **/*.{dart}
+
+- Implement proper permission handling for camera and gallery access
+- Use `ImagePicker().pickImage()` for selecting images
+- Implement proper image compression for better performance
+- Handle different image formats and sizes appropriately
+
+---
+
+name: flutter_map-best-practices.mdc
+description: Best practices for using Flutter Map for mapping functionality
+globs: **/*.{dart}
+
+- Use `FlutterMap` widget for displaying maps
+- Implement proper marker management for points of interest
+- Use `MapController` for programmatic map control
+- Implement proper error handling for map loading and interactions

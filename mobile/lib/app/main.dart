@@ -23,7 +23,6 @@ import 'package:mobile/feature/auth/register/register_screen.dart';
 import 'package:mobile/feature/auth/reset_password/forgot_password_screen.dart';
 import 'package:mobile/feature/auth/reset_password/new_password_screen.dart';
 import 'package:mobile/feature/cart/cart_screen.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
 import 'package:mobile/feature/shipping/blocs/map/map_bloc.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_event.dart';
@@ -75,9 +74,10 @@ Future<void> _initializeApp() async {
   await Hive.initFlutter();
   await Hive.openBox("authentication");
 
-  await _initDeepLinks();
-
+  // Configure dependencies before deep links
   await _initDependencyInjection();
+
+  await _initDeepLinks();
 }
 
 Future<void> _initDeepLinks() async {
@@ -104,12 +104,9 @@ void _handleDeepLink(Uri uri) {
 }
 
 Future<void> _initDependencyInjection() async {
-  // Register LocaleCubit if not already registered
   if (!getIt.isRegistered<LocaleCubit>()) {
     getIt.registerSingleton<LocaleCubit>(LocaleCubit());
   }
-
-  // Configure other dependencies
   await configureDependencies();
 }
 
@@ -139,7 +136,6 @@ class MyApp extends StatelessWidget {
             ..add(AuthenticationSubscriptionRequested()),
         ),
         BlocProvider.value(value: dropdownCubit),
-        BlocProvider(create: (_) => getIt<CartCubit>()),
         BlocProvider(create: (_) => getIt<BlindBoxesListBloc>()),
         BlocProvider(create: (_) => getIt<SetBloc>()),
         BlocProvider(create: (_) => getIt<CartGlobalBloc>()),
@@ -288,13 +284,6 @@ class AppRouter {
       ),
       GoRoute(
         path: '/shipping-address',
-        builder: (context, state) => BlocProvider.value(
-          value: getIt<ShippingInfoBloc>(),
-          child: const ShippingAddressScreen(),
-        ),
-      ),
-      GoRoute(
-        path: '/shipping-address',
         builder: (context, state) {
           final Map<String, dynamic> extras =
               state.extra as Map<String, dynamic>? ?? {};
@@ -312,17 +301,18 @@ class AppRouter {
       GoRoute(
         path: '/shipping-address-form',
         builder: (context, state) {
-          final address = state.extra is ShippingInfoModel 
-              ? state.extra as ShippingInfoModel 
+          final address = state.extra is ShippingInfoModel
+              ? state.extra as ShippingInfoModel
               : null;
-              
+
           return MultiBlocProvider(
             providers: [
               BlocProvider.value(
                 value: getIt<ShippingInfoBloc>(),
               ),
               BlocProvider(
-                create: (context) => MapBloc(mapRepository: getIt<MapRepository>()),
+                create: (context) =>
+                    MapBloc(mapRepository: getIt<MapRepository>()),
               ),
             ],
             child: ShippingAddressFormScreen(

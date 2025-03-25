@@ -25,7 +25,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const {
     searchTerm,
     predictions,
-    updateSearchTerm,
+    updateSearchTerm, 
     selectPlace
   } = useMap({
     apiKey,

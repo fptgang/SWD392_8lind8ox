@@ -103,7 +103,12 @@ class CartMapper {
   static int? extractOrderId(PlaceOrder200Response response) {
     // Extract order ID from response
     try {
-      // Try different property access patterns to find the ID
+      // Try to get orderId from the order property first
+      if (response.order != null && response.order!.orderId != null) {
+        return response.order!.orderId;
+      }
+
+      // Fallback to dynamic access patterns if needed
       dynamic result;
 
       try {
@@ -117,7 +122,7 @@ class CartMapper {
       if (result != null) return _toInt(result);
 
       try {
-        result = (response as dynamic).order?.id;
+        result = (response as dynamic).order?.orderId;
       } catch (_) {}
       if (result != null) return _toInt(result);
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/app/main.dart';
 import 'package:mobile/base/theme/theme.dart';
@@ -6,7 +7,8 @@ import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_event.dart';
 
-Widget buildAddressSection(ShippingInfoModel shippingInfo) {
+Widget buildAddressSection(
+    BuildContext context, ShippingInfoModel shippingInfo) {
   return Container(
     margin: const EdgeInsets.only(top: 8),
     padding: const EdgeInsets.all(16),
@@ -26,8 +28,19 @@ Widget buildAddressSection(ShippingInfoModel shippingInfo) {
                 // Use the existing AppRouter.router instance
                 AppRouter.router.go('/shipping-address', extra: {
                   'isSelectionMode': true,
-                  'onAddressSelected': (ShippingInfoModel address) {
-                    getIt<ShippingInfoBloc>().add(SelectShippingInfo(address));
+                  'addressCallback': (ShippingInfoModel address) {
+                    try {
+                      debugPrint(
+                          'Address selected in checkout: ${address.name}');
+                      // Get ShippingInfoBloc from the current context instead of GetIt
+                      if (context.mounted) {
+                        context
+                            .read<ShippingInfoBloc>()
+                            .add(SelectShippingInfo(address));
+                      }
+                    } catch (e) {
+                      debugPrint('Error selecting shipping address: $e');
+                    }
                   },
                 });
               },
@@ -44,7 +57,6 @@ Widget buildAddressSection(ShippingInfoModel shippingInfo) {
     ),
   );
 }
-
 
 Widget _buildAddressInfo(ShippingInfoModel address) {
   final fullAddress = _buildFullAddressString(address);
@@ -100,7 +112,7 @@ String _buildFullAddressString(ShippingInfoModel address) {
   return components.join(', ');
 }
 
-Widget buildAddAddressButton(ShippingInfoBloc shippingInfoBloc) {
+Widget buildAddAddressButton(BuildContext context) {
   return Container(
     margin: const EdgeInsets.only(top: 8),
     padding: const EdgeInsets.all(16),
@@ -114,7 +126,7 @@ Widget buildAddAddressButton(ShippingInfoBloc shippingInfoBloc) {
         ),
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: () => _navigateToSelectAddress(shippingInfoBloc),
+          onPressed: () => _navigateToSelectAddress(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: getColorSkin().primaryRed650,
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -130,11 +142,17 @@ Widget buildAddAddressButton(ShippingInfoBloc shippingInfoBloc) {
   );
 }
 
-void _navigateToSelectAddress(ShippingInfoBloc shippingInfoBloc) {
+void _navigateToSelectAddress(BuildContext context) {
   AppRouter.router.go('/shipping-address', extra: {
     'isSelectionMode': true,
-    'onAddressSelected': (ShippingInfoModel address) {
-      shippingInfoBloc.add(SelectShippingInfo(address));
+    'addressCallback': (ShippingInfoModel address) {
+      try {
+        if (context.mounted) {
+          context.read<ShippingInfoBloc>().add(SelectShippingInfo(address));
+        }
+      } catch (e) {
+        debugPrint('Error selecting shipping address: $e');
+      }
     },
   });
 }

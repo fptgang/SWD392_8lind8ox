@@ -13,12 +13,13 @@ class TokenRefreshService {
   TokenRefreshService({
     required TokenService tokenService,
     Dio? dio,
-  }) : _tokenService = tokenService,
-        _dio = dio ?? Dio(BaseOptions(
-          baseUrl: dotenv.env['BASE_URL'] ?? '',
-          connectTimeout: const Duration(seconds: 15),
-          receiveTimeout: const Duration(seconds: 15),
-        ));
+  })  : _tokenService = tokenService,
+        _dio = dio ??
+            Dio(BaseOptions(
+              baseUrl: dotenv.env['BASE_URL'] ?? '',
+              connectTimeout: const Duration(seconds: 15),
+              receiveTimeout: const Duration(seconds: 15),
+            ));
 
   Future<JwtResponseModel> refreshToken() async {
     final refreshToken = _tokenService.getRefreshToken();
@@ -30,7 +31,8 @@ class TokenRefreshService {
     }
 
     try {
-      debugPrint('Attempting to refresh token with token: ${refreshToken.substring(0, min(10, refreshToken.length))}...');
+      debugPrint(
+          'Attempting to refresh token with token: ${refreshToken.substring(0, min(10, refreshToken.length))}...');
 
       // Remove any existing authorization header to prevent sending expired tokens
       _dio.options.headers.remove('Authorization');
@@ -55,7 +57,6 @@ class TokenRefreshService {
           response.data != null &&
           response.data['accessToken'] != null &&
           response.data['refreshToken'] != null) {
-
         final accessToken = response.data['accessToken'] as String;
         final newRefreshToken = response.data['refreshToken'] as String;
 
@@ -64,13 +65,15 @@ class TokenRefreshService {
         await Future.delayed(const Duration(milliseconds: 100));
 
         // Save new tokens with force write
-        await _tokenService.saveTokens(accessToken, newRefreshToken, forceWrite: true);
+        await _tokenService.saveTokens(accessToken, newRefreshToken,
+            forceWrite: true);
 
         // Verify tokens were saved
         final savedAccessToken = _tokenService.getAccessToken();
         final savedRefreshToken = _tokenService.getRefreshToken();
 
-        debugPrint('Token refresh verification - Access: ${savedAccessToken != null}, Refresh: ${savedRefreshToken != null}');
+        debugPrint(
+            'Token refresh verification - Access: ${savedAccessToken != null}, Refresh: ${savedRefreshToken != null}');
 
         if (savedAccessToken == null || savedRefreshToken == null) {
           throw Exception('Failed to save refreshed tokens');

@@ -20,8 +20,9 @@ class OrderRepositoryImpl implements OrderRepository {
   final DefaultApi _apiService = getIt<DefaultApi>();
 
   OrderRepositoryImpl() {
-    if(box.get('loginToken') != null) {
-      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+    if (box.get('loginToken') != null) {
+      _apiService.apiClient
+          .addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
     }
   }
 
@@ -39,6 +40,33 @@ class OrderRepositoryImpl implements OrderRepository {
       debugPrint('Cannot get order information: $e');
       throw Exception('Cannot get order information');
     }
+  }
+
+  /// Attempt to get an order with retry mechanism
+  Future<OrderModel?> _getOrderWithRetry(int orderId,
+      {int maxRetries = 3, int delayMs = 1000}) async {
+    OrderModel? orderModel;
+
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        debugPrint('Attempt $attempt to retrieve order $orderId');
+        orderModel = await getOrderById(orderId);
+        if (orderModel != null) {
+          debugPrint('Successfully retrieved order on attempt $attempt');
+          return orderModel;
+        }
+      } catch (e) {
+        debugPrint('Error retrieving order on attempt $attempt: $e');
+        if (attempt == maxRetries) {
+          debugPrint('Max retries reached. Unable to retrieve order.');
+          return null;
+        }
+        // Wait before retrying
+        await Future.delayed(Duration(milliseconds: delayMs));
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -92,10 +120,10 @@ class OrderRepositoryImpl implements OrderRepository {
       }
 
       debugPrint('Successfully extracted orderId: $orderId');
-      final orderModel = await getOrderById(orderId);
 
+      // Return minimal order response with just the ID and payment URL
       return OrderResponseModel(
-        order: orderModel,
+        order: OrderModel(orderId: orderId),
         paymentRedirectUrl: _extractPaymentUrl(response),
       );
     } catch (e) {
@@ -105,14 +133,13 @@ class OrderRepositoryImpl implements OrderRepository {
         debugPrint('- Status code: ${apiError.code}');
         debugPrint('- Message: ${apiError.message}');
         debugPrint('- Response: ${apiError.toString()}');
-        // Check if there are specific error codes that indicate auth issues
         if (apiError.code == 401) {
           debugPrint(
               'Authentication failure - token may be expired or invalid');
         }
       }
 
-      debugPrint('F ailed to create order: $e');
+      debugPrint('Failed to create order: $e');
       throw Exception('Failed to create order: $e');
     }
   }
