@@ -1,5 +1,6 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.config.BlindBoxConfig;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.RefreshToken;
@@ -19,19 +20,21 @@ import java.util.Objects;
 
 @Service
 public class JwtServiceImpl implements JwtService {
-    private static final Duration JWT_EXPIRY_DURATION = Duration.ofMinutes(15);
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtServiceImpl.class);
     private final JwtEncoder encoder;
     private final JwtDecoder decoder;
     private final RefreshTokenService refreshTokenService;
+    private final BlindBoxConfig blindBoxConfig;
 
     @Value("${exception.log:false}")
     private boolean exceptionLog;
 
-    public JwtServiceImpl(JwtEncoder encoder, JwtDecoder decoder, RefreshTokenService refreshTokenService) {
+    public JwtServiceImpl(JwtEncoder encoder, JwtDecoder decoder, RefreshTokenService refreshTokenService,
+            BlindBoxConfig blindBoxConfig) {
         this.encoder = encoder;
         this.decoder = decoder;
         this.refreshTokenService = refreshTokenService;
+        this.blindBoxConfig = blindBoxConfig;
     }
 
     @Override
@@ -40,7 +43,7 @@ public class JwtServiceImpl implements JwtService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("Backend")
                 .issuedAt(now)
-                .expiresAt(now.plus(JWT_EXPIRY_DURATION))
+                .expiresAt(now.plus(blindBoxConfig.getJwtExpiryDuration()))
                 .subject(email)
                 .claim("scope", role.name())
                 .claim("accountId", accountId)

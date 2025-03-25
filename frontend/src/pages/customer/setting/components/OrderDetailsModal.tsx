@@ -224,7 +224,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
                   {detail?.slot &&
                     order.latestStatus === "RECEIVED" &&
-                    (detail?.slot?.video ? (
+                    (detail?.slot?.video?.isVisible == true ? (
                       <div className="mt-2 text-center">
                         <Tooltip title="Watch video">
                           <Button
@@ -247,15 +247,23 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                         )}
                       </div>
                     ) : (
-                      <Button
-                        type="primary"
-                        icon={<UploadOutlined />}
-                        size="small"
-                        className="mt-2"
-                        onClick={() => showUploadModal(detail?.slot)}
-                      >
-                        Upload Video
-                      </Button>
+                      <>
+                        {detail.slot.video && (
+                          <Text type="secondary" className="mt-2">
+                            Your video has been rejected. Please upload a new
+                            video.
+                          </Text>
+                        )}
+                        <Button
+                          type="primary"
+                          icon={<UploadOutlined />}
+                          size="small"
+                          className="mt-2"
+                          onClick={() => showUploadModal(detail?.slot)}
+                        >
+                          Upload Video
+                        </Button>
+                      </>
                     ))}
                 </div>
               </div>

@@ -1,5 +1,6 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.config.BlindBoxConfig;
 import com.fptgang.backend.service.CurrencyService;
 import com.fptgang.backend.util.CurrencyType;
 import com.fptgang.backend.util.CurrencyUtil;
@@ -21,8 +22,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CurrencyServiceImpl implements CurrencyService {
     private static final Logger logger = LoggerFactory.getLogger(CurrencyServiceImpl.class);
-    private static final String EXCHANGE_RATE_KEY = "CurrencyExchangeRate";
-    private static final BigDecimal DEFAULT_EXCHANGE_RATE = BigDecimal.valueOf(25000);
     private static final HttpClient httpClient = HttpClient.newHttpClient();
     private static final Gson gson = new Gson();
 
@@ -30,9 +29,11 @@ public class CurrencyServiceImpl implements CurrencyService {
     private String apiKey;
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final BlindBoxConfig blindBoxConfig;
 
-    public CurrencyServiceImpl(RedisTemplate<String, Object> redisTemplate) {
+    public CurrencyServiceImpl(RedisTemplate<String, Object> redisTemplate, BlindBoxConfig blindBoxConfig) {
         this.redisTemplate = redisTemplate;
+        this.blindBoxConfig = blindBoxConfig;
     }
 
     @Override
@@ -53,8 +54,8 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public BigDecimal fetchLatestExchangeRate(CurrencyType to) {
-        String cacheKey = EXCHANGE_RATE_KEY + ":" + to;
-        
+        String cacheKey = blindBoxConfig.getCurrencyExchangeCacheKey() + ":" + to;
+
         // Check cache first
         Object cachedRate = redisTemplate.opsForValue().get(cacheKey);
         if (cachedRate != null) {
@@ -63,8 +64,8 @@ public class CurrencyServiceImpl implements CurrencyService {
 
         // Fetch from API
         try {
-            String url = String.format("https://api.currencyapi.com/v3/latest?apikey=%s&currencies=%s", 
-                apiKey, to);
+            String url = String.format("https://api.currencyapi.com/v3/latest?apikey=%s&currencies=%s",
+                    apiKey, to);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -76,12 +77,16 @@ public class CurrencyServiceImpl implements CurrencyService {
             if (jsonResponse.has("data") && jsonResponse.getAsJsonObject("data").has(to.toString())) {
                 JsonObject data = jsonResponse.getAsJsonObject("data").getAsJsonObject(to.toString());
                 BigDecimal exchangeRate = data.get("value").getAsBigDecimal();
-                redisTemplate.opsForValue().set(cacheKey, exchangeRate, 1, TimeUnit.DAYS);
+                redisTemplate.opsForValue().set(
+                        cacheKey,
+                        exchangeRate,
+                        blindBoxConfig.getCurrencyExchangeCacheTtl().toDays(),
+                        TimeUnit.DAYS);
                 return exchangeRate;
             }
         } catch (Exception e) {
             logger.error("Error fetching exchange rate for {} from CurrencyAPI", to, e);
         }
-        return DEFAULT_EXCHANGE_RATE;
+        return blindBoxConfig.getDefaultExchangeRate();
     }
 }
