@@ -72,11 +72,11 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
       // Load selected items
       final selectedItemsJson = _prefs?.getString(_selectedItemsKey);
       Set<int> selectedItemIds = {};
-      
+
       if (selectedItemsJson != null && selectedItemsJson.isNotEmpty) {
         final List<dynamic> decoded = jsonDecode(selectedItemsJson);
         selectedItemIds = decoded.map<int>((id) => id as int).toSet();
-        
+
         // Validate selected IDs against current cart items
         selectedItemIds = selectedItemIds
             .where((id) => cartItems.any((item) => item.id == id))
@@ -449,6 +449,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
         emit(state.copyWith(
           isLoading: false,
           error: null,
+          orderResponse: response,
         ));
       }
     } catch (e) {
@@ -466,17 +467,17 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
   ) {
     try {
       final currentSelectedIds = Set<int>.from(state.selectedItemIds);
-      
+
       // Toggle selection
       if (currentSelectedIds.contains(event.itemId)) {
         currentSelectedIds.remove(event.itemId);
       } else {
         currentSelectedIds.add(event.itemId);
       }
-      
+
       // Save to SharedPreferences
       _saveSelectedItems(currentSelectedIds);
-      
+
       emit(state.copyWith(
         selectedItemIds: currentSelectedIds,
         clearError: true,
@@ -488,7 +489,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
       ));
     }
   }
-  
+
   void _onSelectAllItems(
     SelectAllItems event,
     Emitter<CartState> emit,
@@ -496,10 +497,10 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
     try {
       // Get all item IDs from the cart
       final allItemIds = state.items.map((item) => item.id).toSet();
-      
+
       // Save to SharedPreferences
       _saveSelectedItems(allItemIds);
-      
+
       emit(state.copyWith(
         selectedItemIds: allItemIds,
         clearError: true,
@@ -511,7 +512,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
       ));
     }
   }
-  
+
   void _onDeselectAllItems(
     DeselectAllItems event,
     Emitter<CartState> emit,
@@ -519,7 +520,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
     try {
       // Clear selected items
       _saveSelectedItems({});
-      
+
       emit(state.copyWith(
         clearSelectedItems: true,
         clearError: true,
@@ -531,7 +532,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
       ));
     }
   }
-  
+
   Future<void> _saveSelectedItems(Set<int> selectedIds) async {
     try {
       final jsonString = jsonEncode(selectedIds.toList());
@@ -549,22 +550,22 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
       if (!state.hasSelectedItems) {
         return; // Nothing to remove
       }
-      
+
       // Filter out selected items
       final remainingItems = state.items
           .where((item) => !state.selectedItemIds.contains(item.id))
           .toList();
-          
+
       // Calculate totals
       final originalTotal = _calculateOriginalTotal(remainingItems);
       final total = _calculateTotal(remainingItems);
-      
+
       // Save to SharedPreferences
       await _saveCartItems(remainingItems);
-      
+
       // Clear selected items
       await _saveSelectedItems({});
-      
+
       emit(state.copyWith(
         items: remainingItems,
         originalTotal: originalTotal,
@@ -572,7 +573,7 @@ class CartGlobalBloc extends Bloc<CartEvent, CartState> {
         clearSelectedItems: true,
         clearError: true,
       ));
-      
+
       if (remainingItems.isEmpty) {
         // Clear voucher if cart is empty
         emit(state.copyWith(

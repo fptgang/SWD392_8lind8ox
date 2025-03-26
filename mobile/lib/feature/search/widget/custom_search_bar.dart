@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/base/theme/theme.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_event.dart';
 import 'package:mobile/feature/search/blocs/search_bloc.dart';
 import 'package:mobile/feature/search/blocs/search_event.dart';
 import 'package:mobile/feature/search/blocs/search_state.dart';
+import 'package:openapi/api.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final String defaultText;
@@ -27,7 +30,7 @@ class CustomSearchBar extends StatelessWidget {
             if (event is KeyDownEvent &&
                 event.logicalKey == LogicalKeyboardKey.enter &&
                 searchQuery.trim().isNotEmpty) {
-              context.read<SearchBloc>().add(SubmitSearch(searchQuery));
+              _performSearch(context, searchQuery);
             }
           },
           child: TextFormField(
@@ -81,7 +84,7 @@ class CustomSearchBar extends StatelessWidget {
             },
             onFieldSubmitted: (value) {
               if (value.trim().isNotEmpty) {
-                context.read<SearchBloc>().add(SubmitSearch(value));
+                _performSearch(context, value);
               }
             },
             // Add a key press listener to handle Enter key
@@ -90,5 +93,22 @@ class CustomSearchBar extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _performSearch(BuildContext context, String query) {
+    // Trigger the search in SearchBloc
+    context.read<SearchBloc>().add(SubmitSearch(query));
+
+    // Also trigger the search in BlindBoxesListBloc
+    context.read<BlindBoxesListBloc>().add(
+          FetchBlindBoxes(
+            pageable: Pageable(
+              page: 0,
+              size: 20,
+              sort: [''],
+            ),
+            search: query,
+          ),
+        );
   }
 }

@@ -7,9 +7,9 @@ import 'package:mobile/app/blocs/cart/cart_event.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
+import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/feature/cart/cart_screen.dart';
 
-import '../../cart/cubits/cart_cubit.dart';
 import '../blocs/blindbox_detail_state.dart';
 
 class BottomActionBar extends StatelessWidget {
@@ -143,12 +143,12 @@ class BottomActionBar extends StatelessWidget {
 
     final int itemId = selectedSku.skuId ?? state.id;
 
-    // Create a cart item that works with both CartCubit and CartGlobalBloc
     try {
-      // First try using CartCubit, which should be more stable
-      final cartCubit = context.read<CartGlobalBloc>();
+      // Get the CartGlobalBloc from getIt (dependency injection)
+      final cartBloc = getIt<CartGlobalBloc>();
 
-      final displayItem = CartItemModel(
+      // Create a cart item
+      final cartItem = CartItemModel(
         id: itemId,
         productName: productName,
         price: price,
@@ -157,56 +157,29 @@ class BottomActionBar extends StatelessWidget {
         skuId: selectedSku.skuId,
       );
 
-      cartCubit.add(AddItemToCart(displayItem));
-
-      _showFeedbackAndNavigate(
-          context, appLocalizations, isSet, navigateToCheckout);
-    } catch (e) {
-      // If CartCubit fails, try with CartGlobalBloc as fallback
-      try {
-        // Safe way to get CartGlobalBloc using getIt instead of context
-        final cartBloc = getIt<CartGlobalBloc>();
-
-        // Make sure it's not closed before using it
-        if (!cartBloc.isClosed) {
-          final cartItem = CartItemModel(
-            id: itemId,
-            productName: productName,
-            price: price,
-            image: imageUrl,
-            quantity: quantity,
-            skuId: selectedSku.skuId,
-          );
-
-          cartBloc.add(AddItemToCart(cartItem));
-
-          _showFeedbackAndNavigate(
-              context, appLocalizations, isSet, navigateToCheckout);
-        } else {
-          // Show error when the bloc is closed
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Unable to add to cart at this time',
-                style: TextStyle(color: getColorSkin().white),
-              ),
-              backgroundColor: getColorSkin().warningRed,
-            ),
-          );
-        }
-      } catch (innerError) {
-        // If both approaches fail, show an error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Unable to add to cart: $innerError',
-              style: TextStyle(color: getColorSkin().white),
-            ),
-            backgroundColor: getColorSkin().warningRed,
-          ),
-        );
+      // Add the item to cart
+      if (!cartBloc.isClosed) {
+        cartBloc.add(AddItemToCart(cartItem));
+        _showFeedbackAndNavigate(
+            context, appLocalizations, isSet, navigateToCheckout);
+      } else {
+        _showCartError(context, 'Unable to add to cart at this time');
       }
+    } catch (e) {
+      _showCartError(context, 'Error adding to cart: $e');
     }
+  }
+
+  void _showCartError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(color: getColorSkin().white),
+        ),
+        backgroundColor: getColorSkin().warningRed,
+      ),
+    );
   }
 
   void _showFeedbackAndNavigate(

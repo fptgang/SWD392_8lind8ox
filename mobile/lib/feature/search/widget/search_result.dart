@@ -11,15 +11,15 @@ class SearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BlindBoxesListBloc, BlindBoxesState>(
+    return BlocBuilder<BlindBoxesListBloc, BlindBoxesListState>(
       builder: (context, state) {
-        if (state is LoadingState && state.isLoading) {
+        if (state.status == BlindBoxesListStatus.loading) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        if (state is DataState) {
+        if (state.status == BlindBoxesListStatus.success) {
           final blindBoxes = state.blindBoxes?.content;
           if (blindBoxes == null || blindBoxes.isEmpty) {
             return Center(
@@ -50,7 +50,7 @@ class SearchResults extends StatelessWidget {
           );
         }
 
-        if (state is LoadingState && state.error != null) {
+        if (state.status == BlindBoxesListStatus.failure) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -63,7 +63,7 @@ class SearchResults extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  state.error!,
+                  state.errorMessage ?? 'Unknown error occurred',
                   style: Theme.of(context).textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
@@ -262,12 +262,9 @@ class SearchResults extends StatelessWidget {
   }
 
   String _parseHtmlString(String htmlString) {
-    try {
-      final document = parse(htmlString);
-      return document.body?.text ?? htmlString;
-    } catch (e) {
-      // If parsing fails, do basic cleanup
-      return htmlString.replaceAll(RegExp(r'<[^>]*>'), '');
-    }
+    final document = parse(htmlString);
+    final String parsedString =
+        parse(document.body?.text).documentElement!.text;
+    return parsedString;
   }
 }

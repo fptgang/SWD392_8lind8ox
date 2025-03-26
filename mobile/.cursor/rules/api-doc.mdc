@@ -1,0 +1,74 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+always double check from the folder before  implement for the api docs
+if any api is mising implement from the ground up from
+
+define reposs interrface then implement always attempt to call refreshtoken if the api include refreshtoken 
+
+alsso if mappper is not presented implement it 
+
+
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/api
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/auth
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/account_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/auth_response_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/blind_box_campaign_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/blind_box_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/brand_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/cart_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/cart_item_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/error_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/forgot_password_request_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_accounts200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_blind_boxes200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_brands200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_notifications200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_orders200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_promotional_campaigns200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_sets200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_shipping_infos200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_slots200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_stock_keeping_units200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_toys200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_transactions200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_videos200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/get_vouchers200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/image_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/jwt_response_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/login_request_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/notification_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/order_detail_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/order_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/order_status_history_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/order_status.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/page.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/pageable.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/place_order200_response.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/promotion_campaign_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/promotional_campaign_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/promotional_campaign_request_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/refresh_token_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/register_request_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/reset_password_request_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/set_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/shipping_info_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/slot_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/stock_keeping_unit_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/string_big_decimal_datapoint_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/string_integer_datapoint_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/toy_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/transaction_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/trending_product_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/video_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/model/voucher_dto.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/api_client.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/api_exception.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/api_helper.dart
+/Users/vidz/SWD392_8lind8ox/mobile/generated_api/lib/api.dart

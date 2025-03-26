@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/models/voucher_model.dart';
+import 'package:mobile/data/models/order_response_model.dart';
 
 class CartState extends Equatable {
   final List<CartItemModel> items;
@@ -14,6 +15,7 @@ class CartState extends Equatable {
   final VoucherModel? voucher;
   final ShippingInfoModel? shippingInfo;
   final int? accountId;
+  final OrderResponseModel? orderResponse;
 
   const CartState({
     this.items = const [],
@@ -25,6 +27,7 @@ class CartState extends Equatable {
     this.voucher,
     this.shippingInfo,
     this.accountId,
+    this.orderResponse,
   });
 
   CartState copyWith({
@@ -37,14 +40,17 @@ class CartState extends Equatable {
     VoucherModel? voucher,
     ShippingInfoModel? shippingInfo,
     int? accountId,
+    OrderResponseModel? orderResponse,
     bool clearError = false,
     bool clearVoucher = false,
     bool clearShippingInfo = false,
     bool clearSelectedItems = false,
+    bool clearOrderResponse = false,
   }) {
     return CartState(
       items: items ?? this.items,
-      selectedItemIds: clearSelectedItems ? {} : (selectedItemIds ?? this.selectedItemIds),
+      selectedItemIds:
+          clearSelectedItems ? {} : (selectedItemIds ?? this.selectedItemIds),
       total: total ?? this.total,
       originalTotal: originalTotal ?? this.originalTotal,
       isLoading: isLoading ?? this.isLoading,
@@ -53,29 +59,31 @@ class CartState extends Equatable {
       shippingInfo:
           clearShippingInfo ? null : (shippingInfo ?? this.shippingInfo),
       accountId: accountId ?? this.accountId,
+      orderResponse:
+          clearOrderResponse ? null : (orderResponse ?? this.orderResponse),
     );
   }
 
   // Helper getters
   int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
-  
+
   // Selected items getters
-  List<CartItemModel> get selectedItems => 
+  List<CartItemModel> get selectedItems =>
       items.where((item) => selectedItemIds.contains(item.id)).toList();
-      
-  int get selectedItemCount => 
+
+  int get selectedItemCount =>
       selectedItems.fold(0, (sum, item) => sum + item.quantity);
-      
+
   bool get hasSelectedItems => selectedItemIds.isNotEmpty;
-  
+
   bool isItemSelected(int itemId) => selectedItemIds.contains(itemId);
-  
+
   // Calculate totals based on selected items only
-  double get selectedItemsTotal => 
-      selectedItems.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
-      
-  double get selectedItemsOriginalTotal => 
-      selectedItems.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
+  double get selectedItemsTotal => selectedItems.fold(
+      0.0, (sum, item) => sum + (item.price * item.quantity));
+
+  double get selectedItemsOriginalTotal => selectedItems.fold(
+      0.0, (sum, item) => sum + (item.price * item.quantity));
 
   double get savings => originalTotal - total;
 
@@ -84,15 +92,16 @@ class CartState extends Equatable {
           ? _calculateVoucherDiscount()
           : 0
       : 0;
-      
-  double get selectedItemsVoucherDiscount => voucher != null 
+
+  double get selectedItemsVoucherDiscount => voucher != null
       ? (voucher!.discountRate ?? 0) > 0 && hasSelectedItems
           ? calculateVoucherDiscountOnSelected()
           : 0
       : 0;
 
-  double get finalTotal => hasSelectedItems 
-      ? selectedItemsTotal - (hasSelectedItems ? calculateVoucherDiscountOnSelected() : 0)
+  double get finalTotal => hasSelectedItems
+      ? selectedItemsTotal -
+          (hasSelectedItems ? calculateVoucherDiscountOnSelected() : 0)
       : total - voucherDiscount;
 
   double _calculateVoucherDiscount() {
@@ -103,12 +112,13 @@ class CartState extends Equatable {
 
     return discountAmount > maxDiscount ? maxDiscount : discountAmount;
   }
-  
+
   // Calculate voucher discount based on selected items only
   double calculateVoucherDiscountOnSelected() {
     if (voucher == null || !hasSelectedItems) return 0;
 
-    final discountAmount = selectedItemsTotal * ((voucher!.discountRate ?? 0) / 100);
+    final discountAmount =
+        selectedItemsTotal * ((voucher!.discountRate ?? 0) / 100);
     final maxDiscount = voucher!.limitAmount ?? double.infinity;
 
     return discountAmount > maxDiscount ? maxDiscount : discountAmount;
@@ -125,5 +135,6 @@ class CartState extends Equatable {
         voucher,
         shippingInfo,
         accountId,
+        orderResponse,
       ];
 }

@@ -79,10 +79,29 @@ class _ImageCarouselState extends State<ImageCarousel>
         itemBuilder: (context, index) {
           if (images.isNotEmpty) {
             final imageUrl = images[index];
+            if (imageUrl == null || imageUrl.isEmpty) {
+              return Image.asset(
+                'assets/jpg/blind_box.jpg',
+                fit: BoxFit.contain,
+              );
+            }
+
             return Image.network(
               imageUrl,
               fit: BoxFit.contain,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                );
+              },
               errorBuilder: (context, error, stackTrace) {
+                debugPrint('Error loading image: $error');
                 return Image.asset(
                   'assets/jpg/blind_box.jpg',
                   fit: BoxFit.contain,

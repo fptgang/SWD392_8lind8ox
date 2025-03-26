@@ -1,73 +1,32 @@
+import 'package:equatable/equatable.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/promotional_campaign_model.dart';
-import 'package:openapi/api.dart';
 
-abstract class PromotionState {}
+enum PromotionStatus { initial, loading, success, failure }
 
-class PromotionPaginationState implements PromotionState {
-  final Pageable pageable;
-  final bool hasReachedEnd;
+class PromotionState extends Equatable {
+  final PromotionStatus status;
+  final PaginationResponseGeneric<PromotionModel>? promotions;
+  final String? errorMessage;
 
-  const PromotionPaginationState({
-    required this.pageable,
-    this.hasReachedEnd = false,
+  const PromotionState({
+    this.status = PromotionStatus.initial,
+    this.promotions,
+    this.errorMessage,
   });
 
-  PromotionPaginationState copyWith({
-    Pageable? pageable,
-    bool? hasReachedEnd,
+  PromotionState copyWith({
+    PromotionStatus? status,
+    PaginationResponseGeneric<PromotionModel>? promotions,
+    String? errorMessage,
   }) {
-    return PromotionPaginationState(
-      pageable: pageable ?? this.pageable,
-      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+    return PromotionState(
+      status: status ?? this.status,
+      promotions: promotions ?? this.promotions,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
-}
 
-class PromotionLoadingState implements PromotionState {
-  final bool isLoading;
-  final String? error;
-
-  const PromotionLoadingState({
-    this.isLoading = false,
-    this.error,
-  });
-
-  PromotionLoadingState copyWith({
-    bool? isLoading,
-    String? error,
-  }) {
-    return PromotionLoadingState(
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-    );
-  }
-}
-
-class PromotionDataState implements PromotionState {
-  final PaginationResponseGeneric<PromotionModel>? promotionResponseModel;
-  final PromotionModel? promotion;
-  final String? filter;
-  final String? search;
-
-  const PromotionDataState({
-    this.promotionResponseModel,
-    this.promotion,
-    this.filter,
-    this.search,
-  });
-
-  PromotionDataState copyWith({
-    PaginationResponseGeneric<PromotionModel>? promotionResponseModel,
-    PromotionModel? promotion,
-    String? filter,
-    String? search,
-  }) {
-    return PromotionDataState(
-      promotionResponseModel: promotionResponseModel ?? this.promotionResponseModel,
-      promotion: promotion ?? this.promotion,
-      filter: filter ?? this.filter,
-      search: search ?? this.search,
-    );
-  }
+  @override
+  List<Object?> get props => [status, promotions, errorMessage];
 }

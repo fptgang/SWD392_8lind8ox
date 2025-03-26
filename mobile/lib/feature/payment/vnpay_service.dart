@@ -7,7 +7,7 @@ class VNPayService {
     BuildContext context, {
     required OrderResponseModel orderResponse,
   }) async {
-    if (orderResponse.paymentRedirectUrl == null || 
+    if (orderResponse.paymentRedirectUrl == null ||
         orderResponse.paymentRedirectUrl!.isEmpty) {
       _showMessage(context, 'No payment URL provided');
       return false;
@@ -20,17 +20,16 @@ class VNPayService {
     try {
       final result = await Navigator.of(context).push<bool>(
         VNPayWebViewScreen.route(
-          paymentUrl: orderResponse.paymentRedirectUrl!,
-          onPaymentCompleted: (success, transactionId) {
-            debugPrint(
-                'Payment completed: success=$success, transaction=$transactionId');
-            if (success) {
-              _showMessage(context, 'Payment successful');
-            } else {
-              _showMessage(context, 'Payment failed');
-            }
-          }
-        ),
+            paymentUrl: orderResponse.paymentRedirectUrl!,
+            onPaymentCompleted: (success, transactionId) {
+              debugPrint(
+                  'Payment completed: success=$success, transaction=$transactionId');
+              if (success) {
+                _showMessage(context, 'Payment successful');
+              } else {
+                _showMessage(context, 'Payment failed');
+              }
+            }),
       );
 
       return result ?? false;
@@ -48,4 +47,4 @@ class VNPayService {
       ),
     );
   }
-} 
+}

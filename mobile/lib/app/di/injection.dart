@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
@@ -25,12 +26,11 @@ import 'package:mobile/data/repositories/order_detail_repository.dart';
 import 'package:mobile/data/repositories/promotion_repository.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
 import 'package:mobile/data/repositories/transaction_repository.dart';
+import 'package:mobile/data/services/auth_interceptor.dart';
 import 'package:mobile/data/services/token_refresh_service.dart';
 import 'package:mobile/data/services/token_service.dart';
 import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
-import 'package:mobile/feature/checkout/blocs/checkout_bloc.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
-import 'package:mobile/feature/checkout/blocs/voucher/voucher_bloc.dart';
 import 'package:mobile/feature/detail/blocs/blindbox_detail_bloc.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
 import 'package:mobile/feature/home/blocs/promotion/promotion_bloc.dart';
@@ -38,6 +38,7 @@ import 'package:mobile/feature/home/blocs/set/set_bloc.dart';
 import 'package:mobile/feature/order/blocs/order/order_bloc.dart';
 import 'package:mobile/feature/wallet/bloc/wallet_bloc.dart';
 import 'package:openapi/api.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/datasources/local/impl/search_local_datasource_impl.dart';
@@ -152,8 +153,7 @@ void _registerRepositories() {
   }
 
   if (!getIt.isRegistered<OrderRepository>()) {
-    getIt.registerLazySingleton<OrderRepository>(
-            () => OrderRepositoryImpl());
+    getIt.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl());
   }
 
   if (!getIt.isRegistered<PromotionRepository>()) {
@@ -181,12 +181,11 @@ void _registerDataSources(SharedPrefManager sharedPrefManager) {
 }
 
 void _registerAPI(Box box) {
-
   if (!getIt.isRegistered<TokenService>()) {
     getIt.registerLazySingleton<TokenService>(
       () {
         final service = TokenService(box: box);
-        
+
         final accessToken = service.getAccessToken();
         if (accessToken != null && accessToken.isNotEmpty) {
           final parts = accessToken.split('.');
@@ -201,23 +200,85 @@ void _registerAPI(Box box) {
     );
   }
 
+  if (!getIt.isRegistered<Dio>()) {
+    getIt.registerLazySingleton<Dio>(() {
+      final dio = Dio(BaseOptions(
+        baseUrl: dotenv.env['BASE_URL'] ?? '',
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ));
+
+      // Add logging in debug mode
+      if (kDebugMode) {
+        dio.interceptors.add(PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseHeader: true,
+          responseBody: true,
+          error: true,
+          compact: true,
+        ));
+      }
+
+      return dio;
+    });
+  }
+
   if (!getIt.isRegistered<DefaultApi>()) {
     getIt.registerLazySingleton<DefaultApi>(() {
       final apiClient = ApiClient(basePath: dotenv.env['BASE_URL'] ?? '');
-      final token = box.get('loginToken');
+      final tokenService = getIt<TokenService>();
+      final token = tokenService.getAccessToken();
+
       if (token != null && token.isNotEmpty) {
-        apiClient.addDefaultHeader("Authorization", "Bearer $token");
+        final authHeader =
+            token.startsWith('Bearer ') ? token : 'Bearer $token';
+        apiClient.addDefaultHeader("Authorization", authHeader);
+        debugPrint('Set API client Authorization header: $authHeader');
+      } else {
+        // Fallback to direct box access if token service fails
+        final fallbackToken = box.get('loginToken');
+        if (fallbackToken != null && fallbackToken.isNotEmpty) {
+          final authHeader = 'Bearer $fallbackToken';
+          apiClient.addDefaultHeader("Authorization", authHeader);
+          debugPrint('Set fallback API Authorization header: $authHeader');
+        } else {
+          debugPrint(
+              'WARNING: No valid auth token found for API initialization');
+        }
       }
+
       return DefaultApi(apiClient);
     });
   }
+
   if (!getIt.isRegistered<AuthRepository>()) {
     getIt.registerLazySingleton<AuthRepository>(
-      () => AuthRepositoryImpl(
-      ),
+      () => AuthRepositoryImpl(),
     );
   }
-  
+
+  if (!getIt.isRegistered<AuthInterceptor>()) {
+    getIt.registerLazySingleton<AuthInterceptor>(() {
+      final interceptor =
+          AuthInterceptor(getIt<Dio>(), getIt<AuthRepository>());
+
+      // Add the interceptor to the dio instance
+      if (!getIt<Dio>().interceptors.contains(interceptor)) {
+        getIt<Dio>().interceptors.add(interceptor);
+      }
+
+      return interceptor;
+    });
+
+    // Force creation to ensure interceptor is registered
+    getIt<AuthInterceptor>();
+  }
+
   if (!getIt.isRegistered<TokenRefreshService>()) {
     getIt.registerLazySingleton<TokenRefreshService>(
       () => TokenRefreshService(
@@ -251,20 +312,14 @@ void _registerBlocs() {
   }
 
   if (!getIt.isRegistered<WalletBloc>()) {
-    getIt.registerLazySingleton<WalletBloc>(
-            () => WalletBloc(getIt<TransactionRepository>(), getIt<AccountRepository>()));
+    getIt.registerLazySingleton<WalletBloc>(() =>
+        WalletBloc(getIt<TransactionRepository>(), getIt<AccountRepository>()));
   }
 
   if (!getIt.isRegistered<PromotionBloc>()) {
     getIt.registerLazySingleton<PromotionBloc>(
         () => PromotionBloc(getIt<PromotionRepository>()));
   }
-
-  if (!getIt.isRegistered<VoucherBloc>()) {
-    getIt.registerLazySingleton<VoucherBloc>(
-            () => VoucherBloc(getIt<VoucherRepository>()));
-  }
-
 
   if (!getIt.isRegistered<BlindBoxesListBloc>()) {
     getIt.registerLazySingleton<BlindBoxesListBloc>(
@@ -278,20 +333,13 @@ void _registerBlocs() {
   }
   if (!getIt.isRegistered<OrderBloc>()) {
     getIt.registerLazySingleton<OrderBloc>(() => OrderBloc(
-      getIt<OrderRepository>(),
-    ));
+          getIt<OrderRepository>(),
+        ));
   }
 
   if (!getIt.isRegistered<ShippingInfoBloc>()) {
     getIt.registerLazySingleton<ShippingInfoBloc>(
         () => ShippingInfoBloc(getIt<ShippingInfoRepository>()));
-  }
-
-  if (!getIt.isRegistered<CheckoutBloc>()) {
-    getIt.registerLazySingleton<CheckoutBloc>(() => CheckoutBloc(
-          getIt<VoucherRepository>(),
-          orderRepository: getIt<OrderRepository>(),
-        ));
   }
 
   // Factory Blocs (short-lived, recreated frequently)
@@ -302,12 +350,6 @@ void _registerBlocs() {
 
   getIt.registerFactory<LoginBloc>(() => LoginBloc(
         authRepository: getIt<AuthRepository>(),
-      ));
-
-  getIt.registerFactory<BlindBoxDetailBloc>(() => BlindBoxDetailBloc(
-        blindBoxRepository: getIt<BlindBoxRepository>(),
-        skuRepository: getIt<SkuRepository>(),
-        imageRepository: getIt<ImageRepository>(),
       ));
 
   if (!getIt.isRegistered<AccountBloc>()) {

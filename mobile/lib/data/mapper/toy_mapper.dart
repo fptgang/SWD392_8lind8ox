@@ -5,16 +5,32 @@ import 'package:openapi/api.dart';
 
 class ToyMapper {
   static ToyModel toModel(ToyDto dto) {
+    // Handle null DTO
+    if (dto.toyId == null) {
+      return ToyModel(
+        toyId: 0,
+        name: 'Unknown Toy',
+        description: '',
+        weight: 0,
+        rarity: ToyRarityEnum.REGULAR,
+        isVisible: false,
+        createdAt: DateTime.now(),
+        images: [],
+      );
+    }
+
     return ToyModel(
       toyId: dto.toyId!,
-      name: dto.name!,
-      description: dto.description!,
-      weight: dto.weight!,
-      rarity: _mapDtoRarity(dto.rarity!),
-      isVisible: dto.isVisible!,
-      createdAt: dto.createdAt!,
+      name: dto.name ?? 'Unknown',
+      description: dto.description ?? '',
+      weight: dto.weight ?? 0,
+      rarity: dto.rarity != null
+          ? _mapDtoRarity(dto.rarity!)
+          : ToyRarityEnum.REGULAR,
+      isVisible: dto.isVisible ?? false,
+      createdAt: dto.createdAt ?? DateTime.now(),
       updatedAt: dto.updatedAt,
-      images: dto.images.map((e) => ImageMapper.toModel(e)).toList(),
+      images: dto.images?.map((e) => ImageMapper.toModel(e)).toList() ?? [],
     );
   }
 

@@ -1,15 +1,22 @@
 part of 'authentication_bloc.dart';
 
-class AuthenticationEvent {
+abstract class AuthenticationEvent {
   const AuthenticationEvent();
 }
 
- class AuthenticationSubscriptionRequested extends AuthenticationEvent {}
+class AuthenticationSubscriptionRequested extends AuthenticationEvent {
+  const AuthenticationSubscriptionRequested();
+}
 
- class AuthenticationLogoutPressed extends AuthenticationEvent {}
+class AuthenticationStatusChanged extends AuthenticationEvent {
+  const AuthenticationStatusChanged(this.status);
+  final AuthenticationStatus status;
+}
+
+class AuthenticationLogoutPressed extends AuthenticationEvent {
+  const AuthenticationLogoutPressed();
+}
 
 class AuthenticationLoggedIn extends AuthenticationEvent {
-  final String token;
-
-  AuthenticationLoggedIn({required this.token});
+  const AuthenticationLoggedIn();
 }

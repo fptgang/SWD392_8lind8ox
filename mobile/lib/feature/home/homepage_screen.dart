@@ -1,251 +1,495 @@
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
-import 'package:mobile/app/blocs/cart/cart_state.dart';
 import 'package:mobile/app/di/injection.dart';
-import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/home/widget/filter_button.dart';
-import 'package:mobile/feature/home/widget/new_release_products.dart';
-import 'package:mobile/feature/home/widget/recommended_item.dart';
-import 'package:mobile/feature/home/widget/sort_by_button_sheet.dart';
+import 'package:mobile/data/models/blindbox_model.dart';
+import 'package:mobile/data/models/promotional_campaign_model.dart';
+import 'package:mobile/data/models/set_model.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_event.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_state.dart';
+import 'package:mobile/feature/home/blocs/promotion/promotion_bloc.dart';
+import 'package:mobile/feature/home/blocs/promotion/promotion_event.dart';
+import 'package:mobile/feature/home/blocs/promotion/promotion_state.dart';
+import 'package:mobile/feature/home/blocs/set/set_bloc.dart';
+import 'package:mobile/feature/home/blocs/set/set_event.dart';
+import 'package:mobile/feature/home/blocs/set/set_state.dart';
+import 'package:mobile/feature/home/widgets/blindbox_card.dart';
+import 'package:mobile/feature/home/widgets/promotion_card.dart';
+import 'package:mobile/feature/home/widgets/section_title.dart';
+import 'package:mobile/feature/home/widgets/set_card.dart';
+import 'package:openapi/api.dart';
 
 class HomePageScreen extends StatelessWidget {
   const HomePageScreen({super.key});
 
-  static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const HomePageScreen());
+  @override
+  Widget build(BuildContext context) {
+    debugPrint('📱 Building HomePageScreen');
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<BlindBoxesListBloc>(
+          create: (context) {
+            debugPrint('📱 Creating BlindBoxesListBloc');
+            final bloc = getIt<BlindBoxesListBloc>();
+            bloc.add(
+              FetchBlindBoxes(
+                pageable: Pageable(
+                  page: 0,
+                  size: 10,
+                  sort: [''],
+                ),
+              ),
+            );
+            return bloc;
+          },
+        ),
+        BlocProvider<PromotionBloc>(
+          create: (context) {
+            debugPrint('📱 Creating PromotionBloc');
+            final bloc = getIt<PromotionBloc>();
+            bloc.add(
+              FetchPromotions(
+                pageable: Pageable(
+                  page: 0,
+                  size: 5,
+                  sort: [''],
+                ),
+              ),
+            );
+            return bloc;
+          },
+        ),
+        BlocProvider<SetBloc>(
+          create: (context) {
+            debugPrint('📱 Creating SetBloc');
+            final bloc = getIt<SetBloc>();
+            bloc.add(
+              FetchSets(
+                pageable: Pageable(
+                  page: 0,
+                  size: 10,
+                  sort: [''],
+                ),
+              ),
+            );
+            return bloc;
+          },
+        ),
+      ],
+      child: _HomePageContent(),
+    );
   }
+}
+
+class _HomePageContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    debugPrint('📱 Building _HomePageContent');
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Blind Box'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              // TODO: Navigate to search screen
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              // TODO: Navigate to cart screen
+            },
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          debugPrint('📱 Refreshing all data');
+          _refreshData(context);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildPromotionsCarousel(context),
+              const SizedBox(height: 24),
+              _buildBlindBoxesSection(context),
+              const SizedBox(height: 24),
+              _buildSetsSection(context),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPromotionsCarousel(BuildContext context) {
+    return BlocBuilder<PromotionBloc, PromotionState>(
+      buildWhen: (previous, current) {
+        debugPrint(
+            '📱 PromotionBloc state changed: ${previous.status} -> ${current.status}');
+        return previous.status != current.status ||
+            previous.promotions != current.promotions;
+      },
+      builder: (context, state) {
+        debugPrint(
+            '📱 Building PromotionsCarousel with state: ${state.status}');
+        if (state.status == PromotionStatus.loading &&
+            state.promotions == null) {
+          return const _PromotionsLoadingWidget();
+        }
+
+        if (state.status == PromotionStatus.failure) {
+          debugPrint(
+              '⚠️ PromotionBloc failed with error: ${state.errorMessage}');
+          return _ErrorWidget(
+            message: state.errorMessage ?? 'Failed to load promotions',
+            onRetry: () => _refreshPromotions(context),
+          );
+        }
+
+        final promotions = state.promotions?.content ?? [];
+        debugPrint('📱 Loaded ${promotions.length} promotions');
+        if (promotions.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SectionTitle(title: 'Promotions'),
+            SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: promotions.length,
+                itemBuilder: (context, index) {
+                  return PromotionCard(
+                    promotion: promotions[index],
+                    onTap: () {
+                      // TODO: Navigate to promotion detail
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildBlindBoxesSection(BuildContext context) {
+    return BlocBuilder<BlindBoxesListBloc, BlindBoxesListState>(
+      buildWhen: (previous, current) {
+        debugPrint(
+            '📱 BlindBoxesListBloc state changed: ${previous.status} -> ${current.status}');
+        return previous.status != current.status ||
+            previous.blindBoxes != current.blindBoxes;
+      },
+      builder: (context, state) {
+        debugPrint('📱 Building BlindBoxesSection with state: ${state.status}');
+        if (state.status == BlindBoxesListStatus.loading &&
+            state.blindBoxes == null) {
+          return const _BlindBoxesLoadingWidget();
+        }
+
+        if (state.status == BlindBoxesListStatus.failure) {
+          debugPrint(
+              '⚠️ BlindBoxesListBloc failed with error: ${state.errorMessage}');
+          return _ErrorWidget(
+            message: state.errorMessage ?? 'Failed to load blind boxes',
+            onRetry: () => _refreshBlindBoxes(context),
+          );
+        }
+
+        final blindBoxes = state.blindBoxes?.content ?? [];
+        debugPrint('📱 Loaded ${blindBoxes.length} blind boxes');
+        if (blindBoxes.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionTitle(
+              title: 'Blind Boxes',
+              onSeeAll: () {
+                // TODO: Navigate to all blind boxes screen
+              },
+            ),
+            SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: blindBoxes.length,
+                itemBuilder: (context, index) {
+                  return BlindBoxCard(
+                    blindBox: blindBoxes[index],
+                    onTap: () {
+                      // TODO: Navigate to blind box detail
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSetsSection(BuildContext context) {
+    return BlocBuilder<SetBloc, SetState>(
+      buildWhen: (previous, current) {
+        debugPrint(
+            '📱 SetBloc state changed: ${previous.status} -> ${current.status}');
+        return previous.status != current.status ||
+            previous.sets != current.sets;
+      },
+      builder: (context, state) {
+        debugPrint('📱 Building SetsSection with state: ${state.status}');
+        if (state.status == SetStatus.loading && state.sets == null) {
+          return const _SetsLoadingWidget();
+        }
+
+        if (state.status == SetStatus.failure) {
+          debugPrint('⚠️ SetBloc failed with error: ${state.errorMessage}');
+          return _ErrorWidget(
+            message: state.errorMessage ?? 'Failed to load sets',
+            onRetry: () => _refreshSets(context),
+          );
+        }
+
+        final sets = state.sets?.content ?? [];
+        debugPrint('📱 Loaded ${sets.length} sets');
+        if (sets.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionTitle(
+              title: 'Sets',
+              onSeeAll: () {
+                // TODO: Navigate to all sets screen
+              },
+            ),
+            SizedBox(
+              height: 250,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: sets.length,
+                itemBuilder: (context, index) {
+                  return SetCard(
+                    set: sets[index],
+                    onTap: () {
+                      // TODO: Navigate to set detail
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _refreshData(BuildContext context) {
+    debugPrint('📱 Refreshing all data from UI');
+    _refreshPromotions(context);
+    _refreshBlindBoxes(context);
+    _refreshSets(context);
+  }
+
+  void _refreshPromotions(BuildContext context) {
+    debugPrint('📱 Refreshing promotions');
+    BlocProvider.of<PromotionBloc>(context).add(
+      RefreshPromotions(
+        pageable: Pageable(
+          page: 0,
+          size: 5,
+          sort: [''],
+        ),
+      ),
+    );
+  }
+
+  void _refreshBlindBoxes(BuildContext context) {
+    debugPrint('📱 Refreshing blind boxes');
+    BlocProvider.of<BlindBoxesListBloc>(context).add(
+      RefreshBlindBoxes(
+        pageable: Pageable(
+          page: 0,
+          size: 10,
+          sort: [''],
+        ),
+      ),
+    );
+  }
+
+  void _refreshSets(BuildContext context) {
+    debugPrint('📱 Refreshing sets');
+    BlocProvider.of<SetBloc>(context).add(
+      RefreshSets(
+        pageable: Pageable(
+          page: 0,
+          size: 10,
+          sort: [''],
+        ),
+      ),
+    );
+  }
+}
+
+class _PromotionsLoadingWidget extends StatelessWidget {
+  const _PromotionsLoadingWidget();
 
   @override
   Widget build(BuildContext context) {
-    var cartBloc = getIt<CartGlobalBloc>();
-    var cartState = cartBloc.state;
-
-    return Scaffold(
-      backgroundColor: getColorSkin().backgroundColor,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-
-            await Future.delayed(const Duration(seconds: 1));
-            return;
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 16.0.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSearchBar(context),
-                  SizedBox(height: 20.h),
-                  _buildPromoBanner(context),
-                  SizedBox(height: 24.h),
-                  const NewReleaseProducts(),
-                  SizedBox(height: 16.h),
-                  _buildFilterSection(context),
-                  SizedBox(height: 16.h),
-                  const RecommendedItems(),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 50.h,
-            decoration: BoxDecoration(
-              color: getColorSkin().lightGrey200,
-              borderRadius: BorderRadius.circular(25.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TextField(
-              onTap: () {
-                context.push('/main/search');
-              },
-              decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                border: InputBorder.none,
-                hintText: AppLocalizations.of(context)!.searchHint,
-                hintStyle: TextStyle(
-                  color: getColorSkin().grey,
-                  fontSize: 14.sp,
-                ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 10.w),
-        CircleAvatar(
-          radius: 22.r,
-          backgroundColor: getColorSkin().primaryRed600,
-          child: Icon(Icons.search, color: getColorSkin().backgroundColor),
-        ),
-        SizedBox(width: 16.w),
-        // LanguageDropdown(),
-        BlocBuilder<CartGlobalBloc, CartState>(builder: (context, cartState) {
-          final int itemCount =
-              cartState.items.fold(0, (sum, item) => sum + item.quantity);
-
-          return badges.Badge(
-            showBadge: itemCount > 0,
-            badgeContent: Text(
-              itemCount.toString(),
-              style: TextStyle(
-                color: getColorSkin().white,
-                fontSize: 10,
-              ),
-            ),
-            badgeStyle: badges.BadgeStyle(
-              badgeColor: getColorSkin().primaryRed650,
-              padding: const EdgeInsets.all(5),
-            ),
-            position: badges.BadgePosition.topEnd(top: 0, end: 0),
-            child: IconButton(
-              icon: Icon(Icons.shopping_cart, color: getColorSkin().black),
-              onPressed: () => context.push('/cart'),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildPromoBanner(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w.h),
-      decoration: BoxDecoration(
-        color: getColorSkin().primaryRed50,
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: getColorSkin().primaryRed100.withOpacity(0.5),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.saleContent,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.sp,
-                    color: getColorSkin().primaryRed900,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                ElevatedButton(
-                  onPressed: () {
-                    context.push('/shopping');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: getColorSkin().primaryRed600,
-                    foregroundColor: getColorSkin().white,
-                    elevation: 2,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.shopNow,
-                    style: TextStyle(
-                      color: getColorSkin().white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(8.r),
-            decoration: BoxDecoration(
-              color: getColorSkin().primaryRed100,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.local_offer,
-              color: getColorSkin().primaryRed600,
-              size: 32.sp,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context)?.filterBy ?? 'Filter By',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: getColorSkin().black,
+        const SectionTitle(title: 'Promotions'),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                width: MediaQuery.of(context).size.width * 0.8,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            },
           ),
         ),
-        SizedBox(height: 8.h),
-        FilterSortButtons(
-          onSortTap: () {
-            showModalBottomSheet(
-              context: context,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-              ),
-              builder: (context) => SortByBottomSheet(
-                onSortSelected: (sortType) {
-                  // Handle sort selection
-                  Navigator.pop(context);
-                },
-              ),
-            );
-          },
-          onFilterTap: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-              ),
-              builder: (context) => FilterBottomSheet(
-                onApplyFilter: (filterOptions) {
-                  // Handle filter application
-                  Navigator.pop(context);
-                },
-              ),
-            );
-          },
+      ],
+    );
+  }
+}
+
+class _BlindBoxesLoadingWidget extends StatelessWidget {
+  const _BlindBoxesLoadingWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Blind Boxes'),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return Container(
+                width: 160,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            },
+          ),
         ),
       ],
+    );
+  }
+}
+
+class _SetsLoadingWidget extends StatelessWidget {
+  const _SetsLoadingWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Sets'),
+        SizedBox(
+          height: 250,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return Container(
+                width: 160,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ErrorWidget extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorWidget({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onRetry,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
     );
   }
 }

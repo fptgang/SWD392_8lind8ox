@@ -6,15 +6,15 @@ import 'package:openapi/api.dart';
 class ShippingInfoMapper {
   static ShippingInfoModel toModel(ShippingInfoDto dto) {
     return ShippingInfoModel(
-      shippingInfoId: dto.shippingInfoId ?? 0,
-      address: dto.address ?? '',
-      ward: dto.ward ?? '',
-      district: dto.district ?? '',
-      city: dto.city ?? '',
-      name: dto.name ?? '',
-      phoneNumber: dto.phoneNumber ?? '',
+      shippingInfoId: dto.shippingInfoId,
+      address: dto.address,
+      ward: dto.ward,
+      district: dto.district,
+      city: dto.city,
+      name: dto.name,
+      phoneNumber: dto.phoneNumber,
       isVisible: dto.isVisible,
-      createdAt: dto.createdAt ?? DateTime.now(),
+      createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
     );
   }
@@ -54,6 +54,7 @@ class ShippingInfoMapper {
       city: model.city,
       name: model.name,
       phoneNumber: model.phoneNumber,
+      isVisible: true,
     );
   }
 }

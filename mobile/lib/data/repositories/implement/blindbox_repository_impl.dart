@@ -1,9 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobile/base/repository/base_repository.dart';
 import 'package:mobile/data/mapper/generic_mapper.dart';
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
+import 'package:mobile/data/services/token_refresh_service.dart';
+import 'package:mobile/data/services/token_service.dart';
 import 'package:openapi/api.dart';
 
 import '../../../app/di/injection.dart';
@@ -12,53 +15,82 @@ import '../blindbox_repository.dart';
 
 String token = dotenv.env['TOKEN'] ?? '';
 
-class BlindBoxRepositoryImpl implements BlindBoxRepository {
-  var box = Hive.box('authentication');
-  final DefaultApi _apiService = getIt<DefaultApi>();
+class BlindBoxRepositoryImpl extends BaseRepository
+    implements BlindBoxRepository {
+  final Box box;
+  final DefaultApi _apiService;
+  final TokenService _tokenService;
+  final TokenRefreshService _tokenRefreshService;
 
-  BlindBoxRepositoryImpl() {
-    if(box.get('loginToken') != null) {
-      _apiService.apiClient.addDefaultHeader("Authorization", "Bearer ${box.get('loginToken')}");
+  BlindBoxRepositoryImpl({
+    Box? box,
+    DefaultApi? apiService,
+    TokenService? tokenService,
+    TokenRefreshService? tokenRefreshService,
+  })  : box = box ?? Hive.box('authentication'),
+        _apiService = apiService ?? getIt<DefaultApi>(),
+        _tokenService = tokenService ?? getIt<TokenService>(),
+        _tokenRefreshService =
+            tokenRefreshService ?? getIt<TokenRefreshService>() {
+    _refreshAuthHeader();
+  }
+
+  void _refreshAuthHeader() {
+    final token = _tokenService.getAccessToken();
+    debugPrint(
+        'Setting blindbox auth header with token: ${token != null ? "exists" : "null"}');
+
+    if (token != null && token.isNotEmpty) {
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      _apiService.apiClient.addDefaultHeader("Authorization", authHeader);
+      debugPrint('Set Authorization header: $authHeader');
+    } else {
+      debugPrint('WARNING: No valid token available for blindbox repository');
+      // Fall back to box get if token service failed
+      final fallbackToken = box.get('loginToken');
+      if (fallbackToken != null && fallbackToken.isNotEmpty) {
+        final authHeader = fallbackToken.toString().startsWith('Bearer ')
+            ? fallbackToken.toString()
+            : 'Bearer $fallbackToken';
+        _apiService.apiClient.addDefaultHeader("Authorization", authHeader);
+        debugPrint('Set fallback Authorization header: $authHeader');
+      }
     }
   }
 
   @override
   Future<BlindBoxModel> getBlindBoxById(int id) async {
-    try {
-      BlindBoxDto? blindBoxDto = await _apiService.getBlindBoxById(id);
+    return handleApiRequest<BlindBoxModel>(() async {
+      final blindBoxDto = await _apiService.getBlindBoxById(id);
+
       if (blindBoxDto == null) {
         throw Exception("Cannot get blindbox information");
       }
-      BlindBoxModel blindBoxModel = BlindBoxMapper.toModel(blindBoxDto);
+
+      final blindBoxModel = BlindBoxMapper.toModel(blindBoxDto);
       return blindBoxModel;
-    } catch (e) {
-      debugPrint(
-          '[BlindBox Repository Impl]: error from get blindbox by id: $e');
-      throw Exception('Cannot get blindbox information');
-    }
+    });
   }
 
   @override
   Future<PaginationResponseGeneric<BlindBoxModel>> getBlindBoxes(
       Pageable pageable, String filter, String search) async {
-    try {
-      GetBlindBoxes200Response? blindBoxes = await _apiService.getBlindBoxes(
+    return handleApiRequest<PaginationResponseGeneric<BlindBoxModel>>(() async {
+      final blindBoxes = await _apiService.getBlindBoxes(
           pageable: pageable, filter: filter, search: search);
+
       if (blindBoxes == null) {
         throw Exception("Cannot get blind boxes");
       }
-      PaginationResponseGeneric<BlindBoxModel> blindBoxModels =
-          PaginationResponseMapper.toModel(
+
+      final blindBoxModels = PaginationResponseMapper.toModel(
         dto: blindBoxes,
         fromDTO: (data) => BlindBoxMapper.toModel(data),
       );
+
       debugPrint(
           '[BlindBox Repository Impl]: get blind boxes: ${blindBoxModels.content}');
       return blindBoxModels;
-    } catch (e, stackTrace) {
-      debugPrint(
-          '[BlindBox Repository Impl]: error from get blind boxes: $e, $stackTrace');
-      throw Exception('Cannot get blind boxes');
-    }
+    });
   }
 }

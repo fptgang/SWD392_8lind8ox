@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: frontend
+    runtime: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=4096 

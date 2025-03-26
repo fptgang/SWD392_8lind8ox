@@ -1,87 +1,63 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:injectable/injectable.dart';
-import 'package:mobile/data/models/promotional_campaign_model.dart';
 import 'package:mobile/data/repositories/promotion_repository.dart';
-import 'package:mobile/feature/home/blocs/promotion/promotion_event.dart';
-import 'package:mobile/feature/home/blocs/promotion/promotion_state.dart';
 import 'package:openapi/api.dart';
 
-@injectable
-@lazySingleton
+import 'promotion_event.dart';
+import 'promotion_state.dart';
+
 class PromotionBloc extends Bloc<PromotionEvent, PromotionState> {
   final PromotionRepository _promotionRepository;
-  final PagingController<int, PromotionModel> pagingController;
 
-  PromotionPaginationState _paginationState;
-  PromotionDataState _dataState;
-
-  PromotionBloc(this._promotionRepository)
-      : _paginationState =
-            PromotionPaginationState(pageable: Pageable(page: 1, size: 20)),
-        _dataState = const PromotionDataState(),
-        pagingController = PagingController(firstPageKey: 1),
-        super(PromotionLoadingState()) {
-    on<GetPromotions>(_onGetPromotions);
-    on<GetPromotionById>(_onGetPromotionById);
-    on<SelectPromotion>(_onSelectPromotion);
+  PromotionBloc(this._promotionRepository) : super(const PromotionState()) {
+    on<FetchPromotions>(_onFetchPromotions);
+    on<RefreshPromotions>(_onRefreshPromotions);
   }
 
-  void _onSelectPromotion(
-    SelectPromotion event,
-    Emitter<PromotionState> emit,
-  ) {
-    _dataState = _dataState.copyWith(filter: event.promotion);
-    emit(_dataState);
-  }
-
-  Future<void> _onGetPromotions(
-    GetPromotions event,
+  Future<void> _onFetchPromotions(
+    FetchPromotions event,
     Emitter<PromotionState> emit,
   ) async {
-    emit(PromotionLoadingState(isLoading: true));
-
+    emit(state.copyWith(status: PromotionStatus.loading));
     try {
-      final pageable = Pageable(page: event.pageKey, size: 20, sort: ['desc']);
-
       final promotions = await _promotionRepository.getPromotions(
-          pageable, _dataState.filter ?? '', _dataState.search ?? '');
-      debugPrint('promotion: $promotions');
-
-      final isLastPage = promotions.content.length < pageable.size;
-
-      if (isLastPage) {
-        pagingController.appendLastPage(promotions.content);
-      } else {
-        pagingController.appendPage(promotions.content, event.pageKey + 1);
-      }
-
-      _paginationState = _paginationState.copyWith(
-        pageable: pageable,
-        hasReachedEnd: isLastPage,
+        event.pageable,
+        event.filter,
+        event.search,
       );
-
-      _dataState = _dataState.copyWith(promotionResponseModel: promotions);
-      emit(_dataState);
-    } catch (error) {
-      pagingController.error = error;
-      emit(PromotionLoadingState(error: error.toString(), isLoading: false));
+      emit(state.copyWith(
+        status: PromotionStatus.success,
+        promotions: promotions,
+      ));
+    } catch (e) {
+      debugPrint('Error fetching promotions: $e');
+      emit(state.copyWith(
+        status: PromotionStatus.failure,
+        errorMessage: e.toString(),
+      ));
     }
   }
 
-  Future<void> _onGetPromotionById(
-    GetPromotionById event,
+  Future<void> _onRefreshPromotions(
+    RefreshPromotions event,
     Emitter<PromotionState> emit,
   ) async {
-    emit(PromotionLoadingState(isLoading: true));
-
     try {
-      final promotion = await _promotionRepository.getPromotionById(event.id);
-      _dataState = _dataState.copyWith(promotion: promotion);
-      emit(_dataState);
+      final promotions = await _promotionRepository.getPromotions(
+        event.pageable,
+        event.filter,
+        event.search,
+      );
+      emit(state.copyWith(
+        status: PromotionStatus.success,
+        promotions: promotions,
+      ));
     } catch (e) {
-      emit(PromotionLoadingState(error: e.toString()));
+      debugPrint('Error refreshing promotions: $e');
+      emit(state.copyWith(
+        status: PromotionStatus.failure,
+        errorMessage: e.toString(),
+      ));
     }
   }
 }

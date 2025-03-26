@@ -1,45 +1,36 @@
-// login_state.dart (updated version)
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import 'package:mobile/feature/auth/validation/password.dart';
 import 'package:mobile/feature/auth/validation/username.dart';
 
+import '../../validation/password.dart';
+
 class LoginState extends Equatable {
+  final EmailRegister email;
+  final Password password;
+  final FormzSubmissionStatus status;
+  final bool isValid;
+
   const LoginState({
-    this.token = "",
-    this.status = FormzSubmissionStatus.initial,
-    this.username = const Username.pure(),
+    this.email = const EmailRegister.pure(),
     this.password = const Password.pure(),
+    this.status = FormzSubmissionStatus.initial,
     this.isValid = false,
-    this.errorMessage,
   });
 
-  final String token;
-  final FormzSubmissionStatus status;
-  final Username username;
-  final Password password;
-  final bool isValid;
-  final String? errorMessage;
-
   LoginState copyWith({
-    String? token,
-    FormzSubmissionStatus? status,
-    Username? username,
+    EmailRegister? email,
     Password? password,
+    FormzSubmissionStatus? status,
     bool? isValid,
-    String? errorMessage,
   }) {
     return LoginState(
-      token: token ?? this.token,
-      status: status ?? this.status,
-      username: username ?? this.username,
+      email: email ?? this.email,
       password: password ?? this.password,
+      status: status ?? this.status,
       isValid: isValid ?? this.isValid,
-      errorMessage: errorMessage,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [token, status, username, password, isValid, errorMessage];
+  List<Object?> get props => [email, password, status, isValid];
 }

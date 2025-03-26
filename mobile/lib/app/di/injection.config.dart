@@ -37,10 +37,8 @@ import '../../data/services/token_refresh_service.dart' as _i285;
 import '../../data/services/token_service.dart' as _i315;
 import '../../feature/auth/login/blocs/login_bloc.dart' as _i112;
 import '../../feature/cart/cubits/cart_cubit.dart' as _i1002;
-import '../../feature/checkout/blocs/checkout_bloc.dart' as _i219;
 import '../../feature/shipping/blocs/shipping_address/shipping_info_bloc.dart'
     as _i225;
-import '../../feature/checkout/blocs/voucher/voucher_bloc.dart' as _i456;
 import '../../feature/detail/blocs/blindbox_detail_bloc.dart' as _i267;
 import '../../feature/home/blocs/blindbox_list/blindbox_list_bloc.dart'
     as _i167;
@@ -76,8 +74,7 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i112.LoginBloc(authRepository: gh<_i481.AuthRepository>()));
     gh.factory<_i225.ShippingInfoBloc>(
         () => _i225.ShippingInfoBloc(gh<_i365.ShippingInfoRepository>()));
-    gh.factory<_i456.VoucherBloc>(
-        () => _i456.VoucherBloc(gh<_i5.VoucherRepository>()));
+
     gh.factory<_i267.BlindBoxDetailBloc>(() => _i267.BlindBoxDetailBloc(
           blindBoxRepository: gh<_i347.BlindBoxRepository>(),
           skuRepository: gh<_i640.SkuRepository>(),
@@ -95,10 +92,7 @@ extension GetItInjectableX on _i174.GetIt {
           skuRepository: gh<_i640.SkuRepository>(),
           imageRepository: gh<_i398.ImageRepository>(),
         ));
-    gh.factory<_i219.CheckoutBloc>(() => _i219.CheckoutBloc(
-          gh<_i5.VoucherRepository>(),
-          orderRepository: gh<_i893.OrderRepository>(),
-        ));
+
     gh.factory<_i886.PromotionBloc>(
         () => _i886.PromotionBloc(gh<_i599.PromotionRepository>()));
     gh.lazySingleton<_i315.TokenService>(

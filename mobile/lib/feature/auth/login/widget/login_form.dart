@@ -1,203 +1,109 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/app/blocs/authentication/authentication_bloc.dart';
-import 'package:mobile/base/theme/theme.dart';
+import 'package:mobile/feature/auth/login/blocs/login_bloc.dart';
 import 'package:mobile/feature/auth/login/blocs/login_event.dart';
 import 'package:mobile/feature/auth/login/blocs/login_state.dart';
 
-import '../blocs/login_bloc.dart';
+// Extensions for FormzSubmissionStatus
+extension FormzSubmissionStatusX on FormzSubmissionStatus {
+  bool get isSubmissionSuccess => this == FormzSubmissionStatus.success;
+  bool get isSubmissionFailure => this == FormzSubmissionStatus.failure;
+  bool get isSubmissionInProgress => this == FormzSubmissionStatus.inProgress;
+}
 
 class LoginForm extends StatelessWidget {
-  const LoginForm({super.key});
+  const LoginForm({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("Localization: ${AppLocalizations.of(context)}");
     return BlocListener<LoginBloc, LoginState>(
-      listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
-        if (state.status.isFailure) {
+        if (state.status.isSubmissionFailure) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage ??
-                    AppLocalizations.of(context)!.authenticationFailed),
-              ),
+              const SnackBar(content: Text('Authentication Failure')),
             );
-        } else if (state.status.isSuccess) {
-          // Notify the AuthenticationBloc about successful login
-          context.read<AuthenticationBloc>().add(
-                AuthenticationLoggedIn(token: state.token),
-              );
+        } else if (state.status.isSubmissionSuccess) {
+          context.go('/main');
         }
       },
-      child: Card(
-        color: getColorSkin().backgroundColor,
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+          _buildLogo(),
+          const SizedBox(height: 16),
+          _EmailInput(),
+          const SizedBox(height: 8),
+          _PasswordInput(),
+          const SizedBox(height: 8),
+          _ForgotPasswordButton(),
+          const SizedBox(height: 16),
+          _LoginButton(),
+          const SizedBox(height: 8),
+          _SignUpButton(),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Column(
+      children: [
+        Image.asset(
+          'assets/images/logo.png',
+          height: 100,
+          width: 100,
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Text(
-                AppLocalizations.of(context)!.login,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: getColorSkin().textColor,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppLocalizations.of(context)!.loginDescription,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: getColorSkin().grey,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _UsernameInput(),
-              const SizedBox(height: 16),
-              _PasswordInput(),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      context.push('/forgot-password');
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.forgotPassword,
-                      style: TextStyle(
-                        color: getColorSkin().textColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  _LoginButton(),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: getColorSkin().grey,
-                      thickness: 1,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      AppLocalizations.of(context)!.orSignInWith,
-                      style: TextStyle(color: getColorSkin().grey),
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      color: getColorSkin().grey,
-                      thickness: 1,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<LoginBloc>().add(LoginWithGoogle());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: getColorSkin().backgroundColor,
-                      side: BorderSide(color: getColorSkin().grey),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    icon: Icon(
-                      Icons.g_mobiledata,
-                      color: getColorSkin().black,
-                      size: 35,
-                    ),
-                    label: Text(
-                      AppLocalizations.of(context)!.loginWithGoogle,
-                      style: TextStyle(color: getColorSkin().black),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.dontHaveAccount,
-                    style: TextStyle(
-                      color: getColorSkin().grey,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.push('/sign-up');
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.register,
-                      style: TextStyle(
-                        color: getColorSkin().textColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            ],
+        const SizedBox(height: 16),
+        const Text(
+          'Welcome Back',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ),
+        const SizedBox(height: 8),
+        const Text(
+          'Sign in to continue',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _UsernameInput extends StatelessWidget {
+class _EmailInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final displayError = context.select(
-      (LoginBloc bloc) => bloc.state.username.displayError,
-    );
-    final controller = TextEditingController(text: 'duyen@gmail.com');
-
-    // Dispatch the initial value to the bloc when the widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LoginBloc>().add(LoginUsernameChanged(controller.text));
-    });
-    return TextField(
-      key: const Key('loginForm_usernameInput_textField'),
-      onChanged: (username) {
-        context.read<LoginBloc>().add(LoginUsernameChanged(username));
+    return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) => previous.email != current.email,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('loginForm_emailInput_textField'),
+          onChanged: (email) =>
+              context.read<LoginBloc>().add(LoginEmailChanged(email)),
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            labelText: 'Email',
+            helperText: '',
+            errorText: state.email.isPure
+                ? null
+                : (state.email.isValid ? null : 'Invalid email'),
+            prefixIcon: const Icon(Icons.email),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
       },
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: AppLocalizations.of(context)!.email,
-        errorText: displayError != null
-            ? AppLocalizations.of(context)!.invalidEmail
-            : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
     );
   }
 }
@@ -205,34 +111,29 @@ class _UsernameInput extends StatelessWidget {
 class _PasswordInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final displayError = context.select(
-      (LoginBloc bloc) => bloc.state.password.displayError,
-    );
-
-
-    final controller = TextEditingController(text: '123');
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LoginBloc>().add(LoginPasswordChanged(controller.text));
-    });
-
-    return TextField(
-      key: const Key('loginForm_passwordInput_textField'),
-      onChanged: (password) {
-        context.read<LoginBloc>().add(LoginPasswordChanged(password));
+    return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) => previous.password != current.password,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('loginForm_passwordInput_textField'),
+          onChanged: (password) =>
+              context.read<LoginBloc>().add(LoginPasswordChanged(password)),
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            helperText: '',
+            errorText: state.password.isPure
+                ? null
+                : (state.password.isValid
+                    ? null
+                    : 'Password must be at least 8 characters'),
+            prefixIcon: const Icon(Icons.lock),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
       },
-      obscureText: true,
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: AppLocalizations.of(context)!.password,
-        errorText: displayError != null
-            ? AppLocalizations.of(context)!.invalidPassword
-            : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        suffixIcon: const Icon(Icons.visibility_off),
-      ),
     );
   }
 }
@@ -240,43 +141,61 @@ class _PasswordInput extends StatelessWidget {
 class _LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final isInProgressOrSuccess = context.select(
-      (LoginBloc bloc) => bloc.state.status.isInProgressOrSuccess,
-    );
-
-    if (isInProgressOrSuccess) return const CircularProgressIndicator();
-
-    final isValid = context.select((LoginBloc bloc) => bloc.state.isValid);
-    debugPrint('isValid: $isValid');
-
-    return BlocListener<LoginBloc, LoginState>(
-      listener: (context, loginState) {
-        if (loginState.status == FormzSubmissionStatus.success) {
-          context.read<AuthenticationBloc>().add(
-                AuthenticationLoggedIn(token: loginState.token),
-              );
-        }
+    return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) =>
+          previous.status != current.status ||
+          previous.isValid != current.isValid,
+      builder: (context, state) {
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            key: const Key('loginForm_continue_raisedButton'),
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            onPressed: state.isValid
+                ? () => context.read<LoginBloc>().add(const LoginSubmitted())
+                : null,
+            child: state.status.isSubmissionInProgress
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text('Login'),
+          ),
+        );
       },
-      child: ElevatedButton(
-        key: const Key('loginForm_continue_raisedButton'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: getColorSkin().primaryRed650,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 12,
-          ),
-        ),
-        onPressed: isValid
-            ? () => context.read<LoginBloc>().add(LoginSubmitted())
-            : null,
-        child: Text(
-          AppLocalizations.of(context)!.login,
-          style: TextStyle(fontSize: 16, color: getColorSkin().backgroundColor),
-        ),
+    );
+  }
+}
+
+class _ForgotPasswordButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        key: const Key('loginForm_forgotPassword_textButton'),
+        onPressed: () => context.go('/forgot-password'),
+        child: const Text('Forgot Password?'),
       ),
+    );
+  }
+}
+
+class _SignUpButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text("Don't have an account?"),
+        TextButton(
+          key: const Key('loginForm_createAccount_textButton'),
+          onPressed: () => context.go('/sign-up'),
+          child: const Text('Sign Up'),
+        ),
+      ],
     );
   }
 }

@@ -16,12 +16,16 @@ class AccountMapper {
       password: dto.password,
       avatarUrl: dto.avatarUrl,
       balance: dto.balance ?? 0,
+      updateBalanceAt: dto.updateBalanceAt,
+      role: dto.role,
       isVerified: dto.isVerified ?? false,
       verifiedAt: dto.verifiedAt,
       isVisible: dto.isVisible ?? true,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
-      defaultShippingInfo: ShippingInfoMapper.toModel(dto.defaultShippingInfo ?? ShippingInfoDto()),
+      defaultShippingInfo: dto.defaultShippingInfo != null
+          ? ShippingInfoMapper.toModel(dto.defaultShippingInfo!)
+          : null,
     );
   }
 
@@ -35,12 +39,16 @@ class AccountMapper {
       password: model.password,
       avatarUrl: model.avatarUrl,
       balance: model.balance,
+      updateBalanceAt: model.updateBalanceAt,
+      role: model.role,
       isVerified: model.isVerified,
       verifiedAt: model.verifiedAt,
       isVisible: model.isVisible,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
-      defaultShippingInfo: ShippingInfoMapper.toDto(model.defaultShippingInfo ?? ShippingInfoModel()),
+      defaultShippingInfo: model.defaultShippingInfo != null
+          ? ShippingInfoMapper.toDto(model.defaultShippingInfo!)
+          : null,
     );
   }
 }

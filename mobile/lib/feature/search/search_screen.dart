@@ -2,35 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/data/datasources/local/search_local_datasource.dart';
 import 'package:mobile/data/repositories/blindbox_repository.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_event.dart';
 import 'package:mobile/feature/search/blocs/search_bloc.dart';
 import 'package:mobile/feature/search/blocs/search_event.dart';
+import 'package:mobile/feature/search/blocs/search_state.dart';
 import 'package:mobile/feature/search/widget/custom_search_bar.dart';
 import 'package:mobile/feature/search/widget/recent_searches.dart';
 import 'package:mobile/feature/search/widget/search_result.dart';
 import 'package:mobile/feature/search/widget/search_tab_bar.dart';
-
-import '../../app/di/injection.dart';
+import 'package:openapi/api.dart';
 
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
   static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => SearchScreen());
+    return MaterialPageRoute<void>(builder: (_) => const SearchScreen());
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => SearchBloc(
-        getIt<BlindBoxRepository>(),
-        getIt<SearchLocalDatasource>(),
-      )..add(InitializeSearch()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => SearchBloc(
+            getIt<BlindBoxRepository>(),
+            getIt<SearchLocalDatasource>(),
+          )..add(InitializeSearch()),
+        ),
+        BlocProvider(
+          create: (_) => getIt<BlindBoxesListBloc>(),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
-        // appBar: _buildAppBar(context),
         body: SafeArea(
           child: Column(
             children: const [
@@ -88,7 +97,7 @@ class _SearchHeader extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
-          const Expanded(
+          Expanded(
             child: CustomSearchBar(
               defaultText: "Search products...",
             ),
