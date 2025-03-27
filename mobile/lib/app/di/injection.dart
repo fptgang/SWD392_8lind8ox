@@ -29,7 +29,6 @@ import 'package:mobile/data/repositories/transaction_repository.dart';
 import 'package:mobile/data/services/auth_interceptor.dart';
 import 'package:mobile/data/services/token_refresh_service.dart';
 import 'package:mobile/data/services/token_service.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
 import 'package:mobile/feature/detail/blocs/blindbox_detail_bloc.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
@@ -290,10 +289,6 @@ void _registerAPI(Box box) {
 }
 
 void _registerBlocs() {
-  if (!getIt.isRegistered<CartCubit>()) {
-    getIt.registerLazySingleton<CartCubit>(() => CartCubit());
-  }
-
   if (!getIt.isRegistered<DropdownCubit>()) {
     getIt.registerFactory<DropdownCubit>(
         () => DropdownCubit(getIt<LocaleCubit>()));

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/cart/cubits/cart_cubit.dart';
 import 'package:mobile/feature/detail/blocs/blindbox_detail_event.dart';
 import 'package:mobile/feature/detail/widgets/loading.dart';
+import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 
 import 'blocs/blindbox_detail_bloc.dart';
 import 'blocs/blindbox_detail_state.dart';
@@ -16,8 +16,8 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the cart cubit from dependency injection
-    final cartCubit = getIt<CartCubit>();
+    // Get the cart bloc from dependency injection
+    final cartBloc = getIt<CartGlobalBloc>();
 
     return MultiBlocProvider(
       providers: [
@@ -25,9 +25,9 @@ class ProductDetailScreen extends StatelessWidget {
           create: (context) =>
               getIt<BlindBoxDetailBloc>()..add(FetchBlindBoxDetail(blindBoxId)),
         ),
-        // Make sure we provide the CartCubit instance here
+        // Make sure we provide the CartGlobalBloc instance here
         BlocProvider.value(
-          value: cartCubit,
+          value: cartBloc,
         ),
       ],
       child: const _PageControllerProvider(

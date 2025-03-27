@@ -36,7 +36,6 @@ import '../../data/repositories/voucher_repository.dart' as _i5;
 import '../../data/services/token_refresh_service.dart' as _i285;
 import '../../data/services/token_service.dart' as _i315;
 import '../../feature/auth/login/blocs/login_bloc.dart' as _i112;
-import '../../feature/cart/cubits/cart_cubit.dart' as _i1002;
 import '../../feature/shipping/blocs/shipping_address/shipping_info_bloc.dart'
     as _i225;
 import '../../feature/detail/blocs/blindbox_detail_bloc.dart' as _i267;
@@ -62,7 +61,6 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
-    gh.factory<_i1002.CartCubit>(() => _i1002.CartCubit());
     gh.singleton<_i867.LocaleCubit>(() => _i867.LocaleCubit());
     gh.factory<_i1049.StockKeepingUnitsBloc>(() => _i1049.StockKeepingUnitsBloc(
           gh<_i640.SkuRepository>(),
