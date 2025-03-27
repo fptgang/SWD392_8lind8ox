@@ -42,7 +42,8 @@ class BlindBoxLoadingState extends BlindBoxDetailState {
   List<Object?> get props => [id, isLoading, isOutOfStock, error];
 
   @override
-  String toString() => 'BlindBoxLoadingState(id: $id, isLoading: $isLoading, isOutOfStock: $isOutOfStock, error: $error)';
+  String toString() =>
+      'BlindBoxLoadingState(id: $id, isLoading: $isLoading, isOutOfStock: $isOutOfStock, error: $error)';
 }
 
 class BlindBoxDataState extends BlindBoxDetailState {
@@ -83,16 +84,17 @@ class BlindBoxDataState extends BlindBoxDetailState {
       selectedImageIndex: selectedImageIndex ?? this.selectedImageIndex,
       quantity: quantity ?? this.quantity,
       images: images ?? this.images,
-      isExpandedDescription: isExpandedDescription ?? this.isExpandedDescription,
+      isExpandedDescription:
+          isExpandedDescription ?? this.isExpandedDescription,
     );
   }
 
   bool get hasImages => images != null && images!.isNotEmpty;
-  
+
   bool get hasStock => sku != null && (sku!.stock ?? 0) > 0;
-  
+
   double get price => sku?.price ?? 0.0;
-  
+
   String get skuName => sku?.name ?? blindBox.name ?? 'Unknown';
 
   @override
@@ -108,7 +110,8 @@ class BlindBoxDataState extends BlindBoxDetailState {
       ];
 
   @override
-  String toString() => 'BlindBoxDataState(id: $id, blindBox: ${blindBox.name}, selectedImageIndex: $selectedImageIndex, quantity: $quantity, images: ${images?.length}, sku: ${sku?.skuId})';
+  String toString() =>
+      'BlindBoxDataState(id: $id, blindBox: ${blindBox.name}, selectedImageIndex: $selectedImageIndex, quantity: $quantity, images: ${images?.length}, sku: ${sku?.skuId})';
 }
 
 class BlindBoxErrorState extends BlindBoxDetailState {
@@ -125,4 +128,3 @@ class BlindBoxErrorState extends BlindBoxDetailState {
   @override
   String toString() => 'BlindBoxErrorState(id: $id, error: $error)';
 }
-
