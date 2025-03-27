@@ -84,27 +84,28 @@ const ProductSeries: React.FC = () => {
           <Title level={2} className="!mb-2">Popular Series</Title>
           <Text className="text-gray-600">Discover our latest and most exciting blind box series</Text>
         </div>
-        <Button 
-          type="link" 
+        <Button
+          type="link"
           size="large"
           onClick={() => go({ to: '/products' })}
         >
           View All Series
         </Button>
       </div>
-      
+
       <Row gutter={[16, 24]}>
         {series.map((item: BlindBoxDto) => {
           const skuCount = item.skus?.length || 0;
           const basePrice = item.skus?.[0]?.price || 0;
-          
+
           return (
             <Col xs={24} sm={12} md={8} key={item.blindBoxId}>
-              <div className="relative">
+              <div className="relative h-full">
                 <Card
                   hoverable
                   onClick={() => handleCardClick(item)}
-                  className="h-full overflow-hidden flex flex-col"
+                  className="h-full overflow-hidden flex flex-col pb-6"
+                  style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
                 >
                   <div className="relative h-48 overflow-hidden group">
                     <img
@@ -116,13 +117,7 @@ const ProductSeries: React.FC = () => {
                   <div className="flex flex-col flex-grow p-4">
                     <div className="flex-grow">
                       <Title level={4} className="!mb-1">{item.name}</Title>
-                      <Text type="secondary" className="block min-h-3 max-h-[4em]"
-                      ellipsis={{
-                        expanded: false,
-                        symbol: '...',
-                      }}
-                      >{item.description}</Text>
-                      
+
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center space-x-2">
                           <Text type="secondary" className="text-sm">{skuCount} variations</Text>
@@ -132,8 +127,8 @@ const ProductSeries: React.FC = () => {
                     </div>
                   </div>
                 </Card>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   icon={<ShoppingOutlined />}
                   className="absolute bottom-4 left-4 right-4"
                   onClick={(e) => {
