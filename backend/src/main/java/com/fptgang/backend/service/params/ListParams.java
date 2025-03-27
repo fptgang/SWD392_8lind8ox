@@ -70,7 +70,7 @@ public class ListParams {
     }
 
     public <T> Specification<T> toSpec() {
-        if (includeInvisible != null && !includeInvisible) {
+        if (includeInvisible!=null && !includeInvisible) {
             filter.put("isVisible", new String[]{"eq", "true"});
         }
         var spec = OpenApiHelper.<T>filtersToSpec(filter);

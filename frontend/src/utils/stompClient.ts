@@ -1,8 +1,8 @@
 import { Client } from "@stomp/stompjs";
-import { BASE_URL } from "./constants";
+import { BROKER_URL } from "./constants";
 
 export const stompClient = new Client({
-  brokerURL: `${BASE_URL}/8lind8ox-ws`,
+  brokerURL: BROKER_URL,
   // brokerURL: `ws://localhost:8080/8lind8ox-ws`,
   onConnect: () => {
     console.log("Connected ");
