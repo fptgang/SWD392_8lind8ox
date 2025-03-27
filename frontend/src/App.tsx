@@ -124,6 +124,7 @@ function App() {
                       syncWithLocation: true,
                       warnWhenUnsavedChanges: true,
                       useNewQueryKeys: true,
+                      mutationMode: "optimistic",
                       title: { text: "8lind8ox", icon: <AppIcon /> },
                       projectId: "HC85dn-RQLFdc-7emtiC",
                       liveMode: "off",
@@ -313,7 +314,29 @@ function App() {
 
                     <RefineKbar />
                     <UnsavedChangesNotifier />
-                    <DocumentTitleHandler />
+                    <DocumentTitleHandler
+                      handler={({ action, params, resource }) => {
+                        const id = params?.id ?? "";
+
+                        const actionPrefixMatcher = {
+                          create: "Create new ",
+                          clone: `#${id} Clone ${resource?.meta?.label}`,
+                          edit: `#${id} Edit ${resource?.meta?.label}`,
+                          show: `#${id} Show ${resource?.meta?.label}`,
+                          list: `${resource?.meta?.label}`,
+                        };
+
+                        const suffix = "8lind8ox";
+                        const title =
+                          actionPrefixMatcher[action || "list"] +
+                          (actionPrefixMatcher[action || "list"].length > 0
+                            ? " | "
+                            : "") +
+                          suffix;
+
+                        return title;
+                      }}
+                    />
                   </Refine>
                 </ApiProvider>
                 <DevtoolsPanel />
