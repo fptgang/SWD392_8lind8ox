@@ -29,6 +29,8 @@ public class EmailServiceImpl implements EmailService {
     private String companyName;
     @Value("${EMAIL_FROM}")
     private String emailFrom;
+    @Value("${blindbox.enable-sending-mail:false}")
+    private boolean enableSendingMail;
 
     @Value("classpath:template/OrderPlacedEmailTemplate.html")
     private Resource orderPlacedEmailTemplate;
@@ -95,25 +97,27 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendMail(String from, String to, String subject, String html) {
-        // send email
         Resend resend = new Resend(API_KEY);
         CreateEmailOptions params = CreateEmailOptions.builder()
-                //"Acme <onboarding@resend.dev>"
-                .from(from )
+                .from(from)
                 .to(to)
                 .subject(subject)
                 .html(html)
                 .build();
+
         try {
             CreateEmailResponse data = resend.emails().send(params);
-            System.out.println(data.getId());
+            log.info("✅ Email sent successfully. ID: {}", data.getId());
         } catch (ResendException e) {
-            log.info(e.getMessage());
+            log.error("❌ Failed to send email: {}", e.getMessage(), e);
         }
     }
 
     @Override
     public void sendOrderPlacedEmail(Order order) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = orderPlacedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = orderPlacedEmailTemplateMapper.create(order);
         var subject = "Order Confirmation - " + order.getOrderId();
@@ -128,6 +132,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendUnpaidOrderEmail(Order order) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = unpaidOrderEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = unpaidOrderEmailTemplateMapper.create(order);
         var subject = "Payment Pending - Order #" + order.getOrderId();
@@ -144,6 +151,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendOrderPaidEmail(Order order) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = orderPaidEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = orderPaidEmailTemplateMapper.create(order);
         var subject = "Payment Confirmation - Order #" + order.getOrderId();
@@ -160,6 +170,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendOrderCancelledEmail(Order order) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = orderCancelledEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = orderCancelledEmailTemplateMapper.create(order);
         var subject = "Order Cancelled - #" + order.getOrderId();
@@ -172,6 +185,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendOrderShippedEmail(Order order) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = orderShippedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = orderShippedEmailTemplateMapper.create(order);
         var subject = "Order Shipped - Order #" + order.getOrderId();
@@ -188,6 +204,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendOrderDeliveredEmail(Order order) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = orderDeliveredEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = orderDeliveredEmailTemplateMapper.create(order);
         var subject = "Order Delivered - Order #" + order.getOrderId();
@@ -200,6 +219,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendVideoSubmittedEmail(Video video) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = videoSubmittedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = videoSubmittedEmailTemplateMapper.create(video);
         var subject = "Video Submission Received - #" + video.getVideoId();
@@ -212,6 +234,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendVideoVerifiedEmail(Video video) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = videoVerifiedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = videoVerifiedEmailTemplateMapper.create(video);
         var subject = "Video Verified - #" + video.getVideoId();
@@ -224,6 +249,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendVoucherGiftedEmail(Voucher voucher) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         var template = voucherGiftedEmailTemplate.getContentAsString(StandardCharsets.UTF_8);
         var data = voucherGiftedEmailTemplateMapper.create(voucher);
         var subject = "🎁 You've Received a Gift Voucher!";
@@ -239,6 +267,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendResetPasswordEmail(Account account, String resetLink) throws IOException {
+        if (!enableSendingMail) {
+            return;
+        }
         if (account.getEmail() == null || account.getEmail().isBlank()) {
             throw new IllegalArgumentException("Recipient email is missing.");
         }
