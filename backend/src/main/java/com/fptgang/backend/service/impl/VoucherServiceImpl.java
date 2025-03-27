@@ -5,28 +5,33 @@ import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Voucher;
 import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.VoucherRepos;
+import com.fptgang.backend.service.EmailService;
 import com.fptgang.backend.service.VoucherService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.EntityUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-
+@Slf4j
 @Service
 public class VoucherServiceImpl implements VoucherService {
 
     private final BlindBoxConfig blindBoxConfig;
     private final VoucherRepos voucherRepos;
     private final AccountRepos accountRepos;
+    private final EmailService emailService;
 
     @Autowired
-    public VoucherServiceImpl(BlindBoxConfig blindBoxConfig, VoucherRepos voucherRepos, AccountRepos accountRepos) {
+    public VoucherServiceImpl(BlindBoxConfig blindBoxConfig, VoucherRepos voucherRepos, AccountRepos accountRepos,EmailService emailService) {
         this.blindBoxConfig = blindBoxConfig;
         this.voucherRepos = voucherRepos;
         this.accountRepos = accountRepos;
+        this.emailService = emailService;
     }
 
     @Override
@@ -50,7 +55,17 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setDiscountRate(blindBoxConfig.getDefaultDiscountRate());
         voucher.setLimitAmount(blindBoxConfig.getDefaultLimitAmount());
         voucher.setExpiredAt(LocalDateTime.now().plusMonths(blindBoxConfig.getDefaultExpiredMonths()));
-        return voucherRepos.save(voucher);
+
+        Voucher saved = voucherRepos.save(voucher);
+
+        try {
+            emailService.sendVoucherGiftedEmail(saved);
+            log.info("🎉 Voucher gifted email sent to {}", account.getEmail());
+        } catch (IOException e) {
+            log.warn("⚠️ Failed to send voucher email to {}: {}", account.getEmail(), e.getMessage());
+        }
+
+        return saved;
     }
 
     @Override

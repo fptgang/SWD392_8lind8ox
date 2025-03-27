@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ public class OrderServiceImpl implements OrderService {
     private final ShippingInfoService shippingInfoService;
     private final TransactionService transactionService;
     private final PaymentService paymentService;
+    private final EmailService emailService;
+
 
     public OrderServiceImpl(OrderRepos orderRepos,
                             OrderStatusHistoryRepos orderStatusHistoryRepos,
@@ -47,7 +50,8 @@ public class OrderServiceImpl implements OrderService {
                             PromotionalCampaignService promotionalCampaignService,
                             ShippingInfoService shippingInfoService,
                             TransactionService transactionService,
-                            PaymentService paymentService
+                            PaymentService paymentService,
+                            EmailService emailService
     ) {
         this.orderRepos = orderRepos;
         this.orderStatusHistoryRepos = orderStatusHistoryRepos;
@@ -60,6 +64,7 @@ public class OrderServiceImpl implements OrderService {
         this.shippingInfoService = shippingInfoService;
         this.transactionService = transactionService;
         this.paymentService = paymentService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -212,7 +217,11 @@ public class OrderServiceImpl implements OrderService {
             sku.setStock(sku.getStock() - orderDetail.getQuantity());
             stockKeepingUnitService.update(sku);
         }
-
+        try {
+            emailService.sendOrderPlacedEmail(order);
+        } catch (IOException e) {
+            log.warn("❌ Failed to send order placed email", e);
+        }
         return cart.getPaymentMethod() == Transaction.PaymentMethod.INTERNAL_WALLET ?
                 payOrderByInternalWallet(order) :
                 payOrderByExternalMethod(order,
@@ -266,7 +275,11 @@ public class OrderServiceImpl implements OrderService {
 
         order.setLatestStatus(OrderStatusHistory.State.PREPARING);
         order = orderRepos.save(order);
-
+        try {
+            emailService.sendOrderPaidEmail(order);
+        } catch (IOException e) {
+            log.warn("❌ Failed to send paid email", e);
+        }
         log.info("Order {} paid by internal wallet successfully!",
                 order.getOrderId());
         PlaceOrderResult result = new PlaceOrderResult();
@@ -476,6 +489,11 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepos.save(order);
 
         log.info("Order {} cancelled; orderTxn = {}", order.getOrderId(), orderTransaction.getTransactionId());
+        try {
+            emailService.sendOrderCancelledEmail(order);
+        } catch (IOException e) {
+            log.warn("❌ Failed to send cancelled email", e);
+        }
         return order;
     }
 
@@ -505,14 +523,27 @@ public class OrderServiceImpl implements OrderService {
                         throw new IllegalArgumentException("Order is not in ready for pickup state");
                     }
                     createStatusHistory(existing, OrderStatusHistory.State.SHIPPING);
-                    return orderRepos.save(existing);
+                    existing = orderRepos.save(existing);
+                    try {
+                        emailService.sendOrderShippedEmail(existing);
+                    } catch (IOException e) {
+                        log.warn("❌ Failed to send shipped email", e);
+                    }
+                    return existing;
+
 
                 case DELIVERED:
                     if (existing.getLatestStatus() != OrderStatusHistory.State.SHIPPING) {
                         throw new IllegalArgumentException("Order is not in shipping state");
                     }
                     createStatusHistory(existing, OrderStatusHistory.State.DELIVERED);
-                    return orderRepos.save(existing);
+                    existing = orderRepos.save(existing);
+                    try {
+                        emailService.sendOrderDeliveredEmail(existing);
+                    } catch (IOException e) {
+                        log.warn("❌ Failed to send delivered email", e);
+                    }
+                    return existing;
 
                 case RECEIVED:
                     if (existing.getLatestStatus() != OrderStatusHistory.State.DELIVERED) {
