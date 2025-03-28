@@ -48,6 +48,8 @@ import {
   CheckOutlined,
 } from "@ant-design/icons";
 import AddressForm from "./components/AddressForm";
+import api from "../../config/openapi-config";
+import useCart from "../../hooks/useCart";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -85,6 +87,7 @@ const CheckoutPage: React.FC = () => {
   const [walletTopupVisible, setWalletTopupVisible] = useState(false);
   const [topupAmount, setTopupAmount] = useState<number>(0);
   const [topupProcessing, setTopupProcessing] = useState(false);
+  const { removeFromCart } = useCart();
   const { data: skusData } = useMany<StockKeepingUnitDto>({
     resource: "skus",
     ids: cartItems.map((item) => item.skuId),
@@ -270,13 +273,21 @@ const CheckoutPage: React.FC = () => {
     setTopupProcessing(true);
 
     try {
-      await topUpWallet({
-        url: "wallet/topup",
-        method: "post",
-        values: {
-          amount: topupAmount,
-        },
-      });
+      await api
+        .createDepositTransaction({
+          depositDto: {
+            amount: topupAmount,
+            paymentMethod: "VNPAY",
+          },
+        })
+        .then((data) => {
+          const responseData = data?.paymentRedirectUrl as string | undefined;
+          if (responseData && responseData.startsWith("https://")) {
+            // It's a payment URL, redirect the user
+            window.location.href = responseData;
+          }
+        });
+      setWalletTopupVisible(false);
 
       notification.success({
         message: "Wallet topped up successfully",
@@ -344,6 +355,7 @@ const CheckoutPage: React.FC = () => {
       // Check if it's an external payment (has a payment URL)
       if (response.data?.paymentRedirectUrl) {
         // Redirect to external payment gateway
+
         window.location.assign(response.data.paymentRedirectUrl);
         notification.info({
           message: "Redirecting to payment gateway",
@@ -372,6 +384,11 @@ const CheckoutPage: React.FC = () => {
         description: errorMessage,
       });
     } finally {
+      activeCartItems.map((item) => {
+        item?.slotId
+          ? removeFromCart(item.skuId, item.slotId)
+          : removeFromCart(item.skuId);
+      });
       setOrderProcessing(false);
     }
   };
@@ -621,7 +638,7 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </Radio>
 
-                <Radio value="PAYPAL" className="p-3 border rounded-lg w-full">
+                {/* <Radio value="PAYPAL" className="p-3 border rounded-lg w-full">
                   <div className="flex items-center">
                     <CreditCardOutlined className="mr-2 text-lg" />
                     <div>
@@ -631,7 +648,7 @@ const CheckoutPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </Radio>
+                </Radio> */}
 
                 <Radio
                   value="WALLET"
