@@ -11,8 +11,9 @@ import {
   notification,
   Spin,
   Tag,
+  Table,
 } from "antd";
-import { WalletOutlined, ReloadOutlined } from "@ant-design/icons";
+import { WalletOutlined, ReloadOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useGetIdentity, useCreate, useApiUrl, useList } from "@refinedev/core";
 import {
   AccountDto,
@@ -47,6 +48,9 @@ interface MockTransaction {
   status: TransactionDtoStatusEnum;
 }
 
+// Add these type definitions before the WalletSettings component
+type TableTransaction = TransactionDto | MockTransaction;
+
 export const WalletSettings: React.FC = () => {
   const { data: me } = useGetIdentity<AccountDto>();
   const navigate = useNavigate();
@@ -63,6 +67,7 @@ export const WalletSettings: React.FC = () => {
       TransactionDtoPaymentMethodEnum.Vnpay
     );
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<TableTransaction | null>(null);
 
   // For getting real transactions
   const {
@@ -196,27 +201,10 @@ export const WalletSettings: React.FC = () => {
     setPaymentMethod(TransactionDtoPaymentMethodEnum.Vnpay);
   };
 
-  // Generate mock transactions for fallback
-  const mockTransactions: MockTransaction[] = [
-    {
-      transactionId: 1,
-      type: TransactionDtoTypeEnum.Deposit,
-      amount: 500000,
-      createdAt: new Date().toISOString(),
-      status: TransactionDtoStatusEnum.Success,
-    },
-    {
-      transactionId: 2,
-      type: TransactionDtoTypeEnum.Order,
-      amount: 200000,
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-      status: TransactionDtoStatusEnum.Success,
-    },
-  ];
 
   // Use a union type to handle both real and mock transactions
   const displayTransactions: (TransactionDto | MockTransaction)[] =
-    transactionsData?.data || mockTransactions;
+    transactionsData?.data || [];
 
   return (
     <div>
@@ -228,7 +216,6 @@ export const WalletSettings: React.FC = () => {
             value={formatCurrency(me?.balance || 0)}
             prefix={<WalletOutlined />}
             precision={0}
-            suffix="VND"
             groupSeparator=","
           />
           <Space style={{ marginTop: 16 }}>
@@ -248,51 +235,91 @@ export const WalletSettings: React.FC = () => {
           title="Recent Transactions"
           extra={isTransactionsLoading && <Spin size="small" />}
         >
-          <List
+          <Table<TableTransaction>
             dataSource={displayTransactions}
             loading={isTransactionsLoading}
-            renderItem={(item) => (
-              <List.Item
-                key={item.transactionId}
-                extra={[
+            rowKey="transactionId"
+            pagination={{
+              pageSize: 10,
+              total: transactionsData?.total,
+              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} transactions`,
+              showSizeChanger: true,
+              showQuickJumper: true,
+            }}
+            columns={[
+              {
+                title: 'ID',
+                dataIndex: 'transactionId',
+                key: 'transactionId',
+                render: (transactionId: number) => (
+                  <Text copyable className="font-medium">
+                    #{transactionId}
+                  </Text>
+                ),
+                sorter: (a, b) => a.transactionId - b.transactionId,
+              },
+              {
+                title: 'Type',
+                dataIndex: 'type',
+                key: 'type',
+                render: (type: TransactionDtoTypeEnum) => (
+                  <Tag color={type === TransactionDtoTypeEnum.Deposit ? 'green' : 'blue'}>
+                    {type}
+                  </Tag>
+                ),
+              },
+              {
+                title: 'Amount',
+                dataIndex: 'amount',
+                key: 'amount',
+                sorter: (a, b) => a.amount - b.amount,
+                render: (amount: number, record: TableTransaction) => (
                   <Typography.Text
-                    type={
-                      item.type === TransactionDtoTypeEnum.Deposit
-                        ? "success"
-                        : "danger"
-                    }
-                    key="amount"
+                    type={record.type === TransactionDtoTypeEnum.Deposit ? 'success' : 'danger'}
                   >
-                    {item.type === TransactionDtoTypeEnum.Deposit ? "+" : "-"}
-                    {formatCurrency(item.amount || 0)} VND
-                  </Typography.Text>,
-                ]}
-              >
-                <List.Item.Meta
-                  title={
-                    <>
-                      {item.type === TransactionDtoTypeEnum.Deposit
-                        ? "Deposit"
-                        : "Order"}{" "}
-                      -
-                      <Tag
-                        bordered={false}
-                        color={
-                          item.status == "SUCCESS"
-                            ? "success"
-                            : item.status == "PENDING"
-                            ? "processing"
-                            : "error"
-                        }
-                      >
-                        {item.status}
-                      </Tag>
-                    </>
-                  }
-                  description={formatTransactionDate(item.createdAt)}
-                />
-              </List.Item>
-            )}
+                    {record.type === TransactionDtoTypeEnum.Deposit ? '+' : '-'}
+                    {formatCurrency(amount || 0)}
+                  </Typography.Text>
+                ),
+              },
+              {
+                title: 'Status',
+                dataIndex: 'status',
+                key: 'status',
+                render: (status: TransactionDtoStatusEnum) => (
+                  <Tag
+                    bordered={false}
+                    color={
+                      status === 'SUCCESS'
+                        ? 'success'
+                        : status === 'PENDING'
+                        ? 'processing'
+                        : 'error'
+                    }
+                  >
+                    {status}
+                  </Tag>
+                ),
+              },
+              {
+                title: 'Created At',
+                dataIndex: 'createdAt',
+                key: 'createdAt',
+                sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+                render: (date: string) => formatTransactionDate(date),
+              },
+              {
+                title: 'Actions',
+                key: 'actions',
+                render: (_, record: TableTransaction) => (
+                  <Button
+                    type="text"
+                    icon={<InfoCircleOutlined />}
+                    onClick={() => setSelectedTransaction(record)}
+                  />
+                ),
+              },
+            ]}
           />
         </Card>
       </Space>
@@ -384,6 +411,85 @@ export const WalletSettings: React.FC = () => {
             </Text>
           </div>
         </Space>
+      </Modal>
+
+      {/* Add this Transaction Details Modal */}
+      <Modal
+        title="Transaction Details"
+        open={!!selectedTransaction}
+        onCancel={() => setSelectedTransaction(null)}
+        footer={[
+          <Button key="close" onClick={() => setSelectedTransaction(null)}>
+            Close
+          </Button>
+        ]}
+      >
+        {selectedTransaction && (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <div>
+              <Text strong>Transaction ID: </Text>
+              <Text>{selectedTransaction.transactionId}</Text>
+            </div>
+            <div>
+              <Text strong>Type: </Text>
+              <Tag color={selectedTransaction.type === TransactionDtoTypeEnum.Deposit ? 'green' : 'blue'}>
+                {selectedTransaction.type}
+              </Tag>
+            </div>
+            <div>
+              <Text strong>Amount: </Text>
+              <Typography.Text
+                type={selectedTransaction.type === TransactionDtoTypeEnum.Deposit ? 'success' : 'danger'}
+              >
+                {selectedTransaction.type === TransactionDtoTypeEnum.Deposit ? '+' : '-'}
+                {formatCurrency(selectedTransaction.amount || 0)}
+              </Typography.Text>
+            </div>
+            <div>
+              <Text strong>Status: </Text>
+              <Tag
+                bordered={false}
+                color={
+                  selectedTransaction.status === 'SUCCESS'
+                    ? 'success'
+                    : selectedTransaction.status === 'PENDING'
+                    ? 'processing'
+                    : 'error'
+                }
+              >
+                {selectedTransaction.status}
+              </Tag>
+            </div>
+            <div>
+              <Text strong>Created At: </Text>
+              <Text>{formatTransactionDate(selectedTransaction.createdAt)}</Text>
+            </div>
+            <div>
+              <Text strong>Updated At: </Text>
+              <Text>{formatTransactionDate(selectedTransaction.updatedAt)}</Text>
+            </div>
+            {selectedTransaction.paymentMethod && (
+              <div>
+                <Text strong>Payment Method: </Text>
+                <Text>{selectedTransaction.paymentMethod}</Text>
+              </div>
+            )}
+            {selectedTransaction.orderId && (
+              <div>
+                <Text strong>Order ID: </Text>
+                <Text>{selectedTransaction.orderId}</Text>
+              </div>
+            )}
+            <div>
+              <Text strong>Old Balance: </Text>
+              <Text>{formatCurrency(selectedTransaction.oldBalance || 0)}</Text>
+            </div>
+            <div>
+              <Text strong>New Balance: </Text>
+              <Text>{formatCurrency(selectedTransaction.newBalance || 0)}</Text>
+            </div>
+          </Space>
+        )}
       </Modal>
     </div>
   );
