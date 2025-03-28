@@ -1,6 +1,8 @@
 package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.SetDto;
+import com.fptgang.backend.api.model.SetRequestDto;
+import com.fptgang.backend.api.model.SlotDto;
 import com.fptgang.backend.model.Set;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.StockKeepingUnitRepos;
@@ -8,6 +10,8 @@ import com.fptgang.backend.util.DateTimeUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -79,5 +83,27 @@ public class SetMapper extends BaseMapper<SetDto, Set> {
                     .collect(Collectors.toList()));
         }
         return dto;
+    }
+
+    public SetDto toDTO(SetRequestDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        SetDto setDto = new SetDto();
+        setDto.setSetId(dto.getSetId());
+        setDto.setIsVisible(dto.getIsVisible());
+        setDto.setBlindBox(dto.getBlindBox());
+        setDto.setSku(dto.getSku());
+        List<SlotDto> slots = new ArrayList<>();
+        for (int i = 0; i < dto.getNumOfItems(); i++) {
+            SlotDto slotDto = new SlotDto();
+            slotDto.setSetId(dto.getSetId());
+            slotDto.setIsVisible(dto.getIsVisible());
+            slotDto.setPosition(i);
+            slotDto.setState(SlotDto.StateEnum.AVAILABLE);
+            slots.add(slotDto);
+        }
+        setDto.setSlots(slots);
+        return setDto;
     }
 }

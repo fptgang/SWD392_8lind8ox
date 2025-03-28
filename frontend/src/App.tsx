@@ -90,6 +90,7 @@ import { stompClient } from "./utils/stompClient";
 import CustomerCasesPage from "./pages/customer/case/CustomerCasesPage";
 import SetDetailPage from "./pages/customer/case/SetDetailPage";
 import { VideosList, VideosShow } from "./pages/videos";
+import { SetsCreate, SetsList, SetsShow } from "./pages/sets";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -271,6 +272,12 @@ function App() {
                           <Route path="create" element={<BlindBoxesCreate />} />
                           <Route path="edit/:id" element={<BlindBoxesEdit />} />
                           <Route path="show/:id" element={<BlindBoxesShow />} />
+                        </Route>
+
+                        <Route path="sets">
+                          <Route index element={<SetsList />} />
+                          <Route path="create" element={<SetsCreate />} />
+                          <Route path="show/:id" element={<SetsShow />} />
                         </Route>
 
                         <Route path="orders">

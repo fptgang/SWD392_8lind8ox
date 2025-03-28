@@ -1,13 +1,12 @@
 package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.TransactionsApi;
-import com.fptgang.backend.api.model.GetTransactions200Response;
-import com.fptgang.backend.api.model.Pageable;
-import com.fptgang.backend.api.model.TransactionDto;
+import com.fptgang.backend.api.model.*;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.mapper.TransactionMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Transaction;
+import com.fptgang.backend.service.PaymentService;
 import com.fptgang.backend.service.TransactionService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
@@ -28,10 +27,12 @@ import java.util.Optional;
 public class TransactionController implements TransactionsApi {
     private final TransactionService transactionService;
     private final TransactionMapper transactionMapper;
+    private final PaymentService paymentService;
 
-    public TransactionController(TransactionService transactionService, TransactionMapper transactionMapper) {
+    public TransactionController(TransactionService transactionService, TransactionMapper transactionMapper, PaymentService paymentService) {
         this.transactionService = transactionService;
         this.transactionMapper = transactionMapper;
+        this.paymentService = paymentService;
     }
 
     @Override
@@ -80,5 +81,23 @@ public class TransactionController implements TransactionsApi {
         return OpenApiHelper.respondPage(resultPage, GetTransactions200Response.class);
     }
 
+    @Override
+    public ResponseEntity<CreateDepositTransaction200Response> createDepositTransaction(DepositDto dto) {
+        log.info("Creating deposit transaction");
+        dto.setAccountId(SecurityUtil.requireCurrentUserId());
+        Transaction transaction = transactionService.create(transactionMapper.toEntity(transactionMapper.toDTO(dto)));
+        return new ResponseEntity<>(
+                new CreateDepositTransaction200Response()
+                        .paymentRedirectUrl(
+                                paymentService.generatePaymentLinkForDeposit(
+                                        transaction.getPaymentMethod(),
+                                        transaction.getAmount(),
+                                        transaction.getTransactionId()
+                                )),
+                HttpStatus.CREATED
+        );
+
+
+    }
 
 }

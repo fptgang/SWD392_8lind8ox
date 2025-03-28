@@ -1,5 +1,6 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.config.BlindBoxConfig;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Slot;
@@ -28,12 +29,20 @@ public class VideoServiceImpl implements VideoService {
     private final VideoRepos videoRepos;
     private final AzureBlobService azureBlobService;
     private final EmailService emailService;
+    private final BlindBoxConfig blindBoxConfig;
+
     @Autowired
-    public VideoServiceImpl(VideoRepos videoRepos, AzureBlobService azureBlobService, AccountRepos accountRepos, EmailService emailService) {
+    public VideoServiceImpl(
+            VideoRepos videoRepos,
+            AzureBlobService azureBlobService,
+            AccountRepos accountRepos,
+            EmailService emailService,
+            BlindBoxConfig blindBoxConfig) {
         this.videoRepos = videoRepos;
         this.azureBlobService = azureBlobService;
         this.accountRepos = accountRepos;
         this.emailService = emailService;
+        this.blindBoxConfig = blindBoxConfig;
     }
 
     @Override
@@ -50,21 +59,14 @@ public class VideoServiceImpl implements VideoService {
             // Save video details in DB
             Video savedVideo = videoRepos.save(video);
 
-            // Generate email content dynamically inside this method
-            String emailBody = String.format("""
-                <h1>🎥 Your Video is Ready!</h1>
-                <p>Dear %s,</p>
-                <p>We are excited to inform you that your unboxing video has been successfully uploaded!</p>
-                <p>Click the link below to watch your video:</p>
-                %s
-                <br>
-                <p>Thank you for being with us!</p>
-                <p>Best regards,</p>
-                <p><strong>Your Company Team</strong></p>
-                """, account.getFirstName() + " " + account.getLastName(), videoUrl);
+            // Generate email content using template from configuration
+            String emailBody = String.format(
+                    blindBoxConfig.getVideoEmailTemplate(),
+                    account.getFirstName() + " " + account.getLastName(),
+                    videoUrl);
 
             // Send email
-            String subject = "\uD83D\uDE80 Your Exclusive Unboxing Video is Now Live!";
+            String subject = blindBoxConfig.getVideoEmailTitle();
             String from = "Admin <admin@mail.biddify.fun>";
             emailService.sendMail(from, account.getEmail(), subject, emailBody);
 
@@ -95,6 +97,7 @@ public class VideoServiceImpl implements VideoService {
             throw new RuntimeException(e);
         }
     }
+
     @Override
     public Video verified(long id) {
         Video video = videoRepos.findById(id)

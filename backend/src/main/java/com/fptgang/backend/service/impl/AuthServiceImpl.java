@@ -4,6 +4,7 @@ import com.fptgang.backend.api.model.AuthResponseDto;
 import com.fptgang.backend.api.model.ForgotPasswordRequestDto;
 import com.fptgang.backend.api.model.RegisterRequestDto;
 import com.fptgang.backend.api.model.ResetPasswordRequestDto;
+import com.fptgang.backend.config.BlindBoxConfig;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.mapper.AccountMapper;
 import com.fptgang.backend.mapper.DetailLevel;
@@ -43,16 +44,19 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final PasswordResetTokenService passwordResetTokenService;
     private final AccountMapper accountMapper;
+    private final BlindBoxConfig blindBoxConfig;
+
     @Value("${FRONTEND_CORS_SERVER}")
     private String link;
 
     public AuthServiceImpl(AccountRepos accountRepos,
-                           JwtService tokenService,
-                           RefreshTokenService refreshTokenService,
-                           PasswordEncoderConfig passwordEncoderConfig,
-                           EmailService emailService,
-                           PasswordResetTokenService passwordResetTokenService,
-                           AccountMapper accountMapper) {
+            JwtService tokenService,
+            RefreshTokenService refreshTokenService,
+            PasswordEncoderConfig passwordEncoderConfig,
+            EmailService emailService,
+            PasswordResetTokenService passwordResetTokenService,
+            AccountMapper accountMapper,
+            BlindBoxConfig blindBoxConfig) {
         this.accountRepos = accountRepos;
         this.tokenService = tokenService;
         this.refreshTokenService = refreshTokenService;
@@ -60,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
         this.emailService = emailService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.accountMapper = accountMapper;
+        this.blindBoxConfig = blindBoxConfig;
     }
 
     @Override
@@ -107,8 +112,7 @@ public class AuthServiceImpl implements AuthService {
                                 .role(Account.Role.CUSTOMER)
                                 .isVerified(true)
                                 .verifiedAt(LocalDateTime.now())
-                                .build()
-                );
+                                .build());
             });
 
             Result result = authenticate(account, fingerprint);
@@ -166,24 +170,20 @@ public class AuthServiceImpl implements AuthService {
         String resetToken = passwordResetTokenService.generateToken(dto.getEmail());
 
         // Create reset password link
-        String resetLink =link + "/reset-password?token=" + resetToken;
+        String resetLink = link + "/reset-password?token=" + resetToken;
 
-        // Send email
-        String emailBody = String.format("""
-                Hello %s,
-                
-                You have requested to reset your password. Please click the link below to reset it:
-                %s
-                
-                This link will expire in 15 minutes.
-                
-                If you didn't request this, please ignore this email.
-                
-                Best regards,
-                Your Application Team
-                """, account.getFirstName(), resetLink);
+        // Send email using template from configuration
+        String emailBody = String.format(
+                blindBoxConfig.getPasswordResetEmailTemplate(),
+                account.getFirstName(),
+                resetLink,
+                blindBoxConfig.getPasswordResetExpiryMinutes());
 
-        emailService.sendMail("Admin", dto.getEmail(), "Password Reset Request", emailBody);
+        emailService.sendMail(
+                "Admin",
+                dto.getEmail(),
+                blindBoxConfig.getPasswordResetEmailTitle(),
+                emailBody);
 
         log.info("Password reset email sent to: {}", dto.getEmail());
     }
@@ -218,20 +218,17 @@ public class AuthServiceImpl implements AuthService {
         String token = jwt.getTokenValue();
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(
-                account.getEmail(), fingerprint
-        );
+                account.getEmail(), fingerprint);
 
         JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(
                 jwt,
-                List.of(new SimpleGrantedAuthority(account.getRole().toString()))
-        );
+                List.of(new SimpleGrantedAuthority(account.getRole().toString())));
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         log.debug(
                 "Authentication context created under token {} granted to {} with role {}",
-                token, account.getEmail(), account.getRole()
-        );
+                token, account.getEmail(), account.getRole());
 
         AuthResponseDto dto = new AuthResponseDto()
                 .token(token)

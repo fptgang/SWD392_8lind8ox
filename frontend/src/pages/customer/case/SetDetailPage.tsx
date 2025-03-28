@@ -883,12 +883,14 @@ const SetDetailPage: React.FC = () => {
                     {" "}
                     {/* 16:9 aspect ratio */}
                     {selectedToy.video?.url ? (
-                      <iframe
-                        src={selectedToy.video.url}
+                      <video
                         title={`Proof video for ${selectedToy.name}`}
                         className="absolute inset-0 w-full h-full rounded-md"
-                        allowFullScreen
-                      />
+                        controls
+                        autoPlay
+                      >
+                        <source src={selectedToy.video.url} type="video/mp4" />
+                      </video>
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-md">
                         <Text type="secondary">No video available</Text>

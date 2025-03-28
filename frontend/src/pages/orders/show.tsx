@@ -110,9 +110,7 @@ export const OrdersShow = () => {
       if (response) {
         setActionSuccess(true);
         message.success(`Order status updated to ${statusAction?.nextStatus}`);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        queryResult.refetch();
       }
     } catch (error) {
       message.error("Failed to update order status");
@@ -136,7 +134,7 @@ export const OrdersShow = () => {
         onCancel={() => setModalVisible(false)}
         okText="Confirm"
         cancelText="Cancel"
-        okButtonProps={{ loading: actionSuccess }}
+        okButtonProps={{ loading: !actionSuccess }}
       >
         <p>Are you sure you want to update this order to "{actionType}"?</p>
         <p>This action cannot be undone.</p>

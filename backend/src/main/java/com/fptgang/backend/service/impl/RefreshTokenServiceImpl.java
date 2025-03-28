@@ -1,5 +1,6 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.config.BlindBoxConfig;
 import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.RefreshToken;
@@ -21,16 +22,18 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
-    private static final Duration REFRESH_TOKEN_EXPIRY_DURATION = Duration.ofDays(7);
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshTokenServiceImpl.class);
 
     private final RefreshTokenRepos refreshTokenRepos;
     private final AccountRepos accountRepos;
+    private final BlindBoxConfig blindBoxConfig;
 
     public RefreshTokenServiceImpl(RefreshTokenRepos refreshTokenRepos,
-                                   AccountRepos accountRepos) {
+            AccountRepos accountRepos,
+            BlindBoxConfig blindBoxConfig) {
         this.refreshTokenRepos = refreshTokenRepos;
         this.accountRepos = accountRepos;
+        this.blindBoxConfig = blindBoxConfig;
     }
 
     @Override
@@ -43,14 +46,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .ipAddress(fingerprint.getIpAddress())
                 .sessionId(fingerprint.getSessionId())
                 .clientInfo(fingerprint.getClientInfo())
-                .expiryDate(Instant.now().plus(REFRESH_TOKEN_EXPIRY_DURATION))
+                .expiryDate(Instant.now().plus(blindBoxConfig.getRefreshTokenExpiryDuration()))
                 .account(account)
                 .build();
 
         LOGGER.info(
                 "A new refresh token {} is created associating with user {}, sessionId {}, ip {}, client {}",
-                refreshToken.getToken(), email, fingerprint.getSessionId(), fingerprint.getIpAddress(), fingerprint.getClientInfo()
-        );
+                refreshToken.getToken(), email, fingerprint.getSessionId(), fingerprint.getIpAddress(),
+                fingerprint.getClientInfo());
 
         return refreshTokenRepos.save(refreshToken);
     }

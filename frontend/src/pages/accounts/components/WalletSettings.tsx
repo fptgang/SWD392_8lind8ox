@@ -20,9 +20,11 @@ import {
   TransactionDtoPaymentMethodEnum,
   TransactionDtoTypeEnum,
   TransactionDtoStatusEnum,
+  CreateDepositTransaction200Response,
 } from "../../../../generated";
 import { formatCurrency } from "../../../utils/currency-formatter";
 import { useNavigate, useLocation } from "react-router";
+import api from "../../../config/openapi-config";
 
 const { Title, Text } = Typography;
 const { Group: RadioGroup } = Radio;
@@ -88,7 +90,8 @@ export const WalletSettings: React.FC = () => {
     ],
   });
 
-  const { mutateAsync: createTransaction } = useCreate<TransactionDto>();
+  const { mutateAsync: createTransaction } =
+    useCreate<CreateDepositTransaction200Response>();
 
   // Check for payment return (for VNPAY)
   useEffect(() => {
@@ -151,18 +154,15 @@ export const WalletSettings: React.FC = () => {
       const response = await createTransaction({
         resource: "transactions",
         values: {
-          account: {
-            accountId: me?.accountId,
-          },
-          type: TransactionDtoTypeEnum.Deposit,
-          paymentMethod: paymentMethod,
-          amount: amount,
-          status: TransactionDtoStatusEnum.Pending,
+          amount,
+          paymentMethod: "VNPAY",
+          accountId: me?.accountId,
         },
       });
 
-      // If the API returns a URL (for VNPAY), redirect the user
-      const responseData = response?.data as string | undefined;
+      const responseData = response.data?.paymentRedirectUrl as
+        | string
+        | undefined;
       if (responseData && responseData.startsWith("https://")) {
         // It's a payment URL, redirect the user
         window.location.href = responseData;
