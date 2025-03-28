@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseRecord } from "@refinedev/core";
+import { BaseRecord, useGetIdentity } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -20,11 +20,15 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { PromotionalCampaignDto } from "../../../generated";
+
+import { PromotionCampaignDto, AccountDto } from "../../../generated";
 
 const { Text } = Typography;
 
 export const PromotionalCampaignsList: React.FC = () => {
+  const { data: user } = useGetIdentity<AccountDto>();
+  const isStaff = user?.role === "STAFF";
+
   const { tableProps, setFilters } = useTable({
     syncWithLocation: true,
     sorters: {
@@ -40,7 +44,7 @@ export const PromotionalCampaignsList: React.FC = () => {
         {
           field: "isVisible",
           operator: "eq",
-          value: undefined,
+          value: isStaff ? true : undefined,
         },
         {
           field: "search",
@@ -60,9 +64,6 @@ export const PromotionalCampaignsList: React.FC = () => {
           allowClear
           onSearch={(value) => {
             setFilters([
-              ...(tableProps.filters?.filter(
-                (filter) => filter.field !== "search"
-              ) || []),
               {
                 field: "search",
                 operator: "contains",
@@ -114,7 +115,7 @@ export const PromotionalCampaignsList: React.FC = () => {
             </Tooltip>
           }
           render={(value: string) => (
-            <DateField value={value} format="MMMM DD, YYYY" />
+            <DateField value={value} format="MMMM DD, YYYY HH:mm" />
           )}
           sorter
         />
@@ -130,7 +131,7 @@ export const PromotionalCampaignsList: React.FC = () => {
             </Tooltip>
           }
           render={(value: string) => (
-            <DateField value={value} format="MMMM DD, YYYY" />
+            <DateField value={value} format="MMMM DD, YYYY HH:mm" />
           )}
           sorter
         />
@@ -145,29 +146,31 @@ export const PromotionalCampaignsList: React.FC = () => {
           )}
         />
 
-        <Table.Column
-          dataIndex="isVisible"
-          title={
-            <Tooltip title="Visibility status">
-              <Space>
-                <EyeOutlined />
-                <span>Status</span>
-              </Space>
-            </Tooltip>
-          }
-          render={(value: boolean) =>
-            value ? (
-              <Badge status="success" text="Active" />
-            ) : (
-              <Badge status="error" text="Hidden" />
-            )
-          }
-          filters={[
-            { text: "Active", value: true },
-            { text: "Hidden", value: false },
-          ]}
-          filterMultiple={false}
-        />
+        {!isStaff && (
+          <Table.Column
+            dataIndex="isVisible"
+            title={
+              <Tooltip title="Visibility status">
+                <Space>
+                  <EyeOutlined />
+                  <span>Status</span>
+                </Space>
+              </Tooltip>
+            }
+            render={(value: boolean) =>
+              value ? (
+                <Badge status="success" text="Active" />
+              ) : (
+                <Badge status="error" text="Hidden" />
+              )
+            }
+            filters={[
+              { text: "Active", value: true },
+              { text: "Hidden", value: false },
+            ]}
+            filterMultiple={false}
+          />
+        )}
 
         <Table.Column
           dataIndex="createdAt"
@@ -178,7 +181,7 @@ export const PromotionalCampaignsList: React.FC = () => {
             </Space>
           }
           render={(value: string) => (
-            <DateField value={value} format="MMMM DD, YYYY" />
+            <DateField value={value} format="MMMM DD, YYYY HH:mm" />
           )}
           sorter
         />
@@ -192,7 +195,7 @@ export const PromotionalCampaignsList: React.FC = () => {
             </Space>
           }
           render={(value: string) => (
-            <DateField value={value} format="MMMM DD, YYYY" />
+            <DateField value={value} format="MMMM DD, YYYY HH:mm" />
           )}
           sorter
         />
@@ -200,13 +203,13 @@ export const PromotionalCampaignsList: React.FC = () => {
         <Table.Column
           title="Actions"
           fixed="right"
-          render={(_, record: PromotionalCampaignDto) => (
+          render={(_, record: BaseRecord) => (
             <Space size="middle">
               <Tooltip title="Edit Promotion">
                 <EditButton
                   hideText
                   size="small"
-                  recordItemId={record.campaignId}
+                  recordItemId={record.id}
                   icon={<EditOutlined className="text-blue-600" />}
                   className="hover:text-blue-700"
                 />
@@ -215,7 +218,7 @@ export const PromotionalCampaignsList: React.FC = () => {
                 <ShowButton
                   hideText
                   size="small"
-                  recordItemId={record.campaignId}
+                  recordItemId={record.id}
                   className="text-green-600 hover:text-green-700"
                 />
               </Tooltip>
@@ -223,7 +226,7 @@ export const PromotionalCampaignsList: React.FC = () => {
                 <DeleteButton
                   hideText
                   size="small"
-                  recordItemId={record.campaignId}
+                  recordItemId={record.id}
                   icon={<DeleteOutlined className="text-red-600" />}
                   className="hover:text-red-700"
                   confirmTitle="Delete Promotion"

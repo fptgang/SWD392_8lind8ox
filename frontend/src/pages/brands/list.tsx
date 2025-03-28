@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseRecord } from "@refinedev/core";
+import { BaseRecord, useGetIdentity } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -18,10 +18,14 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { AccountDto } from "../../../generated";
 
 const { Text } = Typography;
 
 export const BrandsList: React.FC = () => {
+  const { data: user } = useGetIdentity<AccountDto>();
+  const isStaff = user?.role === "STAFF";
+
   const { tableProps, setFilters } = useTable({
     syncWithLocation: true,
     sorters: {
@@ -37,7 +41,7 @@ export const BrandsList: React.FC = () => {
         {
           field: "isVisible",
           operator: "eq",
-          value: undefined,
+          value: isStaff ? true : undefined,
         },
       ],
     },
@@ -97,23 +101,25 @@ export const BrandsList: React.FC = () => {
           render={(value: string) => <Text strong>{value}</Text>}
         />
 
-        <Table.Column
-          dataIndex="isVisible"
-          title={
-            <Tooltip title="Visibility status">
-              <Space>
-                <EyeOutlined />
-                <span>Status</span>
-              </Space>
-            </Tooltip>
-          }
-          render={(value: boolean) => getVisibilityStatus(value)}
-          filters={[
-            { text: "Visible", value: true },
-            { text: "Hidden", value: false },
-          ]}
-          filterMultiple={false}
-        />
+        {!isStaff && (
+          <Table.Column
+            dataIndex="isVisible"
+            title={
+              <Tooltip title="Visibility status">
+                <Space>
+                  <EyeOutlined />
+                  <span>Status</span>
+                </Space>
+              </Tooltip>
+            }
+            render={(value: boolean) => getVisibilityStatus(value)}
+            filters={[
+              { text: "Visible", value: true },
+              { text: "Hidden", value: false },
+            ]}
+            filterMultiple={false}
+          />
+        )}
 
         <Table.Column
           dataIndex="createdAt"

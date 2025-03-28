@@ -8,6 +8,7 @@ import {
   Spin,
   Space,
   DatePicker,
+  Button,
 } from "antd";
 import {
   AreaChartOutlined,
@@ -15,16 +16,19 @@ import {
   FireOutlined,
   LineChartOutlined,
   PieChartOutlined,
+  GiftOutlined,
 } from "@ant-design/icons";
 import { useCustom } from "@refinedev/core";
 import { Line, Column, Pie, Bar } from '@ant-design/plots';
 import dayjs from "dayjs";
 import { Table } from "antd/lib";
+import { useNavigation } from "@refinedev/core";
 
 const { Title, Paragraph } = Typography;
 const { RangePicker } = DatePicker;
 
 const DashboardPage: React.FC = () => {
+  const { push } = useNavigation();
   const [timeRange, setTimeRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
     dayjs().subtract(7, "days"),
     dayjs(),

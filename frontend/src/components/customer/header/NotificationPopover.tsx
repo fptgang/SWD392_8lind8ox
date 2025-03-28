@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Popover,
   Badge,
@@ -31,6 +31,7 @@ import {
   useList,
   useSubscription,
   useUpdate,
+  HttpError,
 } from "@refinedev/core";
 import { store } from "../../../store";
 
@@ -185,13 +186,11 @@ const NotificationSummary: React.FC<NotificationSummaryProps> = ({
 );
 
 export const NotificationPopover: React.FC = () => {
-  // These would typically come from a notifications context/hook
-
   const [pageSize, setPageSize] = React.useState(10);
 
   const user = store.getState().auth.account;
   const email = user?.email;
-  const { data, isLoading, isError, refetch } = useList<NotificationDto>({
+  const { data, isLoading, isError, error, refetch } = useList<NotificationDto, HttpError>({
     resource: "notifications",
     pagination: {
       pageSize,
@@ -203,7 +202,32 @@ export const NotificationPopover: React.FC = () => {
       },
     ],
     liveMode: "off",
+    meta: {
+      headers: {
+        Authorization: `Bearer ${store.getState().auth.accessToken}`,
+      },
+    },
   });
+
+  useEffect(() => {
+    if (isError) {
+      if (error?.statusCode === 401) {
+        notification.error({
+          message: "Authentication Error",
+          description: "Please log in again to view notifications",
+          placement: "topRight",
+          duration: 5,
+        });
+      } else {
+        notification.error({
+          message: "Error loading notifications",
+          description: "Unable to load notifications at this time",
+          placement: "topRight",
+          duration: 5,
+        });
+      }
+    }
+  }, [isError, error]);
 
   useSubscription({
     channel: email ? `noti/${email}` : "",
