@@ -5,6 +5,7 @@ import {
   ShoppingOutlined,
   LockOutlined,
   WalletOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router";
 import { useTranslate } from "@refinedev/core";
@@ -27,6 +28,11 @@ export const AccountSider: React.FC = () => {
       label: t("account.menu.security"),
     },
     {
+      key: "settings",
+      icon: <SettingOutlined className="text-lg" />,
+      label: t("Settings"),
+    },
+    {
       key: "wallet",
       icon: <WalletOutlined className="text-lg" />,
       label: t("account.menu.wallet"),
@@ -41,7 +47,7 @@ export const AccountSider: React.FC = () => {
   return (
     <Sider
       width={200}
-      className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-2rem)] mt-4"
+      className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-2rem)] mt-4 "
     >
       <div className="p-4 border-b border-gray-100">
         <h2 className="text-lg font-medium ">{t("account.title")}</h2>
