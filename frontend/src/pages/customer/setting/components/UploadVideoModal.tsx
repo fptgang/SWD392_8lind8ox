@@ -10,17 +10,19 @@ interface VideoUploadModalProps {
   visible: boolean;
   onCancel: () => void;
   slot: SlotDto | undefined;
+  refetch?: () => void;
 }
 
 export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
   visible,
   onCancel,
   slot,
+  refetch,
 }) => {
   const user = store.getState().auth.account;
   const [videoFile, setVideoFile] = useState<Blob | null>(null);
-  const handleVideoUpload = (file: Blob) => {
-    api
+  const handleVideoUpload = async (file: Blob) => {
+    await api
       .createVideo({
         accountId: user?.accountId,
         slotId: slot?.slotId,
@@ -37,8 +39,13 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
   };
   const handleUpload = () => {
     if (videoFile) {
-      handleVideoUpload(videoFile);
-      onCancel();
+      handleVideoUpload(videoFile).then(() => {
+        if (refetch) {
+          refetch();
+        }
+        onCancel();
+        setVideoFile(null);
+      });
     } else {
       message.error("Please select a video file first");
     }

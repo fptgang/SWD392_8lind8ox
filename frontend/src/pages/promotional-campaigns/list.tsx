@@ -20,7 +20,7 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { PromotionCampaignDto } from "../../../generated";
+import { PromotionalCampaignDto } from "../../../generated";
 
 const { Text } = Typography;
 
@@ -200,7 +200,7 @@ export const PromotionalCampaignsList: React.FC = () => {
         <Table.Column
           title="Actions"
           fixed="right"
-          render={(_, record: PromotionCampaignDto) => (
+          render={(_, record: PromotionalCampaignDto) => (
             <Space size="middle">
               <Tooltip title="Edit Promotion">
                 <EditButton

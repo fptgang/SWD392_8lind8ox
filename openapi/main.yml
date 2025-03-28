@@ -31,7 +31,7 @@ components:
       $ref: "model/notification.yml#/NotificationDto"
     BlindBoxDto:
       $ref: "model/blindbox.yml#/BlindBoxDto"
-    PromotionCampaignDto:
+    PromotionalCampaignDto:
       $ref: "model/promotional-campaign.yml#/PromotionalCampaignDto"
     VideoDto:
       $ref: "model/video.yml#/VideoDto"

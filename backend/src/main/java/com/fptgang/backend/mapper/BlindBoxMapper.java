@@ -109,6 +109,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
                 .map(e -> imageMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
         dto.setBlindBoxCampaigns(entity.getBlindBoxCampaigns().stream()
+                .filter(blindBoxCampaign -> (blindBoxCampaign.getIsVisible() && blindBoxCampaign.getPromotionalCampaign().getIsVisible()) || SecurityUtil.hasRole(Account.Role.ADMIN))
                 .map(e -> blindBoxCampaignMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
         dto.setToys(entity.getToys().stream()

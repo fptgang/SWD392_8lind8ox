@@ -14,7 +14,7 @@ import {
   Upload
 } from 'antd';
 import {EditOutlined, PlusOutlined, SaveOutlined} from '@ant-design/icons';
-import {useGetIdentity, useOne, useUpdate} from '@refinedev/core';
+import {useGetIdentity, useOne, useUpdate, useNotification} from '@refinedev/core';
 import {AccountDto} from '../../../generated';
 import type {RcFile, UploadProps} from "antd/es/upload";
 import type {UploadFile} from "antd/es/upload/interface";
@@ -34,17 +34,20 @@ const ProfilePage: React.FC = () => {
     resource: 'accounts',
     id: user?.accountId,
   });
+  const { open } = useNotification();
 
   React.useEffect(() => {
     if (user?.avatarUrl) {
-      setFileList([{
-        uid: '-1',
-        name: 'avatar',
-        status: 'done',
-        url: user.avatarUrl,
-      }]);
+      setFileList([
+        {
+          uid: "-1",
+          name: "avatar",
+          status: "done",
+          url: user.avatarUrl,
+        },
+      ]);
     }
-  }, [user]);
+  }, [user?.avatarUrl]);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
@@ -70,7 +73,7 @@ const ProfilePage: React.FC = () => {
     );
   };
 
-  const handleChange: UploadProps["onChange"] = ({fileList: newFileList}) => {
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
     console.log(newFileList);
     setFileList(newFileList);
   };
@@ -128,20 +131,20 @@ const ProfilePage: React.FC = () => {
   return (
     <Card>
       <div style={{textAlign: 'center', marginBottom: 24}}>
-        <ImgCrop rotationSlider aspectSlider showReset>
-          <Upload
-            action={apiUrl + "/accounts/" + user?.accountId + "/upload-avatar"}
-            method="post"
-            name="blob"
-            headers={{Authorization: `Bearer ${token}`}}
-            listType="picture-circle"
-            fileList={fileList}
-            onPreview={handlePreview}
-            onChange={handleChange}
-          >
-            {fileList.length >= 1 ? null : uploadButton}
-          </Upload>
-        </ImgCrop>
+        <div style={{display: 'flex', justifyContent: 'center'}}>
+            <ImgCrop rotationSlider aspectSlider showReset>
+              <Upload
+                action={apiUrl + "/accounts/" + user?.accountId + "/upload-avatar"}
+                method="post"
+                name="blob"
+                headers={{ Authorization: `Bearer ${token}` }}
+                listType="picture-circle"
+                fileList={fileList}
+                onPreview={handlePreview}
+                onChange={handleChange}
+              />
+            </ImgCrop>
+        </div>
         {!isEditing && (
           <div>
             <Title level={2} style={{marginBottom: 8}}>

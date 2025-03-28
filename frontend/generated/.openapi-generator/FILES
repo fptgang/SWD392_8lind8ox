@@ -8,6 +8,8 @@ models/BlindBoxDto.ts
 models/BrandDto.ts
 models/CartDto.ts
 models/CartItemDto.ts
+models/CreateDepositTransaction200Response.ts
+models/DepositDto.ts
 models/ErrorResponse.ts
 models/ForgotPasswordRequestDto.ts
 models/GetAccounts200Response.ts
@@ -35,13 +37,13 @@ models/OrderStatusHistoryDto.ts
 models/Page.ts
 models/Pageable.ts
 models/PlaceOrder200Response.ts
-models/PromotionCampaignDto.ts
 models/PromotionalCampaignDto.ts
 models/PromotionalCampaignRequestDto.ts
 models/RefreshTokenDto.ts
 models/RegisterRequestDto.ts
 models/ResetPasswordRequestDto.ts
 models/SetDto.ts
+models/SetRequestDto.ts
 models/ShippingInfoDto.ts
 models/SlotDto.ts
 models/StockKeepingUnitDto.ts
