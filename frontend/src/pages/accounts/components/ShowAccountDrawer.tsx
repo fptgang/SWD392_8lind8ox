@@ -97,7 +97,7 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
         Delete
       </Button>
     </Space>
-  ) : null;
+  );
 
   return (
     <Drawer
