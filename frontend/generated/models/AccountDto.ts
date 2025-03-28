@@ -86,18 +86,6 @@ export interface AccountDto {
      * @type {boolean}
      * @memberof AccountDto
      */
-    isVerified?: boolean;
-    /**
-     * 
-     * @type {Date}
-     * @memberof AccountDto
-     */
-    verifiedAt?: Date;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof AccountDto
-     */
     isVisible?: boolean;
     /**
      * 
@@ -157,8 +145,6 @@ export function AccountDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'balance': json['balance'] == null ? undefined : json['balance'],
         'updateBalanceAt': json['updateBalanceAt'] == null ? undefined : (new Date(json['updateBalanceAt'])),
         'role': json['role'] == null ? undefined : json['role'],
-        'isVerified': json['isVerified'] == null ? undefined : json['isVerified'],
-        'verifiedAt': json['verifiedAt'] == null ? undefined : (new Date(json['verifiedAt'])),
         'isVisible': json['isVisible'] == null ? undefined : json['isVisible'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
@@ -186,8 +172,6 @@ export function AccountDtoToJSONTyped(value?: AccountDto | null, ignoreDiscrimin
         'balance': value['balance'],
         'updateBalanceAt': value['updateBalanceAt'] == null ? undefined : ((value['updateBalanceAt']).toISOString()),
         'role': value['role'],
-        'isVerified': value['isVerified'],
-        'verifiedAt': value['verifiedAt'] == null ? undefined : ((value['verifiedAt']).toISOString()),
         'isVisible': value['isVisible'],
         'createdAt': value['createdAt'] == null ? undefined : ((value['createdAt']).toISOString()),
         'updatedAt': value['updatedAt'] == null ? undefined : ((value['updatedAt']).toISOString()),
