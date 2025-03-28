@@ -37,3 +37,18 @@ class RefreshSets extends SetEvent {
   @override
   List<Object?> get props => [pageable, filter, search];
 }
+
+class LoadMoreSets extends SetEvent {
+  final Pageable pageable;
+  final String filter;
+  final String search;
+
+  const LoadMoreSets({
+    required this.pageable,
+    this.filter = '',
+    this.search = '',
+  });
+
+  @override
+  List<Object?> get props => [pageable, filter, search];
+}

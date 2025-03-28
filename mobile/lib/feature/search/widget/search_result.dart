@@ -4,76 +4,209 @@ import 'package:go_router/go_router.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
+import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_event.dart';
 import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_state.dart';
+import 'package:mobile/feature/search/blocs/search_bloc.dart';
+import 'package:mobile/feature/search/blocs/search_event.dart';
+import 'package:mobile/feature/search/blocs/search_state.dart';
 
-class SearchResults extends StatelessWidget {
+class SearchResults extends StatefulWidget {
   const SearchResults({super.key});
 
   @override
+  State<SearchResults> createState() => _SearchResultsState();
+}
+
+class _SearchResultsState extends State<SearchResults> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Trigger load more when we're at the bottom of the list
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.9) {
+      // Check current state to avoid duplicate calls
+      final searchState = context.read<SearchBloc>().state;
+      if (searchState is SearchDataState &&
+          !searchState.isLoadingMore &&
+          !searchState.hasReachedEnd) {
+        context.read<SearchBloc>().add(LoadMoreResults());
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BlindBoxesListBloc, BlindBoxesListState>(
+    return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        if (state.status == BlindBoxesListStatus.loading) {
+        if (state is SearchLoadingState && state.isLoading) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        if (state.status == BlindBoxesListStatus.success) {
-          final blindBoxes = state.blindBoxes?.content;
+        if (state is SearchDataState) {
+          final blindBoxes = state.searchResults?.content;
           if (blindBoxes == null || blindBoxes.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No results found',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                  ),
-                ],
-              ),
-            );
+            return _buildEmptyState();
           }
 
-          return ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: blindBoxes.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              return _buildBlindBoxItem(context, blindBoxes[index]);
-            },
-          );
-        }
-
-        if (state.status == BlindBoxesListStatus.failure) {
-          return Center(
+          return Padding(
+            padding: const EdgeInsets.only(top: 8.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading results',
-                  style: Theme.of(context).textTheme.titleMedium,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'Results for "${state.searchQuery}"',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  state.errorMessage ?? 'Unknown error occurred',
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.center,
+                _buildFilterBar(context, state),
+                ListView.separated(
+                  controller: _scrollController,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: blindBoxes.length + (state.isLoadingMore ? 1 : 0),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    if (index == blindBoxes.length) {
+                      return _buildLoadingMoreIndicator();
+                    }
+                    return _buildBlindBoxItem(context, blindBoxes[index]);
+                  },
                 ),
               ],
             ),
           );
         }
 
+        if (state is SearchLoadingState && state.error != null) {
+          return _buildErrorState(state.error!);
+        }
+
         return const SizedBox.shrink();
       },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'No results found',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try a different search term or filter',
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+          const SizedBox(height: 16),
+          Text(
+            'Error loading results',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error,
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              final searchBloc = context.read<SearchBloc>();
+              if (searchBloc.state is SearchDataState) {
+                final query = (searchBloc.state as SearchDataState).searchQuery;
+                if (query != null && query.isNotEmpty) {
+                  searchBloc.add(SubmitSearch(query));
+                }
+              }
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Try Again'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterBar(BuildContext context, SearchDataState state) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          _buildFilterChip(context, 'Newest', 'createdAt,desc', state.filter),
+          _buildFilterChip(context, 'Oldest', 'createdAt,asc', state.filter),
+          _buildFilterChip(context, 'Name A-Z', 'name,asc', state.filter),
+          _buildFilterChip(context, 'Name Z-A', 'name,desc', state.filter),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(BuildContext context, String label,
+      String filterValue, String? currentFilter) {
+    final isSelected = currentFilter == filterValue;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: FilterChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (selected) {
+          if (selected) {
+            context.read<SearchBloc>().add(ApplySearchFilter(filterValue));
+          } else {
+            context.read<SearchBloc>().add(ApplySearchFilter(''));
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildLoadingMoreIndicator() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.0),
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 

@@ -11,7 +11,7 @@ enum OrderStatusHistoryEnum {
   COMPLETED
 }
 
-enum OrderStatusEnum{
+enum OrderStatusEnum {
   CREATED,
   PREPARING,
   PAYMENT_FAILED,
@@ -24,45 +24,33 @@ enum OrderStatusEnum{
   COMPLETED,
 }
 
-enum TransactionType {
-  DEPOSIT,
-  ORDER
-}
+enum TransactionType { DEPOSIT, ORDER }
 
-enum PaymentMethod {
-  PAYPAL,
-  VNPAY
-}
+enum PaymentMethod { PAYPAL, VNPAY }
 
-enum ToyRarityEnum {
-  REGULAR,
-  SECRET
-}
+enum ToyRarityEnum { REGULAR, SECRET }
 
-enum AccountEnum {
-  USER,
-  ADMIN
-}
+enum AccountEnum { USER, ADMIN }
 
-enum TransactionStatusEnum{
+enum TransactionStatusEnum {
   PENDING,
   SUCCESS,
   FAILED,
 }
 
-enum SlotStateEnum{
+enum SlotStateEnum {
   OPENED,
   AVAILABLE,
   RESERVED,
 }
 
-enum VoucherStatusEnum{
+enum VoucherStatusEnum {
   USED,
   AVAILABLE,
   RESERVED,
 }
 
-enum CartPaymentMethodEnum{
+enum CartPaymentMethodEnum {
   INTERNAL_WALLET,
   PAYPAL,
   VNPAY,

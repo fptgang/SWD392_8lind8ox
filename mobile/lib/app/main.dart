@@ -38,6 +38,7 @@ import 'package:mobile/feature/search/search_screen.dart';
 import 'package:mobile/feature/shipping/shipping_address_form_screen.dart';
 import 'package:mobile/feature/shipping/shipping_address_screen.dart';
 import 'package:mobile/feature/splash/view/splash_sreen.dart';
+import 'package:mobile/feature/toys/toy_detail_screen.dart';
 import 'package:mobile/feature/toys/toy_screen.dart';
 import 'package:mobile/feature/wallet/wallet_screen.dart';
 import 'package:mobile/utils/enum/enum.dart';
@@ -335,6 +336,13 @@ class AppRouter {
           orderId: state.pathParameters['id'] ?? '',
           status: OrderStatusEnum.DELIVERED,
         ),
+      ),
+      GoRoute(
+        path: '/toy/:id',
+        builder: (context, state) {
+          final int id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
+          return ToyDetailScreen(setId: id);
+        },
       ),
     ],
   );

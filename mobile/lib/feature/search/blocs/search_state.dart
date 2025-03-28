@@ -66,16 +66,36 @@ class SearchLoadingState implements SearchState {
 
 class SearchDataState implements SearchState {
   final PaginationResponseGeneric<BlindBoxModel>? searchResults;
+  final bool isLoadingMore;
+  final bool hasReachedEnd;
+  final String? searchQuery;
+  final String? filter;
+  final String? error;
 
   const SearchDataState({
     this.searchResults,
+    this.isLoadingMore = false,
+    this.hasReachedEnd = false,
+    this.searchQuery,
+    this.filter,
+    this.error,
   });
 
   SearchDataState copyWith({
     PaginationResponseGeneric<BlindBoxModel>? searchResults,
+    bool? isLoadingMore,
+    bool? hasReachedEnd,
+    String? searchQuery,
+    String? filter,
+    String? error,
   }) {
     return SearchDataState(
       searchResults: searchResults ?? this.searchResults,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
+      searchQuery: searchQuery ?? this.searchQuery,
+      filter: filter ?? this.filter,
+      error: error ?? this.error,
     );
   }
 }

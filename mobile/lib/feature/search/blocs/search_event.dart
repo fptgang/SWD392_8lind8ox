@@ -27,3 +27,10 @@ class RemoveRecentSearch extends SearchEvent {
 }
 
 class ClearRecentSearches extends SearchEvent {}
+
+class LoadMoreResults extends SearchEvent {}
+
+class ApplySearchFilter extends SearchEvent {
+  final String filter;
+  ApplySearchFilter(this.filter);
+}

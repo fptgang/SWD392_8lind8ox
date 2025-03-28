@@ -1,0 +1,166 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+here is how we define out api endpoint double check when u tried to apply filter 
+# Quy định cấu trúc endpoint của rest controller
+Tất cả các controller trong ứng dụng phải tuân thủ cấu trúc endpoint chuẩn của RESTful API.
+
+Dưới đây là một số quy tắc quan trọng cần lưu ý:
+
+---
+
+## 1\. **Method HTTP**
+
+* **POST**: Dùng để tạo mới
+* **PUT**: Dùng để cập nhật
+* **GET**: Dùng để lấy thông tin (một phần tử hoặc danh sách)
+* **DELETE**: Không xóa trực tiếp, thay vào đó chỉnh trường `isVisible` thành `0` để đánh dấu là đã xóa (soft delete).
+
+---
+
+## 2\. **Cấu trúc endpoint chuẩn**
+
+**Format**: `{apiServer}/{resource}/..`
+
+Ví dụ: http://localhost:8080/api/v1/accounts/
+
+* API server là <http://localhost:8080/api/v1>
+* Tên resource là account thì cấu trúc endpoint thêm s vào nha
+
+  ví dụ accounts
+
+
+
+
+URL có 2 loại parameter:
+
+* Path parameter: thường dùng để phân loại resource
+  * Format: `http://localhost:8080/api/v1/accounts/:id` thì có path parameter là :id
+  * Ví dụ: `http://localhost:8080/api/v1/accounts/10` trả về account có ID là 10
+* Query parameter: thường dùng cho sort và filter
+  * Ví dụ: `http://localhost:8080/api/v1/account?sort=firstName,asc` trả về tất cả account sắp xếp tăng dần theo firstName
+
+### **Ví dụ:** Controller cho **users**
+
+Base URL: `http://localhost:8080/api/v1/users`
+
+| Chức năng | HTTP Method | Endpoint | Mô tả | Query parameters |
+| --- | --- | --- | --- | --- |
+| **Create** | POST | `/users` | Tạo mới một user. |  |
+| **Update** | PUT | `/users/:id` | Cập nhật thông tin user. |  |
+| **Delete** | DELETE | `/users/:id` | Đánh dấu xóa user bằng `isVisible`. |  |
+| **Get One** | GET | `/users/:id` | Lấy thông tin chi tiết của user. |  |
+| **Get All** | GET | `/users` | Lấy danh sách tất cả users. | sort=firstName,asc<br />filter=firstName,eq,PhucVjp |
+
+---
+
+## 3\. Cấu trúc
+
+
+
+| Chức năng | HTTP Method | Request | Response (nếu status là OK) | Response (nếu status là 400) |
+| --- | --- | --- | --- | --- |
+| **Create** | POST | DTO | DTO | Error |
+| **Update** | PUT | DTO | DTO | Error |
+| **Delete** | DELETE | không có | không có | Error |
+| **Get One** | GET | không có | DTO | Error |
+| **Get All** | GET | Pageable\<DTO\> | Page\<DTO\> | Error |
+
+## Về DTO
+
+* Mỗi resource sẽ có 1 DTO (File spec sẽ nằm ở `openapi/model/`)
+* DTO ở phía FE và BE sẽ có cấu trúc tương tự nhau. Tuy nhiên do FE và BE là 2 ngôn ngữ khác nhau, sẽ có khác nhau về kiểu dữ liệu (cái này không cần quan tâm vì DTO dc gen bằng tool)
+
+## Về Pageable và Page
+
+* Tất cả đường dẫn trả về ở dạng List bắt buộc phải dùng Pageable và Page để phân trang (trừ 1 vài trường hợp ngoại lệ)
+* Pageable sẽ define sort, page, size (sắp xếp theo cái gì, trang nào, bao nhiêu item trong một trang)
+* Page sẽ define thông tin trong page đó và danh sách item
+* Pageable và Page được thiết kế theo chuẩn Spring
+* Tuy nhiên: Pageable và Page không hỗ trợ filter, do đó filter phải là một hoặc nhiều query parameter đi kèm
+
+## Về filter
+
+* Filter cần dùng query parameter (vì query không bắt buộc phải có trong URL)
+* Filter cơ bản có format là `field,op,value`
+  * Trong đó field là tên cột trong table, op là toán tử so sánh, value là giá trị
+  * Format này follow theo chuẩn refine.dev
+
+| Operator | Description |
+| --- | --- |
+| field,eq,value | Field equals to the value |
+| field,ne,value | Field not equal to the value |
+| field,lt,value | Field is less than the value |
+| field,gt,value | Field is greater than the value |
+| field,lte,value | Field is less than or equal to the value |
+| field,gte,value | Field is greater than or equal to the value |
+| field,in,value | Field value is in the list (comma-separated) |
+| field,nin,value | Field value is not in the list |
+| field,contains,value | Field contains the value |
+| field,ncontains,value | Field does not contain the value |
+| field,containss,value | Field contains the value (case-insensitive) |
+| field,ncontainss,value | Field does not contain the value (case-insensitive) |
+| field,null,value | Field is null |
+| field,nnull,value | Field is not null |
+| field,startswith,value | Field starts with the value |
+| field,nstartswith,value | Field does not start with the value |
+| field,startswiths,value | Field starts with the value (case-insensitive) |
+| field,nstartswiths,value | Field does not start with the value (case-insensitive) |
+| field,endswith,value | Field ends with the value |
+| field,nendswith,value | Field does not end with the value |
+| field,endswiths,value | Field ends with the value (case-insensitive) |
+| field,nendswiths,value | Field does not end with the value (case-insensitive) |
+
+* Nhiều filter cùng lúc (câu điều kiện AND): giá trị query sẽ là 1 mảng JSON
+
+```
+filter=name,eq,PhucXV
+filter=role,in,ADMIN,STAFF
+filter=["name,eq,PhucXV", "age,gt,5"]
+filter=["createdAt,gt,2024-12-17T03:24:00", "createdAt,lt,2025-6-10T03:24:00", "type,eq,OPEN"]
+filter=[""] // always true
+filter=[] // always true
+```
+
+* Một số trường hợp khác sẽ không filter theo format trên, ví dụ:
+  * Filter theo khoảng thời gian, khoảng giá trị
+
+## 4\. HTTP Status Code
+
+* Status OK là các code 2xx
+  * 200: thông dụng nhất
+  * 201: đã tạo
+  * 204: response trống
+* Status Error là các code 4xx
+  * 400: lỗi input
+  * 401: lỗi chưa xác thực
+  * 403: lỗi không có quyền
+  * 404: lỗi không tìm thấy
+* Để ngắn gọn, chỉ quy định 2 status chính:
+  * 200
+  * 400
+
+## 5\. Error response
+
+* Trong trường hợp status code là **400**, thì sẽ có JSON error trả về như sau
+
+```json
+{
+  "error": "The account is not yet verified"
+}
+```
+
+* Error trên được tạo khi có InvalidInputException từ BE
+
+```java
+if (account.isVerified()) {
+  throw new InvalidInputException("The account is not yet verified");
+}
+```

@@ -6,8 +6,6 @@ import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/data/datasources/local/search_local_datasource.dart';
 import 'package:mobile/data/repositories/blindbox_repository.dart';
-import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
-import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_event.dart';
 import 'package:mobile/feature/search/blocs/search_bloc.dart';
 import 'package:mobile/feature/search/blocs/search_event.dart';
 import 'package:mobile/feature/search/blocs/search_state.dart';
@@ -15,7 +13,6 @@ import 'package:mobile/feature/search/widget/custom_search_bar.dart';
 import 'package:mobile/feature/search/widget/recent_searches.dart';
 import 'package:mobile/feature/search/widget/search_result.dart';
 import 'package:mobile/feature/search/widget/search_tab_bar.dart';
-import 'package:openapi/api.dart';
 
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
@@ -26,18 +23,11 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => SearchBloc(
-            getIt<BlindBoxRepository>(),
-            getIt<SearchLocalDatasource>(),
-          )..add(InitializeSearch()),
-        ),
-        BlocProvider(
-          create: (_) => getIt<BlindBoxesListBloc>(),
-        ),
-      ],
+    return BlocProvider(
+      create: (_) => SearchBloc(
+        getIt<BlindBoxRepository>(),
+        getIt<SearchLocalDatasource>(),
+      )..add(InitializeSearch()),
       child: Scaffold(
         backgroundColor: getColorSkin().backgroundColor,
         body: SafeArea(
@@ -47,38 +37,11 @@ class SearchScreen extends StatelessWidget {
               _SearchHeader(),
               SearchTabBar(),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RecentSearches(),
-                      SearchResults(),
-                    ],
-                  ),
-                ),
+                child: _SearchBody(),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: getColorSkin().primaryRed650,
-      elevation: 0,
-      title: Text(
-        AppLocalizations.of(context)!.search,
-        style: TextStyle(
-          color: getColorSkin().white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      centerTitle: true,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: getColorSkin().backgroundColor),
-        onPressed: () => context.pop(),
       ),
     );
   }
@@ -91,17 +54,26 @@ class _SearchHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-          ),
-          Expanded(
-            child: CustomSearchBar(
-              defaultText: "Search products...",
-            ),
-          ),
+      child: CustomSearchBar(
+        defaultText:
+            AppLocalizations.of(context)?.search ?? "Search products...",
+      ),
+    );
+  }
+}
+
+class _SearchBody extends StatelessWidget {
+  const _SearchBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          RecentSearches(),
+          SearchResults(),
         ],
       ),
     );
