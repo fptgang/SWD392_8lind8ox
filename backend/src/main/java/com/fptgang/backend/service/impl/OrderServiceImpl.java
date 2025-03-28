@@ -38,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     private final TransactionService transactionService;
     private final PaymentService paymentService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
 
     public OrderServiceImpl(OrderRepos orderRepos,
@@ -51,8 +52,8 @@ public class OrderServiceImpl implements OrderService {
                             ShippingInfoService shippingInfoService,
                             TransactionService transactionService,
                             PaymentService paymentService,
-                            EmailService emailService
-    ) {
+                            EmailService emailService,
+                            NotificationService notificationService) {
         this.orderRepos = orderRepos;
         this.orderStatusHistoryRepos = orderStatusHistoryRepos;
         this.orderDetailRepos = orderDetailRepos;
@@ -65,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
         this.transactionService = transactionService;
         this.paymentService = paymentService;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -280,6 +282,12 @@ public class OrderServiceImpl implements OrderService {
         } catch (IOException e) {
             log.warn("❌ Failed to send paid email", e);
         }
+        Notification notification = new Notification();
+        notification.setAccount(account);
+        notification.setMessage("Order " + order.getOrderId() + " paid successfully");
+        notification.setIsRead(false);
+        notificationService.create(notification);
+
         log.info("Order {} paid by internal wallet successfully!",
                 order.getOrderId());
         PlaceOrderResult result = new PlaceOrderResult();
@@ -327,6 +335,12 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.getSlot().setState(Slot.State.RESERVED);
             orderDetail.setSlot(slotService.update(orderDetail.getSlot()));
         }
+
+        Notification notification = new Notification();
+        notification.setAccount(order.getAccount());
+        notification.setMessage("Your order #" + order.getOrderId() + " has been created.");
+        notification.setIsRead(false);
+        notificationService.create(notification);
 
         // Generate pay URL
         String payUrl = paymentService.generatePaymentLinkForOrder(
@@ -419,6 +433,16 @@ public class OrderServiceImpl implements OrderService {
 
             order.setLatestStatus(OrderStatusHistory.State.PREPARING);
             order = orderRepos.save(order);
+            try {
+                emailService.sendOrderPaidEmail(order);
+            } catch (IOException e) {
+                log.warn("❌ Failed to send paid email", e);
+            }
+            Notification notification = new Notification();
+            notification.setAccount(account);
+            notification.setMessage("Order " + order.getOrderId() + " paid successfully");
+            notification.setIsRead(false);
+            notificationService.create(notification);
         }
 
         log.info("Order {} paid by external wallet status {}; depositTxn = {}, orderTxn = {}",
@@ -494,6 +518,11 @@ public class OrderServiceImpl implements OrderService {
         } catch (IOException e) {
             log.warn("❌ Failed to send cancelled email", e);
         }
+        Notification notification = new Notification();
+        notification.setAccount(order.getAccount());
+        notification.setMessage("Order " + order.getOrderId() + " has been cancelled");
+        notification.setIsRead(false);
+        notificationService.create(notification);
         return order;
     }
 

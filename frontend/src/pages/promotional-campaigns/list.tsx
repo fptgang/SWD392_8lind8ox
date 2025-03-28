@@ -20,6 +20,7 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+
 import { PromotionCampaignDto, AccountDto } from "../../../generated";
 
 const { Text } = Typography;

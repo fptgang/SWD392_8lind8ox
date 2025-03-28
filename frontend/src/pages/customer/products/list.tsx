@@ -8,7 +8,16 @@ import {
   useOne,
 } from "@refinedev/core";
 import { List, useTable } from "@refinedev/antd";
-import { Row, Col, Button, Spin, Empty, Drawer, notification } from "antd";
+import {
+  Row,
+  Col,
+  Button,
+  Spin,
+  Empty,
+  Drawer,
+  notification,
+  Pagination,
+} from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 import {
   BlindBoxDto,
@@ -38,72 +47,91 @@ const CustomerProducts: React.FC = () => {
   const go = useGo();
   const { addToCart } = useCart();
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 30000]);
   const [selectedSort, setSelectedSort] = useState("createdAt:desc");
+  const [pageSize, setPageSize] = useState(10);
+  const [current, setCurrent] = useState(1);
 
-  const { tableProps, searchFormProps, sorters, setSorters } =
-    useTable<BlindBoxDto>({
-      syncWithLocation: true,
-      resource: "blind-boxes",
-      onSearch: (data): CrudFilters => {
-        const values = data as SearchFormValues;
-        const filters: CrudFilters = [];
-        const { search, brandIds, inStock, onSale } = values;
+  const { data: promoData } = useList<PromotionalCampaignDto>({
+    resource: "promotional-campaigns",
+    pagination: { pageSize: 100 },
+  });
 
-        if (search) {
-          filters.push({
-            field: "search",
-            operator: "contains",
-            value: search,
-          });
-        }
+  const [filters, setFilters] = useState<CrudFilters>([]);
+  const [sorters, setSorters] = useState<CrudSorting>([
+    {
+      field: "createdAt",
+      order: "desc",
+    },
+  ]);
 
-        if (brandIds?.length) {
-          filters.push({
-            field: "brand.brandId",
-            operator: "in",
-            value: brandIds,
-          });
-        }
+  const { data, isLoading } = useList<BlindBoxDto>({
+    resource: "blind-boxes",
+    filters,
+    sorters,
+    pagination: {
+      current,
+      pageSize,
+    },
+    meta: {
+      include: ["skus", "images", "blindBoxCampaigns"],
+    },
+  });
 
-        if (priceRange[0] > 0 || priceRange[1] < 1000) {
-          filters.push({
-            field: "skus.price",
-            operator: "between",
-            value: priceRange,
-          });
-        }
+  const tableProps = {
+    dataSource: data?.data || [],
+    loading: isLoading,
+  };
 
-        if (inStock) {
-          filters.push({
-            field: "skus.stock",
-            operator: "gt",
-            value: 0,
-          });
-        }
+  const searchFormProps = {
+    onFinish: (values: SearchFormValues) => {
+      const newFilters: CrudFilters = [];
+      const { search, brandIds, inStock, onSale } = values;
 
-        if (onSale) {
-          filters.push({
-            field: "blindBoxCampaigns",
-            operator: "nnull", 
-            value: true,
-          });
-        }
+      if (search) {
+        newFilters.push({
+          field: "search",
+          operator: "contains",
+          value: search,
+        });
+      }
 
-        return filters;
-      },
-      sorters: {
-        initial: [
-          {
-            field: "createdAt",
-            order: "desc",
-          },
-        ],
-      },
-      meta: {
-        include: ["skus", "images", "blindBoxCampaigns"],
-      },
-    });
+      if (brandIds?.length) {
+        newFilters.push({
+          field: "brand",
+          operator: "in",
+          value: brandIds,
+        });
+      }
+
+      if (priceRange[0] > 0 || priceRange[1] < 30000) {
+        newFilters.push({
+          field: "skus.price",
+          operator: "between",
+          value: priceRange,
+        });
+      }
+
+      if (inStock) {
+        newFilters.push({
+          field: "skus.stock",
+          operator: "gt",
+          value: 0,
+        });
+      }
+
+      if (onSale && promoData) {
+        newFilters.push({
+          field: "blindBoxCampaigns.promotionalCampaign",
+          operator: "in",
+          value: promoData?.data?.map((pc) => pc.campaignId),
+        });
+      }
+
+      setFilters(newFilters);
+      setCurrent(1); // Reset to first page when filters change
+    },
+  };
 
   const { data: brandsData, isLoading: isBrandsLoading } = useList<BrandDto>({
     resource: "brands",
@@ -124,16 +152,20 @@ const CustomerProducts: React.FC = () => {
 
   const handleAddToCart = (blindBox: BlindBoxDto, sku: StockKeepingUnitDto) => {
     // Find active campaign if exists
-    const hasActiveCampaign = blindBox.blindBoxCampaigns && blindBox.blindBoxCampaigns.length > 0;
-    const activePromotionalCampaign = hasActiveCampaign && blindBox.blindBoxCampaigns && blindBox.blindBoxCampaigns[0]
-      ? blindBox.blindBoxCampaigns[0].promotionalCampaignId
-      : undefined;
-    
+    const hasActiveCampaign =
+      blindBox.blindBoxCampaigns && blindBox.blindBoxCampaigns.length > 0;
+    const activePromotionalCampaign =
+      hasActiveCampaign &&
+      blindBox.blindBoxCampaigns &&
+      blindBox.blindBoxCampaigns[0]
+        ? blindBox.blindBoxCampaigns[0].promotionalCampaignId
+        : undefined;
+
     // Calculate price with possible discount
     const skuPrice = sku.price || 0;
     // We can't directly access discountRate, so using base price
     const campaignDiscount = 0;
-    
+
     const price = skuPrice;
 
     // Safely get image URL if it exists
@@ -141,7 +173,7 @@ const CustomerProducts: React.FC = () => {
 
     addToCart({
       skuId: sku.skuId || 0,
-      name: `${blindBox.name || ''} - ${sku.name || ''}`,
+      name: `${blindBox.name || ""} - ${sku.name || ""}`,
       price: price,
       subTotal: skuPrice,
       finalTotal: price,
@@ -153,33 +185,35 @@ const CustomerProducts: React.FC = () => {
 
     notification.success({
       message: "Added to Cart",
-      description: `${blindBox.name || ''} - ${sku.name || ''} has been added to your cart.`,
+      description: `${blindBox.name || ""} - ${
+        sku.name || ""
+      } has been added to your cart.`,
     });
   };
 
   // Extract all SKUs from all blind boxes and pair them with their parent
   const skusWithParents = useMemo(() => {
     const result: SkuWithParent[] = [];
-    
-    tableProps.dataSource?.forEach(blindBox => {
+
+    tableProps.dataSource?.forEach((blindBox) => {
       const typedBlindBox = blindBox as BlindBoxDto;
-      
+
       // Skip invalid blind boxes
       if (!typedBlindBox || !typedBlindBox.blindBoxId) {
         return;
       }
-      
+
       // Add each SKU with its parent blind box
-      typedBlindBox.skus?.forEach(sku => {
+      typedBlindBox.skus?.forEach((sku) => {
         if (sku && sku.skuId) {
           result.push({
             sku,
-            blindBox: typedBlindBox
+            blindBox: typedBlindBox,
           });
         }
       });
     });
-    
+
     return result;
   }, [tableProps.dataSource]);
 
@@ -242,17 +276,38 @@ const CustomerProducts: React.FC = () => {
           ) : (
             <Row gutter={[16, 16]}>
               {skusWithParents.map(({ blindBox, sku }) => (
-                <Col xs={24} sm={12} lg={8} key={`${blindBox.blindBoxId}-${sku.skuId}`}>
+                <Col
+                  xs={24}
+                  sm={12}
+                  lg={8}
+                  key={`${blindBox.blindBoxId}-${sku.skuId}`}
+                >
                   <ProductCard
                     blindBox={blindBox}
                     sku={sku}
                     onCardClick={handleCardClick}
                     onAddToCart={handleAddToCart}
+                    promos={promoData?.data}
                   />
                 </Col>
               ))}
             </Row>
           )}
+          <Pagination
+            className="m-4"
+            total={data?.total || 0}
+            pageSizeOptions={[10, 20, 50, 100]}
+            current={current}
+            pageSize={pageSize}
+            showQuickJumper
+            onChange={(page, pageSize) => {
+              setCurrent(page);
+              setPageSize(pageSize);
+              console.log(page, pageSize);
+            }}
+            showSizeChanger={true}
+            showTotal={(total) => `Total ${total} items`}
+          />
         </Col>
       </Row>
     </List>
