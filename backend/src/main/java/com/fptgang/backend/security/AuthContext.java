@@ -7,9 +7,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 
 public interface AuthContext {
+    boolean isAuthenticated();
     @Nullable Long getAccountId();
     @Nullable String getEmail();
     @Nullable Account.Role getRole();
+
+    // [Non-null getters]
     default long requireAccountId() {
         var val = getAccountId();
         if (val == null)
@@ -28,17 +31,23 @@ public interface AuthContext {
             throw new InsufficientAuthenticationException("User is not authenticated");
         return val;
     }
-    default void requirePermission(Account.Role role) {
+    default boolean hasPermission(Account.Role role) {
+        var current = getRole();
+        return current != null && current.hasPermission(role);
+    }
+
+    // [Quick assertion]
+    default void assertPermission(Account.Role role) {
         if (!requireRole().hasPermission(role)) {
             throw new AccessDeniedException("No access");
         }
     }
-    default void requireAccountId(long accountId) {
+    default void assertAccountId(long accountId) {
         if (requireAccountId() != accountId) {
             throw new AccessDeniedException("No access");
         }
     }
-    default void requirePermissionOrAccountIds(Account.Role role, long... accountIds) {
+    default void assertPermissionOrAccountIds(Account.Role role, long... accountIds) {
         if (requireRole().hasPermission(role)) {
             return;
         }
@@ -49,5 +58,4 @@ public interface AuthContext {
         }
         throw new AccessDeniedException("No access");
     }
-    boolean isAuthenticated();
 }

@@ -2,8 +2,6 @@ package com.fptgang.backend.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
@@ -137,11 +135,11 @@ public class OpenApiHelper {
         for (String str : filters) {
             String[] filterParts = str.split(",", 3);
 
-            if (filterParts.length != 2 && filterParts.length != 3) {
-                throw new IllegalArgumentException("Invalid filter format. Expected: field,op,value");
-            }
+            String filterValue = filterParts.length > 2 ?
+                    String.join(",", Arrays.copyOfRange(filterParts, 2, filterParts.length)) :
+                    "";
 
-            filterMap.put(filterParts[0], new String[]{filterParts[1], filterParts[2]});
+            filterMap.put(filterParts[0], new String[]{filterParts[1], filterValue});
         }
 
         return filterMap;
@@ -164,10 +162,10 @@ public class OpenApiHelper {
 
         return (root, query, criteriaBuilder) -> {
             String[] fieldPaths = path.split("\\.");
-            if (!getFilterableFields(root.getJavaType()).contains(fieldPaths[0])) {
-                LOGGER.warn("Field {} in {} is not filterable", fieldPaths[0], root.getJavaType().getName());
-                return criteriaBuilder.or();
-            }
+//            if (!getFilterableFields(root.getJavaType()).contains(fieldPaths[0])) {
+//                LOGGER.warn("Field {} in {} is not filterable", fieldPaths[0], root.getJavaType().getName());
+//                return criteriaBuilder.or();
+//            }
             Path<?> fieldPath = root.get(fieldPaths[0]);
 
             if (fieldPath == null) {
@@ -175,10 +173,10 @@ public class OpenApiHelper {
             }
 
             for (int i = 1; i < Math.min(5, fieldPaths.length); i++) {
-                if (!getFilterableFields(fieldPath.getJavaType()).contains(fieldPaths[i])) {
-                    LOGGER.warn("Field {} in {} is not filterable", fieldPaths[i], fieldPath.getJavaType().getName());
-                    return criteriaBuilder.or();
-                }
+//                if (!getFilterableFields(fieldPath.getJavaType()).contains(fieldPaths[i])) {
+//                    LOGGER.warn("Field {} in {} is not filterable", fieldPaths[i], fieldPath.getJavaType().getName());
+//                    return criteriaBuilder.or();
+//                }
                 fieldPath = fieldPath.get(fieldPaths[i]);
 
                 if (fieldPath == null) {
@@ -391,6 +389,20 @@ public class OpenApiHelper {
         };
     }
 
+    public static <T> Specification<T> groupBy(Specification<T> spec, String... groupByColumns) {
+        return (root, query, criteriaBuilder) -> {
+            // Apply the original specification
+            Predicate predicate = spec.toPredicate(root, query, criteriaBuilder);
+
+            // Add group by clauses
+            for (String column : groupByColumns) {
+                query.groupBy(root.get(column));
+            }
+
+            return predicate;
+        };
+    }
+
     private static Set<String> getSearchableFields(Class<?> clazz) {
         Set<String> fields = SEARCHABLE_FIELDS.get(clazz);
         if (fields == null) {
@@ -410,9 +422,9 @@ public class OpenApiHelper {
         if (fields == null) {
             fields = new HashSet<>();
             for (Field field : clazz.getDeclaredFields()) {
-                if (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class)) {
-                    continue;
-                }
+//                if (field.isAnnotationPresent(OneToMany.class) || field.isAnnotationPresent(ManyToMany.class)) {
+//                    continue;
+//                }
                 fields.add(field.getName());
             }
             FILTERABLE_FIELDS.put(clazz, fields);

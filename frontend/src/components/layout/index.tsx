@@ -23,9 +23,8 @@ export const ClientLayout: React.FC<AppProps> = ({
       <Content>
         <InnerContent />
       </Content>
-      <Footer style={{ textAlign: "center" }}>
-        <FooterContent />
-      </Footer>
+
+      <FooterContent />
     </Layout>
   );
 };

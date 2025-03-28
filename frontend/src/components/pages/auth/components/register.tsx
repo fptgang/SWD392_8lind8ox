@@ -161,35 +161,6 @@ export const RegisterPage: React.FC<RegisterProps> = ({
           requiredMark={false}
           {...formProps}
         >
-          <Form.Item
-            name={["role"]}
-            label={translate(
-              "pages.register.yml.role",
-              "Are u here as a freelancer or client?"
-            )}
-            rules={[
-              {
-                required: true,
-                message: translate(
-                  "pages.register.yml.errors.requiredRole",
-                  "Role is required"
-                ),
-              },
-            ]}
-          >
-            <Select
-              placeholder={translate("pages.register.yml.fields.role", "Role")}
-              allowClear
-              size="large"
-            >
-              <Option value="FREELANCER">
-                {translate("pages.register.yml.roles.admin", "Freelancer")}
-              </Option>
-              <Option value="CLIENT">
-                {translate("pages.register.yml.roles.client", "Client")}
-              </Option>
-            </Select>
-          </Form.Item>
 
           <Form.Item
             name={["firstName"]}

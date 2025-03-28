@@ -172,18 +172,12 @@ public class AuthServiceImpl implements AuthService {
         // Create reset password link
         String resetLink = link + "/reset-password?token=" + resetToken;
 
-        // Send email using template from configuration
-        String emailBody = String.format(
-                blindBoxConfig.getPasswordResetEmailTemplate(),
-                account.getFirstName(),
-                resetLink,
-                blindBoxConfig.getPasswordResetExpiryMinutes());
-
-        emailService.sendMail(
-                "Admin",
-                dto.getEmail(),
-                blindBoxConfig.getPasswordResetEmailTitle(),
-                emailBody);
+        try {
+            emailService.sendResetPasswordEmail(account, resetLink);
+        } catch (IOException e) {
+            log.error("Failed to send reset password email to {}: {}", dto.getEmail(), e.getMessage());
+            throw new RuntimeException("Failed to send reset password email");
+        }
 
         log.info("Password reset email sent to: {}", dto.getEmail());
     }
