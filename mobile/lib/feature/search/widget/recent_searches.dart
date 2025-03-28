@@ -13,7 +13,8 @@ class RecentSearches extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        if (SearchQueryState().recentSearches.isEmpty) {
+        // Only show recent searches in QueryState and if there are items
+        if (state is! SearchQueryState || state.recentSearches.isEmpty) {
           return const SizedBox.shrink();
         }
 
@@ -22,10 +23,9 @@ class RecentSearches extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context, state),
+              _buildHeader(context),
               SizedBox(height: 8.h),
-              ...SearchQueryState()
-                  .recentSearches
+              ...state.recentSearches
                   .map((search) => _buildRecentItem(context, search)),
             ],
           ),
@@ -34,7 +34,7 @@ class RecentSearches extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, SearchState state) {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

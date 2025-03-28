@@ -20,11 +20,13 @@ import 'package:mobile/data/repositories/implement/order_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/promotion_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/set_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/shipping_info_repository_impl.dart';
+import 'package:mobile/data/repositories/implement/toy_repository_impl.dart';
 import 'package:mobile/data/repositories/implement/voucher_repository_impl.dart';
 import 'package:mobile/data/repositories/map_repository.dart';
 import 'package:mobile/data/repositories/order_detail_repository.dart';
 import 'package:mobile/data/repositories/promotion_repository.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
+import 'package:mobile/data/repositories/toy_repository.dart';
 import 'package:mobile/data/repositories/transaction_repository.dart';
 import 'package:mobile/data/services/auth_interceptor.dart';
 import 'package:mobile/data/services/token_refresh_service.dart';
@@ -60,6 +62,7 @@ import '../../feature/order/blocs/order_detail/order_detail_bloc.dart';
 import '../../feature/order/blocs/video/video_bloc.dart';
 import '../../feature/profile/cubits/dropdown_cubit.dart';
 import '../../feature/profile/blocs/account/account_bloc.dart';
+import '../../feature/search/blocs/search_bloc.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -166,6 +169,10 @@ void _registerRepositories() {
   if (!getIt.isRegistered<ShippingInfoRepository>()) {
     getIt.registerLazySingleton<ShippingInfoRepository>(
         () => ShippingInfoRepositoryImpl());
+  }
+
+  if (!getIt.isRegistered<ToyRepository>()) {
+    getIt.registerLazySingleton<ToyRepository>(() => ToyRepositoryImpl());
   }
 
   if (!getIt.isRegistered<VideoRepository>()) {
@@ -305,6 +312,13 @@ void _registerBlocs() {
           getIt<SetRepository>(),
           skuRepository: getIt<SkuRepository>(),
           imageRepository: getIt<ImageRepository>(),
+        ));
+  }
+
+  if (!getIt.isRegistered<SearchBloc>()) {
+    getIt.registerLazySingleton<SearchBloc>(() => SearchBloc(
+          getIt<BlindBoxRepository>(),
+          getIt<SearchLocalDatasource>(),
         ));
   }
 

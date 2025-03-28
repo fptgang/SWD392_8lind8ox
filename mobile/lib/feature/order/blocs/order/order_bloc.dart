@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:injectable/injectable.dart';
@@ -40,11 +41,23 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     emit(OrderLoadingState(isLoading: true));
 
     try {
+      debugPrint('start order');
       final orders = await _orderRepository.getOrders(
         _paginationState.pageable,
         _dataState.filter ?? '',
         _dataState.search ?? '',
       );
+      debugPrint('orders: $orders');
+      debugPrint('pagination State: ${_paginationState.pageable}, _dataState: ${_dataState.filter}, search: ${_dataState.filter}');
+
+
+      if (orders == null) {
+        emit(OrderLoadingState(
+          error: 'Failed to fetch orders',
+          isLoading: false,
+        ));
+        return;
+      }
 
       final isLastPage = orders.content.length < _paginationState.pageable.size;
 
@@ -63,7 +76,11 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       emit(_dataState);
     } catch (error) {
       pagingController.error = error;
-      emit(OrderLoadingState(error: error.toString(), isLoading: false));
+      emit(OrderLoadingState(
+        error: error.toString(),
+        isLoading: false,
+      ));
+      _dataState = const OrderDataState();
     }
   }
 

@@ -16,7 +16,9 @@ class OrderListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final orderId = order.orderId?.toString() ?? "N/A";
-    final dateCreated = Utils.formatDateTime(order.createdAt);
+    final dateCreated = order.createdAt != null 
+        ? Utils.formatDateTime(order.createdAt!)
+        : "Date not available";
     final status = order.latestStatus ?? OrderStatusEnum.CREATED;
 
     return InkWell(
@@ -49,6 +51,16 @@ class OrderListItem extends StatelessWidget {
                           fontSize: 14,
                         ),
                       ),
+                      if (order.orderDetails != null && order.orderDetails!.isNotEmpty) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          "(${order.orderDetails!.length} items)",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -73,8 +85,15 @@ class OrderListItem extends StatelessWidget {
   }
 
   Widget _buildDeliveryInfo(OrderStatusEnum status, OrderModel order) {
+    final DateTime? dateToUse = order.updatedAt ?? order.createdAt;
+    final String formattedDate = dateToUse != null 
+        ? Utils.formatShortDate(dateToUse)
+        : "Date not available";
+
     if (status == OrderStatusEnum.PREPARING || status == OrderStatusEnum.CREATED) {
-      final estimatedDate = Utils.calculateEstimatedDelivery(order.createdAt);
+      final estimatedDate = order.createdAt != null
+          ? Utils.calculateEstimatedDelivery(order.createdAt!)
+          : "Date not available";
       return Text(
         "Estimated Delivery on $estimatedDate",
         style: TextStyle(
@@ -85,9 +104,8 @@ class OrderListItem extends StatelessWidget {
     } else if (status == OrderStatusEnum.DELIVERED ||
         status == OrderStatusEnum.RECEIVED ||
         status == OrderStatusEnum.COMPLETED) {
-      final deliveredDate = Utils.formatShortDate(order.updatedAt ?? order.createdAt);
       return Text(
-        "Delivered on $deliveredDate",
+        "Delivered on $formattedDate",
         style: const TextStyle(
           color: Colors.green,
           fontSize: 12,
@@ -95,13 +113,22 @@ class OrderListItem extends StatelessWidget {
       );
     } else if (status == OrderStatusEnum.CANCELED) {
       return Text(
-        "Canceled on ${Utils.formatShortDate(order.updatedAt ?? order.createdAt)}",
+        "Canceled on $formattedDate",
         style: const TextStyle(
           color: Colors.red,
           fontSize: 12,
         ),
       );
-    } else {
+    } else if (status == OrderStatusEnum.PAYMENT_EXPIRED){
+      return Text(
+        "Payment Expired",
+        style: const TextStyle(
+          color: Colors.red,
+          fontSize: 12,
+        ),
+      );
+    }
+    else {
       return Text(
         "Status: $status",
         style: const TextStyle(
@@ -111,7 +138,6 @@ class OrderListItem extends StatelessWidget {
       );
     }
   }
-
 
   Widget _buildProductIcon() {
     return Container(

@@ -100,7 +100,10 @@ class _HomePageContent extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart, color: Colors.white,),
+            icon: const Icon(
+              Icons.shopping_cart,
+              color: Colors.white,
+            ),
             onPressed: () {
               context.push('/cart');
             },
@@ -236,7 +239,8 @@ class _HomePageContent extends StatelessWidget {
                   return BlindBoxCard(
                     blindBox: blindBoxes[index],
                     onTap: () {
-                      context.push('/blind-box-detail/${blindBoxes[index].blindBoxId}');
+                      context.push(
+                          '/blind-box-detail/${blindBoxes[index].blindBoxId}');
                     },
                   );
                 },

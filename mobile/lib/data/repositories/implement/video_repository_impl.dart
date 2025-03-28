@@ -32,7 +32,8 @@ class VideoRepositoryImpl implements VideoRepository {
       }
       VideoModel videoModel = VideoMapper.toModel(videoDto);
       return videoModel;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Error from [Video Repository Implement]: $e, stackTrace: $stackTrace');
       throw Exception('Cannot get video information');
     }
   }
@@ -57,9 +58,24 @@ class VideoRepositoryImpl implements VideoRepository {
 
   @override
   Future<VideoModel> uploadVideo(int accountID, int orderDetailId,
-      MultipartFile videoBlob, bool isVisible) {
-    // TODO: implement uploadVideo
-    throw UnimplementedError();
+      MultipartFile videoBlob, bool isVisible) async {
+    try {
+      // TODO: Implement the actual video upload using the API
+      // For now, return a mock video model
+      return VideoModel(
+        videoId: 1,
+        account: null,
+        slotId: orderDetailId,
+        url: 'https://example.com/video.mp4',
+        description: 'Uploaded video',
+        isVisible: isVisible,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        isVerified: false,
+      );
+    } catch (e) {
+      throw Exception('Failed to upload video: $e');
+    }
   }
 
   @override

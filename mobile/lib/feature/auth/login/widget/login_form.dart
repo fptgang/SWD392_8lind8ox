@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/feature/auth/login/blocs/login_bloc.dart';
@@ -33,7 +34,6 @@ class LoginForm extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16),
           _buildLogo(),
           const SizedBox(height: 16),
           _EmailInput(),
@@ -54,20 +54,9 @@ class LoginForm extends StatelessWidget {
   Widget _buildLogo() {
     return Column(
       children: [
-        Image.asset(
-          'assets/images/logo.png',
-          height: 100,
-          width: 100,
+        Image.network('https://mir-s3-cdn-cf.behance.net/projects/404/b3273676004649.Y3JvcCw3NTYsNTkxLDU4MiwyMA.png'
+            ,height: 200.h, width: 200.h,
         ),
-        const SizedBox(height: 16),
-        const Text(
-          'Welcome Back',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
         const Text(
           'Sign in to continue',
           style: TextStyle(

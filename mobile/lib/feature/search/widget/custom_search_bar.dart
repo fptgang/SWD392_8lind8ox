@@ -3,17 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_bloc.dart';
-import 'package:mobile/feature/home/blocs/blindbox_list/blindbox_list_event.dart';
 import 'package:mobile/feature/search/blocs/search_bloc.dart';
 import 'package:mobile/feature/search/blocs/search_event.dart';
 import 'package:mobile/feature/search/blocs/search_state.dart';
-import 'package:openapi/api.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final String defaultText;
+  final TextEditingController _controller = TextEditingController();
 
-  const CustomSearchBar({
+  CustomSearchBar({
     super.key,
     required this.defaultText,
   });
@@ -22,7 +20,16 @@ class CustomSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        final searchQuery = state is SearchQueryState ? state.query ?? '' : '';
+        final searchQuery = state is SearchQueryState
+            ? state.query ?? ''
+            : state is SearchDataState
+                ? state.searchQuery ?? ''
+                : '';
+
+        // Update controller text if it doesn't match the current search query
+        if (_controller.text != searchQuery) {
+          _controller.text = searchQuery;
+        }
 
         return KeyboardListener(
           focusNode: FocusNode(),
@@ -34,6 +41,7 @@ class CustomSearchBar extends StatelessWidget {
             }
           },
           child: TextFormField(
+            controller: _controller,
             style: TextStyle(
               fontSize: 14.sp,
               color: getColorSkin().black,
@@ -57,6 +65,7 @@ class CustomSearchBar extends StatelessWidget {
                         size: 20.r,
                       ),
                       onPressed: () {
+                        _controller.clear();
                         context.read<SearchBloc>().add(ClearSearch());
                       },
                     )
@@ -96,19 +105,9 @@ class CustomSearchBar extends StatelessWidget {
   }
 
   void _performSearch(BuildContext context, String query) {
-    // Trigger the search in SearchBloc
-    context.read<SearchBloc>().add(SubmitSearch(query));
+    if (query.trim().isEmpty) return;
 
-    // Also trigger the search in BlindBoxesListBloc
-    context.read<BlindBoxesListBloc>().add(
-          FetchBlindBoxes(
-            pageable: Pageable(
-              page: 0,
-              size: 20,
-              sort: [''],
-            ),
-            search: query,
-          ),
-        );
+    // Trigger the search in SearchBloc only
+    context.read<SearchBloc>().add(SubmitSearch(query));
   }
 }

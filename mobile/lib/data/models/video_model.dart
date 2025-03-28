@@ -1,8 +1,6 @@
-
-
 import 'package:mobile/data/models/account_model.dart';
 
-class VideoModel{
+class VideoModel {
   final int? videoId;
   final AccountModel? account;
   final int? slotId;
