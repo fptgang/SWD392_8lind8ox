@@ -25,7 +25,7 @@ import {
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
-import { NotificationDto } from "../../../../generated";
+import { AccountDto, NotificationDto } from "../../../../generated";
 import {
   useGetIdentity,
   useList,
@@ -188,9 +188,12 @@ const NotificationSummary: React.FC<NotificationSummaryProps> = ({
 export const NotificationPopover: React.FC = () => {
   const [pageSize, setPageSize] = React.useState(10);
 
-  const user = store.getState().auth.account;
+  const { data: user } = useGetIdentity<AccountDto>();
   const email = user?.email;
-  const { data, isLoading, isError, error, refetch } = useList<NotificationDto, HttpError>({
+  const { data, isLoading, isError, error, refetch } = useList<
+    NotificationDto,
+    HttpError
+  >({
     resource: "notifications",
     pagination: {
       pageSize,
@@ -206,6 +209,9 @@ export const NotificationPopover: React.FC = () => {
       headers: {
         Authorization: `Bearer ${store.getState().auth.accessToken}`,
       },
+    },
+    queryOptions: {
+      enabled: !!user,
     },
   });
 
