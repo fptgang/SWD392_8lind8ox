@@ -31,7 +31,8 @@ enum TransactionType {
 
 enum PaymentMethod {
   PAYPAL,
-  VNPAY
+  VNPAY,
+  INTERNAL_WALLET
 }
 
 enum ToyRarityEnum {
