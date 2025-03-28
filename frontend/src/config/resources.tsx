@@ -48,6 +48,18 @@ export const getResources = (): IResourceItem[] => {
       },
     },
     {
+      name: "vouchers",
+      list: "/admin/vouchers",
+      create: "/admin/vouchers/create",
+      edit: "/admin/vouchers/edit/:id",
+      show: "/admin/vouchers/show/:id",
+      meta: {
+        label: "Vouchers",
+        icon: <GiftOutlined />,
+        parent: "catalog",
+      },
+    },
+    {
       name: "orders",
       list: "/admin/orders",
       create: "/admin/orders/create",
