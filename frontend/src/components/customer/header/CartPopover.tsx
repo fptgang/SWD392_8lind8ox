@@ -39,7 +39,7 @@ const CartItem: React.FC<CartItemProps> = ({
     if (!value) return;
 
     try {
-      onUpdateQuantity(item.skuId, value, item.slotId);  // Pass the slotId
+      onUpdateQuantity(item.skuId, value, item.slotId); // Pass the slotId
     } catch (error) {
       notification.error({
         message: "Error updating quantity",
@@ -51,7 +51,7 @@ const CartItem: React.FC<CartItemProps> = ({
 
   const handleRemove = () => {
     try {
-      onRemove(item.skuId, item.slotId);  // Pass the slotId
+      onRemove(item.skuId, item.slotId); // Pass the slotId
     } catch (error) {
       notification.error({
         message: "Error removing item",
@@ -64,8 +64,7 @@ const CartItem: React.FC<CartItemProps> = ({
   const discount = (item.subTotal || 0) > (item.price || 0);
   const discountPercentage = discount
     ? Math.round(
-        (((item.subTotal || 0) - (item.price || 0)) /
-          (item.subTotal || 1)) *
+        (((item.subTotal || 0) - (item.price || 0)) / (item.subTotal || 1)) *
           100
       )
     : 0;
@@ -186,6 +185,7 @@ interface CartSummaryProps {
   originalTotal: number;
   itemCount: number;
   voucherDiscount?: number;
+  setShowCart?: any; // Optional prop to control visibility
 }
 
 const CartSummary: React.FC<CartSummaryProps> = ({
@@ -193,6 +193,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({
   originalTotal,
   itemCount,
   voucherDiscount = 0,
+  setShowCart,
 }) => {
   const hasDiscount = originalTotal > total;
   const finalTotal = total - voucherDiscount;
@@ -235,6 +236,9 @@ const CartSummary: React.FC<CartSummaryProps> = ({
           block
           icon={<ArrowRightOutlined />}
           className="h-10"
+          onClick={() => {
+            if (setShowCart) setShowCart((prev: any) => !prev); // Close the popover if setShowCart is provided
+          }}
         >
           View Cart
         </Button>
@@ -255,6 +259,7 @@ export const CartPopover: React.FC = () => {
   } = useCart();
 
   const { itemCount, voucherDiscount } = getCartSummary();
+  const [showCart, setShowCart] = React.useState(false);
 
   const cartContent = (
     <div className="w-[380px] max-h-[550px]">
@@ -276,7 +281,7 @@ export const CartPopover: React.FC = () => {
           ) : (
             cartItems.map((item) => (
               <CartItem
-                key={`${item.skuId}-${item.slotId || '0'}`}  // Use composite key
+                key={`${item.skuId}-${item.slotId || "0"}`} // Use composite key
                 item={item}
                 onUpdateQuantity={updateItemQuantity}
                 onRemove={removeFromCart}
@@ -295,6 +300,7 @@ export const CartPopover: React.FC = () => {
               originalTotal={originalTotal}
               itemCount={itemCount}
               voucherDiscount={voucherDiscount}
+              setShowCart={setShowCart} // Pass setShowCart to CartSummary if needed
             />
           </div>
         </>
@@ -309,12 +315,14 @@ export const CartPopover: React.FC = () => {
       content={cartContent}
       overlayClassName="cart-popover"
       arrow={false}
+      open={showCart}
     >
       <Badge count={itemCount} size="small">
         <Button
           type="text"
           icon={<ShoppingCartOutlined className="text-xl" />}
           className="flex items-center justify-center h-10 w-10"
+          onClick={() => setShowCart((prev) => !prev)}
         />
       </Badge>
     </Popover>
