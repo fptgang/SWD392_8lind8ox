@@ -92,6 +92,12 @@ import SetDetailPage from "./pages/customer/case/SetDetailPage";
 import { VideosList, VideosShow } from "./pages/videos";
 import { SetsCreate, SetsList, SetsShow } from "./pages/sets";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
+import {
+  VouchersCreate,
+  VouchersEdit,
+  VouchersList,
+  VouchersShow,
+} from "./pages/vouchers";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -311,6 +317,13 @@ function App() {
                             path="show/:id"
                             element={<PromotionalCampaignsShow />}
                           />
+                        </Route>
+
+                        <Route path="vouchers">
+                          <Route index element={<VouchersList />} />
+                          <Route path="create" element={<VouchersCreate />} />
+                          <Route path="edit/:id" element={<VouchersEdit />} />
+                          <Route path="show/:id" element={<VouchersShow />} />
                         </Route>
                       </Route>
 
