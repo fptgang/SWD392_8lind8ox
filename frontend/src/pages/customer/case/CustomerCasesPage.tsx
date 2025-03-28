@@ -229,7 +229,7 @@ const CustomerCasesPage = () => {
                     <div>
                       <Text type="secondary">
                         <span className="mr-1">🎲</span>
-                        {set.slots?.length || 0} slots
+                        {set.slots?.filter(s => s.state === 'AVAILABLE').length || 0}/{set.slots?.length || 0} slots available
                       </Text>
                     </div>
                   </Tooltip>,
