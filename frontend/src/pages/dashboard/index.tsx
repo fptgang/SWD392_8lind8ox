@@ -75,15 +75,8 @@ const DashboardPage: React.FC = () => {
 
   // 📈 Define Chart Configurations
   const commonConfig = {
-    height: 350,
-    autoFit: true,
+    autoFit: true,  // let the chart auto-fit its container
     padding: [30, 30, 50, 50],
-    tooltip: {
-      formatter: (datum: any) => ({
-        name: datum.key || "Unknown",
-        value: `$${Number(datum.value).toLocaleString()}`,
-      }),
-    },
   };
 
   const dailyRevenueConfig = {
@@ -104,7 +97,6 @@ const DashboardPage: React.FC = () => {
     },
   };
   const monthlyRevenueConfig = {
-    ...commonConfig,
     data: transformData(monthlyRevenueResponse),
     xField: "key",
     yField: "value",
@@ -125,7 +117,6 @@ const DashboardPage: React.FC = () => {
   };
 
   const revenueBySkuConfig = {
-    ...commonConfig,
     data: transformData(revenueBySkuResponse),
     xField: 'key',
     yField: 'value',
@@ -136,7 +127,6 @@ const DashboardPage: React.FC = () => {
   
 
   const revenueByBrandConfig = {
-    ...commonConfig,
     data: transformData(revenueByBrandResponse),
     angleField: 'value',
     colorField: 'key',
@@ -154,7 +144,6 @@ const DashboardPage: React.FC = () => {
   };
 
   const revenueByBlindBoxConfig = {
-    ...commonConfig,
     data: transformData(revenueByBlindBoxResponse),
     angleField: 'value',
     colorField: 'key',
@@ -203,7 +192,6 @@ const DashboardPage: React.FC = () => {
     },
   ];
 
-  const cardHeight = 450  ;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -245,12 +233,12 @@ const DashboardPage: React.FC = () => {
                 children: (
                   <Row gutter={[16, 16]}>
                     <Col span={12}>
-                      <Card title="Daily Revenue" style={{ height: cardHeight }}>
+                      <Card title="Daily Revenue" >
                         <Line {...dailyRevenueConfig} />
                       </Card>
                     </Col>
                     <Col span={12}>
-                      <Card title="Monthly Revenue" style={{ height: cardHeight }}>
+                      <Card title="Monthly Revenue" >
                         <Column {...monthlyRevenueConfig} />
                       </Card>
                     </Col>
@@ -267,12 +255,12 @@ const DashboardPage: React.FC = () => {
                 children: (
                   <Row gutter={[16, 16]}>
                     <Col span={12}>
-                      <Card title="Revenue by Brand" style={{ height: cardHeight }}>
+                      <Card title="Revenue by Brand" >
                         <Pie {...revenueByBrandConfig} />
                       </Card>
                     </Col>
                     <Col span={12}>
-                      <Card title="Revenue by Blind Box" style={{ height: cardHeight }}>
+                      <Card title="Revenue by Blind Box" >
                         <Pie {...revenueByBlindBoxConfig} />
                       </Card>
                     </Col>
@@ -287,7 +275,7 @@ const DashboardPage: React.FC = () => {
                   </span>
                 ),
                 children: (
-                  <Card title="Revenue by SKU" style={{ height: cardHeight }}>
+                  <Card title="Revenue by SKU" >
                     <Bar {...revenueBySkuConfig} />
                   </Card>
                 ),

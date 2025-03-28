@@ -438,7 +438,6 @@ export default function LandingPage() {
               </Text>
             </div>
             <motion.div
-              whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               <BrandShowcase />
@@ -446,31 +445,33 @@ export default function LandingPage() {
           </div>
         </motion.div>
 
-        {/* Product Series with enhanced colorful background */}
-        <div className="relative py-16 mb-16 rounded-3xl overflow-hidden">
+        {/* Brand Showcase with enhanced animated border */}
+        <motion.div
+          className="relative p-1 rounded-3xl py-8 mb-16 overflow-hidden"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+        >
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-indigo-600/20 bg-[length:200%_200%] animate-gradient-xy backdrop-blur-sm" />
           <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-yellow-400/20 blur-3xl animate-pulse-slow" />
           <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-pink-400/20 blur-3xl animate-pulse" />
 
-          <motion.div
-            className="relative text-center mb-12"
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-          >
-            <div className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 bg-[length:200%_auto] animate-gradient-x text-white mb-4">
-              <Text className="flex items-center text-white">
-                <CrownOutlined className="mr-2" /> Exclusive Series
+          <div className="relative rounded-3xl  backdrop-blur-sm p-8">
+            <div className="text-center mb-12">
+              <div className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 bg-[length:200%_auto] animate-gradient-x text-white mb-4">
+                <Text className="flex items-center text-white">
+                  <CrownOutlined className="mr-2" /> Exclusive Series
+                </Text>
+              </div>
+              <Title level={2} className="mb-1 relative">
+                Explore Our Collections
+                <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></span>
+              </Title>
+              <Text className="text-gray-600 text-lg mt-4">
+                Find your perfect series of collectibles
               </Text>
             </div>
-            <Title level={2} className="mb-1 relative">
-              Explore Our Collections
-              <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></span>
-            </Title>
-            <Text className="text-gray-600 text-lg mt-4">
-              Find your perfect series of collectibles
-            </Text>
             <Button
               type="link"
               className="block mx-auto mt-2 text-blue-500 hover:text-blue-600"
@@ -478,25 +479,13 @@ export default function LandingPage() {
             >
               Browse All Collections →
             </Button>
-          </motion.div>
-
-          <motion.div
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            onMouseEnter={() => setHoverIndex(1)}
-            onMouseLeave={() => setHoverIndex(null)}
-            style={{
-              boxShadow:
-                hoverIndex === 1 ? "0 0 30px rgba(59, 130, 246, 0.3)" : "none",
-              transition: "box-shadow 0.3s ease",
-              borderRadius: "0.75rem",
-            }}
-          >
-            <ProductSeries />
-          </motion.div>
-        </div>
+            <motion.div
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <ProductSeries />
+            </motion.div>
+          </div>
+        </motion.div>
 
         {/* Call to Action with particle effect */}
         <motion.div
@@ -530,7 +519,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="relative">
-            <Title level={2} className="text-white mb-4 text-shadow">
+            <Title level={2} className="!text-white mb-4 text-shadow">
               Ready to Start Your Collection?
             </Title>
             <Text className="text-white/80 text-lg mb-8 block">
@@ -549,90 +538,6 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </motion.div>
-      </div>
-
-      {/* Footer with gradient */}
-      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white py-12 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <Title level={4} style={{ color: "white" }} className="mb-4">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-400">
-                  Blind Box
-                </span>
-              </Title>
-              <Text className="text-gray-400 block mb-6">
-                Discover the joy of mystery collectibles
-              </Text>
-            </div>
-            <div>
-              <Title level={5} style={{ color: "white" }} className="mb-4">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
-                  Shop
-                </span>
-              </Title>
-              <ul className="space-y-2 text-gray-400">
-                <li className="hover:text-blue-400 transition-colors duration-200 cursor-pointer">
-                  New Arrivals
-                </li>
-                <li className="hover:text-blue-400 transition-colors duration-200 cursor-pointer">
-                  Best Sellers
-                </li>
-                <li className="hover:text-blue-400 transition-colors duration-200 cursor-pointer">
-                  Collections
-                </li>
-                <li className="hover:text-blue-400 transition-colors duration-200 cursor-pointer">
-                  Limited Editions
-                </li>
-              </ul>
-            </div>
-            <div>
-              <Title level={5} style={{ color: "white" }} className="mb-4">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-400">
-                  Help
-                </span>
-              </Title>
-              <ul className="space-y-2 text-gray-400">
-                <li className="hover:text-green-400 transition-colors duration-200 cursor-pointer">
-                  FAQs
-                </li>
-                <li className="hover:text-green-400 transition-colors duration-200 cursor-pointer">
-                  Shipping
-                </li>
-                <li className="hover:text-green-400 transition-colors duration-200 cursor-pointer">
-                  Returns
-                </li>
-                <li className="hover:text-green-400 transition-colors duration-200 cursor-pointer">
-                  Contact Us
-                </li>
-              </ul>
-            </div>
-            <div>
-              <Title level={5} style={{ color: "white" }} className="mb-4">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-yellow-400">
-                  Connect
-                </span>
-              </Title>
-              <ul className="space-y-2 text-gray-400">
-                <li className="hover:text-orange-400 transition-colors duration-200 cursor-pointer">
-                  Instagram
-                </li>
-                <li className="hover:text-orange-400 transition-colors duration-200 cursor-pointer">
-                  Twitter
-                </li>
-                <li className="hover:text-orange-400 transition-colors duration-200 cursor-pointer">
-                  Facebook
-                </li>
-                <li className="hover:text-orange-400 transition-colors duration-200 cursor-pointer">
-                  Discord
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-500">
-            <Text>© 2023 Blind Box. All rights reserved.</Text>
-          </div>
-        </div>
       </div>
 
       {/* Back to top button with enhanced styling */}

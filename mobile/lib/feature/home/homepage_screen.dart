@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/app/di/injection.dart';
+import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/data/models/blindbox_model.dart';
 import 'package:mobile/data/models/promotional_campaign_model.dart';
 import 'package:mobile/data/models/set_model.dart';
@@ -88,18 +90,19 @@ class _HomePageContent extends StatelessWidget {
     debugPrint('📱 Building _HomePageContent');
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Blind Box'),
+        backgroundColor: getColorSkin().primaryRed650,
+        title: const Text('8lind 8ox', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
-              // TODO: Navigate to search screen
+              context.push('/main/search');
             },
           ),
           IconButton(
-            icon: const Icon(Icons.shopping_cart),
+            icon: const Icon(Icons.shopping_cart, color: Colors.white,),
             onPressed: () {
-              // TODO: Navigate to cart screen
+              context.push('/cart');
             },
           ),
         ],
@@ -172,7 +175,7 @@ class _HomePageContent extends StatelessWidget {
                   return PromotionCard(
                     promotion: promotions[index],
                     onTap: () {
-                      // TODO: Navigate to promotion detail
+                      // context.push('/blind-box-detail/${blindBox.blindBoxId}');
                     },
                   );
                 },
@@ -233,7 +236,7 @@ class _HomePageContent extends StatelessWidget {
                   return BlindBoxCard(
                     blindBox: blindBoxes[index],
                     onTap: () {
-                      // TODO: Navigate to blind box detail
+                      context.push('/blind-box-detail/${blindBoxes[index].blindBoxId}');
                     },
                   );
                 },
@@ -292,7 +295,7 @@ class _HomePageContent extends StatelessWidget {
                   return SetCard(
                     set: sets[index],
                     onTap: () {
-                      // TODO: Navigate to set detail
+                      context.push('set/${sets[index].setId}');
                     },
                   );
                 },

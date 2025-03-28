@@ -20,7 +20,6 @@ const CustomerFooter: React.FC = () => {
     <Footer
       style={{
         backgroundColor: token.colorBgContainer,
-        padding: `${token.paddingLG}px 0 ${token.paddingMD}px`,
         borderTop: `1px solid ${token.colorBorderSecondary}`
       }}
     >

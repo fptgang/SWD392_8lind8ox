@@ -59,17 +59,8 @@ public class VideoServiceImpl implements VideoService {
             // Save video details in DB
             Video savedVideo = videoRepos.save(video);
 
-            // Generate email content using template from configuration
-            String emailBody = String.format(
-                    blindBoxConfig.getVideoEmailTemplate(),
-                    account.getFirstName() + " " + account.getLastName(),
-                    videoUrl);
-
-            // Send email
-            String subject = blindBoxConfig.getVideoEmailTitle();
-            String from = "Admin <admin@mail.biddify.fun>";
-            emailService.sendMail(from, account.getEmail(), subject, emailBody);
-
+            // Use email template method
+            emailService.sendVideoSubmittedEmail(savedVideo);
             log.info("Video upload confirmation email sent to: {}", account.getEmail());
 
             return savedVideo;
@@ -104,6 +95,13 @@ public class VideoServiceImpl implements VideoService {
                 .orElseThrow(() -> new IllegalArgumentException("Video does not exist"));
         video.setIsVerified(true);
         video.getSlot().setState(Slot.State.OPENED);
+
+        try {
+            emailService.sendVideoVerifiedEmail(video);
+            log.info("Video verified email sent to: {}", video.getAccount().getEmail());
+        } catch (IOException e) {
+            log.warn("Failed to send video verified email", e);
+        }
         return videoRepos.save(video);
     }
 

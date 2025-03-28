@@ -9,23 +9,34 @@ import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'blocs/blindbox_detail_bloc.dart';
 import 'blocs/blindbox_detail_state.dart';
 
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   final int blindBoxId;
 
   const ProductDetailScreen({super.key, required this.blindBoxId});
 
   @override
+  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Dispatch the event in initState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIt<BlindBoxDetailBloc>().add(FetchBlindBoxDetail(widget.blindBoxId));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Get the cart bloc from dependency injection
     final cartBloc = getIt<CartGlobalBloc>();
 
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              getIt<BlindBoxDetailBloc>()..add(FetchBlindBoxDetail(blindBoxId)),
+          create: (context) => getIt<BlindBoxDetailBloc>(),
         ),
-        // Make sure we provide the CartGlobalBloc instance here
         BlocProvider.value(
           value: cartBloc,
         ),

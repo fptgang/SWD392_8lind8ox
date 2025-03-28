@@ -21,7 +21,13 @@ class TokenRefreshMiddleware implements Middleware {
   async post(context: ResponseContext): Promise<Response | void> {
     if (context.response && context.response.status === 401) {
       if (!this.refreshInProgress) {
-        this.refreshInProgress = this.refreshAccessToken();
+        const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+        if (!refreshToken) {
+          localStorage.removeItem(REFRESH_TOKEN_KEY);
+          store.dispatch(clearAuth());
+          return context.response;
+        }
+        this.refreshInProgress = this.refreshAccessToken(refreshToken);
         console.log("[OpenAPI client] Refreshing access token...");
       }
 
@@ -38,9 +44,9 @@ class TokenRefreshMiddleware implements Middleware {
 
         return fetch(context.url, retriedInit);
       } catch (refreshError) {
-        console.error(refreshError);
         localStorage.removeItem(REFRESH_TOKEN_KEY);
         store.dispatch(clearAuth());
+        window.location.href = '/login';
         throw refreshError;
       } finally {
         this.refreshInProgress = null;
@@ -56,14 +62,7 @@ class TokenRefreshMiddleware implements Middleware {
     return context.response;
   }
 
-  private async refreshAccessToken(): Promise<string | undefined> {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-
-    if (!refreshToken) {
-      window.location.href = '/login';
-      throw new Error('No refresh token available');
-    }
-
+  private async refreshAccessToken(refreshToken: string): Promise<string | undefined> {
     const response = await fetch(`${API_URL}/auth/refresh-token`, {
       method: 'POST',
       headers: {
