@@ -13,11 +13,12 @@ import {
 import { useSelect, useTranslate } from "@refinedev/core";
 import dayjs from "dayjs";
 import { PercentageOutlined } from "@ant-design/icons";
-import { BlindBoxDto, PromotionCampaignDto } from "../../../generated";
+import { BlindBoxDto, PromotionalCampaignDto } from "../../../generated";
 
 export const PromotionalCampaignsEdit = () => {
   const translate = useTranslate();
-  const { formProps, saveButtonProps, query } = useForm<PromotionCampaignDto>();
+  const { formProps, saveButtonProps, query } =
+    useForm<PromotionalCampaignDto>();
 
   const promotionsData = query?.data?.data;
 

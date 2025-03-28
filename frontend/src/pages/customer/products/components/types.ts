@@ -1,6 +1,7 @@
 import {
   BlindBoxDto,
   BrandDto,
+  PromotionalCampaignDto,
   StockKeepingUnitDto,
 } from "../../../../../generated";
 
@@ -20,6 +21,7 @@ export interface SkuCardProps {
   sku: StockKeepingUnitDto;
   onCardClick: (id: number) => void;
   onAddToCart: (blindBox: BlindBoxDto, sku: StockKeepingUnitDto) => void;
+  promos?: PromotionalCampaignDto[];
 }
 
 export interface SortOption {

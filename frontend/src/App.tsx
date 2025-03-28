@@ -91,6 +91,7 @@ import CustomerCasesPage from "./pages/customer/case/CustomerCasesPage";
 import SetDetailPage from "./pages/customer/case/SetDetailPage";
 import { VideosList, VideosShow } from "./pages/videos";
 import { SetsCreate, SetsList, SetsShow } from "./pages/sets";
+import NotificationsPage from "./pages/notifications/NotificationsPage";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -163,6 +164,11 @@ function App() {
 
                         <Route path="orders" element={<OrdersList />} />
                         <Route path="orders/:id" element={<CustomerOrders />} />
+
+                        <Route
+                          path="notifications"
+                          element={<NotificationsPage />}
+                        />
 
                         {/* Customer Account Routes */}
                         <Route

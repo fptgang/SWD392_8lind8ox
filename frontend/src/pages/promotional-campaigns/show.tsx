@@ -3,13 +3,13 @@ import { Show } from "@refinedev/antd";
 import { Typography, Row, Col, Avatar, Divider, List } from "antd";
 import { HttpError, useMany, useShow, useTranslate } from "@refinedev/core";
 import dayjs from "dayjs";
-import { PromotionCampaignDto, BlindBoxDto } from "../../../generated";
+import { PromotionalCampaignDto, BlindBoxDto } from "../../../generated";
 
 const { Title, Text } = Typography;
 
 export const PromotionalCampaignsShow = () => {
   const translate = useTranslate();
-  const { queryResult } = useShow<PromotionCampaignDto>();
+  const { queryResult } = useShow<PromotionalCampaignDto>();
   const campaign = queryResult?.data?.data;
 
   const { data, isLoading, isError } = useMany<BlindBoxDto, HttpError>({

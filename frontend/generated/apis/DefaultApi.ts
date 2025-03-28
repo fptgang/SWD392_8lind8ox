@@ -20,6 +20,8 @@ import type {
   BlindBoxDto,
   BrandDto,
   CartDto,
+  CreateDepositTransaction200Response,
+  DepositDto,
   ErrorResponse,
   ForgotPasswordRequestDto,
   GetAccounts200Response,
@@ -48,6 +50,7 @@ import type {
   RegisterRequestDto,
   ResetPasswordRequestDto,
   SetDto,
+  SetRequestDto,
   ShippingInfoDto,
   SlotDto,
   StockKeepingUnitDto,
@@ -70,6 +73,10 @@ import {
     BrandDtoToJSON,
     CartDtoFromJSON,
     CartDtoToJSON,
+    CreateDepositTransaction200ResponseFromJSON,
+    CreateDepositTransaction200ResponseToJSON,
+    DepositDtoFromJSON,
+    DepositDtoToJSON,
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
     ForgotPasswordRequestDtoFromJSON,
@@ -126,6 +133,8 @@ import {
     ResetPasswordRequestDtoToJSON,
     SetDtoFromJSON,
     SetDtoToJSON,
+    SetRequestDtoFromJSON,
+    SetRequestDtoToJSON,
     ShippingInfoDtoFromJSON,
     ShippingInfoDtoToJSON,
     SlotDtoFromJSON,
@@ -164,6 +173,10 @@ export interface CreateBrandRequest {
     brandDto: BrandDto;
 }
 
+export interface CreateDepositTransactionRequest {
+    depositDto: DepositDto;
+}
+
 export interface CreateNotificationRequest {
     notificationDto: NotificationDto;
 }
@@ -173,7 +186,7 @@ export interface CreatePromotionalCampaignRequest {
 }
 
 export interface CreateSetRequest {
-    setDto: SetDto;
+    setRequestDto: SetRequestDto;
 }
 
 export interface CreateShippingInfoRequest {
@@ -513,7 +526,7 @@ export interface UpdatePromotionalCampaignRequest {
 
 export interface UpdateSetRequest {
     setId: number;
-    setDto: SetDto;
+    setRequestDto: SetRequestDto;
 }
 
 export interface UpdateShippingInfoRequest {
@@ -731,6 +744,50 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * Create a deposit transaction
+     */
+    async createDepositTransactionRaw(requestParameters: CreateDepositTransactionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateDepositTransaction200Response>> {
+        if (requestParameters['depositDto'] == null) {
+            throw new runtime.RequiredError(
+                'depositDto',
+                'Required parameter "depositDto" was null or undefined when calling createDepositTransaction().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/transactions`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: DepositDtoToJSON(requestParameters['depositDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateDepositTransaction200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Create a deposit transaction
+     */
+    async createDepositTransaction(requestParameters: CreateDepositTransactionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateDepositTransaction200Response> {
+        const response = await this.createDepositTransactionRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Create a notification
      */
     async createNotificationRaw(requestParameters: CreateNotificationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<NotificationDto>> {
@@ -822,10 +879,10 @@ export class DefaultApi extends runtime.BaseAPI {
      * Create a set
      */
     async createSetRaw(requestParameters: CreateSetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SetDto>> {
-        if (requestParameters['setDto'] == null) {
+        if (requestParameters['setRequestDto'] == null) {
             throw new runtime.RequiredError(
-                'setDto',
-                'Required parameter "setDto" was null or undefined when calling createSet().'
+                'setRequestDto',
+                'Required parameter "setRequestDto" was null or undefined when calling createSet().'
             );
         }
 
@@ -848,7 +905,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: SetDtoToJSON(requestParameters['setDto']),
+            body: SetRequestDtoToJSON(requestParameters['setRequestDto']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => SetDtoFromJSON(jsonValue));
@@ -4317,10 +4374,10 @@ export class DefaultApi extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['setDto'] == null) {
+        if (requestParameters['setRequestDto'] == null) {
             throw new runtime.RequiredError(
-                'setDto',
-                'Required parameter "setDto" was null or undefined when calling updateSet().'
+                'setRequestDto',
+                'Required parameter "setRequestDto" was null or undefined when calling updateSet().'
             );
         }
 
@@ -4343,7 +4400,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: SetDtoToJSON(requestParameters['setDto']),
+            body: SetRequestDtoToJSON(requestParameters['setRequestDto']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => SetDtoFromJSON(jsonValue));

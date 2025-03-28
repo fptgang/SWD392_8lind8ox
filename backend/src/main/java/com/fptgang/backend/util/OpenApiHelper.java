@@ -265,6 +265,10 @@ public class OpenApiHelper {
                             new BigDecimal("1e-9")
                     )
             );
+            case "between" -> {
+                String[] values = value.split(",");
+                yield criteriaBuilder.between(fieldPath, new BigDecimal(values[0]), new BigDecimal(values[1]));
+            }
             default ->
                     throw new IllegalArgumentException("Unsupported operator: " + operator);
         };

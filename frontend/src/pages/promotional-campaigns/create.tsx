@@ -16,20 +16,21 @@ import dayjs from "dayjs";
 import { PercentageOutlined } from "@ant-design/icons";
 import {
   BlindBoxDto,
+  PromotionalCampaignDto,
   PromotionalCampaignRequestDto,
-  PromotionCampaignDto,
 } from "../../../generated";
 import api from "../../config/openapi-config";
 
 export const PromotionalCampaignsCreate = () => {
   const translate = useTranslate();
-  const { mutate: updateCampaign } = useUpdate<PromotionCampaignDto, HttpError>(
-    {
-      resource: "promotional-campaigns",
-    }
-  );
+  const { mutate: updateCampaign } = useUpdate<
+    PromotionalCampaignDto,
+    HttpError
+  >({
+    resource: "promotional-campaigns",
+  });
   const { formProps, saveButtonProps, query, form } =
-    useForm<PromotionCampaignDto>({
+    useForm<PromotionalCampaignDto>({
       onMutationSuccess: async (data) => {
         const campaign = data?.data;
         try {

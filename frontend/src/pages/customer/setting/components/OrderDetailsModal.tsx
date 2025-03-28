@@ -230,10 +230,31 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                           <Button
                             type="link"
                             icon={<PlayCircleOutlined />}
-                            href={detail.slot.video.url}
-                            target="_blank"
+                            onClick={() => {
+                              Modal.info({
+                                title: "Video Preview",
+                                content: (
+                                  <div className="mt-2 w-full">
+                                    <video
+                                      src={detail.slot?.video?.url}
+                                      controls
+                                      style={{
+                                        width: "100%",
+                                      }}
+                                      className="rounded"
+                                      autoPlay
+                                    />
+                                  </div>
+                                ),
+                                width: 600,
+                                closable: true,
+                                maskClosable: true,
+                                okText: "Close",
+                                centered: true,
+                              });
+                            }}
                           >
-                            Watch
+                            Watch Video
                           </Button>
                         </Tooltip>
                         {detail.slot.video.isVerified ? (
@@ -283,6 +304,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         visible={uploadModalVisible}
         onCancel={() => setUploadModalVisible(false)}
         slot={selectedSlot}
+        refetch={refetch}
       />
     </Modal>
   );

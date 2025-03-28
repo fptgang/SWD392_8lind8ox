@@ -47,10 +47,8 @@ export const generateFilterQuery = (filters: LogicalFilter[]): string => {
   if (multiFilters.length == 1) {
     return (
       "filter=" +
-      encodeURIComponent(
-        multiFilters[0] +
-          `${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`
-      )
+      encodeURIComponent(multiFilters[0]) +
+      `${search.length > 0 ? "&search=" + encodeURIComponent(search) : ""}`
     );
   }
 
@@ -63,7 +61,6 @@ export const generateFilterQuery = (filters: LogicalFilter[]): string => {
 
 function generateFilterField(filter: LogicalFilter): string {
   const { field, operator, value } = filter;
-
   if (value === undefined || value === null) {
     return "";
   }
@@ -94,6 +91,8 @@ function generateFilterField(filter: LogicalFilter): string {
     "nstartswith",
     "endswith",
     "nendswith",
+    "between",
+    "nnull",
   ];
 
   if (!validOperators.includes(operator)) {
