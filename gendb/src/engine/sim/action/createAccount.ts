@@ -16,13 +16,11 @@ export const createAccount = (date: Date) => {
     created_at: date,
     email: `acc${accId}@blindbox.com`,
     first_name: firstName,
-    is_verified: verified,
     is_visible: true,
     last_name: lastName,
     password: hashPass(),
     role: AccountRole.CUSTOMER,
-    updated_at: date,
-    verified_at: verified ? date : null
+    updated_at: date
   });
 
   AccountPool.add(account);

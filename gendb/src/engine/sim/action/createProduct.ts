@@ -51,7 +51,7 @@ export function createProduct(date: Date) {
         created_at: date,
         description: faker.lorem.paragraph(),
         is_visible: true,
-        name: brand.name,
+        name: brand.name || 'Uncategorized',
         updated_at: date
       }
     ))

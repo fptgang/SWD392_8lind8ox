@@ -12,14 +12,13 @@ export class accountPool {
     this.accounts.push(account);
   }
 
-  pickAccount(date: Date, role?: AccountRole, requireVerified?: boolean): Account | null {
+  pickAccount(date: Date, role?: AccountRole): Account | null {
     const eligibleAccounts = this.accounts.filter(account => {
       const matchesDate = account.created_at <= date;
       const matchesRole = role ? account.role === role : true;
       const isVisible = account.is_visible;
-      const isVerifiedIfRequired = requireVerified ? account.is_verified : true;
       const isNotEscrow = account.account_id !== 1;
-      return matchesDate && matchesRole && isVisible && isVerifiedIfRequired && isNotEscrow;
+      return matchesDate && matchesRole && isVisible && isNotEscrow;
     });
 
     if (eligibleAccounts.length === 0) return null;
@@ -54,13 +53,11 @@ export const ResetAccountPool = (date: Date) => {
     created_at: date,
     email: 'admin1@blindbox.com',
     first_name: 'Admin',
-    is_verified: true,
     is_visible: true,
     last_name: 'One',
     password: hashPass(),
     role: AccountRole.ADMIN,
     updated_at: date,
-    verified_at: date
   }));
 
   AccountPool.add(new Account({
@@ -70,13 +67,11 @@ export const ResetAccountPool = (date: Date) => {
     created_at: date,
     email: 'admin2@blindbox.com',
     first_name: 'Admin',
-    is_verified: true,
     is_visible: true,
     last_name: 'Two',
     password: hashPass(),
     role: AccountRole.ADMIN,
     updated_at: date,
-    verified_at: date
   }));
 
   AccountPool.add(new Account({
@@ -86,13 +81,11 @@ export const ResetAccountPool = (date: Date) => {
     created_at: date,
     email: 'staff1@blindbox.com',
     first_name: 'Staff',
-    is_verified: true,
     is_visible: true,
     last_name: 'One',
     password: hashPass(),
     role: AccountRole.STAFF,
     updated_at: date,
-    verified_at: date
   }));
 
   AccountPool.add(new Account({
@@ -102,12 +95,10 @@ export const ResetAccountPool = (date: Date) => {
     created_at: date,
     email: 'staff2@blindbox.com',
     first_name: 'Staff',
-    is_verified: true,
     is_visible: true,
     last_name: 'Two',
     password: hashPass(),
     role: AccountRole.STAFF,
     updated_at: date,
-    verified_at: date
   }));
 }

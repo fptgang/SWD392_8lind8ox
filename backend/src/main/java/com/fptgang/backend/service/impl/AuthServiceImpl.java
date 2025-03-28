@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -110,8 +109,8 @@ public class AuthServiceImpl implements AuthService {
                                 .lastName(lastName == null ? null : lastName.toString())
                                 .avatarUrl(picture == null ? null : picture.toString())
                                 .role(Account.Role.CUSTOMER)
-                                .isVerified(true)
-                                .verifiedAt(LocalDateTime.now())
+//                                .isVerified(true)
+//                                .verifiedAt(LocalDateTime.now())
                                 .build());
             });
 

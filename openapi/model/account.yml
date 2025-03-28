@@ -23,11 +23,6 @@ AccountDto:
     role:
       type: string
       enum: [ADMIN, STAFF, CUSTOMER]
-    isVerified:
-      type: boolean
-    verifiedAt:
-      type: string
-      format: date-time
     isVisible:
       type: boolean
     createdAt:
