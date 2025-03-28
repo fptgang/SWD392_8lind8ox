@@ -58,7 +58,7 @@ export const OrdersShow = () => {
   const record = data?.data;
   const [modalVisible, setModalVisible] = useState(false);
   const [actionType, setActionType] = useState("");
-  const [actionSuccess, setActionSuccess] = useState(false);
+  const [actionSuccess, setActionSuccess] = useState(true);
 
   // Get appropriate action button based on order status
   const getStatusAction = () => {

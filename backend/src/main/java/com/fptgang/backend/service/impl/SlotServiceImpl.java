@@ -1,5 +1,6 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Slot;
 import com.fptgang.backend.repository.SlotRepos;
 import com.fptgang.backend.service.SlotService;
@@ -9,16 +10,19 @@ import com.fptgang.backend.util.OpenApiHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SlotServiceImpl implements SlotService {
 
     private final SlotRepos slotRepos;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public SlotServiceImpl(SlotRepos slotRepos) {
+    public SlotServiceImpl(SlotRepos slotRepos, SimpMessagingTemplate simpMessagingTemplate) {
         this.slotRepos = slotRepos;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -36,6 +40,9 @@ public class SlotServiceImpl implements SlotService {
         Slot existing = slotRepos.findById(slot.getSlotId())
                 .orElseThrow(() -> new IllegalArgumentException("Slot does not exist"));
         EntityUtil.merge(existing, slot);
+        simpMessagingTemplate.convertAndSend(
+                "resources/sets", existing.getSlotId()
+        );
         return slotRepos.save(existing);
     }
 

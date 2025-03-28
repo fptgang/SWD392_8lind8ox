@@ -52,6 +52,7 @@ const SetDetailPage: React.FC = () => {
   const { data, isLoading, isError } = useOne<SetDto>({
     resource: "sets",
     id: id || "",
+    liveMode: "auto",
   });
 
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
@@ -476,11 +477,12 @@ const SetDetailPage: React.FC = () => {
                         <div className="absolute bottom-0 left-0 right-0 flex justify-center py-1 text-xs bg-black bg-opacity-60 text-white">
                           {slot.state === SlotDtoStateEnum.Available ? (
                             <>
-                              <UnlockOutlined className="mr-1" /> Available
+                              <UnlockOutlined className="mr-1" /> available
                             </>
                           ) : (
                             <>
-                              <LockOutlined className="mr-1" /> Opened
+                              <LockOutlined className="mr-1" />{" "}
+                              {slot.state?.toLocaleLowerCase()}
                             </>
                           )}
                         </div>
