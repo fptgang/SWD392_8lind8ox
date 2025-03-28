@@ -98,6 +98,7 @@ import {
   VouchersList,
   VouchersShow,
 } from "./pages/vouchers";
+import LocalSettingsPage from "./pages/customer/setting/local";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -197,6 +198,10 @@ function App() {
                           <Route
                             path="orders"
                             element={<CustomerOrderList />}
+                          />
+                          <Route
+                            path="settings"
+                            element={<LocalSettingsPage />}
                           />
                           <Route path="orders/:id" element={<OrdersShow />} />
                         </Route>

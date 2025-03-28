@@ -1,5 +1,15 @@
 import React, { useContext } from "react";
-import { Menu, Dropdown, Avatar, Button, Space, Switch, theme, Typography, Divider } from "antd";
+import {
+  Menu,
+  Dropdown,
+  Avatar,
+  Button,
+  Space,
+  Switch,
+  theme,
+  Typography,
+  Divider,
+} from "antd";
 import type { MenuProps } from "antd";
 import {
   UserOutlined,
@@ -29,7 +39,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
   const { token } = theme.useToken();
   const nav = useNavigate();
 
-  const profileMenuItems: MenuProps['items'] = [
+  const profileMenuItems: MenuProps["items"] = [
     {
       key: "profile-info",
       label: (
@@ -90,7 +100,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
           <span>Settings</span>
         </Space>
       ),
-      onClick: () => nav("/settings"),
+      onClick: () => nav("/account/settings"),
     },
     {
       key: "theme",
