@@ -1,41 +1,48 @@
-import 'package:http/http.dart';
+import 'package:equatable/equatable.dart';
+import 'package:image_picker/image_picker.dart';
 
-abstract class VideoEvent {}
+abstract class VideoEvent extends Equatable {
+  const VideoEvent();
 
-class SelectVideo extends VideoEvent {
-  final String video;
-
-  SelectVideo(this.video);
-}
-
-class GetVideos extends VideoEvent {
-  final int pageKey;
-
-  GetVideos(this.pageKey);
-}
-
-class GetVideoById extends VideoEvent {
-  final int id;
-
-  GetVideoById(this.id);
+  @override
+  List<Object?> get props => [];
 }
 
 class UploadVideo extends VideoEvent {
-  final int? accountId;
+  final XFile file;
+  final int orderDetailId;
+  final int accountId;
   final int? slotId;
-  final MultipartFile videoBlob;
-  final bool? isVisible;
 
-  UploadVideo({
-    this.accountId,
+  const UploadVideo({
+    required this.file,
+    required this.orderDetailId,
+    required this.accountId,
     this.slotId,
-    required this.videoBlob,
-    this.isVisible = true,
   });
+
+  @override
+  List<Object?> get props => [file, orderDetailId, accountId, slotId];
+}
+
+class GetVideoStatus extends VideoEvent {
+  final int orderDetailId;
+
+  const GetVideoStatus({
+    required this.orderDetailId,
+  });
+
+  @override
+  List<Object?> get props => [orderDetailId];
 }
 
 class DeleteVideo extends VideoEvent {
-  final int id;
+  final int videoId;
 
-  DeleteVideo(this.id);
+  const DeleteVideo({
+    required this.videoId,
+  });
+
+  @override
+  List<Object?> get props => [videoId];
 }

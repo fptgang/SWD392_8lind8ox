@@ -31,13 +31,13 @@ class OrderRepositoryImpl implements OrderRepository {
     try {
       OrderDto? orderDto = await _apiService.getOrderById(orderId);
       if (orderDto == null) {
-        debugPrint('Cannot get order information: , orderDto: $orderDto');
+        debugPrint('Cannot get order information by id : , orderDto: $orderDto');
         throw Exception('Cannot get order information');
       }
       OrderModel orderModel = OrderMapper.toModel(orderDto);
       return orderModel;
     } catch (e) {
-      debugPrint('Cannot get order information: $e');
+      debugPrint('Cannot get order information by id: $e');
       throw Exception('Cannot get order information');
     }
   }
@@ -83,14 +83,16 @@ class OrderRepositoryImpl implements OrderRepository {
       PaginationResponseGeneric<OrderModel>? orderModels =
           PaginationResponseMapper.toModel(
               dto: response, fromDTO: (data) => OrderMapper.toModel(data));
+      debugPrint('response: $response');
       return orderModels;
-    } catch (e) {
-      debugPrint('Cannot get order information: $e');
+    } catch (e, stackTrace) {
+      debugPrint('Cannot get order information: $e, stackTrace: $stackTrace');
       throw Exception('Cannot get order information');
     }
   }
 
   @override
+
   Future<OrderResponseModel> createOrder(CartModel cartModel) async {
     try {
       final cartDto = CartMapper.toDto(cartModel);

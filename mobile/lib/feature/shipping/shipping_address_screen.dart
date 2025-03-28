@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 class ShippingAddressScreen extends StatefulWidget {
   final bool isSelectionMode;
   final Function(ShippingInfoModel)? onAddressSelected;
-
+  
   static Route<void> route() {
     return MaterialPageRoute<void>(
         builder: (_) => const ShippingAddressScreen());
@@ -38,7 +38,7 @@ class ShippingAddressScreen extends StatefulWidget {
 
 class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
   bool hasInitialized = false;
-
+  
   @override
   void initState() {
     super.initState();
@@ -47,12 +47,12 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
       _initializeShippingInfo();
     });
   }
-
+  
   void _initializeShippingInfo() {
     if (!mounted) return;
-
+    
     final shippingInfoBloc = context.read<ShippingInfoBloc>();
-
+    
     if (shippingInfoBloc.state is! ShippingInfoDataState ||
         (shippingInfoBloc.state is ShippingInfoDataState &&
             !(shippingInfoBloc.state as ShippingInfoDataState)
@@ -73,7 +73,7 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
 
       shippingInfoBloc.add(SelectShippingInfo(defaultAddress));
     }
-
+    
     setState(() {
       hasInitialized = true;
     });
@@ -82,17 +82,17 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
         elevation: 0,
-        title: Text(
+          title: Text(
           widget.isSelectionMode ? 'Chọn địa chỉ giao hàng' : 'Địa chỉ của tôi',
-          style: TextStyle(
+            style: TextStyle(
             color: Colors.black,
             fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        leading: IconButton(
+          leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () {
             // Check if we can safely pop
@@ -135,12 +135,12 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
             );
           }
         },
-        builder: (context, state) {
-          if (state is ShippingInfoLoadingState && state.isLoading) {
+          builder: (context, state) {
+            if (state is ShippingInfoLoadingState && state.isLoading) {
             return const Center(child: CircularProgressIndicator());
-          }
+            }
 
-          if (state is ShippingInfoLoadingState && state.error != null) {
+            if (state is ShippingInfoLoadingState && state.error != null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -232,9 +232,9 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
 
           // Fallback
           return const Center(child: CircularProgressIndicator());
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Use navigate instead of push to avoid stacking multiple screens
           if (Navigator.of(context).canPop()) {
@@ -243,8 +243,8 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
             AppRouter.router.go('/shipping-address-form');
           }
         },
-        backgroundColor: getColorSkin().primaryRed650,
-        child: const Icon(Icons.add, color: Colors.white),
+          backgroundColor: getColorSkin().primaryRed650,
+          child: const Icon(Icons.add, color: Colors.white),
       ),
       bottomNavigationBar: widget.isSelectionMode ? _buildBottomBar() : null,
     );
@@ -400,8 +400,8 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
   Widget _buildManageableAddressCard(
       BuildContext context, ShippingInfoModel address) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.r),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
         side: BorderSide(
           color: getColorSkin().lightGrey200,
           width: 1.w,
@@ -432,13 +432,13 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                     decoration: BoxDecoration(
                       color: getColorSkin().primaryRed650.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4.r),
-                    ),
-                    child: Text(
+          ),
+          child: Text(
                       'Mặc định',
-                      style: TextStyle(
+            style: TextStyle(
                         color: getColorSkin().primaryRed650,
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -571,25 +571,25 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
 
 class _NavigationTracker extends StatefulWidget {
   final Widget child;
-
+  
   const _NavigationTracker({
     required this.child,
     super.key,
   });
-
+  
   @override
   _NavigationTrackerState createState() => _NavigationTrackerState();
 }
 
 class _NavigationTrackerState extends State<_NavigationTracker> {
   bool isNavigating = false;
-
+  
   void startNavigating() {
     setState(() {
       isNavigating = true;
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return widget.child;

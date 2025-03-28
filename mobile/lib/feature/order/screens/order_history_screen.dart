@@ -32,11 +32,13 @@ class MyOrdersScreen extends StatefulWidget {
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   String? _highlightedOrderId;
+  late final OrderBloc _orderBloc;
   
   @override
   void initState() {
     super.initState();
     _highlightedOrderId = widget.highlightOrderId;
+    _orderBloc = getIt<OrderBloc>();
     
     // Clear the highlight after 3 seconds
     if (_highlightedOrderId != null) {
@@ -48,16 +50,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         }
       });
     }
+
+    // Dispatch GetOrders event immediately
+    _orderBloc.add(GetOrders());
+  }
+
+  @override
+  void dispose() {
+    // Don't close the bloc here since it's managed by GetIt
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = getIt<OrderBloc>();
-        bloc.add(GetOrders());
-        return bloc;
-      },
+    return BlocProvider.value(
+      value: _orderBloc,
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: _buildAppBar(context),
@@ -84,7 +91,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh, color: Colors.white),
-          onPressed: () => context.read<OrderBloc>().add(RefreshOrders()),
+          onPressed: () => _orderBloc.add(RefreshOrders()),
         ),
       ],
     );
@@ -92,6 +99,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   Widget _buildBody(BuildContext context) {
     return BlocBuilder<OrderBloc, OrderState>(
+      bloc: _orderBloc,
       builder: (context, state) {
         if (state is OrderLoadingState && state.isLoading) {
           return buildLoadingIndicator();
@@ -100,7 +108,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         if (state is OrderLoadingState && state.error != null) {
           return CommonErrorWidget(
             error: state.error!,
-            onRetry: () => context.read<OrderBloc>().add(RefreshOrders()),
+            onRetry: () => _orderBloc.add(RefreshOrders()),
           );
         }
 

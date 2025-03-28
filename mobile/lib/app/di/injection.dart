@@ -51,12 +51,15 @@ import '../../data/repositories/image_repository.dart';
 import '../../data/repositories/implement/auth_repository_impl.dart';
 import '../../data/repositories/implement/image_repository_impl.dart';
 import '../../data/repositories/implement/sku_repository_imp.dart';
+import '../../data/repositories/implement/video_repository_impl.dart';
 import '../../data/repositories/order_repository.dart';
 import '../../data/repositories/shipping_info_repository.dart';
 import '../../data/repositories/sku_repository.dart';
+import '../../data/repositories/video_repository.dart';
 import '../../data/repositories/voucher_repository.dart';
 import '../../feature/auth/login/blocs/login_bloc.dart';
 import '../../feature/order/blocs/order_detail/order_detail_bloc.dart';
+import '../../feature/order/blocs/video/video_bloc.dart';
 import '../../feature/profile/cubits/dropdown_cubit.dart';
 import '../../feature/profile/blocs/account/account_bloc.dart';
 import '../../feature/search/blocs/search_bloc.dart';
@@ -172,7 +175,10 @@ void _registerRepositories() {
     getIt.registerLazySingleton<ToyRepository>(() => ToyRepositoryImpl());
   }
 
-  // Register VoucherRepository if it's not already registered
+  if (!getIt.isRegistered<VideoRepository>()) {
+    getIt.registerLazySingleton<VideoRepository>(() => VideoRepositoryImpl());
+  }
+
   if (!getIt.isRegistered<VoucherRepository>()) {
     getIt.registerLazySingleton<VoucherRepository>(
         () => VoucherRepositoryImpl());
@@ -340,6 +346,11 @@ void _registerBlocs() {
         () => BlindBoxesListBloc(getIt<BlindBoxRepository>()));
   }
 
+  if (!getIt.isRegistered<VideoBloc>()) {
+    getIt.registerLazySingleton<VideoBloc>(
+            () => VideoBloc(videoRepository: getIt<VideoRepository>(), orderDetailRepository: getIt<OrderDetailRepository>()));
+  }
+
   if (!getIt.isRegistered<BlindBoxDetailBloc>()) {
     getIt.registerLazySingleton<BlindBoxDetailBloc>(
       () => BlindBoxDetailBloc(
@@ -355,6 +366,7 @@ void _registerBlocs() {
           orderDetailRepository: getIt<OrderDetailRepository>(),
         ));
   }
+
   if (!getIt.isRegistered<OrderBloc>()) {
     getIt.registerLazySingleton<OrderBloc>(() => OrderBloc(
           getIt<OrderRepository>(),
@@ -364,6 +376,15 @@ void _registerBlocs() {
   if (!getIt.isRegistered<ShippingInfoBloc>()) {
     getIt.registerLazySingleton<ShippingInfoBloc>(
         () => ShippingInfoBloc(getIt<ShippingInfoRepository>()));
+  }
+
+  if (!getIt.isRegistered<VideoBloc>()) {
+    getIt.registerLazySingleton<VideoBloc>(
+      () => VideoBloc(
+        videoRepository: getIt<VideoRepository>(),
+        orderDetailRepository: getIt<OrderDetailRepository>(),
+      ),
+    );
   }
 
   // Factory Blocs (short-lived, recreated frequently)

@@ -26,7 +26,11 @@ enum OrderStatusEnum {
 
 enum TransactionType { DEPOSIT, ORDER }
 
-enum PaymentMethod { PAYPAL, VNPAY }
+enum PaymentMethod {
+  PAYPAL,
+  VNPAY,
+  INTERNAL_WALLET
+}
 
 enum ToyRarityEnum { REGULAR, SECRET }
 

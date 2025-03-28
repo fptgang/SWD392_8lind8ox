@@ -19,10 +19,8 @@ class ProfileLoggedInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get AccountBloc from dependency injection
     final accountBloc = getIt<AccountBloc>();
     
-    // Load account data when screen is opened
     accountBloc.add(const LoadAccount());
     
     return MultiBlocListener(
@@ -66,20 +64,8 @@ class ProfileLoggedInScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "General Settings",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-              
-                      // Profile Section
                       const ProfileSection(),
                       const SizedBox(height: 20),
-              
-                      // Account Settings Section
                       const Text(
                         "Account Settings",
                         style: TextStyle(

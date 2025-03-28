@@ -97,7 +97,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } catch (e) {
       debugPrint('Error loading shipping addresses: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to load shipping addresses: $e'),
             backgroundColor: Colors.red,
@@ -251,9 +251,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               SnackBar(
                 content: Text(state.error!),
                 backgroundColor: Colors.red,
-              ),
-            );
-          }
+      ),
+    );
+  }
 
           // Handle order response
           if (state.orderResponse != null &&
@@ -304,7 +304,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
+              onPressed: () {
               // Navigate to home or products page
               Navigator.of(context).pop();
             },
@@ -407,16 +407,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           // Left column - 2/3 width
           Expanded(
             flex: 2,
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
                   OrderItemsSection(items: displayItems),
                   const SizedBox(height: 24),
                   VoucherSection(
