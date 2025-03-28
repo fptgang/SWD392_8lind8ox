@@ -131,11 +131,10 @@ const ProfilePage: React.FC = () => {
   return (
     <Card>
       <div style={{textAlign: 'center', marginBottom: 24}}>
+        <div style={{display: 'flex', justifyContent: 'center'}}>
             <ImgCrop rotationSlider aspectSlider showReset>
               <Upload
-                action={
-                  apiUrl + "/accounts/" + user?.accountId + "/upload-avatar"
-                }
+                action={apiUrl + "/accounts/" + user?.accountId + "/upload-avatar"}
                 method="post"
                 name="blob"
                 headers={{ Authorization: `Bearer ${token}` }}
@@ -143,10 +142,9 @@ const ProfilePage: React.FC = () => {
                 fileList={fileList}
                 onPreview={handlePreview}
                 onChange={handleChange}
-              >
-                {fileList.length >= 1 ? null : uploadButton}
-              </Upload>
+              />
             </ImgCrop>
+        </div>
         {!isEditing && (
           <div>
             <Title level={2} style={{marginBottom: 8}}>
