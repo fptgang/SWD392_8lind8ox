@@ -10,6 +10,22 @@ import {
 import {ToyPool} from "../../pool/toy";
 import {SlotPool} from "../../pool/slot";
 
+function roundUpToNearestFiveCents(num: number): number {
+    // Validate input is between 0.0 and 1.0
+    if (num < 0.0 || num > 1.0) {
+        throw new Error('Number must be between 0.0 and 1.0');
+    }
+
+    // Calculate the number of 0.05 increments
+    const increments = Math.ceil(num / 0.05);
+
+    // Calculate the rounded up value
+    const roundedValue = increments * 0.05;
+
+    // Ensure we don't exceed 1.0
+    return Math.min(roundedValue, 1.0);
+}
+
 export function verifyVideo(date: Date) {
     const videos = VideoPool.pickAllUnverified(date);
 
@@ -22,7 +38,7 @@ export function verifyVideo(date: Date) {
             code: faker.string.alphanumeric(10),
             createdAt: date,
             updatedAt: date,
-            discountRate: faker.number.float(voucherDiscountRate()),
+            discountRate: roundUpToNearestFiveCents(faker.number.float(voucherDiscountRate())),
             expiredAt: new Date(date.getTime() + 1000 * 60 * 60 * 24 * faker.number.int(voucherExpiredDays())),
             state: VoucherState.AVAILABLE,
             limitAmount: faker.number.int(voucherLimitAmount()),

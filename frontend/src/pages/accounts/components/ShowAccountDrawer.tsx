@@ -87,7 +87,8 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
     }
   };
 
-  const footerContent = !record?.isVerified ? (
+  // const footerContent = !record?.isVerified ? (
+  const footerContent = (
     <Space>
       <Button onClick={handleEdit} disabled={!record}>
         Edit
@@ -96,7 +97,7 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
         Delete
       </Button>
     </Space>
-  ) : null;
+  );
 
   return (
     <Drawer
@@ -118,14 +119,14 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
             {" "}
             View account details in full screen <ArrowsAltOutlined />
           </Link>
-          {record?.isVerified && (
-            <Alert
-              message="Verified Account"
-              description="This account has been verified and cannot be modified."
-              type="success"
-              showIcon
-            />
-          )}
+          {/*{record?.isVerified && (*/}
+          {/*  <Alert*/}
+          {/*    message="Verified Account"*/}
+          {/*    description="This account has been verified and cannot be modified."*/}
+          {/*    type="success"*/}
+          {/*    showIcon*/}
+          {/*  />*/}
+          {/*)}*/}
           <Card
             title={
               <Space>
@@ -179,31 +180,31 @@ export const ShowAccountsShowDrawer: React.FC<ShowAccountsShowDrawerProps> = ({
                 {getRoleTag(record?.role)}
               </Descriptions.Item>
 
-              <Descriptions.Item
-                label={
-                  <Space>
-                    <CheckCircleOutlined />
-                    Verification Status
-                  </Space>
-                }
-                span={2}
-              >
-                <Space direction="vertical">
-                  <Badge
-                    status={record?.isVerified ? "success" : "warning"}
-                    text={record?.isVerified ? "Verified" : "Unverified"}
-                  />
-                  {record?.verifiedAt && (
-                    <small className="text-gray-500">
-                      Verified on{" "}
-                      <DateField
-                        value={record?.verifiedAt}
-                        format="MMMM D, YYYY"
-                      />
-                    </small>
-                  )}
-                </Space>
-              </Descriptions.Item>
+              {/*<Descriptions.Item*/}
+              {/*  label={*/}
+              {/*    <Space>*/}
+              {/*      <CheckCircleOutlined />*/}
+              {/*      Verification Status*/}
+              {/*    </Space>*/}
+              {/*  }*/}
+              {/*  span={2}*/}
+              {/*>*/}
+              {/*  <Space direction="vertical">*/}
+              {/*    <Badge*/}
+              {/*      status={record?.isVerified ? "success" : "warning"}*/}
+              {/*      text={record?.isVerified ? "Verified" : "Unverified"}*/}
+              {/*    />*/}
+              {/*    {record?.verifiedAt && (*/}
+              {/*      <small className="text-gray-500">*/}
+              {/*        Verified on{" "}*/}
+              {/*        <DateField*/}
+              {/*          value={record?.verifiedAt}*/}
+              {/*          format="MMMM D, YYYY"*/}
+              {/*        />*/}
+              {/*      </small>*/}
+              {/*    )}*/}
+              {/*  </Space>*/}
+              {/*</Descriptions.Item>*/}
 
               <Descriptions.Item
                 label={

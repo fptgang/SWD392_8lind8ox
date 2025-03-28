@@ -1,7 +1,8 @@
-package com.fptgang.backend.repository;
+package com.fptgang.backend.repository.impl;
 
 import com.fptgang.backend.model.stats.StringBigDecimalDatapoint;
 import com.fptgang.backend.model.stats.StringIntegerDatapoint;
+import com.fptgang.backend.repository.StatsRepos;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;

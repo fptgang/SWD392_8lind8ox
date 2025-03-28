@@ -104,10 +104,10 @@ public class AccountController implements AccountsApi {
             accountDto.setIsVisible(null);
         }
 
-        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
-            accountDto.setIsVerified(null);
-            accountDto.setVerifiedAt(null);
-        }
+//        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+//            accountDto.setIsVerified(null);
+//            accountDto.setVerifiedAt(null);
+//        }
 
         if (SecurityUtil.hasRole(Account.Role.CUSTOMER)) {
             if (SecurityUtil.requireCurrentUserId() != accountId) {

@@ -59,7 +59,7 @@ export const UsersCreate: React.FC = () => {
           requiredMark="optional"
           initialValues={{
             balance: 0,
-            isVerified: false,
+            // isVerified: false,
             role: "CLIENT",
           }}
         >
@@ -187,31 +187,31 @@ export const UsersCreate: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gutter={24}>
-            <Col span={24} md={12}>
-              <Form.Item
-                label={
-                  <span className="flex items-center gap-2">
-                    <CheckCircleOutlined />
-                    Verification Status
-                    <Tooltip title="Set initial verification status">
-                      <QuestionCircleOutlined className="text-gray-400" />
-                    </Tooltip>
-                  </span>
-                }
-                name="isVerified"
-              >
-                <Radio.Group buttonStyle="solid" className="w-full">
-                  <Radio.Button value={true} className="w-1/2 text-center">
-                    Verified
-                  </Radio.Button>
-                  <Radio.Button value={false} className="w-1/2 text-center">
-                    Unverified
-                  </Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-            </Col>
-          </Row>
+          {/*<Row gutter={24}>*/}
+          {/*  <Col span={24} md={12}>*/}
+          {/*    <Form.Item*/}
+          {/*      label={*/}
+          {/*        <span className="flex items-center gap-2">*/}
+          {/*          <CheckCircleOutlined />*/}
+          {/*          Verification Status*/}
+          {/*          <Tooltip title="Set initial verification status">*/}
+          {/*            <QuestionCircleOutlined className="text-gray-400" />*/}
+          {/*          </Tooltip>*/}
+          {/*        </span>*/}
+          {/*      }*/}
+          {/*      name="isVerified"*/}
+          {/*    >*/}
+          {/*      <Radio.Group buttonStyle="solid" className="w-full">*/}
+          {/*        <Radio.Button value={true} className="w-1/2 text-center">*/}
+          {/*          Verified*/}
+          {/*        </Radio.Button>*/}
+          {/*        <Radio.Button value={false} className="w-1/2 text-center">*/}
+          {/*          Unverified*/}
+          {/*        </Radio.Button>*/}
+          {/*      </Radio.Group>*/}
+          {/*    </Form.Item>*/}
+          {/*  </Col>*/}
+          {/*</Row>*/}
         </Form>
       </Card>
     </Create>)

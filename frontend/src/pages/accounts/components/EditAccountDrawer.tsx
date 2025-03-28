@@ -117,17 +117,17 @@ export const EditAccountsDrawer: React.FC<EditAccountsDrawerProps> = ({
             Edit account in full screen <ArrowsAltOutlined />
           </Link>
           <Card className="shadow-md">
-            {accountData?.verifiedAt && (
-              <Alert
-                message="Verified Account"
-                description={`This Account was verified on ${dayjs(
-                  accountData.verifiedAt
-                ).format("MMMM D, YYYY")}`}
-                type="success"
-                showIcon
-                className="mb-6"
-              />
-            )}
+            {/*{accountData?.verifiedAt && (*/}
+            {/*  <Alert*/}
+            {/*    message="Verified Account"*/}
+            {/*    description={`This Account was verified on ${dayjs(*/}
+            {/*      accountData.verifiedAt*/}
+            {/*    ).format("MMMM D, YYYY")}`}*/}
+            {/*    type="success"*/}
+            {/*    showIcon*/}
+            {/*    className="mb-6"*/}
+            {/*  />*/}
+            {/*)}*/}
 
             <Form
               {...formProps}

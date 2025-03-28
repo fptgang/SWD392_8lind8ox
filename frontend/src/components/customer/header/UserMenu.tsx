@@ -45,9 +45,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
             <div>
               <Text strong className="block">
                 {me?.firstName || ""} {me?.lastName || ""}
-                {me?.isVerified && (
-                  <CheckCircleOutlined className="ml-1 text-blue-500"/>
-                )}
+                {/*{me?.isVerified && (*/}
+                {/*  <CheckCircleOutlined className="ml-1 text-blue-500"/>*/}
+                {/*)}*/}
               </Text>
               <Text type="secondary" className="block">
                 {me?.email}
@@ -145,9 +145,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
           />
           <span className="hidden sm:inline">
             {me?.firstName || "Account"}
-            {me?.isVerified && (
-              <CheckCircleOutlined className="ml-1 text-blue-500"/>
-            )}
+            {/*{me?.isVerified && (*/}
+            {/*  <CheckCircleOutlined className="ml-1 text-blue-500"/>*/}
+            {/*)}*/}
           </span>
         </Space>
       </Button>
