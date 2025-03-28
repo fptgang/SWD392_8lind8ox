@@ -49,8 +49,8 @@ const NotificationsPage: React.FC = () => {
     filters: [
       {
         field: "isRead",
-        operator: activeTab === "unread" ? "eq" : "in",
-        value: activeTab === "unread" ? false : [true, false],
+        operator: "eq",
+        value: activeTab === "unread" ? false : undefined,
       },
     ],
     sorters: [

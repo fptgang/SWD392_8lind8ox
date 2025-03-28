@@ -1,6 +1,8 @@
 package com.fptgang.backend.service.impl;
 
+import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.ShippingInfo;
+import com.fptgang.backend.repository.AccountRepos;
 import com.fptgang.backend.repository.ShippingInfoRepos;
 import com.fptgang.backend.service.ShippingInfoService;
 import com.fptgang.backend.service.params.ListParams;
@@ -15,15 +17,23 @@ import org.springframework.stereotype.Service;
 public class ShippingInfoServiceImpl implements ShippingInfoService {
 
     private final ShippingInfoRepos shippingInfoRepos;
+    private final AccountRepos accountRepos;
 
     @Autowired
-    public ShippingInfoServiceImpl(ShippingInfoRepos shippingInfoRepos) {
+    public ShippingInfoServiceImpl(ShippingInfoRepos shippingInfoRepos, AccountRepos accountRepos) {
         this.shippingInfoRepos = shippingInfoRepos;
+        this.accountRepos = accountRepos;
     }
 
     @Override
     public ShippingInfo create(ShippingInfo shippingInfo) {
-        return shippingInfoRepos.save(shippingInfo);
+        Account account = accountRepos.getReferenceById(shippingInfo.getAccount().getAccountId());
+        shippingInfo = shippingInfoRepos.save(shippingInfo);
+        if (account.getDefaultShippingInfo() == null) {
+            account.setDefaultShippingInfo(shippingInfo);
+            accountRepos.save(account);
+        }
+        return shippingInfo;
     }
 
     @Override

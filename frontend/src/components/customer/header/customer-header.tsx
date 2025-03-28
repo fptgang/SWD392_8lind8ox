@@ -21,13 +21,13 @@ const CustomerHeader: React.FC = () => {
 
   // Check if daily box is available
   useEffect(() => {
-    const lastOpenedDate = localStorage.getItem('lastBoxOpenedDate');
+    const lastOpenedDate = localStorage.getItem("lastBoxOpenedDate");
     const today = new Date().toDateString();
-    
+
     setDailyBoxAvailable(lastOpenedDate !== today);
-    
+
     // Get total opened box count
-    const count = localStorage.getItem('openedBoxCount');
+    const count = localStorage.getItem("openedBoxCount");
     if (count) {
       setOpenedBoxCount(parseInt(count));
     }
@@ -47,7 +47,7 @@ const CustomerHeader: React.FC = () => {
           <Logo />
           <Navigation />
           <div className="flex items-center space-x-4">
-            <Tooltip 
+            {/* <Tooltip 
               title={dailyBoxAvailable ? "Open it now!" : "Check your blind box collection"} 
               placement="bottom"
             >
@@ -75,7 +75,7 @@ const CustomerHeader: React.FC = () => {
                   </Button>
                 </motion.div>
               </Badge>
-            </Tooltip>
+            </Tooltip> */}
             <NotificationPopover />
             <CartPopover />
             <UserMenu isAuthenticated={isAuthenticated?.authenticated} />

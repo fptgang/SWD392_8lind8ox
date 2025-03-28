@@ -29,6 +29,7 @@ import {
   CartItemDto,
   VoucherDto,
   StockKeepingUnitDto,
+  AccountDto,
 } from "../../../generated";
 import { useForm } from "antd/lib/form/Form";
 import {
@@ -36,6 +37,7 @@ import {
   useCreate,
   useCustomMutation,
   useMany,
+  useGetIdentity,
 } from "@refinedev/core";
 import {
   PlusOutlined,
@@ -70,7 +72,8 @@ const CheckoutPage: React.FC = () => {
     total,
     originalTotal,
   } = useAppSelector((state) => state.cart);
-  const { balance: walletBalance } = useAppSelector((state) => state.wallet);
+  const { data: user, isSuccess } = useGetIdentity<AccountDto>();
+  const walletBalance = user?.balance || 0; // Default to 0 if user is not available
 
   // Local state
   const [addressModalVisible, setAddressModalVisible] = useState(false);
@@ -79,7 +82,7 @@ const CheckoutPage: React.FC = () => {
     null
   );
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
-    null
+    user?.defaultShippingInfo?.shippingInfoId || null
   );
   const [paymentMethod, setPaymentMethod] = useState<string>("VNPAY");
   const [createNewAddress, setCreateNewAddress] = useState(false);
@@ -98,6 +101,12 @@ const CheckoutPage: React.FC = () => {
   const skus = skusData?.data || [];
   // Form instance
   const [form] = useForm();
+
+  useEffect(() => {
+    if (!selectedAddressId && user) {
+      setSelectedAddressId(user?.defaultShippingInfo?.shippingInfoId || null);
+    }
+  }, [isSuccess]);
 
   // Load disabled items from storage
   const [disabledItemsMap, setDisabledItemsMap] = useState<
@@ -152,14 +161,6 @@ const CheckoutPage: React.FC = () => {
 
   // Create order using custom mutation
   const { mutateAsync: placeOrder } = useCreate<OrderResponse>();
-
-  // Wallet top-up mutation
-  const { mutateAsync: topUpWallet } = useCustomMutation();
-
-  // Fetch wallet balance on component mount
-  useEffect(() => {
-    dispatch(fetchWalletBalance());
-  }, [dispatch]);
 
   // Calculate cart summary
   const getCartSummary = () => {
