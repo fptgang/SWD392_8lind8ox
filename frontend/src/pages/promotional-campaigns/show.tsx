@@ -14,7 +14,7 @@ export const PromotionalCampaignsShow = () => {
 
   const { data, isLoading, isError } = useMany<BlindBoxDto, HttpError>({
     resource: "blind-boxes",
-    ids: campaign?.blindBoxCampaigns?.map((bc) => bc?.blindBoxId) ?? [],
+    ids: campaign?.blindBoxCampaigns?.map((bc) => bc?.blindBoxId).filter((id): id is number => id !== undefined) ?? [],
   });
 
   const blindBoxes = data?.data;
@@ -42,7 +42,7 @@ export const PromotionalCampaignsShow = () => {
           <Title level={4}>{translate("Start Date :")}</Title>
           <Text>
             {campaign?.startDate
-              ? dayjs(campaign.startDate).format("YYYY-MM-DD")
+              ? dayjs(campaign.startDate).format("YYYY-MM-DD HH:mm")
               : "-"}
           </Text>
         </Col>
@@ -50,7 +50,7 @@ export const PromotionalCampaignsShow = () => {
           <Title level={4}>{translate("End Date :")}</Title>
           <Text>
             {campaign?.endDate
-              ? dayjs(campaign.endDate).format("YYYY-MM-DD")
+              ? dayjs(campaign.endDate).format("YYYY-MM-DD HH:mm")
               : "-"}
           </Text>
         </Col>

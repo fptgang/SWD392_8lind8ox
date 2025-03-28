@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseRecord, useTranslate } from "@refinedev/core";
+import { BaseRecord, useTranslate, useGetIdentity } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -19,12 +19,15 @@ import {
   DeleteOutlined,
   InboxOutlined,
 } from "@ant-design/icons";
-import { SetDto } from "../../../generated/models/SetDto";
+import { SetDto, AccountDto } from "../../../generated";
 
 const { Text } = Typography;
 
 export const SetsList: React.FC = () => {
   const translate = useTranslate();
+  const { data: user } = useGetIdentity<AccountDto>();
+  const isStaff = user?.role === "STAFF";
+
   const { tableProps, setFilters } = useTable<SetDto>({
     resource: "sets",
     syncWithLocation: true,
@@ -41,7 +44,7 @@ export const SetsList: React.FC = () => {
         {
           field: "isVisible",
           operator: "eq",
-          value: undefined,
+          value: isStaff ? true : undefined,
         },
       ],
     },
@@ -63,10 +66,7 @@ export const SetsList: React.FC = () => {
           className="max-w-md"
           allowClear
           onSearch={(value) => {
-            setFilters((prevFilters) => [
-              ...(prevFilters?.filter(
-                (filter) => (filter as { field: string }).field !== "search"
-              ) || []),
+            setFilters([
               {
                 field: "search",
                 operator: "contains",
@@ -113,23 +113,25 @@ export const SetsList: React.FC = () => {
           }
         />
 
-        <Table.Column
-          dataIndex="isVisible"
-          title={
-            <Tooltip title="Visibility status">
-              <Space>
-                <EyeOutlined />
-                <span>Status</span>
-              </Space>
-            </Tooltip>
-          }
-          render={(value: boolean) => getVisibilityStatus(value)}
-          filters={[
-            { text: "Visible", value: true },
-            { text: "Hidden", value: false },
-          ]}
-          filterMultiple={false}
-        />
+        {!isStaff && (
+          <Table.Column
+            dataIndex="isVisible"
+            title={
+              <Tooltip title="Visibility status">
+                <Space>
+                  <EyeOutlined />
+                  <span>Status</span>
+                </Space>
+              </Tooltip>
+            }
+            render={(value: boolean) => getVisibilityStatus(value)}
+            filters={[
+              { text: "Visible", value: true },
+              { text: "Hidden", value: false },
+            ]}
+            filterMultiple={false}
+          />
+        )}
 
         <Table.Column
           dataIndex="createdAt"
@@ -165,6 +167,15 @@ export const SetsList: React.FC = () => {
           fixed="right"
           render={(_, record: BaseRecord) => (
             <Space size="middle">
+              <Tooltip title="Edit Set">
+                <EditButton
+                  hideText
+                  size="small"
+                  recordItemId={record.setId}
+                  icon={<EditOutlined className="text-blue-600" />}
+                  className="hover:text-blue-700"
+                />
+              </Tooltip>
               <Tooltip title="View Details">
                 <ShowButton
                   hideText

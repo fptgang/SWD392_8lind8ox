@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseRecord, useSelect } from "@refinedev/core";
+import { BaseRecord, useSelect, useGetIdentity } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -21,11 +21,14 @@ import {
   PictureOutlined,
   ShopOutlined,
 } from "@ant-design/icons";
-import { BlindBoxDto, BrandDto } from "../../../generated";
+import { BlindBoxDto, BrandDto, AccountDto } from "../../../generated";
 
 const { Text } = Typography;
 
 export const BlindBoxesList: React.FC = () => {
+  const { data: user } = useGetIdentity<AccountDto>();
+  const isStaff = user?.role === "STAFF";
+
   const { tableProps, setFilters } = useTable<BlindBoxDto>({
     syncWithLocation: true,
     sorters: {
@@ -46,11 +49,12 @@ export const BlindBoxesList: React.FC = () => {
         {
           field: "isVisible",
           operator: "eq",
-          value: undefined,
+          value: isStaff ? true : undefined,
         },
       ],
     },
   });
+
   const { options } = useSelect<BrandDto>({
     resource: "brands",
     optionLabel: "name",
@@ -77,14 +81,11 @@ export const BlindBoxesList: React.FC = () => {
     <List>
       <div className="mb-6">
         <Input.Search
-          placeholder="Search products..."
+          placeholder="Search blind boxes..."
           className="max-w-md"
           allowClear
           onSearch={(value) => {
             setFilters([
-              ...(tableProps.filters?.filter(
-                (filter) => filter.field !== "search"
-              ) || []),
               {
                 field: "search",
                 operator: "contains",
@@ -94,6 +95,7 @@ export const BlindBoxesList: React.FC = () => {
           }}
         />
       </div>
+
       <Table
         {...tableProps}
         rowKey="blindBoxId"
@@ -103,16 +105,17 @@ export const BlindBoxesList: React.FC = () => {
         <Table.Column
           dataIndex="blindBoxId"
           title={
-            <Tooltip title="Unique product identifier">
+            <Tooltip title="Unique blind box identifier">
               <Space>
                 <GiftOutlined />
-                <span>BlindBox Id</span>
+                <span>Blind Box ID</span>
               </Space>
             </Tooltip>
           }
           sorter
           className="font-medium"
         />
+
         <Table.Column
           dataIndex="name"
           title="Name"
@@ -166,23 +169,26 @@ export const BlindBoxesList: React.FC = () => {
           }))}
           filterMultiple={false}
         />
-        <Table.Column
-          dataIndex="isVisible"
-          title={
-            <Tooltip title="Product visibility status">
-              <Space>
-                <EyeOutlined />
-                <span>Status</span>
-              </Space>
-            </Tooltip>
-          }
-          render={(value: boolean) => getVisibilityStatus(value)}
-          filters={[
-            { text: "Visible", value: true },
-            { text: "Hidden", value: false },
-          ]}
-          filterMultiple={false}
-        />
+
+        {!isStaff && (
+          <Table.Column
+            dataIndex="isVisible"
+            title={
+              <Tooltip title="Product visibility status">
+                <Space>
+                  <EyeOutlined />
+                  <span>Status</span>
+                </Space>
+              </Tooltip>
+            }
+            render={(value: boolean) => getVisibilityStatus(value)}
+            filters={[
+              { text: "Visible", value: true },
+              { text: "Hidden", value: false },
+            ]}
+            filterMultiple={false}
+          />
+        )}
 
         <Table.Column
           dataIndex="createdAt"
@@ -196,6 +202,7 @@ export const BlindBoxesList: React.FC = () => {
             <DateField value={value} format="MMMM DD, YYYY" />
           )}
           sorter
+          defaultSortOrder="descend"
         />
 
         <Table.Column
@@ -237,7 +244,7 @@ export const BlindBoxesList: React.FC = () => {
           fixed="right"
           render={(_, record: BlindBoxDto) => (
             <Space size="middle">
-              <Tooltip title="Edit Product">
+              <Tooltip title="Edit Blind Box">
                 <EditButton
                   hideText
                   size="small"
@@ -254,14 +261,14 @@ export const BlindBoxesList: React.FC = () => {
                   className="text-green-600 hover:text-green-700"
                 />
               </Tooltip>
-              <Tooltip title="Delete Product">
+              <Tooltip title="Delete Blind Box">
                 <DeleteButton
                   hideText
                   size="small"
                   recordItemId={record.blindBoxId}
                   icon={<DeleteOutlined className="text-red-600" />}
                   className="hover:text-red-700"
-                  confirmTitle="Delete Product"
+                  confirmTitle="Delete Blind Box"
                   confirmOkText="Delete"
                   confirmCancelText="Cancel"
                 />

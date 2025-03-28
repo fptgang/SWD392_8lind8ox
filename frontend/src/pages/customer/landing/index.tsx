@@ -15,6 +15,7 @@ import {
   Col,
   Spin,
   Tooltip,
+  notification,
 } from "antd";
 import {
   ArrowUpOutlined,
@@ -67,6 +68,15 @@ export default function LandingPage() {
         interval: statsInterval,
       },
     },
+    onError: (error) => {
+      console.error("Error fetching trending products:", error);
+      notification.error({
+        message: "Error loading trending products",
+        description: "Unable to load trending products at this time. Please try again later.",
+        placement: "topRight",
+        duration: 5,
+      });
+    },
   });
 
   // Animation variants for scroll animations
@@ -92,15 +102,16 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Prepare stats data
+  // Prepare stats data with error handling
   const formatStatsData = () => {
-    if (!statsData)
+    if (statsError || !statsData) {
       return {
         totalSales: 0,
         totalViews: 0,
         avgRating: 0,
         topProducts: 0,
       };
+    }
 
     try {
       const products = Array.isArray(statsData)

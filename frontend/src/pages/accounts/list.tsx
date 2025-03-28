@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BaseRecord, useMany } from "@refinedev/core";
+import { BaseRecord, useMany, CanAccess } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -73,16 +73,18 @@ export const AccountsList: React.FC = () => {
     },
   });
 
-  // const getVerificationStatus = (isVerified: boolean | null) => {
-  //   return isVerified ? (
-  //     <Badge status="success" text="Verified" />
-  //   ) : (
-  //     <Badge status="warning" text="Pending" />
-  //   );
-  // };
-
   const formatBalance = (balance: number) => {
     return formatCurrency(balance);
+  };
+
+  const handleSearch = (value: string) => {
+    setFilters([
+      {
+        field: "search",
+        operator: "contains",
+        value: value || undefined,
+      },
+    ]);
   };
 
   return (
@@ -93,19 +95,7 @@ export const AccountsList: React.FC = () => {
             placeholder="Search accounts..."
             className="max-w-md"
             allowClear
-            onSearch={(value) => {
-              // Use the destructured setFilters
-              setFilters([
-                ...(tableProps.filters?.filter(
-                  (filter) => filter.field !== "search"
-                ) || []),
-                {
-                  field: "search",
-                  operator: "contains",
-                  value: value || undefined,
-                },
-              ]);
-            }}
+            onSearch={handleSearch}
           />
         </div>
 
@@ -228,51 +218,71 @@ export const AccountsList: React.FC = () => {
             title="Actions"
             fixed="right"
             render={(_, record: AccountDto) => (
-              <Space size="middle">
-                <Tooltip title="Edit Account">
-                  <Button
-                    type="link"
-                    size="small"
-                    icon={<EditOutlined />}
-                    onClick={() => {
-                      setSelectedAccountId("" + record?.accountId);
-                      setEditDrawer(true);
-                    }}
-                    style={{
-                      border: "1px solid #e8e8e8",
-                    }}
-                    // disabled={record.role === "ADMIN" || record.isVerified}
-                    disabled={record.role === "ADMIN"}
-                  />
-                </Tooltip>
-                <Tooltip title="View Details">
-                  <Button
-                    type="link"
-                    size="small"
-                    icon={<EyeOutlined />}
-                    onClick={() => {
-                      setSelectedAccountId("" + record?.accountId);
-                      setShowDrawer(true);
-                    }}
-                    style={{
-                      border: "1px solid #e8e8e8",
-                    }}
-                  />
-                </Tooltip>
-                <Tooltip title="Delete Account">
-                  <DeleteButton
-                    hideText
-                    size="small"
-                    recordItemId={record.accountId}
-                    className="text-red-600 hover:text-red-700"
-                    confirmTitle="Delete Account"
-                    confirmOkText="Delete"
-                    confirmCancelText="Cancel"
-                    about="Are you sure you want to delete this account? This action cannot be undone."
-                    disabled={record.role === "ADMIN"}
-                  />
-                </Tooltip>
-              </Space>
+              <CanAccess resource="accounts" action="edit" fallback={(
+                <Space size="middle">
+                  <Tooltip title="View Details">
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<EyeOutlined />}
+                      onClick={() => {
+                        setSelectedAccountId("" + record?.accountId);
+                        setShowDrawer(true);
+                      }}
+                      style={{
+                        border: "1px solid #e8e8e8",
+                      }}
+                    />
+                  </Tooltip>
+                </Space>
+              )}>
+                <Space size="middle">
+                  <Tooltip title="Edit Account">
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<EditOutlined />}
+                      onClick={() => {
+                        setSelectedAccountId("" + record?.accountId);
+                        setEditDrawer(true);
+                      }}
+                      style={{
+                        border: "1px solid #e8e8e8",
+                      }}
+                      disabled={record.role === "ADMIN"}
+                    />
+                  </Tooltip>
+                  <Tooltip title="View Details">
+                    <Button
+                      type="link"
+                      size="small"
+                      icon={<EyeOutlined />}
+                      onClick={() => {
+                        setSelectedAccountId("" + record?.accountId);
+                        setShowDrawer(true);
+                      }}
+                      style={{
+                        border: "1px solid #e8e8e8",
+                      }}
+                    />
+                  </Tooltip>
+                  <CanAccess resource="accounts" action="delete">
+                    <Tooltip title="Delete Account">
+                      <DeleteButton
+                        hideText
+                        size="small"
+                        recordItemId={record.accountId}
+                        className="text-red-600 hover:text-red-700"
+                        confirmTitle="Delete Account"
+                        confirmOkText="Delete"
+                        confirmCancelText="Cancel"
+                        about="Are you sure you want to delete this account? This action cannot be undone."
+                        disabled={record.role === "ADMIN"}
+                      />
+                    </Tooltip>
+                  </CanAccess>
+                </Space>
+              </CanAccess>
             )}
           />
         </Table>
