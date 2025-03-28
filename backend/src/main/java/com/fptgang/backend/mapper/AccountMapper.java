@@ -33,8 +33,8 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
                 .balance(dto.getBalance())
                 .updateBalanceAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdateBalanceAt()))
                 .role(mapRoleAccount(dto.getRole()))
-                .isVerified(dto.getIsVerified())
-                .verifiedAt(DateTimeUtil.fromOffsetToLocal(dto.getVerifiedAt()))
+//                .isVerified(dto.getIsVerified())
+//                .verifiedAt(DateTimeUtil.fromOffsetToLocal(dto.getVerifiedAt()))
                 .isVisible(dto.getIsVisible())
                 .createdAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()))
                 .updatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()))
@@ -65,8 +65,8 @@ public class AccountMapper extends BaseMapper<AccountDto, Account> {
         //dto.setPassword(entity.getPassword()); // DO NOT RETURN PASSWORD
         dto.setUpdateBalanceAt(DateTimeUtil.fromLocalToOffset(entity.getUpdateBalanceAt()));
         dto.setRole(mapRoleAccountDto(entity.getRole()));
-        dto.setIsVerified(entity.getIsVerified());
-        dto.setVerifiedAt(DateTimeUtil.fromLocalToOffset(entity.getVerifiedAt()));
+//        dto.setIsVerified(entity.getIsVerified());
+//        dto.setVerifiedAt(DateTimeUtil.fromLocalToOffset(entity.getVerifiedAt()));
         dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
         dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         if (entity.getDefaultShippingInfo() != null) {

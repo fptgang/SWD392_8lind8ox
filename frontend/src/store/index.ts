@@ -20,7 +20,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ['auth/setAuthenticatedAccount'],
         ignoredPaths: [
-          'auth.account.verifiedAt',
+          // 'auth.account.verifiedAt',
           'auth.account.createdAt',
           'auth.account.updatedAt'
         ],

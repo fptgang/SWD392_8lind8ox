@@ -59,11 +59,11 @@ export const AccountsList: React.FC = () => {
           operator: "eq",
           value: undefined,
         },
-        {
-          field: "isVerified",
-          operator: "eq",
-          value: undefined,
-        },
+        // {
+        //   field: "isVerified",
+        //   operator: "eq",
+        //   value: undefined,
+        // },
         {
           field: "search",
           operator: "contains",
@@ -73,13 +73,13 @@ export const AccountsList: React.FC = () => {
     },
   });
 
-  const getVerificationStatus = (isVerified: boolean | null) => {
-    return isVerified ? (
-      <Badge status="success" text="Verified" />
-    ) : (
-      <Badge status="warning" text="Pending" />
-    );
-  };
+  // const getVerificationStatus = (isVerified: boolean | null) => {
+  //   return isVerified ? (
+  //     <Badge status="success" text="Verified" />
+  //   ) : (
+  //     <Badge status="warning" text="Pending" />
+  //   );
+  // };
 
   const formatBalance = (balance: number) => {
     return formatCurrency(balance);
@@ -191,23 +191,23 @@ export const AccountsList: React.FC = () => {
             )}
           />
 
-          <Table.Column
-            dataIndex="isVerified"
-            title={
-              <Tooltip title="Account verification status">
-                <Space>
-                  <CheckCircleOutlined />
-                  <span>Status</span>
-                </Space>
-              </Tooltip>
-            }
-            render={(value: boolean) => getVerificationStatus(value)}
-            filters={[
-              { text: "Verified", value: true },
-              { text: "Pending", value: false },
-            ]}
-            filterMultiple={false}
-          />
+          {/*<Table.Column*/}
+          {/*  dataIndex="isVerified"*/}
+          {/*  title={*/}
+          {/*    <Tooltip title="Account verification status">*/}
+          {/*      <Space>*/}
+          {/*        <CheckCircleOutlined />*/}
+          {/*        <span>Status</span>*/}
+          {/*      </Space>*/}
+          {/*    </Tooltip>*/}
+          {/*  }*/}
+          {/*  render={(value: boolean) => getVerificationStatus(value)}*/}
+          {/*  filters={[*/}
+          {/*    { text: "Verified", value: true },*/}
+          {/*    { text: "Pending", value: false },*/}
+          {/*  ]}*/}
+          {/*  filterMultiple={false}*/}
+          {/*/>*/}
 
           <Table.Column
             dataIndex="createdAt"
@@ -241,7 +241,8 @@ export const AccountsList: React.FC = () => {
                     style={{
                       border: "1px solid #e8e8e8",
                     }}
-                    disabled={record.role === "ADMIN" || record.isVerified}
+                    // disabled={record.role === "ADMIN" || record.isVerified}
+                    disabled={record.role === "ADMIN"}
                   />
                 </Tooltip>
                 <Tooltip title="View Details">

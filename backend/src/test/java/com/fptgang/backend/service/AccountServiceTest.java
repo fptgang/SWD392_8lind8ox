@@ -44,7 +44,7 @@ class AccountServiceTest {
         account.setPassword("password");
         account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
-        account.setIsVerified(false);
+//        account.setIsVerified(false);
         account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
@@ -57,7 +57,7 @@ class AccountServiceTest {
         account.setPassword("password");
         account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
-        account.setIsVerified(false);
+//        account.setIsVerified(false);
         account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
@@ -133,7 +133,7 @@ class AccountServiceTest {
         account.setPassword("password");
         account.setIsVisible(true);
         account.setBalance(BigDecimal.valueOf(0));
-        account.setIsVerified(false);
+//        account.setIsVerified(false);
         account.setRole(Account.Role.CUSTOMER);
         account.setFirstName("John");
         account.setLastName("Doe");
@@ -185,7 +185,7 @@ class AccountServiceTest {
         account4.setPassword("password");
         account4.setIsVisible(true);
         account4.setBalance(BigDecimal.valueOf(0));
-        account4.setIsVerified(false);
+//        account4.setIsVerified(false);
         account4.setRole(Account.Role.CUSTOMER);
         account4.setFirstName("John");
         account4.setLastName("Doe");

@@ -49,7 +49,7 @@ export const AccountsEdit: React.FC = () => {
     <Edit
       saveButtonProps={{
         ...saveButtonProps,
-        disabled: AccountDtosData?.isVerified,
+        // disabled: AccountDtosData?.isVerified,
       }}
     >
       <Card
@@ -60,17 +60,17 @@ export const AccountsEdit: React.FC = () => {
         }
         className="mb-4"
       >
-        {AccountDtosData?.verifiedAt && (
-          <Alert
-            message="Verified Account"
-            description={`This Account was verified on ${dayjs(
-              AccountDtosData.verifiedAt
-            ).format("MMMM D, YYYY")}`}
-            type="success"
-            showIcon
-            className="mb-6"
-          />
-        )}
+        {/*{AccountDtosData?.verifiedAt && (*/}
+        {/*  <Alert*/}
+        {/*    message="Verified Account"*/}
+        {/*    description={`This Account was verified on ${dayjs(*/}
+        {/*      AccountDtosData.verifiedAt*/}
+        {/*    ).format("MMMM D, YYYY")}`}*/}
+        {/*    type="success"*/}
+        {/*    showIcon*/}
+        {/*    className="mb-6"*/}
+        {/*  />*/}
+        {/*)}*/}
 
         <Form
           {...formProps}
@@ -118,7 +118,7 @@ export const AccountsEdit: React.FC = () => {
                   placeholder="Enter email address"
                   className="w-full"
                   allowClear
-                  disabled={AccountDtosData?.isVerified}
+                  // disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>
@@ -141,7 +141,7 @@ export const AccountsEdit: React.FC = () => {
                   placeholder="Enter first name"
                   className="w-full"
                   allowClear
-                  disabled={AccountDtosData?.isVerified}
+                  // disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>
@@ -162,7 +162,7 @@ export const AccountsEdit: React.FC = () => {
                   placeholder="Enter last name"
                   className="w-full"
                   allowClear
-                  disabled={AccountDtosData?.isVerified}
+                  // disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>
@@ -189,7 +189,7 @@ export const AccountsEdit: React.FC = () => {
                   className="w-full"
                   showSearch
                   optionFilterProp="label"
-                  disabled={AccountDtosData?.isVerified}
+                  // disabled={AccountDtosData?.isVerified}
                 />
               </Form.Item>
             </Col>

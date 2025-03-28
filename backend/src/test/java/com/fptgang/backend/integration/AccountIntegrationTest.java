@@ -59,7 +59,7 @@ class AccountIntegrationTest {
                         .password("pwd")
                         .avatarUrl("string")
                         .role(Account.Role.ADMIN)
-                        .isVerified(true)
+//                        .isVerified(true)
                         .isVisible(true)
                         .build()
         ));
@@ -91,7 +91,7 @@ class AccountIntegrationTest {
         assertThat(account1.getPassword()).isNull();
         assertThat(account1.getAvatarUrl()).isEqualTo("string");
         assertThat(account1.getRole()).isEqualTo(AccountDto.RoleEnum.ADMIN);
-        assertThat(account1.getIsVerified()).isFalse();
+//        assertThat(account1.getIsVerified()).isFalse();
 
         var account2 = response.getContent().get(1);
         assertThat(account2.getEmail()).isEqualTo("b@test.com");
@@ -100,7 +100,7 @@ class AccountIntegrationTest {
         assertThat(account2.getPassword()).isNull();
         assertThat(account2.getAvatarUrl()).isEqualTo("string");
         assertThat(account2.getRole()).isEqualTo(AccountDto.RoleEnum.ADMIN);
-        assertThat(account2.getIsVerified()).isTrue();
+//        assertThat(account2.getIsVerified()).isTrue();
     }
 
     @Test

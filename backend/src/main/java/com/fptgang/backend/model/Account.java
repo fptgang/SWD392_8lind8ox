@@ -51,12 +51,12 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    @Builder.Default
-    private Boolean isVerified = false;
-
-    @Nullable
-    private LocalDateTime verifiedAt;
+//    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+//    @Builder.Default
+//    private Boolean isVerified = false;
+//
+//    @Nullable
+//    private LocalDateTime verifiedAt;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     @Builder.Default
