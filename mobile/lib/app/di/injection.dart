@@ -303,7 +303,11 @@ void _registerBlocs() {
   }
   if (!getIt.isRegistered<CartGlobalBloc>()) {
     getIt.registerLazySingleton<CartGlobalBloc>(
-        () => CartGlobalBloc(getIt<OrderRepository>(), getIt<SkuRepository>()));
+      () => CartGlobalBloc(
+        getIt<OrderRepository>(),
+        getIt<SkuRepository>(),
+      ),
+    );
   }
 
   if (!getIt.isRegistered<WalletBloc>()) {
@@ -319,6 +323,16 @@ void _registerBlocs() {
   if (!getIt.isRegistered<BlindBoxesListBloc>()) {
     getIt.registerLazySingleton<BlindBoxesListBloc>(
         () => BlindBoxesListBloc(getIt<BlindBoxRepository>()));
+  }
+
+  if (!getIt.isRegistered<BlindBoxDetailBloc>()) {
+    getIt.registerLazySingleton<BlindBoxDetailBloc>(
+      () => BlindBoxDetailBloc(
+        blindBoxRepository: getIt<BlindBoxRepository>(),
+        skuRepository: getIt<SkuRepository>(),
+        imageRepository: getIt<ImageRepository>(),
+      ),
+    );
   }
 
   if (!getIt.isRegistered<OrderDetailBloc>()) {
@@ -338,10 +352,14 @@ void _registerBlocs() {
   }
 
   // Factory Blocs (short-lived, recreated frequently)
-  getIt.registerFactory<AuthenticationBloc>(() => AuthenticationBloc(
+  if (!getIt.isRegistered<AuthenticationBloc>()) {
+    getIt.registerLazySingleton<AuthenticationBloc>(
+      () => AuthenticationBloc(
         authenticationRepository: getIt<AuthRepository>(),
         userRepository: getIt<AccountRepository>(),
-      ));
+      ),
+    );
+  }
 
   getIt.registerFactory<LoginBloc>(() => LoginBloc(
         authRepository: getIt<AuthRepository>(),
