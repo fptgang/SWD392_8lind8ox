@@ -101,7 +101,7 @@ export function checkout(date: Date) {
   const cart = createCart(date)
   if (cart.length === 0) return
 
-  const account = AccountPool.pickAccount(date, AccountRole.CUSTOMER, false)
+  const account = AccountPool.pickAccount(date, AccountRole.CUSTOMER)
   if (!account) return
 
   const details = cart.map(item => {

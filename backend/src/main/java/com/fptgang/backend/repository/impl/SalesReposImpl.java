@@ -1,6 +1,7 @@
-package com.fptgang.backend.repository;
+package com.fptgang.backend.repository.impl;
 
 import com.fptgang.backend.model.sales.TrendingProduct;
+import com.fptgang.backend.repository.SalesRepos;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
