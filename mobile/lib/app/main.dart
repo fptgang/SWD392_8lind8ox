@@ -286,8 +286,7 @@ class AppRouter {
       GoRoute(
         path: '/shipping-address',
         builder: (context, state) {
-          final Map<String, dynamic> extras =
-              state.extra as Map<String, dynamic>? ?? {};
+          final extras = state.extra as Map<String, dynamic>? ?? {};
 
           return BlocProvider(
             create: (context) =>
@@ -308,8 +307,8 @@ class AppRouter {
 
           return MultiBlocProvider(
             providers: [
-              BlocProvider.value(
-                value: getIt<ShippingInfoBloc>(),
+              BlocProvider(
+                create: (context) => getIt<ShippingInfoBloc>(),
               ),
               BlocProvider(
                 create: (context) =>

@@ -1,39 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/base/theme/theme.dart';
 
 class OrderItemsSection extends StatelessWidget {
   const OrderItemsSection({
     super.key,
-    this.items = const [],
+    required this.items,
+    this.onEditCart,
   });
 
   final List<dynamic> items;
+  final VoidCallback? onEditCart;
 
   @override
   Widget build(BuildContext context) {
-    // Example data - in a real app, this would come from cart provider
-    final demoItems = [
-      {
-        'id': 1,
-        'name': 'Product 1',
-        'skuName': 'Variant A',
-        'price': 49.99,
-        'originalPrice': 59.99,
-        'quantity': 1,
-        'imageUrl': 'https://placehold.co/300x300',
-      },
-      {
-        'id': 2,
-        'name': 'Product 2',
-        'skuName': 'Variant B',
-        'price': 29.99,
-        'originalPrice': 29.99,
-        'quantity': 2,
-        'imageUrl': 'https://placehold.co/300x300',
-      },
-    ];
-
-    final displayItems = items.isNotEmpty ? items : demoItems;
+    if (items.isEmpty) {
+      return _buildEmptyItems(context);
+    }
 
     return Card(
       color: getColorSkin().white,
@@ -51,18 +34,48 @@ class OrderItemsSection extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 TextButton.icon(
-                  onPressed: () {
-                    // Navigate to cart
-                    // context.push('/cart');
-                  },
+                  onPressed: onEditCart ?? () => context.pop(),
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit Cart'),
                 ),
               ],
             ),
             const Divider(),
-            ...displayItems.map((item) => _buildOrderItem(context, item)),
+            ...items.map((item) => _buildOrderItem(context, item)),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyItems(BuildContext context) {
+    return Card(
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shopping_cart_outlined,
+                size: 48,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No items in cart',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/main'),
+                child: const Text('Continue Shopping'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -158,7 +171,8 @@ class OrderItemsSection extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (item['skuName'] != null)
+                if (item['skuName'] != null &&
+                    item['skuName'].toString().isNotEmpty)
                   Text(
                     'Variant: ${item['skuName']}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(

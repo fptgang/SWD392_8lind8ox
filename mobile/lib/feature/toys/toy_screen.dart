@@ -195,19 +195,30 @@ class _ToyScreenState extends State<ToyScreen> with TickerProviderStateMixin {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: _onlyAvailable
+                        ? getColorSkin().deepGreen
+                        : Colors.transparent,
+                    width: _onlyAvailable ? 2 : 0,
+                  ),
                 ),
                 child: Row(
                   children: [
                     Text(
-                      'In Stock',
+                      'Available Slots Only',
                       style: TextStyle(
                         fontSize: 14,
-                        color: getColorSkin().primaryRed600,
+                        color: _onlyAvailable
+                            ? getColorSkin().deepGreen
+                            : getColorSkin().primaryRed600,
+                        fontWeight: _onlyAvailable
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                     Switch(
                       value: _onlyAvailable,
-                      activeColor: getColorSkin().primaryRed500,
+                      activeColor: getColorSkin().deepGreen,
                       onChanged: (value) {
                         setState(() {
                           _onlyAvailable = value;
@@ -690,14 +701,50 @@ class _ToyScreenState extends State<ToyScreen> with TickerProviderStateMixin {
                       height: 140,
                       width: double.infinity,
                       color: getColorSkin().lightOrange,
-                      child: set.blindBox.images?.isNotEmpty == true
-                          ? Image.network(
-                              set.blindBox.images!.first.imageUrl ?? '',
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  _buildPlaceholderImage(),
-                            )
-                          : _buildPlaceholderImage(),
+                      child: () {
+                        // Get image from SKU first, then from blindBox if not available
+                        final imageUrl = set.sku.image?.imageUrl ??
+                            (set.blindBox.images?.isNotEmpty == true
+                                ? set.blindBox.images!.first.imageUrl
+                                : null);
+
+                        debugPrint(
+                            '[ToyScreen] Set ${set.setId} image URL: $imageUrl');
+
+                        if (imageUrl != null && imageUrl.isNotEmpty) {
+                          return Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child; // Image is fully loaded
+                              }
+                              // Display a loading indicator while the image loads
+                              return Container(
+                                color: getColorSkin().lightOrange100,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                    color: getColorSkin().primaryRed600,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (_, error, stack) {
+                              debugPrint(
+                                  '[ToyScreen] Error loading image: $error');
+                              return _buildPlaceholderImage();
+                            },
+                          );
+                        } else {
+                          return _buildPlaceholderImage();
+                        }
+                      }(),
                     ),
                   ),
                   // Content
@@ -751,15 +798,15 @@ class _ToyScreenState extends State<ToyScreen> with TickerProviderStateMixin {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: (set.sku.stock ?? 0) > 0
+                                color: _getAvailableSlotsCount(set) > 0
                                     ? getColorSkin().deepGreen
                                     : getColorSkin().grey,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                (set.sku.stock ?? 0) > 0
-                                    ? 'In Stock'
-                                    : 'Out of Stock',
+                                _getAvailableSlotsCount(set) > 0
+                                    ? '${_getAvailableSlotsCount(set)} Available'
+                                    : 'Sold Out',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -1033,6 +1080,14 @@ class _ToyScreenState extends State<ToyScreen> with TickerProviderStateMixin {
     );
   }
 
+  // Helper method to count available slots
+  int _getAvailableSlotsCount(SetModel set) {
+    return set.slots
+        .where((slot) =>
+            slot.state != null && slot.state.toString().contains("AVAILABLE"))
+        .length;
+  }
+
   List<SetModel> _filterSets(List<SetModel> sets) {
     final searchTerm = _searchController.text.toLowerCase();
     debugPrint('[ToyScreen] Filtering ${sets.length} sets with:');
@@ -1047,7 +1102,7 @@ class _ToyScreenState extends State<ToyScreen> with TickerProviderStateMixin {
       debugPrint('  - ID: ${firstSet.setId}');
       debugPrint('  - BlindBox: ${firstSet.blindBox.name ?? "No name"}');
       debugPrint('  - Price: ${firstSet.sku.price ?? "No price"}');
-      debugPrint('  - Stock: ${firstSet.sku.stock ?? "No stock info"}');
+      debugPrint('  - Available Slots: ${_getAvailableSlotsCount(firstSet)}');
     }
 
     final filtered = sets.where((set) {
@@ -1073,8 +1128,8 @@ class _ToyScreenState extends State<ToyScreen> with TickerProviderStateMixin {
         }
       }
 
-      // Apply availability filter
-      if (_onlyAvailable && (set.sku.stock ?? 0) <= 0) {
+      // Apply availability filter based on available slots instead of stock
+      if (_onlyAvailable && _getAvailableSlotsCount(set) <= 0) {
         return false;
       }
 

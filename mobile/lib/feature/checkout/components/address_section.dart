@@ -24,7 +24,7 @@ class AddressSection extends StatefulWidget {
 }
 
 class _AddressSectionState extends State<AddressSection> {
-  late final ShippingInfoBloc _shippingInfoBloc;
+  late ShippingInfoBloc _shippingInfoBloc;
   bool _isLoading = true;
   List<ShippingInfoModel> _addresses = [];
   String? _error;
@@ -32,7 +32,10 @@ class _AddressSectionState extends State<AddressSection> {
   @override
   void initState() {
     super.initState();
+    // Get the singleton instance from GetIt
     _shippingInfoBloc = getIt<ShippingInfoBloc>();
+
+    // Load addresses when the widget initializes
     _loadAddresses();
   }
 
@@ -78,7 +81,7 @@ class _AddressSectionState extends State<AddressSection> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   TextButton.icon(
-                    onPressed: () => _navigateToAddAddress(context),
+                    onPressed: () => _navigateToAddressScreen(context),
                     icon: Icon(Icons.add, color: getColorSkin().black),
                     label:  Text('Add New', style: TextStyle(color: getColorSkin().black),),
                   ),
@@ -159,7 +162,7 @@ class _AddressSectionState extends State<AddressSection> {
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
-            onPressed: () => _navigateToAddAddress(context),
+            onPressed: () => _navigateToAddressScreen(context),
             icon: const Icon(Icons.add),
             label: const Text('Add New Address'),
           ),
@@ -241,8 +244,7 @@ class _AddressSectionState extends State<AddressSection> {
             ),
             IconButton(
               icon: const Icon(Icons.edit_outlined, size: 20),
-              onPressed: () =>
-                  _navigateToEditAddress(context, address.shippingInfoId!),
+              onPressed: () => _navigateToEditAddress(context, address),
               color: Colors.grey[600],
             ),
           ],
@@ -251,15 +253,16 @@ class _AddressSectionState extends State<AddressSection> {
     );
   }
 
-  void _navigateToAddAddress(BuildContext context) {
-    context.push('/shipping-address/add').then((_) {
-      // Refresh addresses after returning from the add screen
+  void _navigateToAddressScreen(BuildContext context) {
+    context.push('/shipping-address').then((_) {
+      // Refresh addresses after returning from the shipping address screen
       _loadAddresses();
     });
   }
 
-  void _navigateToEditAddress(BuildContext context, int addressId) {
-    context.push('/shipping-address/edit/$addressId').then((_) {
+  void _navigateToEditAddress(BuildContext context, ShippingInfoModel address) {
+    // Navigate to the edit address screen with the address as extra data
+    context.push('/shipping-address-form', extra: address).then((_) {
       // Refresh addresses after returning from the edit screen
       _loadAddresses();
     });

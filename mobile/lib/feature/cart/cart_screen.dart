@@ -62,7 +62,7 @@ class _CartScreenState extends State<CartScreen> {
         backgroundColor: getColorSkin().primaryRed650,
         elevation: 0,
         title: Text(
-          AppLocalizations.of(context)!.cart,
+          "Cart",
           style: TextStyle(
             color: getColorSkin().white,
             fontWeight: FontWeight.bold,
@@ -107,12 +107,16 @@ class _CartScreenState extends State<CartScreen> {
               // Use a safer approach without relying on route name
               try {
                 // Get the current route
+                final router = GoRouter.of(context);
                 final currentRoute = GoRouterState.of(context).fullPath;
                 debugPrint('Current route: $currentRoute');
 
-                // Don't navigate if we're already on the checkout page
-                if (currentRoute == '/checkout') {
-                  debugPrint('Already on checkout page, skipping navigation');
+                // Check if we're on the cart screen by examining the location
+                final isCartScreen = currentRoute == '/cart' ||
+                    currentRoute == '/main/2'; // Account for bottom nav path
+
+                if (!isCartScreen) {
+                  debugPrint('Not on cart screen, skipping navigation');
                   return;
                 }
 
@@ -349,7 +353,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           SizedBox(height: 16.h),
           Text(
-            AppLocalizations.of(context)!.emptyCart,
+            "Empty Cart",
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w500,
@@ -420,7 +424,7 @@ class _CartScreenState extends State<CartScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${AppLocalizations.of(context)!.subTotal} (${hasSelectedItems ? state.selectedItems.length : state.items.length} items)',
+                'Subtotal (${hasSelectedItems ? state.selectedItems.length : state.items.length} items)',
                 style: TextStyle(color: getColorSkin().grey),
               ),
               Text(
@@ -517,7 +521,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             child: Text(
               hasSelectedItems
-                  ? '${AppLocalizations.of(context)!.checkout} (${state.selectedItems.length})'
+                  ? 'Checkout (${state.selectedItems.length})'
                   : 'Select items to checkout',
               style: TextStyle(
                   fontSize: 16,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
@@ -89,9 +90,38 @@ class _HomePageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('📱 Building _HomePageContent');
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: getColorSkin().primaryRed650,
-        title: const Text('8lind 8ox', style: TextStyle(color: Colors.white)),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                getColorSkin().primaryRed650,
+                getColorSkin().primaryRed600.withOpacity(0.8),
+              ],
+            ),
+          ),
+        ),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/logo.png',
+              height: 32,
+              errorBuilder: (context, error, stackTrace) => const Text(
+                '8lind 8ox',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 22,
+                ),
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
@@ -99,36 +129,99 @@ class _HomePageContent extends StatelessWidget {
               context.push('/main/search');
             },
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.shopping_cart,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              context.push('/cart');
-            },
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.shopping_cart,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  context.push('/cart');
+                },
+              ),
+              //mat cai so tren dau cai cart r nen cmt
+              // Positioned(
+              //   top: 8,
+              //   right: 8,
+              //   child: Container(
+              //     padding: const EdgeInsets.all(4),
+              //     decoration: BoxDecoration(
+              //       color: getColorSkin().lightOrange,
+              //       shape: BoxShape.circle,
+              //     ),
+              //     constraints: const BoxConstraints(
+              //       minWidth: 16,
+              //       minHeight: 16,
+              //     ),
+              //   ),
+              // ),
+            ],
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          debugPrint('📱 Refreshing all data');
-          _refreshData(context);
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPromotionsCarousel(context),
-              const SizedBox(height: 24),
-              _buildBlindBoxesSection(context),
-              const SizedBox(height: 24),
-              _buildSetsSection(context),
-              const SizedBox(height: 24),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              getColorSkin().lightOrange100.withOpacity(0.3),
+              Colors.white,
             ],
           ),
         ),
+        child: RefreshIndicator(
+          color: getColorSkin().primaryRed600,
+          onRefresh: () async {
+            debugPrint('📱 Refreshing all data');
+            _refreshData(context);
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: kToolbarHeight + 40.h), // Space for AppBar
+                _buildWelcomeHeader(context),
+                _buildPromotionsCarousel(context),
+                const SizedBox(height: 24),
+                _buildBlindBoxesSection(context),
+                const SizedBox(height: 24),
+                _buildSetsSection(context),
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Welcome to 8lind 8ox',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: getColorSkin().primaryRed600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Discover unique blind box collectibles',
+            style: TextStyle(
+              fontSize: 16,
+              color: getColorSkin().darkGrey,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -146,7 +239,7 @@ class _HomePageContent extends StatelessWidget {
             '📱 Building PromotionsCarousel with state: ${state.status}');
         if (state.status == PromotionStatus.loading &&
             state.promotions == null) {
-          return const _PromotionsLoadingWidget();
+          return _buildPromotionsLoadingWidget(context);
         }
 
         if (state.status == PromotionStatus.failure) {
@@ -167,7 +260,12 @@ class _HomePageContent extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionTitle(title: 'Promotions'),
+            SectionTitle(
+              title: 'Hot Promotions',
+              onSeeAll: () {
+                // TODO: Navigate to all promotions screen
+              },
+            ),
             SizedBox(
               height: 220,
               child: ListView.builder(
@@ -175,11 +273,14 @@ class _HomePageContent extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: promotions.length,
                 itemBuilder: (context, index) {
-                  return PromotionCard(
-                    promotion: promotions[index],
-                    onTap: () {
-                      // context.push('/blind-box-detail/${blindBox.blindBoxId}');
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: PromotionCard(
+                      promotion: promotions[index],
+                      onTap: () {
+                        // context.push('/blind-box-detail/${blindBox.blindBoxId}');
+                      },
+                    ),
                   );
                 },
               ),
@@ -187,6 +288,41 @@ class _HomePageContent extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildPromotionsLoadingWidget(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Hot Promotions'),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: const EdgeInsets.only(right: 16),
+                width: MediaQuery.of(context).size.width * 0.8,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ShimmerLoading(),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -202,7 +338,7 @@ class _HomePageContent extends StatelessWidget {
         debugPrint('📱 Building BlindBoxesSection with state: ${state.status}');
         if (state.status == BlindBoxesListStatus.loading &&
             state.blindBoxes == null) {
-          return const _BlindBoxesLoadingWidget();
+          return _buildBlindBoxesLoadingWidget(context);
         }
 
         if (state.status == BlindBoxesListStatus.failure) {
@@ -224,7 +360,7 @@ class _HomePageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionTitle(
-              title: 'Blind Boxes',
+              title: 'Trending Blind Boxes',
               onSeeAll: () {
                 // TODO: Navigate to all blind boxes screen
               },
@@ -236,12 +372,15 @@ class _HomePageContent extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: blindBoxes.length,
                 itemBuilder: (context, index) {
-                  return BlindBoxCard(
-                    blindBox: blindBoxes[index],
-                    onTap: () {
-                      context.push(
-                          '/blind-box-detail/${blindBoxes[index].blindBoxId}');
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: BlindBoxCard(
+                      blindBox: blindBoxes[index],
+                      onTap: () {
+                        context.push(
+                            '/blind-box-detail/${blindBoxes[index].blindBoxId}');
+                      },
+                    ),
                   );
                 },
               ),
@@ -249,6 +388,41 @@ class _HomePageContent extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildBlindBoxesLoadingWidget(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Trending Blind Boxes'),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return Container(
+                width: 160,
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ShimmerLoading(),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -263,7 +437,7 @@ class _HomePageContent extends StatelessWidget {
       builder: (context, state) {
         debugPrint('📱 Building SetsSection with state: ${state.status}');
         if (state.status == SetStatus.loading && state.sets == null) {
-          return const _SetsLoadingWidget();
+          return _buildSetsLoadingWidget(context);
         }
 
         if (state.status == SetStatus.failure) {
@@ -284,9 +458,9 @@ class _HomePageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SectionTitle(
-              title: 'Sets',
+              title: 'Popular Sets',
               onSeeAll: () {
-                // TODO: Navigate to all sets screen
+                context.push('/main/new-releases');
               },
             ),
             SizedBox(
@@ -296,11 +470,16 @@ class _HomePageContent extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: sets.length,
                 itemBuilder: (context, index) {
-                  return SetCard(
-                    set: sets[index],
-                    onTap: () {
-                      context.push('set/${sets[index].setId}');
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: SetCard(
+                      set: sets[index],
+                      onTap: () {
+                        debugPrint(
+                            '📱 Navigating to ToyDetailScreen with setId: ${sets[index].setId}');
+                        context.push('/toy/${sets[index].setId}');
+                      },
+                    ),
                   );
                 },
               ),
@@ -308,6 +487,41 @@ class _HomePageContent extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildSetsLoadingWidget(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Popular Sets'),
+        SizedBox(
+          height: 250,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return Container(
+                width: 160,
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ShimmerLoading(),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -358,107 +572,46 @@ class _HomePageContent extends StatelessWidget {
   }
 }
 
-class _PromotionsLoadingWidget extends StatelessWidget {
-  const _PromotionsLoadingWidget();
-
+// Shimmer loading effect for loading states
+class ShimmerLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionTitle(title: 'Promotions'),
-        SizedBox(
-          height: 220,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                width: MediaQuery.of(context).size.width * 0.8,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            },
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Container(
+            color: Colors.grey[300],
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _BlindBoxesLoadingWidget extends StatelessWidget {
-  const _BlindBoxesLoadingWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionTitle(title: 'Blind Boxes'),
-        SizedBox(
-          height: 220,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return Container(
-                width: 160,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            },
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: AnimationController(
+                vsync: Navigator.of(context),
+                duration: const Duration(milliseconds: 1500),
+              )..repeat(),
+              builder: (context, child) {
+                return FractionallySizedBox(
+                  widthFactor: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.grey[300]!,
+                          Colors.grey[100]!,
+                          Colors.grey[300]!,
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SetsLoadingWidget extends StatelessWidget {
-  const _SetsLoadingWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionTitle(title: 'Sets'),
-        SizedBox(
-          height: 250,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return Container(
-                width: 160,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -475,27 +628,54 @@ class _ErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 48,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: onRetry,
-            child: const Text('Retry'),
-          ),
-        ],
+      padding: const EdgeInsets.all(24.0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: getColorSkin().errorRed,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: getColorSkin().darkGrey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: onRetry,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: getColorSkin().primaryRed600,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }
