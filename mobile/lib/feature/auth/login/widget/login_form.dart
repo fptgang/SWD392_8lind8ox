@@ -54,8 +54,10 @@ class LoginForm extends StatelessWidget {
   Widget _buildLogo() {
     return Column(
       children: [
-        Image.network('https://mir-s3-cdn-cf.behance.net/projects/404/b3273676004649.Y3JvcCw3NTYsNTkxLDU4MiwyMA.png'
-            ,height: 200.h, width: 200.h,
+        Image.network(
+          'https://mir-s3-cdn-cf.behance.net/projects/404/b3273676004649.Y3JvcCw3NTYsNTkxLDU4MiwyMA.png',
+          height: 200.h,
+          width: 200.h,
         ),
         const Text(
           'Sign in to continue',

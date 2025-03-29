@@ -28,10 +28,6 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: getColorSkin().backgroundColor,
       appBar: AppBar(
         title: Text("Settings", style: TextStyle(color: getColorSkin().white)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: getColorSkin().white),
-          onPressed: () => Navigator.pop(context),
-        ),
         elevation: 0,
         backgroundColor: getColorSkin().primaryRed650,
         foregroundColor: Colors.black,

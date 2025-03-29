@@ -107,12 +107,16 @@ class _CartScreenState extends State<CartScreen> {
               // Use a safer approach without relying on route name
               try {
                 // Get the current route
+                final router = GoRouter.of(context);
                 final currentRoute = GoRouterState.of(context).fullPath;
                 debugPrint('Current route: $currentRoute');
 
-                // Don't navigate if we're already on the checkout page
-                if (currentRoute == '/checkout') {
-                  debugPrint('Already on checkout page, skipping navigation');
+                // Check if we're on the cart screen by examining the location
+                final isCartScreen = currentRoute == '/cart' ||
+                    currentRoute == '/main/2'; // Account for bottom nav path
+
+                if (!isCartScreen) {
+                  debugPrint('Not on cart screen, skipping navigation');
                   return;
                 }
 
