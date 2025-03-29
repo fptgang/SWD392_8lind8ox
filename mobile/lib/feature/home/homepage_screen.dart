@@ -299,7 +299,7 @@ class _HomePageContent extends StatelessWidget {
                   return SetCard(
                     set: sets[index],
                     onTap: () {
-                      context.push('set/${sets[index].setId}');
+                      context.push('toy/${sets[index].setId}');
                     },
                   );
                 },

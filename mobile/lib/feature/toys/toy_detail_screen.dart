@@ -69,6 +69,8 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
   @override
   void initState() {
     super.initState();
+    developer.log('ToyDetailScreen initialized with setId: ${widget.setId}',
+        name: 'ToyDetailScreen');
     _loadSetData();
 
     // Setup shake animation
@@ -107,8 +109,36 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
         _isError = false;
       });
 
-      // Load set data with all its slots
       final set = await _setRepository.getSetById(widget.setId);
+
+      // Log detailed information about the set
+      developer.log('First set details:', name: 'ToyScreen');
+      developer.log('  - ID: ${set.setId}', name: 'ToyScreen');
+      developer.log('  - BlindBox: ${set.blindBox.name}', name: 'ToyScreen');
+      developer.log('  - Price: ${set.sku.price}', name: 'ToyScreen');
+      developer.log(
+          '  - Stock: ${set.sku.stock ?? 'N/A'} (check if stock field is mapped correctly)',
+          name: 'ToyScreen');
+      developer.log('  - SKU ID: ${set.sku.skuId}', name: 'ToyScreen');
+      developer.log('  - Slots count: ${set.slots.length}', name: 'ToyScreen');
+
+      // Debug slot states
+      developer.log('Debugging slot states:', name: 'ToyDetailScreen');
+      for (int i = 0; i < set.slots.length; i++) {
+        final slot = set.slots[i];
+        developer.log(
+            'Slot ${i + 1} (ID: ${slot.slotId}) - Raw state: "${slot.state}" - Type: ${slot.state.runtimeType}',
+            name: 'ToyDetailScreen');
+      }
+
+      // Log available enum values
+      developer.log('Available enum values:', name: 'ToyDetailScreen');
+      developer.log('AVAILABLE = ${SlotStateEnum.AVAILABLE}',
+          name: 'ToyDetailScreen');
+      developer.log('RESERVED = ${SlotStateEnum.RESERVED}',
+          name: 'ToyDetailScreen');
+      developer.log('OPENED = ${SlotStateEnum.OPENED}',
+          name: 'ToyDetailScreen');
 
       // Log slot
       setState(() {
@@ -470,8 +500,7 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
     // Use exact string format from API
     final availableSlots = _slots
         .where((slot) =>
-            slot.state != null &&
-            slot.state?.index == SlotStateEnum.AVAILABLE.index)
+            slot.state != null && slot.state == SlotStateEnum.AVAILABLE)
         .toList();
 
     developer.log('Available slots count: ${availableSlots.length}',
@@ -483,7 +512,6 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
     }
 
     if (availableSlots.isEmpty) {
-      // Add debugging info to help diagnose the issue
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -583,8 +611,7 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
     // Use exact string format from API
     final reservedSlots = _slots
         .where((slot) =>
-            slot.state != null &&
-            slot.state?.index == SlotStateEnum.RESERVED.index)
+            slot.state != null && slot.state == SlotStateEnum.RESERVED)
         .toList();
 
     developer.log('Reserved slots count: ${reservedSlots.length}',
@@ -644,15 +671,32 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
   }
 
   Widget _buildRevealedToysTab() {
-    // Use exact string format from API
+    // First log all opened slots regardless of toy presence
+    final allOpenedSlots = _slots
+        .where(
+            (slot) => slot.state != null && slot.state == SlotStateEnum.OPENED)
+        .toList();
+
+    developer.log('All opened slots count: ${allOpenedSlots.length}',
+        name: 'ToyDetailScreen');
+
+    // Log how many opened slots have null toys
+    final openedSlotsWithNullToy =
+        allOpenedSlots.where((slot) => slot.toy == null).toList();
+
+    developer.log(
+        'Opened slots with NULL toy: ${openedSlotsWithNullToy.length}',
+        name: 'ToyDetailScreen');
+
+    // The final filtered list for display
     final openedSlots = _slots
         .where((slot) =>
             slot.state != null &&
-            slot.state?.index == SlotStateEnum.OPENED.index &&
+            slot.state == SlotStateEnum.OPENED &&
             slot.toy != null)
         .toList();
 
-    developer.log('Opened slots count: ${openedSlots.length}',
+    developer.log('Opened slots with valid toys count: ${openedSlots.length}',
         name: 'ToyDetailScreen');
     for (var slot in openedSlots) {
       developer.log(
@@ -687,6 +731,37 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
                 color: getColorSkin().grey,
               ),
             ),
+            // Add debug info for troubleshooting
+            if (allOpenedSlots.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Debug Info:',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Found ${allOpenedSlots.length} opened slots but ${openedSlotsWithNullToy.length} have null toys',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       );
