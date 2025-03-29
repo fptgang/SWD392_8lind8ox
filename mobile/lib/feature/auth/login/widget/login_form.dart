@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/feature/auth/login/blocs/login_bloc.dart';
 import 'package:mobile/feature/auth/login/blocs/login_event.dart';
 import 'package:mobile/feature/auth/login/blocs/login_state.dart';
@@ -78,12 +79,17 @@ class _EmailInput extends StatelessWidget {
       buildWhen: (previous, current) => previous.email != current.email,
       builder: (context, state) {
         return TextField(
+          cursorColor: getColorSkin().black,
           key: const Key('loginForm_emailInput_textField'),
           onChanged: (email) =>
               context.read<LoginBloc>().add(LoginEmailChanged(email)),
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             labelText: 'Email',
+            labelStyle: const TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
             helperText: '',
             errorText: state.email.isPure
                 ? null
@@ -91,6 +97,14 @@ class _EmailInput extends StatelessWidget {
             prefixIcon: const Icon(Icons.email),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: getColorSkin().black),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: getColorSkin().black),
             ),
           ),
         );
@@ -106,11 +120,16 @@ class _PasswordInput extends StatelessWidget {
       buildWhen: (previous, current) => previous.password != current.password,
       builder: (context, state) {
         return TextField(
+          cursorColor: getColorSkin().black,
           key: const Key('loginForm_passwordInput_textField'),
           onChanged: (password) =>
               context.read<LoginBloc>().add(LoginPasswordChanged(password)),
           obscureText: true,
           decoration: InputDecoration(
+            labelStyle: const TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
             labelText: 'Password',
             helperText: '',
             errorText: state.password.isPure
@@ -121,6 +140,14 @@ class _PasswordInput extends StatelessWidget {
             prefixIcon: const Icon(Icons.lock),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: getColorSkin().black),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: getColorSkin().black),
             ),
           ),
         );
@@ -145,6 +172,9 @@ class _LoginButton extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
+              backgroundColor: state.isValid
+                  ? getColorSkin().primaryRed650
+                  : Colors.grey,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             onPressed: state.isValid
@@ -152,7 +182,11 @@ class _LoginButton extends StatelessWidget {
                 : null,
             child: state.status.isSubmissionInProgress
                 ? const CircularProgressIndicator(color: Colors.white)
-                : const Text('Login'),
+                : const Text('Login',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    )),
           ),
         );
       },
@@ -168,7 +202,11 @@ class _ForgotPasswordButton extends StatelessWidget {
       child: TextButton(
         key: const Key('loginForm_forgotPassword_textButton'),
         onPressed: () => context.go('/forgot-password'),
-        child: const Text('Forgot Password?'),
+        child: const Text('Forgot Password?',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+            )),
       ),
     );
   }
@@ -184,7 +222,11 @@ class _SignUpButton extends StatelessWidget {
         TextButton(
           key: const Key('loginForm_createAccount_textButton'),
           onPressed: () => context.go('/sign-up'),
-          child: const Text('Sign Up'),
+          child: Text('Sign Up',
+              style: TextStyle(
+                color: getColorSkin().primaryRed650,
+                fontSize: 14,
+              )),
         ),
       ],
     );

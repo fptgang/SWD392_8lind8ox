@@ -22,6 +22,7 @@ class PaymentMethodSection extends StatelessWidget {
     final colorSkin = getColorSkin();
 
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

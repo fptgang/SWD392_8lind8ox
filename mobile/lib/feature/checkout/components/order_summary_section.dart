@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/base/theme/theme.dart';
 
 class OrderSummarySection extends StatelessWidget {
@@ -26,6 +28,7 @@ class OrderSummarySection extends StatelessWidget {
     final colorSkin = getColorSkin();
 
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -148,11 +151,11 @@ class OrderSummarySection extends StatelessWidget {
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: getColorSkin().primaryRed650,
                               strokeWidth: 2,
                             ),
                           ),
@@ -217,16 +220,10 @@ class OrderSummarySection extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton.icon(
               onPressed: () {
-                // In a real app, navigate to cart
-                // GoRouter.of(context).go('/cart');
+                GoRouter.of(context).go('/cart');
               },
-              icon: Icon(Icons.arrow_back, color: colorSkin.primaryRed650),
-              label: Text(
-                'Return to Cart',
-                style: TextStyle(
-                    color: colorSkin.primaryRed650,
-                    fontWeight: FontWeight.w500),
-              ),
+              icon: Icon(Icons.arrow_back, color: getColorSkin().black),
+              label: Text('Return to Cart', style: TextStyle(color: getColorSkin().black),),
               style: TextButton.styleFrom(
                 backgroundColor: colorSkin.primaryRed650.withOpacity(0.05),
                 shape: RoundedRectangleBorder(

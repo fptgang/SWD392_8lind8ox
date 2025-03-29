@@ -6,27 +6,23 @@ import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
 import 'package:mobile/app/blocs/cart/cart_state.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
-import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/data/models/order_response_model.dart';
-import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/models/voucher_model.dart';
-import 'package:mobile/data/repositories/order_repository.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
 import 'package:mobile/data/repositories/voucher_repository.dart';
+import 'package:mobile/feature/home/homepage_screen.dart';
 import 'package:mobile/feature/payment/vnpay_service.dart';
 import 'package:mobile/feature/profile/blocs/account/account_bloc.dart';
 import 'package:mobile/feature/profile/blocs/account/account_event.dart';
 import 'package:mobile/feature/profile/blocs/account/account_state.dart';
-import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
-import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_event.dart';
 import 'package:mobile/utils/enum/enum.dart';
-import 'package:openapi/api.dart' as openapi;
+import 'package:openapi/api.dart';
 
 import 'components/address_section.dart';
 import 'components/order_items_section.dart';
+import 'components/order_summary_section.dart';
 import 'components/payment_method_section.dart' as payment;
 import 'components/voucher_section.dart' as voucher;
-import 'components/order_summary_section.dart';
 
 // Use the same VoucherDto and CartDtoPaymentMethodEnum from components
 
@@ -58,16 +54,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _loadAccountData() async {
     try {
-      // Load account data to get current user's info including default shipping address
       _accountBloc.add(const LoadAccount(forceRefresh: true));
 
-      // Listen for account loaded state
       _accountBloc.stream.listen((state) {
         if (state is AccountLoaded && mounted) {
-          // If account has a default shipping address and cart doesn't have shipping info set
           if (state.defaultShippingAddress != null &&
               _cartBloc.state.shippingInfo == null) {
-            // Use the account's default shipping address
             _cartBloc.add(SetShippingInfo(state.defaultShippingAddress!));
           } else if (state.defaultShippingAddress == null) {
             // If no default address, load user's shipping addresses
@@ -151,7 +143,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Future<List<voucher.VoucherDto>> _loadVouchers() async {
     try {
       final vouchersResponse = await _voucherRepository.getVouchers(
-          openapi.Pageable(page: 0, size: 20),
+          Pageable(page: 0, size: 20),
           '', // filter
           '' // search
           );
@@ -296,15 +288,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           return Scaffold(
             backgroundColor: colorSkin.backgroundColor,
             appBar: AppBar(
-              title: Text(
-                'Checkout',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: colorSkin.white,
-                ),
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
+              backgroundColor: getColorSkin().primaryRed650,
+              title: Text('Checkout', style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              )),
               centerTitle: true,
-              backgroundColor: colorSkin.primaryRed650,
               elevation: 0,
               iconTheme: IconThemeData(color: colorSkin.white),
               actions: [
@@ -417,7 +413,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildMobileLayout(CartState cartState) {
-    // Convert CartItemModel to map format for OrderItemsSection
     final List<Map<String, dynamic>> displayItems = cartState.items
         .map((item) => {
               'id': item.id,
@@ -587,11 +582,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           );
 
-          // Navigate to order confirmation screen
-          Navigator.of(context)
-              .pushReplacementNamed('/order-complete', arguments: {
-            'orderId': response.order?.orderId,
-          });
+          // // Navigate to order confirmation screen
+          // Navigator.of(context)
+          //     .pushReplacementNamed('/order-complete', arguments: {
+          //   'orderId': response.order?.orderId,
+          // });
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePageScreen(),
+            ),
+          );
         }
       } else {
         // Payment failed or canceled

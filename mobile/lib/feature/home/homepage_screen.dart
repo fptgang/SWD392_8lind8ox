@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
@@ -92,7 +93,7 @@ class _HomePageContent extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
+        backgroundColor: getColorSkin().primaryRed650,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -140,21 +141,22 @@ class _HomePageContent extends StatelessWidget {
                   context.push('/cart');
                 },
               ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: getColorSkin().lightOrange,
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 16,
-                    minHeight: 16,
-                  ),
-                ),
-              ),
+              //mat cai so tren dau cai cart r nen cmt
+              // Positioned(
+              //   top: 8,
+              //   right: 8,
+              //   child: Container(
+              //     padding: const EdgeInsets.all(4),
+              //     decoration: BoxDecoration(
+              //       color: getColorSkin().lightOrange,
+              //       shape: BoxShape.circle,
+              //     ),
+              //     constraints: const BoxConstraints(
+              //       minWidth: 16,
+              //       minHeight: 16,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ],
@@ -181,7 +183,7 @@ class _HomePageContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: kToolbarHeight + 16), // Space for AppBar
+                SizedBox(height: kToolbarHeight + 40.h), // Space for AppBar
                 _buildWelcomeHeader(context),
                 _buildPromotionsCarousel(context),
                 const SizedBox(height: 24),

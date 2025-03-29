@@ -34,6 +34,7 @@ class VoucherSection extends StatelessWidget {
     final colorSkin = getColorSkin();
 
     return Card(
+      color: getColorSkin().white,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

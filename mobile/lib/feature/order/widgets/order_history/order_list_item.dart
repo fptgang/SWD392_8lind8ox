@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/data/models/order_model.dart';
 import 'package:mobile/feature/order/screens/order_detail_screen.dart';
 import 'package:mobile/utils/enum/enum.dart';
+import 'package:mobile/feature/order/widgets/video/video_upload_section.dart';
+import 'package:mobile/feature/order/blocs/video/video_bloc.dart';
+import 'package:mobile/data/repositories/video_repository.dart';
 
 import '../../../../utils/utils.dart';
 
@@ -12,6 +17,10 @@ class OrderListItem extends StatelessWidget {
     super.key,
     required this.order,
   });
+
+  bool _hasOrderDetailsWithSlots() {
+    return order.orderDetails?.any((detail) => detail.slot != null) ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +82,19 @@ class OrderListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   _buildDeliveryInfo(status, order),
+                  // if (_hasOrderDetailsWithSlots()) ...[
+                  //   const SizedBox(height: 8),
+                  //   BlocProvider(
+                  //     create: (context) => VideoBloc(
+                  //       videoRepository: getIt<VideoRepository>(),
+                  //     ),
+                  //     child: VideoUploadSection(
+                  //       accountId: order.account?.accountId ?? 0,
+                  //       slotId: order.orderDetails?.firstWhere((detail) => detail.slot != null).slot?.slotId,
+                  //       orderDetailId: order.orderDetails?.firstWhere((detail) => detail.slot != null).orderDetailId ?? 0,
+                  //     ),
+                  //   ),
+                  // ],
                 ],
               ),
             ),

@@ -9,40 +9,40 @@ abstract class VideoEvent extends Equatable {
 }
 
 class UploadVideo extends VideoEvent {
-  final XFile file;
-  final int orderDetailId;
   final int accountId;
-  final int? slotId;
+  final int slotId;
+  final XFile file;
 
   const UploadVideo({
-    required this.file,
-    required this.orderDetailId,
     required this.accountId,
-    this.slotId,
+    required this.slotId,
+    required this.file,
   });
 
   @override
-  List<Object?> get props => [file, orderDetailId, accountId, slotId];
+  List<Object?> get props => [accountId, slotId, file];
 }
 
 class GetVideoStatus extends VideoEvent {
-  final int orderDetailId;
+  final String slotId;
 
   const GetVideoStatus({
-    required this.orderDetailId,
+    required this.slotId,
   });
 
   @override
-  List<Object?> get props => [orderDetailId];
+  List<Object?> get props => [slotId];
 }
 
 class DeleteVideo extends VideoEvent {
   final int videoId;
+  final int slotId;
 
   const DeleteVideo({
     required this.videoId,
+    required this.slotId,
   });
 
   @override
-  List<Object?> get props => [videoId];
+  List<Object?> get props => [videoId, slotId];
 }

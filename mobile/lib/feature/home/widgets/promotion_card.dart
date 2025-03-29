@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/data/models/promotional_campaign_model.dart';
 
 class PromotionCard extends StatelessWidget {
@@ -20,7 +21,7 @@ class PromotionCard extends StatelessWidget {
         width: MediaQuery.of(context).size.width * 0.8,
         height: 220,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          color: getColorSkin().white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -37,7 +38,7 @@ class PromotionCard extends StatelessWidget {
             Container(
               height: 100,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: getColorSkin().primaryRed50,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
@@ -47,7 +48,7 @@ class PromotionCard extends StatelessWidget {
               child: Text(
                 'SALE ${((promotion.discountRate ?? 0) * 100).toInt()}%',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),

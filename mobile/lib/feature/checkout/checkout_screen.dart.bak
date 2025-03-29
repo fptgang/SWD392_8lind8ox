@@ -525,7 +525,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
           // Navigate to order confirmation screen
           Navigator.of(context)
-              .pushReplacementNamed('/order-complete', arguments: {
+              .pushReplacementNamed('/main/home', arguments: {
             'orderId': response.order?.orderId,
           });
         }

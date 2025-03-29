@@ -14,7 +14,6 @@ import 'package:mobile/feature/order/widgets/order_detail/item_section.dart';
 import 'package:mobile/feature/order/widgets/order_detail/payment_information_card.dart';
 import 'package:mobile/feature/order/widgets/order_detail/summary_card.dart';
 import 'package:mobile/feature/order/widgets/order_detail/timeline.dart';
-import 'package:mobile/feature/order/widgets/video/video_upload_section.dart';
 import 'package:mobile/utils/enum/enum.dart';
 
 class OrderDetailScreen extends StatelessWidget {
@@ -122,15 +121,6 @@ class _OrderDetailContentState extends State<_OrderDetailContent> {
                     const SizedBox(height: 24),
                     PaymentInformationCard(order: order),
                     const SizedBox(height: 24),
-                    // Add the new video upload section
-                    if (order.orderDetails != null && order.orderDetails!.isNotEmpty) ...[
-                      VideoUploadSection(
-                        accountId: order.account?.accountId,
-                        slotId: order.orderDetails!.first.slot?.slotId ?? 1,
-                        orderDetailId: order.orderDetails!.first.orderDetailId,
-                      ),
-                      const SizedBox(height: 32),
-                    ],
                     ActionButtons(
                       status: order.latestStatus ?? widget.status,
                       orderId: widget.orderId,

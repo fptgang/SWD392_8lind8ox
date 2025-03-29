@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/app/di/injection.dart';
 import 'package:mobile/base/theme/theme.dart';
+import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
@@ -75,6 +76,7 @@ class _AddressSectionState extends State<AddressSection> {
         }
       },
       child: Card(
+        color: Colors.white,
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:developer' as developer;
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/app/blocs/cart/cart_event.dart';
 import 'package:mobile/app/blocs/cart/cart_global_bloc.dart';
@@ -12,11 +12,9 @@ import 'package:mobile/data/models/cart_model.dart';
 import 'package:mobile/data/models/set_model.dart';
 import 'package:mobile/data/models/slot_model.dart';
 import 'package:mobile/data/models/toy_model.dart';
-import 'package:mobile/data/models/video_model.dart';
 import 'package:mobile/data/repositories/set_repository.dart';
 import 'package:mobile/data/repositories/toy_repository.dart';
 import 'package:mobile/utils/enum/enum.dart';
-import 'package:openapi/api.dart';
 import 'package:video_player/video_player.dart';
 
 class ToyDetailScreen extends StatefulWidget {
@@ -272,7 +270,7 @@ class _ToyDetailScreenState extends State<ToyDetailScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: getColorSkin().lightOrange100,
+        backgroundColor: getColorSkin().primaryRed650,
         title: Text(
           _set?.blindBox.name ?? 'Blind Box Set',
           style: TextStyle(

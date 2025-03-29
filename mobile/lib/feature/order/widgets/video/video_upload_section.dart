@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/base/theme/theme.dart';
+import 'package:mobile/data/models/video_model.dart';
 import 'package:mobile/feature/order/blocs/video/video_bloc.dart';
 import 'package:mobile/feature/order/blocs/video/video_event.dart';
 import 'package:mobile/feature/order/blocs/video/video_state.dart';
+import 'package:mobile/feature/order/widgets/order_detail/item_section.dart';
 import 'package:path/path.dart' as path;
 
 class VideoUploadSection extends StatefulWidget {
@@ -31,19 +33,38 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
   double _uploadProgress = 0.0;
   String _remainingTime = "";
   List<String> _recentUploads = [];
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.slotId != null && widget.orderDetailId != null) {
-      context.read<VideoBloc>().add(GetVideoStatus(orderDetailId: widget.orderDetailId!));
+    _initializeVideoStatus();
+  }
+
+  void _initializeVideoStatus() {
+    if (!_isDisposed && widget.slotId != null) {
+      final videoBloc = context.read<VideoBloc>();
+      if (!videoBloc.isClosed) {
+        videoBloc.add(GetVideoStatus(
+          slotId: widget.slotId.toString(),
+        ));
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   Future<void> _pickVideo() async {
     if (widget.slotId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No slot available for video upload')),
+        const SnackBar(
+          content: Text('No slot available for video upload'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -54,7 +75,7 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
       maxDuration: const Duration(minutes: 5),
     );
 
-    if (video != null) {
+    if (video != null && !_isDisposed) {
       setState(() {
         _selectedVideo = File(video.path);
         _isUploading = true;
@@ -67,8 +88,10 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
   }
 
   void _simulateUploadProgress() {
+    if (_isDisposed) return;
+    
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (_isUploading && _uploadProgress < 1.0) {
+      if (_isUploading && _uploadProgress < 1.0 && !_isDisposed) {
         setState(() {
           _uploadProgress += 0.01;
           final remainingSecs = ((1.0 - _uploadProgress) * 100).toInt();
@@ -85,7 +108,9 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
   }
 
   void _completeUpload() {
-    if (_selectedVideo != null && widget.orderDetailId != null) {
+    if (_isDisposed) return;
+    
+    if (_selectedVideo != null && widget.orderDetailId != null && widget.slotId != null) {
       final fileName = path.basename(_selectedVideo!.path);
 
       setState(() {
@@ -101,34 +126,46 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
   }
 
   Future<void> _uploadVideoToServer() async {
-    if (_selectedVideo == null || widget.orderDetailId == null || widget.accountId == null) return;
-
-    try {
-      final videoBytes = await _selectedVideo!.readAsBytes();
-      final fileName = path.basename(_selectedVideo!.path);
-
-      final multipartFile = http.MultipartFile.fromBytes(
-        'videoBlob',
-        videoBytes,
-        filename: fileName,
-      );
-
-      context.read<VideoBloc>().add(
-        UploadVideo(
-          accountId: widget.accountId!,
-          orderDetailId: widget.orderDetailId!,
-          file: XFile(_selectedVideo!.path),
-          slotId: widget.slotId,
+    if (_isDisposed) return;
+    
+    if (_selectedVideo == null ||
+        widget.accountId == null || 
+        widget.slotId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Missing required information for video upload'),
+          backgroundColor: Colors.red,
         ),
       );
+      return;
+    }
+
+    try {
+      final videoBloc = context.read<VideoBloc>();
+      if (!videoBloc.isClosed) {
+        videoBloc.add(
+          UploadVideo(
+            accountId: widget.accountId!,
+            file: XFile(_selectedVideo!.path),
+            slotId: widget.slotId!,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload: $e')),
-      );
+      if (!_isDisposed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   void _cancelUpload() {
+    if (_isDisposed) return;
+    
     setState(() {
       _isUploading = false;
       _selectedVideo = null;
@@ -148,6 +185,10 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
         }
 
         if (state.error != null) {
+          if (state.error!.contains('existingVideo is null')) {
+            return _buildUploadSection();
+          }
+          
           return Center(
             child: Text(
               'Error: ${state.error}',
@@ -156,11 +197,16 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
           );
         }
 
+        // Filter videos by slotId
+        final slotVideos = state.videos.where((video) => 
+          video.slotId == widget.slotId
+        ).toList();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 'Upload Video',
                 style: TextStyle(
@@ -171,47 +217,8 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
               ),
             ),
 
-            if (state.video == null && _recentUploads.isEmpty)
-              Container(
-                width: double.infinity,
-                height: 120,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: getColorSkin().accent,
-                    width: 1,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.cloud_upload_outlined,
-                      size: 40,
-                      color: getColorSkin().accent,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Upload your video here',
-                      style: TextStyle(
-                        color: getColorSkin().accent,
-                        fontSize: 14,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _pickVideo,
-                      child: Text(
-                        'Browse',
-                        style: TextStyle(
-                          color: getColorSkin().accent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            if (slotVideos.isEmpty && _recentUploads.isEmpty)
+              _buildUploadSection(),
 
             if (_isUploading && _selectedVideo != null) ...[
               Padding(
@@ -228,7 +235,7 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
                     ),
                     Icon(
                       Icons.fullscreen,
-                      color: getColorSkin().grey,
+                      color: getColorSkin().primaryRed650,
                       size: 20,
                     ),
                   ],
@@ -241,12 +248,12 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: getColorSkin().lightBlue,
+                      color: getColorSkin().white,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.videocam,
-                      color: Colors.white,
+                      color: getColorSkin().black,
                     ),
                   ),
                 ],
@@ -266,7 +273,7 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
                       'Time remaining: $_remainingTime',
                       style: TextStyle(
                         fontSize: 12,
-                        color: getColorSkin().grey,
+                        color: getColorSkin().primaryRed650,
                       ),
                     ),
                     Row(
@@ -274,7 +281,7 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
                         IconButton(
                           icon: Icon(
                             Icons.pause,
-                            color: getColorSkin().grey,
+                            color: getColorSkin().primaryRed650,
                             size: 20,
                           ),
                           onPressed: () {},
@@ -299,38 +306,35 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
               ),
             ],
 
-            if (state.video != null || _recentUploads.isNotEmpty) ...[
+            if (slotVideos.isNotEmpty || _recentUploads.isNotEmpty) ...[
               Padding(
                 padding: const EdgeInsets.only(top: 24.0, bottom: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Recent uploaded',
+                      'Uploaded Videos',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: getColorSkin().darkGrey,
                       ),
                     ),
-                    if (state.video != null)
-                      Text(
-                        '1 item',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: getColorSkin().grey,
-                        ),
+                    Text(
+                      '${slotVideos.length} item${slotVideos.length != 1 ? 's' : ''}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: getColorSkin().grey,
                       ),
+                    ),
                   ],
                 ),
               ),
 
-              if (state.video != null)
-                _buildRecentVideoItem(
-                  state.video!.url ?? 'Unknown',
-                  state.video!.createdAt?.toString().substring(0, 10) ?? '',
-                  state.video!.videoId,
-                ),
+              ...slotVideos.map((video) => _buildVideoItem(
+                video,
+                onDelete: () => _showDeleteConfirmationDialog(context, video.videoId!),
+              )),
 
               ..._recentUploads.map((fileName) => _buildRecentVideoItem(
                 fileName,
@@ -341,6 +345,120 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildUploadSection() {
+    return Container(
+      width: double.infinity,
+      height: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: getColorSkin().primaryRed650,
+          width: 1,
+          style: BorderStyle.solid,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.cloud_upload_outlined,
+            size: 40,
+            color: getColorSkin().primaryRed650,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Upload your video here',
+            style: TextStyle(
+              color: getColorSkin().primaryRed650,
+              fontSize: 14,
+            ),
+          ),
+          TextButton(
+            onPressed: _pickVideo,
+            child: Text(
+              'Browse',
+              style: TextStyle(
+                color: getColorSkin().primaryRed650,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVideoItem(VideoModel video, {VoidCallback? onDelete}) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return VideoPlayerDialog(videoUrl: video.url ?? '');
+          },
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: getColorSkin().lightBlue200,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.videocam,
+                color: getColorSkin().deepBlue,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    video.url?.split('/').last ?? 'Unknown',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '~10 MB',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: getColorSkin().grey,
+                    ),
+                  ),
+                  Text(
+                    video.createdAt?.toString().substring(0, 10) ?? '',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: getColorSkin().grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (onDelete != null)
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: getColorSkin().grey,
+                ),
+                onPressed: onDelete,
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -407,6 +525,7 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
 
   void _showDeleteConfirmationDialog(BuildContext context, int videoId) {
     showDialog(
+      barrierColor: Colors.white,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -430,7 +549,13 @@ class _VideoUploadSectionState extends State<VideoUploadSection> {
             ),
             TextButton(
               onPressed: () {
-                context.read<VideoBloc>().add(DeleteVideo(videoId: videoId));
+                final videoBloc = context.read<VideoBloc>();
+                if (!videoBloc.isClosed) {
+                  videoBloc.add(DeleteVideo(
+                    videoId: videoId,
+                    slotId: widget.slotId!,
+                  ));
+                }
                 Navigator.pop(context);
 
                 ScaffoldMessenger.of(context).showSnackBar(
