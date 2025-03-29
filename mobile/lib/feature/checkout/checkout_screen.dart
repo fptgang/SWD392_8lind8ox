@@ -283,7 +283,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           }
         },
         builder: (context, state) {
+          final colorSkin = getColorSkin();
+
           return Scaffold(
+            backgroundColor: colorSkin.backgroundColor,
             appBar: AppBar(
               leading: IconButton(
                 icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -298,6 +301,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 fontWeight: FontWeight.bold,
               )),
               centerTitle: true,
+              elevation: 0,
+              iconTheme: IconThemeData(color: colorSkin.white),
               actions: [
                 // Add edit cart button
                 IconButton(
@@ -317,29 +322,80 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildEmptyCart() {
+    final colorSkin = getColorSkin();
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.shopping_cart_outlined,
-            size: 80,
-            color: Colors.grey,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Your cart is empty',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to home or products page
-              Navigator.of(context).pop();
-            },
-            child: const Text('Continue Shopping'),
-          ),
-        ],
+      child: Container(
+        margin: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: colorSkin.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: colorSkin.shadowLight,
+              blurRadius: 10,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorSkin.primaryRed650.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.shopping_cart_outlined,
+                size: 80,
+                color: colorSkin.primaryRed650,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Your cart is empty',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colorSkin.darkGrey,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Add items to your cart to proceed with checkout',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colorSkin.grey,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: 220,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // Navigate to home or products page
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.shopping_bag),
+                label: const Text('Continue Shopping'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorSkin.primaryRed650,
+                  foregroundColor: colorSkin.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -564,8 +620,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   // Voucher selection dialog
   Widget _buildVoucherSelectionDialog(List<voucher.VoucherDto> vouchers) {
+    final colorSkin = getColorSkin();
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
+      decoration: BoxDecoration(
+        color: colorSkin.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         children: [
@@ -575,18 +644,32 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Select Voucher',
-                  style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.card_giftcard,
+                      color: colorSkin.primaryRed650,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Select Voucher',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: colorSkin.primaryRed800,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, color: colorSkin.grey),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
           ),
-          const Divider(),
+          Divider(color: colorSkin.lightGrey200, thickness: 1),
           // Voucher list
           Expanded(
             child: vouchers.isEmpty
@@ -594,7 +677,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: vouchers.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final voucher = vouchers[index];
                       return _buildVoucherItem(context, voucher);
@@ -607,21 +690,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildEmptyVouchersList(BuildContext context) {
+    final colorSkin = getColorSkin();
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.local_offer_outlined,
-            size: 64,
-            color: Colors.grey[400],
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: colorSkin.lightGrey100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.local_offer_outlined,
+              size: 64,
+              color: colorSkin.grey,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Text(
             'No vouchers available',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorSkin.darkGrey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Check back later for new offers',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: colorSkin.grey,
+              fontSize: 16,
+            ),
           ),
         ],
       ),
@@ -629,75 +732,103 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildVoucherItem(BuildContext context, voucher.VoucherDto voucher) {
+    final colorSkin = getColorSkin();
     final discountRate = voucher.discountRate ?? 0;
     final discountPercentage = (discountRate * 100).round();
 
-    return InkWell(
-      onTap: () {
-        onSelectVoucher(voucher);
-        Navigator.of(context).pop();
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            // Voucher icon
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: colorSkin.lightGrey300),
+        borderRadius: BorderRadius.circular(12),
+        color: colorSkin.white,
+        boxShadow: [
+          BoxShadow(
+            color: colorSkin.shadowLight,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+          onSelectVoucher(voucher);
+          Navigator.of(context).pop();
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Voucher icon
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: colorSkin.primaryRed650.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.local_offer,
+                  size: 28,
+                  color: colorSkin.primaryRed650,
+                ),
               ),
-              child: Icon(
-                Icons.local_offer,
-                color: Colors.blue[700],
-              ),
-            ),
-            const SizedBox(width: 16),
-            // Voucher details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    voucher.code ?? 'Unknown code',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$discountPercentage% discount${voucher.limitAmount != null ? ' up to \$${voucher.limitAmount!.toStringAsFixed(2)}' : ''}',
-                    style: TextStyle(
-                      color: Colors.green[700],
-                    ),
-                  ),
-                  if (voucher.expiredAt != null)
+              const SizedBox(width: 16),
+              // Voucher details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      'Expires on: ${_formatDate(voucher.expiredAt!)}',
+                      voucher.code ?? 'Unknown code',
                       style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: colorSkin.darkGrey,
                       ),
                     ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '$discountPercentage% discount${voucher.limitAmount != null ? ' up to \$${voucher.limitAmount!.toStringAsFixed(2)}' : ''}',
+                      style: TextStyle(
+                        color: colorSkin.green,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (voucher.expiredAt != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          'Expires on: ${_formatDate(voucher.expiredAt!)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorSkin.grey,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            // Apply button
-            ElevatedButton(
-              onPressed: () {
-                onSelectVoucher(voucher);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Apply'),
-            ),
-          ],
+              // Apply button
+              ElevatedButton(
+                onPressed: () {
+                  onSelectVoucher(voucher);
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorSkin.primaryRed650,
+                  foregroundColor: colorSkin.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                ),
+                child: const Text('Apply'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/base/theme/theme.dart';
+import 'package:mobile/base/theme/theme.dart';
 
 class OrderSummarySection extends StatelessWidget {
   const OrderSummarySection({
@@ -24,53 +25,110 @@ class OrderSummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorSkin = getColorSkin();
+
     return Card(
       color: Colors.white,
-      elevation: 1,
-      child: Padding(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorSkin.lightGrey300, width: 1),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colorSkin.white,
+              colorSkin.lightGrey100,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Order Summary',
-              style: Theme.of(context).textTheme.titleLarge,
+            Row(
+              children: [
+                Icon(
+                  Icons.receipt_long,
+                  color: colorSkin.primaryRed650,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Order Summary',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: colorSkin.primaryRed800,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
-            _buildSummaryRow(
-              context,
-              label: 'Subtotal',
-              value: subtotal,
-            ),
-            if (savings > 0) ...[
-              const SizedBox(height: 8),
-              _buildSummaryRow(
-                context,
-                label: 'Savings',
-                value: -savings,
-                isHighlighted: true,
-                textColor: Colors.green[700],
+            // Items Summary in a Container
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorSkin.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: colorSkin.lightGrey300),
+                boxShadow: [
+                  BoxShadow(
+                    color: colorSkin.shadowLight,
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
-            ],
-            if (voucherDiscount > 0) ...[
-              const SizedBox(height: 8),
-              _buildSummaryRow(
-                context,
-                label: 'Voucher Discount',
-                value: -voucherDiscount,
-                isHighlighted: true,
-                textColor: Colors.green[700],
+              child: Column(
+                children: [
+                  _buildSummaryRow(
+                    context,
+                    label: 'Subtotal',
+                    value: subtotal,
+                  ),
+                  if (savings > 0) ...[
+                    const SizedBox(height: 12),
+                    _buildSummaryRow(
+                      context,
+                      label: 'Savings',
+                      value: -savings,
+                      isHighlighted: true,
+                      textColor: colorSkin.green,
+                      icon: Icons.savings,
+                    ),
+                  ],
+                  if (voucherDiscount > 0) ...[
+                    const SizedBox(height: 12),
+                    _buildSummaryRow(
+                      context,
+                      label: 'Voucher Discount',
+                      value: -voucherDiscount,
+                      isHighlighted: true,
+                      textColor: colorSkin.green,
+                      icon: Icons.discount,
+                    ),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Divider(
+                      color: colorSkin.lightGrey300,
+                      thickness: 1,
+                    ),
+                  ),
+                  _buildSummaryRow(
+                    context,
+                    label: 'Total',
+                    value: finalTotal,
+                    isTotal: true,
+                  ),
+                ],
               ),
-            ],
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Divider(),
-            ),
-            _buildSummaryRow(
-              context,
-              label: 'Total',
-              value: finalTotal,
-              isTotal: true,
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -80,10 +138,14 @@ class OrderSummarySection extends StatelessWidget {
                 onPressed:
                     canPlaceOrder && !isProcessingOrder ? onPlaceOrder : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: getColorSkin().primaryRed650,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey[300],
-                  disabledForegroundColor: Colors.grey[600],
+                  backgroundColor: colorSkin.primaryRed650,
+                  foregroundColor: colorSkin.white,
+                  disabledBackgroundColor: colorSkin.lightGrey300,
+                  disabledForegroundColor: colorSkin.grey,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: isProcessingOrder
                     ? Row(
@@ -100,21 +162,21 @@ class OrderSummarySection extends StatelessWidget {
                           const SizedBox(width: 12),
                           Text(
                             'Processing...',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Colors.white,
-                                ),
+                            style: TextStyle(
+                              color: colorSkin.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       )
                     : Text(
                         'Place Order',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                ),
+                        style: TextStyle(
+                          color: colorSkin.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
               ),
             ),
@@ -123,22 +185,31 @@ class OrderSummarySection extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.amber[200]!),
+                  color: colorSkin.brightOrange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                      color: colorSkin.brightOrange.withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorSkin.shadowLight,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.info_outline,
-                      color: Colors.amber[800],
+                      color: colorSkin.brightOrange,
+                      size: 24,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Please select a shipping address to continue',
                         style: TextStyle(
-                          color: Colors.amber[800],
+                          color: colorSkin.brightOrange,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -146,7 +217,7 @@ class OrderSummarySection extends StatelessWidget {
                   ],
                 ),
               ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextButton.icon(
               onPressed: () {
                 GoRouter.of(context).go('/cart');
@@ -154,7 +225,13 @@ class OrderSummarySection extends StatelessWidget {
               icon: Icon(Icons.arrow_back, color: getColorSkin().black),
               label: Text('Return to Cart', style: TextStyle(color: getColorSkin().black),),
               style: TextButton.styleFrom(
-                minimumSize: const Size.fromHeight(40),
+                backgroundColor: colorSkin.primaryRed650.withOpacity(0.05),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                minimumSize: const Size.fromHeight(44),
               ),
             ),
           ],
@@ -170,22 +247,44 @@ class OrderSummarySection extends StatelessWidget {
     bool isHighlighted = false,
     Color? textColor,
     bool isTotal = false,
+    IconData? icon,
   }) {
+    final colorSkin = getColorSkin();
     final style = isTotal
-        ? Theme.of(context).textTheme.titleLarge
+        ? TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: colorSkin.primaryRed950,
+          )
         : isHighlighted
-            ? Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                )
-            : Theme.of(context).textTheme.titleSmall;
+            ? TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: textColor ?? colorSkin.darkGrey,
+              )
+            : TextStyle(
+                fontSize: 14,
+                color: colorSkin.grey,
+              );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: style,
+        Row(
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 16,
+                color: textColor ?? colorSkin.grey,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: style,
+            ),
+          ],
         ),
         Text(
           _formatCurrency(value),
