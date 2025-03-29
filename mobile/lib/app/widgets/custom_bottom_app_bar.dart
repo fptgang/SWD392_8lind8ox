@@ -32,24 +32,16 @@ class CustomBottomAppBar extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildNavItem(AppLocalizations.of(context)!.home, Icons.home,
-                    selectedIndex == 0, screenSize, () => onItemSelected(0)),
-                _buildNavItem(
-                    AppLocalizations.of(context)!.search,
-                    Icons.search,
-                    selectedIndex == 1,
-                    screenSize,
-                    () => onItemSelected(1)),
+                _buildNavItem("Home", Icons.home, selectedIndex == 0,
+                    screenSize, () => onItemSelected(0)),
+                _buildNavItem("Search", Icons.search, selectedIndex == 1,
+                    screenSize, () => onItemSelected(1)),
                 SizedBox(
                     width: screenSize.width * 0.15), // Space for center item
-                _buildNavItem(AppLocalizations.of(context)!.series, Icons.star,
-                    selectedIndex == 3, screenSize, () => onItemSelected(3)),
-                _buildNavItem(
-                    AppLocalizations.of(context)!.account,
-                    Icons.person,
-                    selectedIndex == 4,
-                    screenSize,
-                    () => onItemSelected(4)),
+                _buildNavItem("Sets", Icons.star, selectedIndex == 3,
+                    screenSize, () => onItemSelected(3)),
+                _buildNavItem("Account", Icons.person, selectedIndex == 4,
+                    screenSize, () => onItemSelected(4)),
               ],
             ),
           ),

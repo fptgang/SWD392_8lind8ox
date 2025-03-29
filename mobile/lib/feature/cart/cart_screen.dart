@@ -62,7 +62,7 @@ class _CartScreenState extends State<CartScreen> {
         backgroundColor: getColorSkin().primaryRed650,
         elevation: 0,
         title: Text(
-          AppLocalizations.of(context)!.cart,
+          "Cart",
           style: TextStyle(
             color: getColorSkin().white,
             fontWeight: FontWeight.bold,
@@ -353,7 +353,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           SizedBox(height: 16.h),
           Text(
-            AppLocalizations.of(context)!.emptyCart,
+            "Empty Cart",
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w500,
@@ -424,7 +424,7 @@ class _CartScreenState extends State<CartScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${AppLocalizations.of(context)!.subTotal} (${hasSelectedItems ? state.selectedItems.length : state.items.length} items)',
+                'Subtotal (${hasSelectedItems ? state.selectedItems.length : state.items.length} items)',
                 style: TextStyle(color: getColorSkin().grey),
               ),
               Text(
@@ -521,7 +521,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             child: Text(
               hasSelectedItems
-                  ? '${AppLocalizations.of(context)!.checkout} (${state.selectedItems.length})'
+                  ? 'Checkout (${state.selectedItems.length})'
                   : 'Select items to checkout',
               style: TextStyle(
                   fontSize: 16,

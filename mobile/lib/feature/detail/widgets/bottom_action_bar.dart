@@ -22,8 +22,6 @@ class BottomActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appLocalizations = AppLocalizations.of(context)!;
-
     return BottomAppBar(
       color: getColorSkin().white,
       child: Padding(
@@ -32,7 +30,7 @@ class BottomActionBar extends StatelessWidget {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: () => _addToCart(context, appLocalizations),
+                onPressed: () => _addToCart(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: getColorSkin().white,
                   side: BorderSide(color: getColorSkin().primaryRed200),
@@ -45,7 +43,7 @@ class BottomActionBar extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
                   child: Text(
-                    appLocalizations.addToCart,
+                    "Add to cart",
                     style: TextStyle(
                       color: getColorSkin().primaryRed950,
                       fontSize: 16.sp,
@@ -60,8 +58,7 @@ class BottomActionBar extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  _addToCart(context, appLocalizations,
-                      navigateToCheckout: true);
+                  _addToCart(context, navigateToCheckout: true);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: getColorSkin().primaryRed650,
@@ -74,7 +71,7 @@ class BottomActionBar extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
                   child: Text(
-                    appLocalizations.shopNow,
+                    "Buy Now",
                     style: TextStyle(
                       color: getColorSkin().white,
                       fontSize: 16.sp,
@@ -91,8 +88,7 @@ class BottomActionBar extends StatelessWidget {
   }
 
   void _addToCart(
-    BuildContext context,
-    AppLocalizations appLocalizations, {
+    BuildContext context, {
     bool navigateToCheckout = false,
   }) {
     final blindBox = state.blindBox;
@@ -160,8 +156,7 @@ class BottomActionBar extends StatelessWidget {
       // Add the item to cart
       if (!cartBloc.isClosed) {
         cartBloc.add(AddItemToCart(cartItem));
-        _showFeedbackAndNavigate(
-            context, appLocalizations, isSet, navigateToCheckout);
+        _showFeedbackAndNavigate(context, isSet, navigateToCheckout);
       } else {
         _showCartError(context, 'Unable to add to cart at this time');
       }
@@ -184,7 +179,6 @@ class BottomActionBar extends StatelessWidget {
 
   void _showFeedbackAndNavigate(
     BuildContext context,
-    AppLocalizations appLocalizations,
     bool isSet,
     bool navigateToCheckout,
   ) {
@@ -195,11 +189,11 @@ class BottomActionBar extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${isSet ? "Set" : "Item"} ${appLocalizations.addToCart}',
+            '${isSet ? "Set" : "Item"} Add to cart',
             style: TextStyle(color: getColorSkin().white),
           ),
           action: SnackBarAction(
-            label: appLocalizations.cart,
+            label: "Cart",
             textColor: getColorSkin().white,
             onPressed: () {
               Navigator.of(context).push(
