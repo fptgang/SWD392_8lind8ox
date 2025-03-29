@@ -1,5 +1,5 @@
 import React from "react";
-import { BaseRecord } from "@refinedev/core";
+import { BaseRecord, useGetIdentity } from "@refinedev/core";
 import {
   useTable,
   List,
@@ -18,11 +18,12 @@ import {
   DeleteOutlined,
   DollarOutlined,
 } from "@ant-design/icons";
-import { VoucherDto } from "../../../generated";
+import { AccountDto, VoucherDto } from "../../../generated";
 
 const { Text } = Typography;
 
 export const VouchersList: React.FC = () => {
+  const { data: user } = useGetIdentity<AccountDto>();
   const { tableProps, setFilters } = useTable<VoucherDto>({
     syncWithLocation: true,
     pagination: {
@@ -49,11 +50,11 @@ export const VouchersList: React.FC = () => {
 
   const getStatusBadge = (state: string) => {
     switch (state) {
-      case 'AVAILABLE':
+      case "AVAILABLE":
         return <Badge status="success" text="Available" />;
-      case 'USED':
+      case "USED":
         return <Badge status="warning" text="Used" />;
-      case 'EXPIRED':
+      case "EXPIRED":
         return <Badge status="error" text="Expired" />;
       default:
         return <Badge status="default" text={state} />;
@@ -116,7 +117,7 @@ export const VouchersList: React.FC = () => {
               </Space>
             </Tooltip>
           }
-          render={(value: number) => `${value}%`}
+          render={(value: number) => `${(value * 100).toFixed(0)}%`}
           sorter
         />
 
@@ -132,9 +133,9 @@ export const VouchersList: React.FC = () => {
           }
           render={(value: string) => getStatusBadge(value)}
           filters={[
-            { text: "Available", value: 'AVAILABLE' },
-            { text: "Used", value: 'USED' },
-            { text: "Expired", value: 'EXPIRED' },
+            { text: "Available", value: "AVAILABLE" },
+            { text: "Used", value: "USED" },
+            { text: "Expired", value: "EXPIRED" },
           ]}
           filterMultiple={false}
         />
@@ -171,37 +172,34 @@ export const VouchersList: React.FC = () => {
         <Table.Column
           title="Actions"
           fixed="right"
+          hidden={user?.role !== "ADMIN"}
           render={(_, record: BaseRecord) => (
             <Space size="middle">
-              <Tooltip title="Edit Voucher">
-                <EditButton
-                  hideText
-                  size="small"
-                  recordItemId={record.voucherId}
-                  icon={<EditOutlined className="text-blue-600" />}
-                  className="hover:text-blue-700"
-                />
-              </Tooltip>
-              <Tooltip title="View Details">
-                <ShowButton
-                  hideText
-                  size="small"
-                  recordItemId={record.voucherId}
-                  className="text-green-600 hover:text-green-700"
-                />
-              </Tooltip>
-              <Tooltip title="Delete Voucher">
-                <DeleteButton
-                  hideText
-                  size="small"
-                  recordItemId={record.voucherId}
-                  icon={<DeleteOutlined className="text-red-600" />}
-                  className="hover:text-red-700"
-                  confirmTitle="Delete Voucher"
-                  confirmOkText="Delete"
-                  confirmCancelText="Cancel"
-                />
-              </Tooltip>
+              {user?.role === "ADMIN" && (
+                <Tooltip title="Edit Voucher">
+                  <EditButton
+                    hideText
+                    size="small"
+                    recordItemId={record.voucherId}
+                    icon={<EditOutlined className="text-blue-600" />}
+                    className="hover:text-blue-700"
+                  />
+                </Tooltip>
+              )}
+              {user?.role === "ADMIN" && (
+                <Tooltip title="Delete Voucher">
+                  <DeleteButton
+                    hideText
+                    size="small"
+                    recordItemId={record.voucherId}
+                    icon={<DeleteOutlined className="text-red-600" />}
+                    className="hover:text-red-700"
+                    confirmTitle="Delete Voucher"
+                    confirmOkText="Delete"
+                    confirmCancelText="Cancel"
+                  />
+                </Tooltip>
+              )}
             </Space>
           )}
         />

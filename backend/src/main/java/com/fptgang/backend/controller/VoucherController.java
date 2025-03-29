@@ -37,7 +37,8 @@ public class VoucherController implements VouchersApi {
     @Override
     public ResponseEntity<VoucherDto> createVoucher(VoucherDto voucherDto) {
         log.info("Creating voucher");
-        if (!SecurityUtil.hasPermission(Account.Role.ADMIN)) {
+        if (!SecurityUtil.hasRole(Account.Role.ADMIN,
+                Account.Role.STAFF)) {
             throw new AccessDeniedException("Only admin can create vouchers");
         }
         return new ResponseEntity<>(
