@@ -2,7 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:openapi/api.dart';
 
-class AccountModel extends Equatable {
+class
+AccountModel extends Equatable {
   static const AccountModel empty = AccountModel();
   final int? accountId;
   final String? email;

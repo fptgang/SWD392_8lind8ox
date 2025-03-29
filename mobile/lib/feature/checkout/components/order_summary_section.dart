@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/base/theme/theme.dart';
 
 class OrderSummarySection extends StatelessWidget {
   const OrderSummarySection({
@@ -23,6 +25,7 @@ class OrderSummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Colors.white,
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -77,7 +80,7 @@ class OrderSummarySection extends StatelessWidget {
                 onPressed:
                     canPlaceOrder && !isProcessingOrder ? onPlaceOrder : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: getColorSkin().primaryRed650,
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey[300],
                   disabledForegroundColor: Colors.grey[600],
@@ -86,11 +89,11 @@ class OrderSummarySection extends StatelessWidget {
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: getColorSkin().primaryRed650,
                               strokeWidth: 2,
                             ),
                           ),
@@ -146,11 +149,10 @@ class OrderSummarySection extends StatelessWidget {
             const SizedBox(height: 12),
             TextButton.icon(
               onPressed: () {
-                // In a real app, navigate to cart
-                // GoRouter.of(context).go('/cart');
+                GoRouter.of(context).go('/cart');
               },
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Return to Cart'),
+              icon: Icon(Icons.arrow_back, color: getColorSkin().black),
+              label: Text('Return to Cart', style: TextStyle(color: getColorSkin().black),),
               style: TextButton.styleFrom(
                 minimumSize: const Size.fromHeight(40),
               ),

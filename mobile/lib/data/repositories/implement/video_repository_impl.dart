@@ -10,6 +10,7 @@ import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/video_model.dart';
 import 'package:mobile/data/repositories/video_repository.dart';
 import 'package:openapi/api.dart';
+import 'package:http/http.dart' as http;
 
 String token = dotenv.env['TOKEN'] ?? '';
 
@@ -24,16 +25,19 @@ class VideoRepositoryImpl implements VideoRepository {
   }
 
   @override
-  Future<VideoModel> getVideoById(int id) async {
+  Future<VideoModel?> getVideoById(int id) async {
     try {
       VideoDto? videoDto = await _apiService.getVideoById(id);
       if (videoDto == null) {
-        throw Exception('Cannot get video information');
+        return null;
       }
       VideoModel videoModel = VideoMapper.toModel(videoDto);
       return videoModel;
     } catch (e, stackTrace) {
       debugPrint('Error from [Video Repository Implement]: $e, stackTrace: $stackTrace');
+      if (e.toString().contains('existingVideo is null')) {
+        return null;
+      }
       throw Exception('Cannot get video information');
     }
   }
@@ -57,23 +61,38 @@ class VideoRepositoryImpl implements VideoRepository {
   }
 
   @override
-  Future<VideoModel> uploadVideo(int accountID, int orderDetailId,
+  Future<VideoModel> uploadVideo(int accountID, int slotId,
       MultipartFile videoBlob, bool isVisible) async {
     try {
-      // TODO: Implement the actual video upload using the API
-      // For now, return a mock video model
-      return VideoModel(
-        videoId: 1,
-        account: null,
-        slotId: orderDetailId,
-        url: 'https://example.com/video.mp4',
-        description: 'Uploaded video',
+      // Validate videoBlob
+      if (videoBlob == null) {
+        throw Exception('Video file is null');
+      }
+
+      // Log upload attempt
+      debugPrint('Attempting to upload video:');
+      debugPrint('Account ID: $accountID');
+      debugPrint('Slot ID: $slotId');
+      debugPrint('File name: ${videoBlob.filename}');
+      debugPrint('Content type: ${videoBlob.contentType}');
+
+      final response = await _apiService.createVideo(
+        accountId: accountID,
+        slotId: slotId,
+        videoBlob: videoBlob,
         isVisible: isVisible,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        isVerified: false,
       );
+
+      if (response == null) {
+        throw Exception('Failed to upload video: API response is null');
+      }
+      VideoDto? videoDto = response;
+      if (videoDto == null) {
+        throw Exception('Failed to upload video: Video DTO is null');
+      }
+      return VideoMapper.toModel(videoDto);
     } catch (e) {
+      debugPrint('Error uploading video: $e');
       throw Exception('Failed to upload video: $e');
     }
   }
@@ -85,6 +104,26 @@ class VideoRepositoryImpl implements VideoRepository {
     } catch (e, stackTrace) {
       debugPrint('Error: $e, stackTrace: $stackTrace');
       throw Exception('Cannot delete video');
+    }
+  }
+
+  @override
+  Future<List<VideoModel>> getVideosByOrderDetailId(int orderDetailId) async {
+    try {
+      final response = await _apiService.getVideos(
+        pageable: Pageable(),
+        filter: 'orderDetailId,eq,$orderDetailId',
+        search: '',
+      );
+      
+      if (response == null || response.content == null) {
+        return [];
+      }
+      
+      return response.content!.map((dto) => VideoMapper.toModel(dto)).toList();
+    } catch (e) {
+      debugPrint('Error getting videos by order detail ID: $e');
+      return [];
     }
   }
 }

@@ -15,10 +15,8 @@ class PaymentInformationCard extends StatelessWidget {
     final transaction = order.transaction;
     final paymentMethod = _getPaymentMethodText(transaction?.paymentMethod);
     final subTotal = order.subTotal ?? 0.0;
-    final shipping = 4.99; // Default shipping cost
-    final tax = (subTotal * 0.1).toDouble(); // Assume 10% tax
     final discount = order.voucher != null ? (order.voucher?.discountRate ?? 0.0) * subTotal / 100 : 0.0;
-    final finalTotal = order.finalTotal ?? (subTotal + shipping + tax - discount);
+    final finalTotal = order.finalTotal ?? (subTotal - discount);
 
     return Container(
       decoration: BoxDecoration(
@@ -74,21 +72,6 @@ class PaymentInformationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Shipping"),
-              Text("\$${shipping.toStringAsFixed(2)}"),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Tax"),
-              Text("\$${tax.toStringAsFixed(2)}"),
-            ],
-          ),
           if (discount > 0)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),

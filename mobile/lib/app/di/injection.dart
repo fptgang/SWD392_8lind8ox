@@ -346,11 +346,6 @@ void _registerBlocs() {
         () => BlindBoxesListBloc(getIt<BlindBoxRepository>()));
   }
 
-  if (!getIt.isRegistered<VideoBloc>()) {
-    getIt.registerLazySingleton<VideoBloc>(
-            () => VideoBloc(videoRepository: getIt<VideoRepository>(), orderDetailRepository: getIt<OrderDetailRepository>()));
-  }
-
   if (!getIt.isRegistered<BlindBoxDetailBloc>()) {
     getIt.registerLazySingleton<BlindBoxDetailBloc>(
       () => BlindBoxDetailBloc(
@@ -382,7 +377,6 @@ void _registerBlocs() {
     getIt.registerLazySingleton<VideoBloc>(
       () => VideoBloc(
         videoRepository: getIt<VideoRepository>(),
-        orderDetailRepository: getIt<OrderDetailRepository>(),
       ),
     );
   }

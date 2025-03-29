@@ -25,6 +25,7 @@ class PaymentMethodSection extends StatelessWidget {
     final hasInsufficientWalletBalance = walletBalance < finalTotal;
 
     return Card(
+      color: Colors.white,
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -68,7 +69,11 @@ class PaymentMethodSection extends StatelessWidget {
               trailingWidget: hasInsufficientWalletBalance
                   ? TextButton(
                       onPressed: () => _showWalletTopupDialog(context),
-                      child: const Text('Top up'),
+                      child: Text('Top up',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                          )),
                     )
                   : null,
             ),

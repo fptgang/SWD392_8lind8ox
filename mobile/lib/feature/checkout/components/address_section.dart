@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/app/di/injection.dart';
+import 'package:mobile/base/theme/theme.dart';
 import 'package:mobile/data/models/shipping_info_model.dart';
 import 'package:mobile/data/repositories/shipping_info_repository.dart';
 import 'package:mobile/feature/shipping/blocs/shipping_address/shipping_info_bloc.dart';
@@ -62,6 +63,7 @@ class _AddressSectionState extends State<AddressSection> {
         }
       },
       child: Card(
+        color: Colors.white,
         elevation: 1,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -77,8 +79,8 @@ class _AddressSectionState extends State<AddressSection> {
                   ),
                   TextButton.icon(
                     onPressed: () => _navigateToAddAddress(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add New'),
+                    icon: Icon(Icons.add, color: getColorSkin().black),
+                    label:  Text('Add New', style: TextStyle(color: getColorSkin().black),),
                   ),
                 ],
               ),

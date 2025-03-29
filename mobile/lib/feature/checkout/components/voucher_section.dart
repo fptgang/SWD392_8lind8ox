@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/base/theme/theme.dart';
 
 class VoucherDto {
   final int? voucherId;
@@ -31,6 +32,7 @@ class VoucherSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: getColorSkin().white,
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -121,7 +123,6 @@ class VoucherSection extends StatelessWidget {
   }
 
   void _showVoucherSelectionModal(BuildContext context) {
-    // Sample vouchers - in a real app would come from API
     final availableVouchers = [
       VoucherDto(
         voucherId: 1,
@@ -140,6 +141,7 @@ class VoucherSection extends StatelessWidget {
     ];
 
     showModalBottomSheet(
+      backgroundColor: getColorSkin().white,
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -152,7 +154,7 @@ class VoucherSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
+                color: getColorSkin().white,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(16)),
                 boxShadow: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/base/theme/theme.dart';
 
 class OrderItemsSection extends StatelessWidget {
   const OrderItemsSection({
@@ -35,6 +36,7 @@ class OrderItemsSection extends StatelessWidget {
     final displayItems = items.isNotEmpty ? items : demoItems;
 
     return Card(
+      color: getColorSkin().white,
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -70,13 +72,16 @@ class OrderItemsSection extends StatelessWidget {
   bool _isValidImageUrl(String? url) {
     if (url == null || url.isEmpty) return false;
 
-    // Check for common video extensions that might be misused as image sources
+    // Check for common video extensions
     final lowerCaseUrl = url.toLowerCase();
-    return !lowerCaseUrl.endsWith('.mp4') &&
-        !lowerCaseUrl.endsWith('.mov') &&
-        !lowerCaseUrl.endsWith('.avi') &&
-        !lowerCaseUrl.endsWith('.wmv') &&
-        !lowerCaseUrl.endsWith('.webm');
+    final isVideo = lowerCaseUrl.endsWith('.mp4') ||
+        lowerCaseUrl.endsWith('.mov') ||
+        lowerCaseUrl.endsWith('.avi') ||
+        lowerCaseUrl.endsWith('.wmv') ||
+        lowerCaseUrl.endsWith('.webm');
+
+    // If it's a video, return true to show video thumbnail
+    return isVideo;
   }
 
   Widget _buildOrderItem(BuildContext context, dynamic item) {
@@ -87,41 +92,59 @@ class OrderItemsSection extends StatelessWidget {
 
     // Get image URL and validate it
     final imageUrl = item['imageUrl'] ?? 'https://placehold.co/300x300';
-    final isValidImage = _isValidImageUrl(imageUrl);
+    final isVideo = _isValidImageUrl(imageUrl);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product image
+          // Product image or video thumbnail
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: isValidImage
-                ? Image.network(
-                    imageUrl,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: Icon(Icons.image_not_supported, size: 20),
+            child: Container(
+              width: 60,
+              height: 60,
+              color: Colors.grey[300],
+              child: isVideo
+                  ? Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Video thumbnail
+                        Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Icon(Icons.video_file, size: 20),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  )
-                : Container(
-                    width: 60,
-                    height: 60,
-                    color: Colors.grey[300],
-                    child: const Center(
-                      child: Icon(Icons.video_file, size: 20),
+                        // Video overlay
+                        Container(
+                          color: Colors.black.withOpacity(0.3),
+                          child: const Center(
+                            child: Icon(
+                              Icons.play_circle_outline,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Image.network(
+                      imageUrl,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Icon(Icons.image_not_supported, size: 20),
+                        );
+                      },
                     ),
-                  ),
+            ),
           ),
           const SizedBox(width: 16),
           // Product details
