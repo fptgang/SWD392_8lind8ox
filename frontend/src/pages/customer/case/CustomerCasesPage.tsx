@@ -58,7 +58,7 @@ const CustomerCasesPage = () => {
     resource: "sets",
     config: {
       pagination: {
-        pageSize: 12,
+        pageSize: 100,
         current: currentPage,
       },
     },
@@ -229,7 +229,9 @@ const CustomerCasesPage = () => {
                     <div>
                       <Text type="secondary">
                         <span className="mr-1">🎲</span>
-                        {set.slots?.filter(s => s.state === 'AVAILABLE').length || 0}/{set.slots?.length || 0} slots available
+                        {set.slots?.filter((s) => s.state === "AVAILABLE")
+                          .length || 0}
+                        /{set.slots?.length || 0} slots available
                       </Text>
                     </div>
                   </Tooltip>,
