@@ -36,7 +36,9 @@ public class VoucherMapper extends BaseMapper<VoucherDto, Voucher> {
         entity.setCode(dto.getCode());
         entity.setDiscountRate(dto.getDiscountRate());
         entity.setLimitAmount(dto.getLimitAmount());
-        entity.setState(Voucher.State.valueOf(dto.getState().name()));
+        if(dto.getState() != null) {
+            entity.setState(Voucher.State.valueOf(dto.getState().name()));
+        }
         entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
         entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
         entity.setExpiredAt(DateTimeUtil.fromOffsetToLocal(dto.getExpiredAt()));

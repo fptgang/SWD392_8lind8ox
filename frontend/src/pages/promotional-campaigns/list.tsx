@@ -21,7 +21,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 
-import { PromotionCampaignDto, AccountDto } from "../../../generated";
+import { PromotionalCampaignDto, AccountDto } from "../../../generated";
 
 const { Text } = Typography;
 
@@ -29,7 +29,7 @@ export const PromotionalCampaignsList: React.FC = () => {
   const { data: user } = useGetIdentity<AccountDto>();
   const isStaff = user?.role === "STAFF";
 
-  const { tableProps, setFilters } = useTable({
+  const { tableProps, setFilters } = useTable<PromotionalCampaignDto>({
     syncWithLocation: true,
     sorters: {
       initial: [
@@ -203,13 +203,13 @@ export const PromotionalCampaignsList: React.FC = () => {
         <Table.Column
           title="Actions"
           fixed="right"
-          render={(_, record: BaseRecord) => (
+          render={(_, record: PromotionalCampaignDto) => (
             <Space size="middle">
               <Tooltip title="Edit Promotion">
                 <EditButton
                   hideText
                   size="small"
-                  recordItemId={record.id}
+                  recordItemId={record.campaignId}
                   icon={<EditOutlined className="text-blue-600" />}
                   className="hover:text-blue-700"
                 />
@@ -218,7 +218,7 @@ export const PromotionalCampaignsList: React.FC = () => {
                 <ShowButton
                   hideText
                   size="small"
-                  recordItemId={record.id}
+                  recordItemId={record.campaignId}
                   className="text-green-600 hover:text-green-700"
                 />
               </Tooltip>
@@ -226,7 +226,7 @@ export const PromotionalCampaignsList: React.FC = () => {
                 <DeleteButton
                   hideText
                   size="small"
-                  recordItemId={record.id}
+                  recordItemId={record.campaignId}
                   icon={<DeleteOutlined className="text-red-600" />}
                   className="hover:text-red-700"
                   confirmTitle="Delete Promotion"

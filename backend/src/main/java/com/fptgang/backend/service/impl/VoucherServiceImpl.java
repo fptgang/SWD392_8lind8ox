@@ -36,6 +36,8 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public Voucher create(Voucher voucher) {
+        voucher.setCode(RandomStringUtils.randomAlphanumeric(blindBoxConfig.getDefaultCodeLength()));
+        voucher.setState(Voucher.State.AVAILABLE);
         return voucherRepos.save(voucher);
     }
 
