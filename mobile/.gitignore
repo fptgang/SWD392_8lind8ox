@@ -48,3 +48,4 @@ app.*.map.json
 /generated_api/
 *.env
 /ios/
+/android/app/.cxx/
