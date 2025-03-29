@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import BrandShowcase from "./components/brand-showcase";
-import TrendingProducts from "./components/trending-products";
 import ProductSeries from "./components/product-series";
 import {BackTop, Button, Typography,} from "antd";
 import {
@@ -11,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import {motion} from "framer-motion";
 import {useGo} from "@refinedev/core";
+import HotSaleProducts from "./components/hot-sales";
 
 const {Title, Text} = Typography;
 
@@ -108,7 +108,7 @@ export default function LandingPage() {
             borderRadius: "1rem",
           }}
         >
-          <TrendingProducts/>
+          <HotSaleProducts/>
         </motion.div>
 
         {/* View All Products section */}

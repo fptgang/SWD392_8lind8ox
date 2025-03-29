@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 
-import { Button, Typography } from "antd";
-import { ArrowRightOutlined } from "@ant-design/icons";
-import TrustedBy from "./trusted-by";
-import { motion } from "framer-motion";
-import { useIsAuthenticated } from "@refinedev/core";
-import { useNavigate } from "react-router";
+import {Button, Typography} from "antd";
+import {ArrowRightOutlined} from "@ant-design/icons";
+import {motion} from "framer-motion";
+import {useIsAuthenticated} from "@refinedev/core";
+import {useNavigate} from "react-router";
 
-const { Title, Paragraph } = Typography;
+const {Title, Paragraph} = Typography;
 
 const hooks = [
   "Discover Exclusive Blind Box Collections",
@@ -25,18 +24,18 @@ const Hero: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [currentIndex]);
-  const { data: auth } = useIsAuthenticated();
+  const {data: auth} = useIsAuthenticated();
   const nav = useNavigate();
   const handleHireTalentButton = () => {
     if (!auth?.authenticated) {
       console.log("Authenticated");
-      nav("/login", { replace: true });
+      nav("/login", {replace: true});
     }
   };
 
   const handleLearnMore = () => {
     if (!auth?.authenticated) {
-      nav("/login", { replace: true });
+      nav("/login", {replace: true});
     }
   };
 
@@ -48,16 +47,16 @@ const Hero: React.FC = () => {
             <Title level={1} className="text-4xl md:text-6xl text-black">
               <motion.div
                 key={currentIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
+                initial={{opacity: 0, y: 20}}
+                animate={{opacity: 1, y: 0}}
+                exit={{opacity: 0, y: -20}}
+                transition={{duration: 0.5}}
               >
                 {text.split("").map((char, index) => (
                   <motion.span
                     key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{opacity: 0}}
+                    animate={{opacity: 1}}
                     transition={{
                       duration: 0.1,
                       delay: index * 0.05,
@@ -69,7 +68,8 @@ const Hero: React.FC = () => {
               </motion.div>
             </Title>
             <Paragraph className="text-lg text-gray-600">
-              Experience the thrill of unboxing exclusive collectibles. Each box holds a surprise
+              Experience the thrill of unboxing exclusive collectibles. Each box
+              holds a surprise
               waiting to be discovered. Join our community of collectors today!
             </Paragraph>
             <div className="flex gap-4">
@@ -85,7 +85,7 @@ const Hero: React.FC = () => {
                 className="flex items-center"
                 onClick={handleLearnMore}
               >
-                View Series <ArrowRightOutlined className="ml-2" />
+                View Series <ArrowRightOutlined className="ml-2"/>
               </Button>
             </div>
           </div>

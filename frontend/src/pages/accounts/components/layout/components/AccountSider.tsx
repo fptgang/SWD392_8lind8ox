@@ -50,7 +50,7 @@ export const AccountSider: React.FC = () => {
       className="bg-white rounded-lg shadow-sm overflow-hidden h-[calc(100vh-2rem)] mt-4 "
     >
       <div className="p-4 border-b border-gray-100">
-        <h2 className="text-lg font-medium ">{t("account.title")}</h2>
+        <h2 className="text-lg font-medium text-center">{t("account.title")}</h2>
       </div>
       <Menu
         mode="inline"

@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import {motion} from "framer-motion";
 
 const TrustedBy = () => {
   const logos = [
@@ -27,15 +27,15 @@ const TrustedBy = () => {
             repeat: Infinity,
             ease: "linear",
           }}
-          style={{ width: "fit-content" }}
+          style={{width: "fit-content"}}
         >
           {/* First set of logos */}
           {logos.map((logo, index) => (
             <motion.div
               key={`logo-1-${index}`}
               className="mx-12 inline-flex"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              whileHover={{scale: 1.1}}
+              transition={{type: "spring", stiffness: 400, damping: 10}}
             >
               <img
                 src={logo}
@@ -50,8 +50,8 @@ const TrustedBy = () => {
             <motion.div
               key={`logo-2-${index}`}
               className="mx-12 inline-flex"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              whileHover={{scale: 1.1}}
+              transition={{type: "spring", stiffness: 400, damping: 10}}
             >
               <img
                 src={logo}

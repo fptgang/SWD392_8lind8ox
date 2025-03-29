@@ -1,14 +1,14 @@
 import React from "react";
-import { Card, Typography, Row, Col, Button, Spin } from "antd";
-import { RightOutlined } from "@ant-design/icons";
-import { useList, useGo } from "@refinedev/core";
-import { BrandDto } from "../../../../../generated";
+import {Button, Card, Col, Row, Spin, Typography} from "antd";
+import {RightOutlined} from "@ant-design/icons";
+import {useGo, useList} from "@refinedev/core";
+import {BrandDto} from "../../../../../generated";
 
-const { Title, Text } = Typography;
+const {Title, Text} = Typography;
 
 const BrandShowcase: React.FC = () => {
   const go = useGo();
-  const { data, isLoading, isError } = useList<BrandDto>({
+  const {data, isLoading, isError} = useList<BrandDto>({
     resource: "brands",
     pagination: {
       pageSize: 4
@@ -16,11 +16,11 @@ const BrandShowcase: React.FC = () => {
   });
 
   const handleBrandClick = (brandId: number) => {
-    go({ to: `/brands/${brandId}` });
+    go({to: `/brands/${brandId}`});
   };
 
   const handleViewAllBrands = () => {
-    go({ to: '/brands' });
+    go({to: '/brands'});
   };
 
   if (isError) {
@@ -34,7 +34,7 @@ const BrandShowcase: React.FC = () => {
   if (isLoading) {
     return (
       <div className="py-12 text-center">
-        <Spin size="large" />
+        <Spin size="large"/>
       </div>
     );
   }
@@ -46,12 +46,13 @@ const BrandShowcase: React.FC = () => {
       <div className="mb-8 flex justify-between items-center">
         <div>
           <Title level={2} className="!mb-2">Featured Brands</Title>
-          <Text type="secondary">Explore authentic series from top manufacturers</Text>
+          <Text type="secondary">Explore authentic series from top
+            manufacturers</Text>
         </div>
-        <Button 
-          type="link" 
-          size="large" 
-          icon={<RightOutlined />}
+        <Button
+          type="link"
+          size="large"
+          icon={<RightOutlined/>}
           onClick={handleViewAllBrands}
         >
           View All Brands
@@ -61,8 +62,8 @@ const BrandShowcase: React.FC = () => {
       <Row gutter={[16, 16]}>
         {brands.map((brand) => (
           <Col xs={12} sm={12} md={6} key={brand.brandId}>
-            <Card 
-              hoverable 
+            <Card
+              hoverable
               className="text-center h-full cursor-pointer"
               onClick={() => brand.brandId && handleBrandClick(brand.brandId)}
             >
@@ -74,7 +75,8 @@ const BrandShowcase: React.FC = () => {
                 />
               </div>
               <Title level={4} className="!mb-2">{brand.name}</Title>
-              <Text type="secondary" className="block mb-2">{brand.description}</Text>
+              <Text type="secondary"
+                    className="block mb-2">{brand.description}</Text>
               <Text type="secondary">Featured Brand</Text>
             </Card>
           </Col>
