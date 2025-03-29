@@ -56,7 +56,7 @@ export const getResources = (): IResourceItem[] => {
       meta: {
         label: "Vouchers",
         icon: <GiftOutlined />,
-        parent: "catalog",
+        parent: "marketing",
       },
     },
     {
