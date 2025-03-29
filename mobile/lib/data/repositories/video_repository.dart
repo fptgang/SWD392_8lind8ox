@@ -1,6 +1,3 @@
-
-
-
 import 'package:injectable/injectable.dart';
 import 'package:mobile/data/models/generic_response_model.dart';
 import 'package:mobile/data/models/video_model.dart';

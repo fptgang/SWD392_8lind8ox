@@ -36,88 +36,121 @@ class OrderDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) {
-            final bloc = getIt<OrderBloc>();
-            bloc.add(GetOrderById(int.parse(orderId)));
-            return bloc;
-          },
+        BlocProvider.value(
+          value: getIt<OrderBloc>(),
         ),
-        BlocProvider(
-          create: (context) => getIt<VideoBloc>(),
+        BlocProvider.value(
+          value: getIt<VideoBloc>(),
         ),
       ],
-      child: Scaffold(
-        backgroundColor: getColorSkin().backgroundColor,
-        appBar: AppBar(
-          title: Text("Order #$orderId",
-              style: const TextStyle(color: Colors.white)),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          elevation: 0,
-          backgroundColor: getColorSkin().primaryRed650,
+      child: _OrderDetailContent(
+        orderId: orderId,
+        status: status,
+      ),
+    );
+  }
+}
+
+class _OrderDetailContent extends StatefulWidget {
+  final String orderId;
+  final OrderStatusEnum status;
+
+  const _OrderDetailContent({
+    required this.orderId,
+    required this.status,
+  });
+
+  @override
+  State<_OrderDetailContent> createState() => _OrderDetailContentState();
+}
+
+class _OrderDetailContentState extends State<_OrderDetailContent> {
+  @override
+  void initState() {
+    super.initState();
+    // Use the shared bloc instance and add the event
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<OrderBloc>().add(GetOrderById(int.parse(widget.orderId)));
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: getColorSkin().backgroundColor,
+      appBar: AppBar(
+        title: Text("Order #${widget.orderId}",
+            style: const TextStyle(color: Colors.white)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
-        body: BlocBuilder<OrderBloc, OrderState>(
-          builder: (context, state) {
-            if (state is OrderLoadingState && state.isLoading) {
-              return buildLoadingIndicator();
-            }
+        elevation: 0,
+        backgroundColor: getColorSkin().primaryRed650,
+      ),
+      body: BlocBuilder<OrderBloc, OrderState>(
+        builder: (context, state) {
+          if (state is OrderLoadingState && state.isLoading) {
+            return buildLoadingIndicator();
+          }
 
-            if (state is OrderLoadingState && state.error != null) {
-              return CommonErrorWidget(
-                error: state.error!,
-                onRetry: () => context.read<OrderBloc>().add(GetOrderById(int.parse(orderId))),
-              );
-            }
+          if (state is OrderLoadingState && state.error != null) {
+            return CommonErrorWidget(
+              error: state.error!,
+              onRetry: () => context.read<OrderBloc>().add(GetOrderById(int.parse(widget.orderId))),
+            );
+          }
 
-            if (state is OrderDataState && state.order != null) {
-              final order = state.order!;
+          if (state is OrderDataState && state.order != null) {
+            final order = state.order!;
 
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      OrderSummaryCard(order: order),
-                      const SizedBox(height: 24),
-                      OrderTimeline(status: order.latestStatus ?? status),
-                      const SizedBox(height: 24),
-                      OrderItemsSection(orderDetails: order.orderDetails ?? []),
-                      const SizedBox(height: 24),
-                      DeliveryInformationCard(order: order),
-                      const SizedBox(height: 24),
-                      PaymentInformationCard(order: order),
-                      const SizedBox(height: 24),
-                      // Add the new video upload section
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    OrderSummaryCard(order: order),
+                    const SizedBox(height: 24),
+                    OrderTimeline(status: order.latestStatus ?? widget.status),
+                    const SizedBox(height: 24),
+                    OrderItemsSection(orderDetails: order.orderDetails ?? []),
+                    const SizedBox(height: 24),
+                    DeliveryInformationCard(order: order),
+                    const SizedBox(height: 24),
+                    PaymentInformationCard(order: order),
+                    const SizedBox(height: 24),
+                    // Add the new video upload section
+                    if (order.orderDetails != null && order.orderDetails!.isNotEmpty) ...[
                       VideoUploadSection(
                         accountId: order.account?.accountId,
-                        slotId: order.orderDetails?.first.slot?.slotId ?? 1,
+                        slotId: order.orderDetails!.first.slot?.slotId ?? 1,
+                        orderDetailId: order.orderDetails!.first.orderDetailId,
                       ),
                       const SizedBox(height: 32),
-                      ActionButtons(
-                        status: order.latestStatus ?? status,
-                        orderId: orderId,
-                      ),
                     ],
-                  ),
-                ),
-              );
-            }
-
-            return Center(
-              child: Text(
-                'Order not found',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: getColorSkin().grey,
+                    ActionButtons(
+                      status: order.latestStatus ?? widget.status,
+                      orderId: widget.orderId,
+                    ),
+                  ],
                 ),
               ),
             );
-          },
-        ),
+          }
+
+          return Center(
+            child: Text(
+              'Order not found',
+              style: TextStyle(
+                fontSize: 16,
+                color: getColorSkin().grey,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

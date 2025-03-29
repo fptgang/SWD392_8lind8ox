@@ -10,7 +10,7 @@ class AppRouter {
           path: '/toy/:id',
           builder: (context, state) {
             final int id = int.tryParse(state.pathParameters['id'] ?? '0') ?? 0;
-            return ToyDetailScreen(toyId: id);
+            return ToyDetailScreen(setId: id);
           },
         ),
       ],

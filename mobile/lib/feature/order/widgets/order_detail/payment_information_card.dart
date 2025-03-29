@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/data/models/order_model.dart';
+import 'package:mobile/utils/enum/enum.dart';
 
 class PaymentInformationCard extends StatelessWidget {
   final OrderModel order;
@@ -12,7 +13,7 @@ class PaymentInformationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final transaction = order.transaction;
-    final paymentMethod = transaction?.paymentMethod?.toString() ?? "Standard Payment";
+    final paymentMethod = _getPaymentMethodText(transaction?.paymentMethod);
     final subTotal = order.subTotal ?? 0.0;
     final shipping = 4.99; // Default shipping cost
     final tax = (subTotal * 0.1).toDouble(); // Assume 10% tax
@@ -51,11 +52,11 @@ class PaymentInformationCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(transaction?.status),
+                  color: _getStatusColor(order.latestStatus),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  transaction?.status.toString() ?? "Pending",
+                  _getStatusText(order.latestStatus),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -128,12 +129,64 @@ class PaymentInformationCard extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(dynamic status) {
+  Color _getStatusColor(OrderStatusEnum? status) {
     if (status == null) return Colors.orange;
-    final statusStr = status.toString().toLowerCase();
 
-    if (statusStr.contains('success')) return Colors.green;
-    if (statusStr.contains('fail')) return Colors.red;
-    return Colors.orange; // PENDING
+    switch (status) {
+      case OrderStatusEnum.CREATED:
+      case OrderStatusEnum.PREPARING:
+        return Colors.orange;
+      case OrderStatusEnum.PAYMENT_FAILED:
+      case OrderStatusEnum.PAYMENT_EXPIRED:
+      case OrderStatusEnum.CANCELED:
+        return Colors.red;
+      case OrderStatusEnum.READY_FOR_PICKUP:
+      case OrderStatusEnum.SHIPPING:
+        return Colors.blue;
+      case OrderStatusEnum.DELIVERED:
+      case OrderStatusEnum.RECEIVED:
+      case OrderStatusEnum.COMPLETED:
+        return Colors.green;
+    }
+  }
+
+  String _getStatusText(OrderStatusEnum? status) {
+    if (status == null) return "Pending";
+    
+    switch (status) {
+      case OrderStatusEnum.CREATED:
+        return 'Order Created';
+      case OrderStatusEnum.PREPARING:
+        return 'Preparing';
+      case OrderStatusEnum.PAYMENT_FAILED:
+        return 'Payment Failed';
+      case OrderStatusEnum.PAYMENT_EXPIRED:
+        return 'Payment Expired';
+      case OrderStatusEnum.CANCELED:
+        return 'Canceled';
+      case OrderStatusEnum.READY_FOR_PICKUP:
+        return 'Ready for Pickup';
+      case OrderStatusEnum.SHIPPING:
+        return 'Shipping';
+      case OrderStatusEnum.DELIVERED:
+        return 'Delivered';
+      case OrderStatusEnum.RECEIVED:
+        return 'Received';
+      case OrderStatusEnum.COMPLETED:
+        return 'Completed';
+    }
+  }
+
+  String _getPaymentMethodText(PaymentMethod? paymentMethod) {
+    if (paymentMethod == null) return "Standard Payment";
+    
+    switch (paymentMethod) {
+      case PaymentMethod.PAYPAL:
+        return 'PayPal';
+      case PaymentMethod.VNPAY:
+        return 'VNPay';
+      case PaymentMethod.INTERNAL_WALLET:
+        return 'Internal Wallet';
+    }
   }
 }
