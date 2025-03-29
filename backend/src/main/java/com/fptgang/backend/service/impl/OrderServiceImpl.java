@@ -204,7 +204,7 @@ public class OrderServiceImpl implements OrderService {
         orderStatusHistory.setOrder(order);
         orderStatusHistory.setState(OrderStatusHistory.State.CREATED);
         orderStatusHistory = orderStatusHistoryRepos.save(orderStatusHistory);
-        order.setOrderStatusHistories(List.of(orderStatusHistory));
+        order.setOrderStatusHistories(new ArrayList<>(List.of(orderStatusHistory)));
 
         // Create order details
         for (OrderDetail orderDetail : orderDetails) {
