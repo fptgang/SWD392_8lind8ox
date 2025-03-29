@@ -89,7 +89,7 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
             existing.getBlindBoxCampaigns().forEach(blindBoxCampaign ->
             {
                 if (campaign.getBlindBoxCampaigns().stream().noneMatch(b -> Objects.equals(b.getBlindBox().getBlindBoxId(), blindBoxCampaign.getBlindBox().getBlindBoxId()))) {
-                    blindBoxCampaign.setIsVisible(false);
+//                    blindBoxCampaign.setIsVisible(false);
                     log.info("Deleted blind box campaign {}", blindBoxCampaign.getBlindBox().getBlindBoxId());
                 }
             });
