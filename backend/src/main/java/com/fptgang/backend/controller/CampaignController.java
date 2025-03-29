@@ -10,6 +10,7 @@ import com.fptgang.backend.mapper.PromotionalCampaignMapper;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.service.PromotionalCampaignService;
 import com.fptgang.backend.service.params.ListParams;
+import com.fptgang.backend.util.DateTimeUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Slf4j
 @RestController
@@ -80,7 +81,7 @@ public class CampaignController implements PromotionalCampaignsApi {
     }
 
     @Override
-    public ResponseEntity<GetPromotionalCampaigns200Response> getPromotionalCampaigns(Pageable pageable, String filter, String search) {
+    public ResponseEntity<GetPromotionalCampaigns200Response> getPromotionalCampaigns(Pageable pageable, String filter, String search, OffsetDateTime fromDate, OffsetDateTime toDate) {
         log.info("Fetching promotional campaigns");
         var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
@@ -88,8 +89,15 @@ public class CampaignController implements PromotionalCampaignsApi {
                 .search(search)
                 .filter(filter)
                 .includeInvisible(includeInvisible);
+        var from = DateTimeUtil.fromOffsetToLocal(fromDate);
+        var to = DateTimeUtil.fromOffsetToLocal(toDate);
 
-        var resultPage = promotionCampaignService.getAll(params.build())
+        // Non-Staff can only view ongoing promotional campaigns
+        if (!SecurityUtil.hasPermission(Account.Role.STAFF)) {
+            to = LocalDateTime.now();
+        }
+
+        var resultPage = promotionCampaignService.getAll(params.build(), from, to)
                 .map(p -> promotionCampaignMapper.toDTO(p, DetailLevel.SUMMARY));
 
         return OpenApiHelper.respondPage(resultPage, GetPromotionalCampaigns200Response.class);

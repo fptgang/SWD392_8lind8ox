@@ -190,6 +190,7 @@ export const NotificationPopover: React.FC = () => {
 
   const { data: user } = useGetIdentity<AccountDto>();
   const email = user?.email;
+
   const { data, isLoading, isError, error, refetch } = useList<
     NotificationDto,
     HttpError

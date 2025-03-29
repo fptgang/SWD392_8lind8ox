@@ -40,9 +40,13 @@ export const dataProvider = (
       currentPage--;
     }
 
+    const extraQuery = (meta && meta.queries) ? "&" + Object.entries(meta.queries)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&') : "";
+
     const url = `${apiUrl}/${resource}?page=${currentPage}&pageSize=${
       pagination?.pageSize ?? 20
-    }&size=${pagination?.pageSize ?? 20}${sortQuery}${filterQuery}`;
+    }&size=${pagination?.pageSize ?? 20}${sortQuery}${filterQuery}${extraQuery}`;
 
     console.log("getList", {
       resource,

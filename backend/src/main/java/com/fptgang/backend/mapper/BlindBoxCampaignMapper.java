@@ -5,7 +5,6 @@ import com.fptgang.backend.model.BlindBoxCampaign;
 import com.fptgang.backend.model.BlindBoxCampaignId;
 import com.fptgang.backend.repository.BlindBoxRepos;
 import com.fptgang.backend.repository.PromotionalCampaignRepos;
-import com.fptgang.backend.util.DateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -28,9 +27,9 @@ public class BlindBoxCampaignMapper extends BaseMapper<BlindBoxCampaignDto, Blin
         entity.setBlindBox(blindBoxRepos.getReferenceById(dto.getBlindBoxId()));
         entity.setPromotionalCampaign(dto.getPromotionalCampaignId()!=null?
                 promotionalCampaignRepos.getReferenceById(dto.getPromotionalCampaignId()):null);
-        entity.setIsVisible(dto.getIsVisible()!=null?dto.getIsVisible():true);
-        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
-        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
+//        entity.setIsVisible(dto.getIsVisible()!=null?dto.getIsVisible():true);
+//        entity.setCreatedAt(DateTimeUtil.fromOffsetToLocal(dto.getCreatedAt()));
+//        entity.setUpdatedAt(DateTimeUtil.fromOffsetToLocal(dto.getUpdatedAt()));
         return entity;
     }
 
@@ -39,9 +38,9 @@ public class BlindBoxCampaignMapper extends BaseMapper<BlindBoxCampaignDto, Blin
         BlindBoxCampaignDto dto = new BlindBoxCampaignDto();
         dto.setBlindBoxId(entity.getBlindBox() != null ? entity.getBlindBox().getBlindBoxId() : null);
         dto.setPromotionalCampaignId(entity.getPromotionalCampaign().getCampaignId());
-        dto.setIsVisible(entity.getIsVisible());
-        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
-        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
+//        dto.setIsVisible(entity.getIsVisible());
+//        dto.setCreatedAt(DateTimeUtil.fromLocalToOffset(entity.getCreatedAt()));
+//        dto.setUpdatedAt(DateTimeUtil.fromLocalToOffset(entity.getUpdatedAt()));
         return dto;
     }
 }

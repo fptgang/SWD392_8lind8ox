@@ -1,9 +1,7 @@
 package com.fptgang.backend.mapper;
 
 import com.fptgang.backend.api.model.BlindBoxDto;
-import com.fptgang.backend.model.Account;
-import com.fptgang.backend.model.BlindBox;
-import com.fptgang.backend.model.StockKeepingUnit;
+import com.fptgang.backend.model.*;
 import com.fptgang.backend.repository.BrandRepos;
 import com.fptgang.backend.repository.ImageRepos;
 import com.fptgang.backend.util.DateTimeUtil;
@@ -11,6 +9,7 @@ import com.fptgang.backend.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -23,6 +22,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
     private final BrandRepos brandRepos;
     private final ImageRepos imageRepos;
     private final ImageMapper imageMapper;
+    private final PromotionalCampaignMapper promotionalCampaignMapper;
 
     public BlindBoxMapper(BlindBoxCampaignMapper blindBoxCampaignMapper,
                           BrandMapper brandMapper,
@@ -30,7 +30,8 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
                           StockKeepingUnitMapper.Converter skuConverter,
                           BrandRepos brandRepos,
                           ImageRepos imageRepos,
-                          ImageMapper imageMapper) {
+                          ImageMapper imageMapper,
+                          PromotionalCampaignMapper promotionalCampaignMapper) {
         this.blindBoxCampaignMapper = blindBoxCampaignMapper;
         this.brandMapper = brandMapper;
         this.toyMapper = toyMapper;
@@ -38,6 +39,7 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
         this.brandRepos = brandRepos;
         this.imageRepos = imageRepos;
         this.imageMapper = imageMapper;
+        this.promotionalCampaignMapper = promotionalCampaignMapper;
     }
 
     @Override
@@ -109,9 +111,18 @@ public class BlindBoxMapper extends BaseMapper<BlindBoxDto, BlindBox> {
                 .map(e -> imageMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
         dto.setBlindBoxCampaigns(entity.getBlindBoxCampaigns().stream()
-                .filter(blindBoxCampaign -> (blindBoxCampaign.getIsVisible() && blindBoxCampaign.getPromotionalCampaign().getIsVisible()) || SecurityUtil.hasRole(Account.Role.ADMIN))
+                .filter(blindBoxCampaign -> (/*blindBoxCampaign.getIsVisible() &&*/ blindBoxCampaign.getPromotionalCampaign().getIsVisible()) || SecurityUtil.hasRole(Account.Role.ADMIN))
                 .map(e -> blindBoxCampaignMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));
+        dto.setBestPromotion(entity.getBlindBoxCampaigns().stream()
+                .map(BlindBoxCampaign::getPromotionalCampaign)
+                .filter(e -> {
+                    return e.getStartDate().isBefore(LocalDateTime.now()) && e.getEndDate().isAfter(LocalDateTime.now());
+                })
+                .filter(PromotionalCampaign::getIsVisible)
+                .sorted((o1, o2) -> -o1.getDiscountRate().compareTo(o2.getDiscountRate()))
+                .map(e -> promotionalCampaignMapper.toDTO(e, DetailLevel.FULL))
+                .findFirst().orElse(null));
         dto.setToys(entity.getToys().stream()
                 .map(e -> toyMapper.toDTO(e, DetailLevel.REFERENCE))
                 .collect(Collectors.toList()));

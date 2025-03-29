@@ -7,7 +7,7 @@ import com.fptgang.backend.model.sales.TrendingProduct;
 import org.springframework.stereotype.Component;
 
 @Component
-public class    TrendingProductMapper extends BaseMapper<TrendingProductDto, TrendingProduct> {
+public class TrendingProductMapper extends BaseMapper<TrendingProductDto, TrendingProduct> {
     @Override
     public TrendingProduct toEntity(TrendingProductDto dto) {
         throw new UnsupportedOperationException();

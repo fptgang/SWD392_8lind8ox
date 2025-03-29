@@ -89,13 +89,7 @@ export const authProvider: AuthProvider = {
         console.log(response);
         store.dispatch(setAuthenticatedAccount(response));
       } catch (e) {
-        return {
-          success: false,
-          error: {
-            name: "GetIdentityError",
-            message: e.toString(),
-          },
-        };
+        return undefined;
       }
     }
 

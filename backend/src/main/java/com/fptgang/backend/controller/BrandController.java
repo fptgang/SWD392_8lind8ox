@@ -1,7 +1,9 @@
 package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.BrandsApi;
-import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.api.model.BrandDto;
+import com.fptgang.backend.api.model.GetBrands200Response;
+import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.mapper.BrandMapper;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Account;
@@ -15,9 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
-
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -66,7 +65,7 @@ public class BrandController implements BrandsApi{
     @Override
     public ResponseEntity<GetBrands200Response> getBrands(Pageable pageable, String filter, String search) {
         log.info("Getting brands");
-        var includeInvisible = (SecurityUtil.getCurrentUserRole() != null);
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)

@@ -102,18 +102,18 @@ export const UserMenu: React.FC<UserMenuProps> = ({ isAuthenticated }) => {
       ),
       onClick: () => nav("/account/settings"),
     },
-    {
-      key: "theme",
-      label: (
-        <Space onClick={(e: any) => e.stopPropagation()}>
-          Dark Mode
-          <Switch
-            checked={mode === "dark"}
-            onChange={() => setMode(mode === "light" ? "dark" : "light")}
-          />
-        </Space>
-      ),
-    },
+    // {
+    //   key: "theme",
+    //   label: (
+    //     <Space onClick={(e: any) => e.stopPropagation()}>
+    //       Dark Mode
+    //       <Switch
+    //         checked={mode === "dark"}
+    //         onChange={() => setMode(mode === "light" ? "dark" : "light")}
+    //       />
+    //     </Space>
+    //   ),
+    // },
     {
       type: "divider",
     },

@@ -302,6 +302,12 @@ export interface GetBrandsRequest {
     search?: string;
 }
 
+export interface GetHotSaleProductsRequest {
+    pageable?: Pageable;
+    filter?: string;
+    search?: string;
+}
+
 export interface GetImageByIdRequest {
     imageId: number;
 }
@@ -330,6 +336,8 @@ export interface GetPromotionalCampaignsRequest {
     pageable?: Pageable;
     filter?: string;
     search?: string;
+    fromDate?: Date;
+    toDate?: Date;
 }
 
 export interface GetRevenueByBlindBoxRequest {
@@ -2160,6 +2168,52 @@ export class DefaultApi extends runtime.BaseAPI {
     }
 
     /**
+     * Get hot sale products
+     */
+    async getHotSaleProductsRaw(requestParameters: GetHotSaleProductsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetBlindBoxes200Response>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['pageable'] != null) {
+            queryParameters['Pageable'] = requestParameters['pageable'];
+        }
+
+        if (requestParameters['filter'] != null) {
+            queryParameters['filter'] = requestParameters['filter'];
+        }
+
+        if (requestParameters['search'] != null) {
+            queryParameters['search'] = requestParameters['search'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearerAuth", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/sales/hot-sale-products`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetBlindBoxes200ResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Get hot sale products
+     */
+    async getHotSaleProducts(requestParameters: GetHotSaleProductsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetBlindBoxes200Response> {
+        const response = await this.getHotSaleProductsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Get an image by imageId
      */
     async getImageByIdRaw(requestParameters: GetImageByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImageDto>> {
@@ -2458,6 +2512,14 @@ export class DefaultApi extends runtime.BaseAPI {
 
         if (requestParameters['search'] != null) {
             queryParameters['search'] = requestParameters['search'];
+        }
+
+        if (requestParameters['fromDate'] != null) {
+            queryParameters['fromDate'] = (requestParameters['fromDate'] as any).toISOString();
+        }
+
+        if (requestParameters['toDate'] != null) {
+            queryParameters['toDate'] = (requestParameters['toDate'] as any).toISOString();
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

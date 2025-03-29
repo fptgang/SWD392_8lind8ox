@@ -18,6 +18,8 @@ BlindBoxDto:
       type: array
       items:
         $ref: "blindbox-campaign.yml#/BlindBoxCampaignDto"
+    bestPromotion:
+      $ref: "promotional-campaign.yml#/PromotionalCampaignDto"
     isVisible:
       type: boolean
     toys:

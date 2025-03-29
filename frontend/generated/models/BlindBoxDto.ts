@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { PromotionalCampaignDto } from './PromotionalCampaignDto';
+import {
+    PromotionalCampaignDtoFromJSON,
+    PromotionalCampaignDtoFromJSONTyped,
+    PromotionalCampaignDtoToJSON,
+    PromotionalCampaignDtoToJSONTyped,
+} from './PromotionalCampaignDto';
 import type { BlindBoxCampaignDto } from './BlindBoxCampaignDto';
 import {
     BlindBoxCampaignDtoFromJSON,
@@ -93,6 +100,12 @@ export interface BlindBoxDto {
     blindBoxCampaigns?: Array<BlindBoxCampaignDto>;
     /**
      * 
+     * @type {PromotionalCampaignDto}
+     * @memberof BlindBoxDto
+     */
+    bestPromotion?: PromotionalCampaignDto;
+    /**
+     * 
      * @type {boolean}
      * @memberof BlindBoxDto
      */
@@ -146,6 +159,7 @@ export function BlindBoxDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'description': json['description'] == null ? undefined : json['description'],
         'images': json['images'] == null ? undefined : ((json['images'] as Array<any>).map(ImageDtoFromJSON)),
         'blindBoxCampaigns': json['blindBoxCampaigns'] == null ? undefined : ((json['blindBoxCampaigns'] as Array<any>).map(BlindBoxCampaignDtoFromJSON)),
+        'bestPromotion': json['bestPromotion'] == null ? undefined : PromotionalCampaignDtoFromJSON(json['bestPromotion']),
         'isVisible': json['isVisible'] == null ? undefined : json['isVisible'],
         'toys': json['toys'] == null ? undefined : ((json['toys'] as Array<any>).map(ToyDtoFromJSON)),
         'skus': json['skus'] == null ? undefined : ((json['skus'] as Array<any>).map(StockKeepingUnitDtoFromJSON)),
@@ -171,6 +185,7 @@ export function BlindBoxDtoToJSONTyped(value?: BlindBoxDto | null, ignoreDiscrim
         'description': value['description'],
         'images': value['images'] == null ? undefined : ((value['images'] as Array<any>).map(ImageDtoToJSON)),
         'blindBoxCampaigns': value['blindBoxCampaigns'] == null ? undefined : ((value['blindBoxCampaigns'] as Array<any>).map(BlindBoxCampaignDtoToJSON)),
+        'bestPromotion': PromotionalCampaignDtoToJSON(value['bestPromotion']),
         'isVisible': value['isVisible'],
         'toys': value['toys'] == null ? undefined : ((value['toys'] as Array<any>).map(ToyDtoToJSON)),
         'skus': value['skus'] == null ? undefined : ((value['skus'] as Array<any>).map(StockKeepingUnitDtoToJSON)),

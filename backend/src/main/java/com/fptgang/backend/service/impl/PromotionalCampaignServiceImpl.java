@@ -6,13 +6,20 @@ import com.fptgang.backend.repository.PromotionalCampaignRepos;
 import com.fptgang.backend.service.PromotionalCampaignService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.EntityUtil;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -82,7 +89,7 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
             existing.getBlindBoxCampaigns().forEach(blindBoxCampaign ->
             {
                 if (campaign.getBlindBoxCampaigns().stream().noneMatch(b -> Objects.equals(b.getBlindBox().getBlindBoxId(), blindBoxCampaign.getBlindBox().getBlindBoxId()))) {
-                    blindBoxCampaign.setIsVisible(false);
+//                    blindBoxCampaign.setIsVisible(false);
                     log.info("Deleted blind box campaign {}", blindBoxCampaign.getBlindBox().getBlindBoxId());
                 }
             });
@@ -112,8 +119,27 @@ public class PromotionalCampaignServiceImpl implements PromotionalCampaignServic
     }
 
     @Override
-    public Page<PromotionalCampaign> getAll(ListParams params) {
+    public Page<PromotionalCampaign> getAll(ListParams params, LocalDateTime fromDate, LocalDateTime toDate) {
         var spec = params.<PromotionalCampaign>toSpec();
+        if (fromDate != null || toDate != null) {
+            spec = spec.and(overlapsWith(fromDate, toDate));
+        }
         return promotionalCampaignRepos.findAll(spec, params.getPageable());
+    }
+
+    private static Specification<PromotionalCampaign> overlapsWith(LocalDateTime fromDate, LocalDateTime toDate) {
+        return (Root<PromotionalCampaign> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (fromDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(cb.literal(fromDate), root.get("endDate")));
+            }
+
+            if (toDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("startDate"), cb.literal(toDate)));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 }

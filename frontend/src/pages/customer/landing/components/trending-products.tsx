@@ -1,59 +1,81 @@
 import React from "react";
-import { Card, Typography, Row, Col, Button, Tag, Carousel, Spin } from "antd";
-import { ThunderboltOutlined, StarOutlined, ShoppingOutlined } from "@ant-design/icons";
-import { useList, useGo } from "@refinedev/core";
-import { BlindBoxDto, StockKeepingUnitDto } from "../../../../../generated";
-import { useCart } from "../../../../hooks/useCart";
+import {
+  Button,
+  Card,
+  Col,
+  notification,
+  Row,
+  Spin,
+  Tag,
+  Typography
+} from "antd";
+import {
+  ShoppingOutlined,
+  StarOutlined,
+  ThunderboltOutlined
+} from "@ant-design/icons";
+import {useCustom, useGo} from "@refinedev/core";
+import {BlindBoxDto, TrendingProductDto} from "../../../../../generated";
+import {useCart} from "../../../../hooks/useCart";
 
-const { Title, Text } = Typography;
+const {Title, Text} = Typography;
+
+enum TrendingInterval {
+  DAY = "DAY",
+  WEEK = "WEEK",
+  MONTH = "MONTH",
+}
 
 const TrendingProducts: React.FC = () => {
-  const { addToCart } = useCart();
+  const {addToCart} = useCart();
   const go = useGo();
-  
-  const { data, isLoading, isError } = useList<BlindBoxDto>({
-    resource: "blind-boxes",   
-    pagination: {
-      pageSize: 4
+
+  const {data, isLoading, isError} = useCustom<TrendingProductDto[]>({
+    url: "sales/trending-products",
+    method: "get",
+    config: {
+      query: {
+        interval: TrendingInterval.DAY,
+      },
     },
-    sorters: [
-      {
-        field: "createdAt",
-        order: "desc"
-      }
-    ],
-    meta: {
-      include: ["skus", "images", "blindBoxCampaigns"]
-    }
+    onError: (error) => {
+      console.error("Error fetching trending products:", error);
+      notification.error({
+        message: "Error loading trending products",
+        description: "Unable to load trending products at this time. Please try again later.",
+        placement: "topRight",
+        duration: 5,
+      });
+    },
   });
 
   // Helper function to calculate the current price
   const calculateCurrentPrice = (product: BlindBoxDto): number => {
     if (!product.skus || product.skus.length === 0) return 0;
-    
+
     // Get the first SKU's price as base price
     const basePrice = product.skus[0].price || 0;
-    
+
     // Check if there's an active campaign
     const hasActiveCampaign = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
     if (!hasActiveCampaign) return basePrice;
-    
+
     // Since we can't access discountRate directly, return base price
     return basePrice;
   };
 
   const handleAddToCart = (e: React.MouseEvent, product: BlindBoxDto) => {
     e.stopPropagation(); // Prevent card click event from triggering
-    
+
     if (!product.skus || product.skus.length === 0) return;
-    
+
     const sku = product.skus[0];
     const currentPrice = calculateCurrentPrice(product);
-    
+
     // Find active campaign if exists
     const hasActiveCampaign = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
     const activePromotionalCampaign = hasActiveCampaign ? product.blindBoxCampaigns?.[0]?.promotionalCampaignId : undefined;
-    
+
     addToCart({
       skuId: sku.skuId || 0,
       name: product.name || '',
@@ -69,18 +91,19 @@ const TrendingProducts: React.FC = () => {
 
   const handleCardClick = (product: BlindBoxDto) => {
     if (product.blindBoxId) {
-      go({ to: `/products/${product.blindBoxId}` });
+      go({to: `/products/${product.blindBoxId}`});
     }
   };
 
   const handleViewMoreDeals = () => {
-    go({ to: '/products' });
+    go({to: '/products'});
   };
 
   if (isError) {
     return (
       <div className="py-8 text-center">
-        <Text type="danger">Error loading flash deals. Please try again later.</Text>
+        <Text type="danger">Error loading flash deals. Please try again
+          later.</Text>
       </div>
     );
   }
@@ -88,7 +111,7 @@ const TrendingProducts: React.FC = () => {
   if (isLoading) {
     return (
       <div className="py-8 text-center">
-        <Spin size="large" />
+        <Spin size="large"/>
       </div>
     );
   }
@@ -97,12 +120,12 @@ const TrendingProducts: React.FC = () => {
     <div className="py-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <ThunderboltOutlined className="text-2xl text-yellow-500" />
+          <ThunderboltOutlined className="text-2xl text-yellow-500"/>
           <Title level={2} className="!mb-0">Flash Deals</Title>
         </div>
-        <Button 
-          type="link" 
-          icon={<StarOutlined />} 
+        <Button
+          type="link"
+          icon={<StarOutlined/>}
           onClick={handleViewMoreDeals}
         >
           View More Deals
@@ -114,7 +137,7 @@ const TrendingProducts: React.FC = () => {
           const currentPrice = calculateCurrentPrice(product);
           const hasDiscount = product.blindBoxCampaigns && product.blindBoxCampaigns.length > 0;
           const subTotal = product.skus?.[0]?.price || 0;
-          
+
           return (
             <Col xs={12} sm={12} md={6} key={product.blindBoxId}>
               <Card
@@ -152,7 +175,7 @@ const TrendingProducts: React.FC = () => {
                       </div>
                       <Button
                         type="primary"
-                        icon={<ShoppingOutlined />}
+                        icon={<ShoppingOutlined/>}
                         block
                         onClick={(e) => handleAddToCart(e, product)}
                         disabled={!product.skus || product.skus.length === 0 || !product.skus[0].stock}
