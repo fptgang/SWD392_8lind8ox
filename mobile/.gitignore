@@ -49,3 +49,4 @@ app.*.map.json
 *.env
 /ios/
 /android/app/.cxx/
+/android/app/.cxx/
