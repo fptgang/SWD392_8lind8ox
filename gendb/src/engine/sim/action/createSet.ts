@@ -5,7 +5,7 @@ import {Slot, SlotState} from "../../model/Slot";
 import {SlotPool} from "../../pool/slot";
 
 export function createSet(date: Date) {
-  const sku = SkuPool.pickSku(date, 1);
+  const sku = SkuPool.pickSku(date, 2);
   if (!sku) return
 
   const set = new Set({
