@@ -241,7 +241,7 @@ export const EditAccountsDrawer: React.FC<EditAccountsDrawerProps> = ({
                   >
                     <Select
                       placeholder="Select role"
-                      options={ROLE_OPTIONS}
+                      options={ROLE_OPTIONS.filter(r => r.value !== 'ADMIN')}
                       className="w-full"
                       showSearch
                       optionFilterProp="label"

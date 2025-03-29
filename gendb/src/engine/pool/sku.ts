@@ -10,11 +10,11 @@ export class skuPool {
     this.skus.push(sku);
   }
 
-  pickSku(date: Date, matchSpecCount: number): Sku | null {
+  pickSku(date: Date, minSpecCount: number): Sku | null {
     const eligible = this.skus.filter(sku => {
       const matchesDate = sku.createdAt <= date;
       const isVisible = sku.isVisible;
-      const matchesSpecCount = sku.specCount == matchSpecCount;
+      const matchesSpecCount = sku.specCount >= minSpecCount;
       return matchesDate && isVisible && matchesSpecCount;
     });
 

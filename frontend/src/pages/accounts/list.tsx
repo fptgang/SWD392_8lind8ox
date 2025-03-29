@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BaseRecord, useMany, CanAccess } from "@refinedev/core";
+import {BaseRecord, useMany, CanAccess, useGetIdentity} from "@refinedev/core";
 import {
   useTable,
   List,
@@ -39,6 +39,7 @@ import { EditAccountsDrawer } from "./components/EditAccountDrawer";
 const { Text } = Typography;
 
 export const AccountsList: React.FC = () => {
+  const { data: user } = useGetIdentity<AccountDto>();
   const [showDrawer, setShowDrawer] = useState(false);
   const [editDrawer, setEditDrawer] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState<string>();
@@ -89,7 +90,7 @@ export const AccountsList: React.FC = () => {
 
   return (
     <>
-      <List>
+      <List  headerButtons={user?.role ==="STAFF" &&<></>}>
         <div className="mb-6">
           <Input.Search
             placeholder="Search accounts..."
@@ -237,7 +238,7 @@ export const AccountsList: React.FC = () => {
                 </Space>
               )}>
                 <Space size="middle">
-                  <Tooltip title="Edit Account">
+                  {user?.role === 'ADMIN' && <Tooltip title="Edit Account">
                     <Button
                       type="link"
                       size="small"
@@ -251,7 +252,7 @@ export const AccountsList: React.FC = () => {
                       }}
                       disabled={record.role === "ADMIN"}
                     />
-                  </Tooltip>
+                  </Tooltip>}
                   <Tooltip title="View Details">
                     <Button
                       type="link"
@@ -267,7 +268,7 @@ export const AccountsList: React.FC = () => {
                     />
                   </Tooltip>
                   <CanAccess resource="accounts" action="delete">
-                    <Tooltip title="Delete Account">
+                    {user?.role === 'ADMIN' && <Tooltip title="Delete Account">
                       <DeleteButton
                         hideText
                         size="small"
@@ -279,7 +280,7 @@ export const AccountsList: React.FC = () => {
                         about="Are you sure you want to delete this account? This action cannot be undone."
                         disabled={record.role === "ADMIN"}
                       />
-                    </Tooltip>
+                    </Tooltip>}
                   </CanAccess>
                 </Space>
               </CanAccess>
