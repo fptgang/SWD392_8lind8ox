@@ -166,3 +166,5 @@ paths:
     $ref: "path/stats/top-selling-sku.yml"
   /sales/trending-products:
     $ref: "path/sales/trending-products.yml"
+  /sales/hot-sale-products:
+    $ref: "path/sales/hot-sale-products.yml"

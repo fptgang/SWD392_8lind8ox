@@ -1,11 +1,12 @@
 package com.fptgang.backend.controller;
 
 import com.fptgang.backend.api.controller.BlindBoxesApi;
-import com.fptgang.backend.api.model.*;
+import com.fptgang.backend.api.model.BlindBoxDto;
+import com.fptgang.backend.api.model.GetBlindBoxes200Response;
+import com.fptgang.backend.api.model.Pageable;
 import com.fptgang.backend.mapper.BlindBoxMapper;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Account;
-
 import com.fptgang.backend.service.BlindBoxService;
 import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
@@ -17,9 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.NativeWebRequest;
-
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -67,7 +65,7 @@ public class BlindboxController implements BlindBoxesApi {
     @Override
     public ResponseEntity<GetBlindBoxes200Response> getBlindBoxes(Pageable pageable, String filter, String search) {
         log.info("Getting blindboxes");
-        var includeInvisible =  (SecurityUtil.getCurrentUserRole() != null);
+        var includeInvisible = SecurityUtil.hasPermission(Account.Role.ADMIN);
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)

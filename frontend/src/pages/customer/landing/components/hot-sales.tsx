@@ -1,53 +1,30 @@
 import React from "react";
-import {
-  Card,
-  Typography,
-  Row,
-  Col,
-  Button,
-  Tag,
-  Carousel,
-  Spin,
-  notification
-} from "antd";
+import { Card, Typography, Row, Col, Button, Tag, Carousel, Spin } from "antd";
 import { ThunderboltOutlined, StarOutlined, ShoppingOutlined } from "@ant-design/icons";
-import {useList, useGo, useCustom} from "@refinedev/core";
-import {
-  BlindBoxDto,
-  StockKeepingUnitDto,
-  TrendingProductDto
-} from "../../../../../generated";
+import { useList, useGo } from "@refinedev/core";
+import { BlindBoxDto, StockKeepingUnitDto } from "../../../../../generated";
 import { useCart } from "../../../../hooks/useCart";
 
 const { Title, Text } = Typography;
 
-enum TrendingInterval {
-  DAY = "DAY",
-  WEEK = "WEEK",
-  MONTH = "MONTH",
-}
-
 const TrendingProducts: React.FC = () => {
   const { addToCart } = useCart();
   const go = useGo();
-
-  const {data, isLoading, isError} = useCustom<TrendingProductDto[]>({
-    url: "sales/trending-products",
-    method: "get",
-    config: {
-      query: {
-        interval: TrendingInterval.DAY,
-      },
+  
+  const { data, isLoading, isError } = useList<BlindBoxDto>({
+    resource: "blind-boxes",   
+    pagination: {
+      pageSize: 4
     },
-    onError: (error) => {
-      console.error("Error fetching trending products:", error);
-      notification.error({
-        message: "Error loading trending products",
-        description: "Unable to load trending products at this time. Please try again later.",
-        placement: "topRight",
-        duration: 5,
-      });
-    },
+    sorters: [
+      {
+        field: "createdAt",
+        order: "desc"
+      }
+    ],
+    meta: {
+      include: ["skus", "images", "blindBoxCampaigns"]
+    }
   });
 
   // Helper function to calculate the current price

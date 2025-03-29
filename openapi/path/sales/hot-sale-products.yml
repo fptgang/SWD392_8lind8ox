@@ -1,0 +1,23 @@
+get:
+  summary: Get hot sale products
+  operationId: getHotSaleProducts
+  security:
+    - bearerAuth: []
+  parameters:
+    - $ref: '../../param/pageable.yml#/Pageable'
+    - $ref: '../../param/filter.yml#/Filter'
+    - $ref: '../../param/search.yml#/Search'
+  responses:
+    '200':
+      description: Current hot sale products
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../../component/page.yml#/Page'
+              - type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '../../model/blindbox.yml#/BlindBoxDto'
