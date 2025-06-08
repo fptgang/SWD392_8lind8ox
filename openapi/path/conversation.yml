@@ -1,0 +1,55 @@
+get:
+  summary: Get a list of conversations
+  operationId: getConversations
+  security:
+    - bearerAuth: []
+  parameters:
+    - $ref: '../param/pageable.yml#/Pageable'
+    - $ref: '../param/filter.yml#/Filter'
+    - $ref: '../param/search.yml#/Search'
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../component/page.yml#/Page'
+              - type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '../model/conversation.yml#/ConversationDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'
+
+post:
+  summary: Create a new conversation
+  operationId: createConversation
+  security:
+    - bearerAuth: []
+  requestBody:
+    description: Conversation to create
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../model/conversation.yml#/ConversationDto'
+  responses:
+    '201':
+      description: The conversation was created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../model/conversation.yml#/ConversationDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'

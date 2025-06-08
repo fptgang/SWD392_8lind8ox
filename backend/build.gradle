@@ -86,6 +86,10 @@ dependencies {
 	implementation 'com.github.spullara.mustache.java:compiler:0.9.10'
 	implementation 'org.jetbrains:annotations:26.0.2'
 
+	// Add these dependencies to your build.gradle
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+
 	dependencyManagement {
 		imports {
 			mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")

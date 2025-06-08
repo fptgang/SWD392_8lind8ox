@@ -1,0 +1,13 @@
+ConversationDto:
+  type: object
+  properties:
+    conversationId:
+      type: integer
+      format: int64
+    user:
+      $ref: 'account.yml#/AccountDto'
+    staff:
+      $ref: 'account.yml#/AccountDto'
+    createdAt:
+      type: string
+      format: date-time

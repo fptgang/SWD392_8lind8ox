@@ -1,0 +1,32 @@
+# conversation-conversationId-assign-staff.yml
+put:
+  summary: Assign staff to conversation
+  operationId: assignStaffToConversation
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: conversationId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: staffId
+      in: query
+      required: true
+      schema:
+        type: integer
+        format: int64
+  responses:
+    '200':
+      description: The operation was successful
+      content:
+        application/json:
+          schema:
+            $ref: '../model/conversation.yml#/ConversationDto'
+    '400':
+      description: The operation failed
+      content:
+        application/json:
+          schema:
+            $ref: '../component/error.yml#/ErrorResponse'

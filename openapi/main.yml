@@ -53,6 +53,10 @@ components:
       $ref: "model/shipping-info.yml#/ShippingInfoDto"
     VoucherDto:
       $ref: "model/voucher.yml#/VoucherDto"
+    MessageDto:
+      $ref: "model/message.yml#/MessageDto"
+    ConversationDto:
+      $ref: "model/conversation.yml#/ConversationDto"
 paths:
   /auth/me:
     $ref: "path/auth/me.yml"
@@ -168,3 +172,11 @@ paths:
     $ref: "path/sales/trending-products.yml"
   /sales/hot-sale-products:
     $ref: "path/sales/hot-sale-products.yml"
+  /conversations:
+    $ref: "path/conversation.yml"
+  /conversations/{conversationId}:
+    $ref: "path/conversation-conversationId.yml"
+  /conversations/find-or-create:
+    $ref: "path/conversation-find-or-create.yml"
+  /conversations/{conversationId}/assign-staff:
+    $ref: "path/conversation-conversationId-assign-staff.yml"
