@@ -1,0 +1,16 @@
+MessageDto:
+  type: object
+  properties:
+    messageId:
+      type: integer
+      format: int64
+    conversationId:
+      type: integer
+      format: int64
+    sender:
+      $ref: 'account.yml#/AccountDto'
+    content:
+      type: string
+    createdAt:
+      type: string
+      format: date-time

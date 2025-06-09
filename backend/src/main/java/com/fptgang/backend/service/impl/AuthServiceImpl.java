@@ -9,8 +9,10 @@ import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.mapper.AccountMapper;
 import com.fptgang.backend.mapper.DetailLevel;
 import com.fptgang.backend.model.Account;
+import com.fptgang.backend.model.Conversation;
 import com.fptgang.backend.model.RefreshToken;
 import com.fptgang.backend.repository.AccountRepos;
+import com.fptgang.backend.repository.ConversationRepos;
 import com.fptgang.backend.security.PasswordEncoderConfig;
 import com.fptgang.backend.service.*;
 import com.fptgang.backend.util.Fingerprint;
@@ -44,18 +46,19 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordResetTokenService passwordResetTokenService;
     private final AccountMapper accountMapper;
     private final BlindBoxConfig blindBoxConfig;
+    private final ConversationRepos conversationRepos;
 
     @Value("${FRONTEND_CORS_SERVER}")
     private String link;
 
     public AuthServiceImpl(AccountRepos accountRepos,
-            JwtService tokenService,
-            RefreshTokenService refreshTokenService,
-            PasswordEncoderConfig passwordEncoderConfig,
-            EmailService emailService,
-            PasswordResetTokenService passwordResetTokenService,
-            AccountMapper accountMapper,
-            BlindBoxConfig blindBoxConfig) {
+                           JwtService tokenService,
+                           RefreshTokenService refreshTokenService,
+                           PasswordEncoderConfig passwordEncoderConfig,
+                           EmailService emailService,
+                           PasswordResetTokenService passwordResetTokenService,
+                           AccountMapper accountMapper,
+                           BlindBoxConfig blindBoxConfig, ConversationRepos conversationRepos) {
         this.accountRepos = accountRepos;
         this.tokenService = tokenService;
         this.refreshTokenService = refreshTokenService;
@@ -64,6 +67,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordResetTokenService = passwordResetTokenService;
         this.accountMapper = accountMapper;
         this.blindBoxConfig = blindBoxConfig;
+        this.conversationRepos = conversationRepos;
     }
 
     @Override
@@ -78,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
         if (passwordEncoderConfig.bcryptEncoder().matches(password, account.getPassword())) {
             Result result = authenticate(account, fingerprint);
             log.info("User {} logged using Email-Password: token = {}", email, result.jwt);
+            createConversation(account);
             return result.dto;
         } else {
             throw new InvalidInputException("Password is incorrect");
@@ -116,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
 
             Result result = authenticate(account, fingerprint);
             log.info("User {} logged using Google account: token = {}", email, result.jwt);
-
+            createConversation(account);
             return result.dto;
         } catch (GeneralSecurityException | IOException e) {
             log.error("Error Google login {}", e.getMessage());
@@ -129,7 +134,7 @@ public class AuthServiceImpl implements AuthService {
         if (accountRepos.findByEmail(dto.getEmail()).isEmpty()) {
             if (dto.getPassword().equals(dto.getConfirmPassword())) {
                 String hashPass = passwordEncoderConfig.bcryptEncoder().encode(dto.getPassword());
-                accountRepos.save(
+                Account account = accountRepos.save(
                         Account.builder()
                                 .email(dto.getEmail())
                                 .firstName(dto.getFirstName())
@@ -138,6 +143,7 @@ public class AuthServiceImpl implements AuthService {
                                 .password(hashPass)
                                 .build());
                 log.info("User {} registered using Email-Password", dto.getEmail());
+                createConversation(account);
                 return true;
             } else {
                 throw new InvalidInputException("Password and Confirm Password do not match");
@@ -235,4 +241,16 @@ public class AuthServiceImpl implements AuthService {
     private record Result(String jwt, AuthResponseDto dto) {
     }
 
+    private void createConversation(Account account) {
+        if (account.getRole() == Account.Role.CUSTOMER) {
+            if (conversationRepos.existsByUser_AccountId(account.getAccountId())) {
+                log.info("Conversation already exists for user: {}", account.getEmail());
+                return;
+            }
+            Conversation conversation = new Conversation();
+            conversation.setUser(account);
+            conversationRepos.save(conversation);
+            log.info("Creating conversation for user: {}", account.getEmail());
+        }
+    }
 }
