@@ -4,6 +4,7 @@ import com.fptgang.backend.exception.InvalidInputException;
 import com.fptgang.backend.model.Message;
 import com.fptgang.backend.repository.MessageRepos;
 import com.fptgang.backend.service.MessageService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.EntityUtil;
 import com.fptgang.backend.util.OpenApiHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +32,9 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public Page<Message> getAll(Pageable pageable, String filter) {
-        var spec = OpenApiHelper.<Message>filterToSpec(filter);
+    public Page<Message> getAll(ListParams  params) {
+        var pageable = params.getPageable();
+        var spec = params.<Message>toSpec();
         return messageRepos.findAll(spec,pageable);
     }
 
