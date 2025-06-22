@@ -83,14 +83,14 @@ public class MessageController {
                 throw new AccessDeniedException("You don't have access to this conversation");
             }
         }
+        // Build filter to include conversation ID
+        String conversationFilter = "conversation.id,eq," + conversationId ;
         var params = ListParams.builder()
                 .pageable(OpenApiHelper.toPageable(pageable))
                 .search(search)
-                .filter(filter).build();
+                .filter(conversationFilter).build();
 
-        // Build filter to include conversation ID
-        String conversationFilter = filter != null ? filter + ",conversation.id:eq:" + conversationId
-                : "conversation.id:eq:" + conversationId;
+
 
         Page<MessageDto> res = messageService.getAll(params)
                 .map(message -> messageMapper.toDTO(message, DetailLevel.FULL));
