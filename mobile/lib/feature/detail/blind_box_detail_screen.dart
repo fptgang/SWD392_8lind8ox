@@ -24,7 +24,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.initState();
     // Dispatch the event in initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      getIt<BlindBoxDetailBloc>().add(FetchBlindBoxDetail(widget.blindBoxId));
+      if (context.mounted) {
+        context
+            .read<BlindBoxDetailBloc>()
+            .add(FetchBlindBoxDetail(widget.blindBoxId));
+      }
     });
   }
 
