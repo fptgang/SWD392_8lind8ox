@@ -1,0 +1,39 @@
+post:
+  summary: Handle PayOS webhook
+  operationId: handlePaymentWebhook
+  description: Endpoint to receive PayOS payment status updates
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Payment order code
+            desc:
+              type: string
+              description: Payment description
+            success:
+              type: boolean
+              description: Payment success status
+            cancel:
+              type: boolean
+              description: Payment cancellation status
+            data:
+              type: object
+              description: Payment data object
+  responses:
+    "200":
+      description: Webhook processed successfully
+      content:
+        text/plain:
+          schema:
+            type: string
+    "400":
+      description: Webhook processing failed
+      content:
+        text/plain:
+          schema:
+            type: string

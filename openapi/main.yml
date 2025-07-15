@@ -14,11 +14,11 @@ components:
 
   parameters:
     Pageable:
-      $ref: 'param/pageable.yml#/Pageable'
+      $ref: "param/pageable.yml#/Pageable"
     Filter:
-      $ref: 'param/filter.yml#/Filter'
+      $ref: "param/filter.yml#/Filter"
     Search:
-      $ref: 'param/search.yml#/Search'
+      $ref: "param/search.yml#/Search"
 
   schemas:
     RefreshTokenDto:
@@ -180,3 +180,7 @@ paths:
     $ref: "path/conversation-find-or-create.yml"
   /conversations/{conversationId}/assign-staff:
     $ref: "path/conversation-conversationId-assign-staff.yml"
+  /payos/webhook:
+    $ref: "path/payos-webhook.yml"
+  /payos/webhook/confirm:
+    $ref: "path/payos-webhook-confirm.yml"

@@ -13,4 +13,4 @@ CartDto:
       format: int64
     paymentMethod:
       type: string
-      enum: [INTERNAL_WALLET, PAYPAL, VNPAY]
+      enum: [INTERNAL_WALLET, PAYPAL, VNPAY, PAYOS]

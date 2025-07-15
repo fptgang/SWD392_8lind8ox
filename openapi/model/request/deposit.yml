@@ -9,4 +9,4 @@ DepositDto:
       format: double
     paymentMethod:
       type: string
-      enum: [ VNPAY ]
+      enum: [VNPAY, PAYOS]

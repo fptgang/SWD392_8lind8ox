@@ -3,6 +3,7 @@ package com.fptgang.backend.service.impl;
 import com.fptgang.backend.model.Account;
 import com.fptgang.backend.model.Transaction;
 import com.fptgang.backend.service.AccountService;
+import com.fptgang.backend.service.PayOSService;
 import com.fptgang.backend.service.PaymentService;
 import com.fptgang.backend.service.TransactionService;
 import com.fptgang.backend.service.VNPAYService;
@@ -18,27 +19,37 @@ import java.time.LocalDateTime;
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
     private final VNPAYService vnpayService;
+    private final PayOSService payOSService;
     private final TransactionService transactionService;
     private final AccountService accountService;
 
     public PaymentServiceImpl(VNPAYService vnpayService,
-                              TransactionService transactionService,
-                              AccountService accountService) {
+            PayOSService payOSService,
+            TransactionService transactionService,
+            AccountService accountService) {
         this.vnpayService = vnpayService;
+        this.payOSService = payOSService;
         this.transactionService = transactionService;
         this.accountService = accountService;
     }
 
     @Override
     public String generatePaymentLinkForDeposit(Transaction.PaymentMethod method,
-                                                BigDecimal amount,
-                                                long transactionId) {
+            BigDecimal amount,
+            long transactionId) {
         if (method == Transaction.PaymentMethod.VNPAY) {
             return vnpayService.createVNPay(
                     "Deposit txn " + transactionId,
                     amount,
                     "Deposit#" + transactionId,
-                    SecurityUtil.getRemoteAddress()
+                    SecurityUtil.getRemoteAddress());
+        } else if (method == Transaction.PaymentMethod.PAYOS || method == Transaction.PaymentMethod.PAYPAL) {
+            return payOSService.createPayOSPayment(
+                    "Deposit transaction " + transactionId,
+                    amount,
+                    String.valueOf(transactionId),
+                    null, // Use default return URL from config
+                    null // Use default cancel URL from config
             );
         }
         throw new UnsupportedOperationException(method.name());
@@ -46,15 +57,22 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public String generatePaymentLinkForOrder(Transaction.PaymentMethod method,
-                                              BigDecimal amount,
-                                              long transactionId,
-                                              long orderId) {
+            BigDecimal amount,
+            long transactionId,
+            long orderId) {
         if (method == Transaction.PaymentMethod.VNPAY) {
             return vnpayService.createVNPay(
                     "Deposit txn " + transactionId + " for order " + orderId,
                     amount,
                     "DepositOrder#" + transactionId + "#" + orderId,
-                    SecurityUtil.getRemoteAddress()
+                    SecurityUtil.getRemoteAddress());
+        } else if (method == Transaction.PaymentMethod.PAYOS|| method == Transaction.PaymentMethod.PAYPAL) {
+            return payOSService.createPayOSPayment(
+                    "Payment for order " + orderId + " (transaction " + transactionId + ")",
+                    amount,
+                    String.valueOf(transactionId),
+                    null, // Use default return URL from config
+                    null // Use default cancel URL from config
             );
         }
         throw new UnsupportedOperationException(method.name());

@@ -298,6 +298,10 @@ public class OrderServiceImpl implements OrderService {
     private PlaceOrderResult payOrderByExternalMethod(Order order,
                                                       Transaction.PaymentMethod paymentMethod
     ) {
+
+        paymentMethod = paymentMethod == Transaction.PaymentMethod.VNPAY ?
+                Transaction.PaymentMethod.VNPAY :
+                Transaction.PaymentMethod.PAYPAL;
         // Create DEPOSIT transaction
         Transaction depositTransaction = new Transaction();
         depositTransaction.setAccount(order.getAccount());

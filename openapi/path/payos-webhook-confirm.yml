@@ -1,0 +1,33 @@
+post:
+  summary: Confirm webhook URL with PayOS
+  operationId: confirmWebhook
+  security:
+    - bearerAuth: []
+  description: Endpoint to confirm webhook URL with PayOS (Admin only)
+  parameters:
+    - name: webhookUrl
+      in: query
+      required: true
+      description: Webhook URL to confirm
+      schema:
+        type: string
+        format: uri
+  responses:
+    "200":
+      description: Webhook confirmation successful
+      content:
+        text/plain:
+          schema:
+            type: string
+    "400":
+      description: Webhook confirmation failed
+      content:
+        text/plain:
+          schema:
+            type: string
+    "403":
+      description: Access denied - Admin role required
+      content:
+        application/json:
+          schema:
+            $ref: "../component/error.yml#/ErrorResponse"

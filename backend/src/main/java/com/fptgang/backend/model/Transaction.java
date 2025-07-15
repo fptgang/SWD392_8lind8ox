@@ -74,6 +74,7 @@ public class Transaction {
     public enum PaymentMethod {
         INTERNAL_WALLET,
         PAYPAL,
-        VNPAY
+        VNPAY,
+        PAYOS
     }
 }

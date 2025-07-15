@@ -85,11 +85,13 @@ dependencies {
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation 'com.github.spullara.mustache.java:compiler:0.9.10'
 	implementation 'org.jetbrains:annotations:26.0.2'
+	implementation 'vn.payos:payos-java:1.0.1'
 
 	// Add these dependencies to your build.gradle
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
 
+//	implementation 'com.mysql:mysql-connector-j:9.3.0'
 	dependencyManagement {
 		imports {
 			mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")

@@ -11,7 +11,7 @@ TransactionDto:
       enum: [DEPOSIT, ORDER]
     paymentMethod:
       type: string
-      enum: [INTERNAL_WALLET, PAYPAL, VNPAY]
+      enum: [INTERNAL_WALLET, PAYPAL, VNPAY, PAYOS]
     createdAt:
       type: string
       format: date-time
@@ -32,4 +32,4 @@ TransactionDto:
       format: int64
     status:
       type: string
-      enum: [ PENDING, SUCCESS, FAILED ]
+      enum: [PENDING, SUCCESS, FAILED]
