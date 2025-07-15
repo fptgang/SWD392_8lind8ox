@@ -133,6 +133,7 @@ public class OpenApiHelper {
         Map<String, String[]> filterMap = new LinkedHashMap<>();
 
         for (String str : filters) {
+            LOGGER.debug("Filter: {}", str);
             String[] filterParts = str.split(",", 3);
 
             String filterValue = filterParts.length > 2 ?

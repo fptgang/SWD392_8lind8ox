@@ -9,6 +9,7 @@ import com.fptgang.backend.model.Conversation;
 import com.fptgang.backend.model.Message;
 import com.fptgang.backend.service.ConversationService;
 import com.fptgang.backend.service.MessageService;
+import com.fptgang.backend.service.params.ListParams;
 import com.fptgang.backend.util.OpenApiHelper;
 import com.fptgang.backend.util.SecurityUtil;
 import jakarta.transaction.Transactional;
@@ -82,14 +83,16 @@ public class MessageController {
                 throw new AccessDeniedException("You don't have access to this conversation");
             }
         }
-
-        var page = OpenApiHelper.toPageable(pageable);
-
         // Build filter to include conversation ID
-        String conversationFilter = filter != null ? filter + ",conversation.id:eq:" + conversationId
-                : "conversation.id:eq:" + conversationId;
+        String conversationFilter = "conversation.id,eq," + conversationId ;
+        var params = ListParams.builder()
+                .pageable(OpenApiHelper.toPageable(pageable))
+                .search(search)
+                .filter(conversationFilter).build();
 
-        Page<MessageDto> res = messageService.getAll(page, conversationFilter)
+
+
+        Page<MessageDto> res = messageService.getAll(params)
                 .map(message -> messageMapper.toDTO(message, DetailLevel.FULL));
 
         return new ResponseEntity<>(res, HttpStatus.OK);

@@ -145,7 +145,7 @@ public class ConversationController implements ConversationsApi {
     @Override
     public ResponseEntity<ConversationDto> updateConversation(
             Long conversationId,
-            ConversationDto conversationDto) {
+                ConversationDto conversationDto) {
 
         log.info("Updating conversation: {}", conversationId);
 
