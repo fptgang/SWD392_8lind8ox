@@ -91,7 +91,7 @@ dependencies {
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
 
-	implementation 'com.mysql:mysql-connector-j:9.3.0'
+//	implementation 'com.mysql:mysql-connector-j:9.3.0'
 	dependencyManagement {
 		imports {
 			mavenBom("com.azure.spring:spring-cloud-azure-dependencies:5.19.0")
